@@ -5,10 +5,10 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar.jsx'
 import { SidebarTrigger } from '@/components/ui/sidebar.jsx';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu.jsx';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.jsx';
-import { useTheme } from '@/contexts/ThemeContext.jsx';
+import { useTheme } from '../../contexts/ThemeContext';
 import { Bell, Search, Settings, User, LogOut, Moon, Sun, Palette, Check } from 'lucide-react';
 
-const AdminHeader = () => {
+const SuperAdminHeader = () => {
   const { currentTheme, currentAppType, adminUser, setTheme } = useTheme();
   const [isDarkMode, setIsDarkMode] = React.useState(false);
 
@@ -155,4 +155,4 @@ const AdminHeader = () => {
   );
 };
 
-export default AdminHeader;
+export default SuperAdminHeader;

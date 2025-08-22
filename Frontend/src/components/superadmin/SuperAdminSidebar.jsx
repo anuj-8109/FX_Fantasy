@@ -25,7 +25,7 @@ import {
   Wallet
 } from 'lucide-react';
 
-const AdminSidebar = () => {
+const SuperAdminSidebar = () => {
   const location = useLocation();
   const { state } = useSidebar();
   const { currentAppType } = useTheme();
@@ -83,4 +83,4 @@ const AdminSidebar = () => {
   );
 };
 
-export default AdminSidebar;
+export default SuperAdminSidebar;

@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress.jsx';
 import { useTheme } from '@/contexts/ThemeContext.jsx';
 import { BarChart3, Users, ShoppingCart, DollarSign, TrendingUp, Activity } from 'lucide-react';
 
-const AdminDashboard = () => {
+const SuperAdminDashboard = () => {
   const { currentAppType, currentTheme, adminUser } = useTheme();
 
   const getStatsForAppType = () => {
@@ -176,4 +176,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default SuperAdminDashboard;
