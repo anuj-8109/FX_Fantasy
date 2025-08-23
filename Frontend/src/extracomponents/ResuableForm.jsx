@@ -10,7 +10,7 @@ const renderField = (field) => {
           as="textarea"
           name={field.name}
           placeholder={field.placeholder}
-          className="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-lg bg-white text-gray-700 placeholder-gray-400 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
       );
 
@@ -20,7 +20,7 @@ const renderField = (field) => {
           {({ field: formikField, form }) => (
             <select
               {...formikField}
-              className="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg bg-white text-gray-700 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               onChange={(e) => {
                 form.setFieldValue(field.name, e.target.value);
                 if (field.onChange) {
@@ -47,7 +47,7 @@ const renderField = (field) => {
               isMulti
               name={field.name}
               options={field.options}
-              className="w-full"
+              className="w-full text-black"
               classNamePrefix="react-select"
               value={field.options.filter((option) =>
                 value.includes(option.value)
@@ -107,7 +107,8 @@ const renderField = (field) => {
           type="email"
           name={field.name}
           id={field.name}
-          className="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder={field.placeholder}
+          className="w-full rounded-lg bg-white text-gray-700 placeholder-gray-400 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
       );
 
@@ -119,7 +120,7 @@ const renderField = (field) => {
           placeholder={field.placeholder}
           id={field.name}
           autoComplete={field.autoComplete}
-          className="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-lg bg-white text-gray-700 placeholder-gray-400 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
       );
 
@@ -131,7 +132,7 @@ const renderField = (field) => {
               type="file"
               name={field.name}
               multiple
-              className="w-full rounded-lg border border-gray-300 p-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg bg-white text-gray-700 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
               onChange={(event) => {
                 form.setFieldValue(field.name, event.currentTarget.files);
               }}
@@ -147,7 +148,7 @@ const renderField = (field) => {
           name={field.name}
           placeholder={field.placeholder}
           autoComplete={field.autoComplete}
-          className="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-lg bg-white text-gray-700 placeholder-gray-400 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
       );
   }
@@ -220,7 +221,7 @@ const ReusableForm = ({
           <div className="col-span-2">
             <button
               type="submit"
-              className="px-4 py-2 mt-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              className="w-full px-4 py-3 mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:from-blue-700 hover:to-indigo-700 transition"
             >
               {SubmitBtn ? SubmitBtn : "Submit"}
             </button>

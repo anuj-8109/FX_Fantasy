@@ -3,11 +3,8 @@ import * as Yup from "yup";
 import ReusableForm from "../extracomponents/ResuableForm";
 import { useNavigate } from "react-router-dom";
 
-
 const Register = () => {
-
-	  const navigate=useNavigate();
-	
+  const navigate = useNavigate();
 
   const initialValues = {
     FullName: "",
@@ -66,19 +63,37 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-lg bg-white shadow-lg rounded-2xl p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-blue-50 to-white relative overflow-hidden">
+      {/* Decorative Background Shapes */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-300/30 rounded-full blur-3xl"></div>
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-300/30 rounded-full blur-3xl"></div>
+
+      {/* Glassmorphism Card */}
+      <div className="w-full max-w-lg relative z-10 bg-white/70 backdrop-blur-xl shadow-xl rounded-3xl p-10 border border-blue-100">
+        {/* Heading */}
+        <div className="text-center mb-6">
+          <h1 className="text-4xl font-extrabold text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text drop-shadow-md">
+            FX Fantasy
+          </h1>
+          <p className="text-gray-600 text-sm mt-2 tracking-wide">
+            Create your account and start your journey
+          </p>
+        </div>
+
+        {/* Form */}
         <ReusableForm
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={onSubmit}
           fields={fields}
         />
-        <p className="text-sm text-center mt-4">
+
+        {/* Footer */}
+        <p className="text-sm text-center mt-6 text-gray-600">
           Already have an account?{" "}
-           <button
+          <button
             onClick={() => navigate("/")}
-            className="text-blue-600 hover:underline"
+            className="text-blue-600 hover:text-blue-500 font-semibold transition"
           >
             Login here
           </button>

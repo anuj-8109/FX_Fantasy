@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 connectDB();
-connectRedis();
+// connectRedis();
 
 routes(app);
 app.use(errorHandler);
