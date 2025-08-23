@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Invoice</title>
+</head>
+<body style="font-family: Arial, sans-serif; font-size: 14px; width: 900px; margin: auto; border: 2px solid black; border-collapse: collapse; box-sizing: border-box;">
+
+  <h3 style="text-align: center; margin: 0;">*Original For Recipient*</h3>
+<h3 style="text-align: center; margin: 0;border-top: 1px solid black;"> <strong>{{company_website_title}}</strong><br></h3>
+  <!-- Header -->
+  <div style="display: flex; justify-content: space-between; border: 1px solid black;  margin-top: 10px;">
+    <div style="width: 30%; display:flex;align-items: center;justify-content: center;margin: 0px auto;">
+      <img src="{{logo}}" alt="{{company_website_title}}" style="width: 130px;">
+    </div>
+    <div style="width: 70%; text-align: left; font-size: 13px;border-left:1px solid; padding:20px">
+     
+      <strong>Address</strong><br>
+      {{company_address}}<br>
+      E-Mail - <a href="mailto:{{company_email}}">{{company_email}}</a><br>
+      Phone - {{company_phone}}<br>
+     
+    </div>
+  </div>
+
+  <!-- Invoice Info -->
+   
+
+  <table style="width: 100%; border: 1px solid black; border-collapse: collapse; margin-bottom: 10px;">
+    <tr>
+        <td style="border: 1px solid black; padding: 5px;text-align: right;" colspan="2"> <strong>GSTIN:</strong> 
+  </td>
+  <td style="border: 1px solid black; padding: 5px;" colspan="2">{{gstin}}</td>
+</tr>
+<tr>
+  <td colspan="4" style="border: 1px solid black; "><h3 style="text-align: center; margin: 0px;">Tax Invoice</h3></td></tr>
+  <tr>
+      <td style="border: 1px solid black; padding: 5px;"><strong>Invoice No</strong></td>
+      <td style="border: 1px solid black;">{{orderNumber}}</td>
+      <td style="border: 1px solid black;"><strong>Invoice date:</strong></td>
+      <td style="border: 1px solid black;">{{created_at}}</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid black;"><strong>Reverse Charge (Y/N)</strong></td>
+      <td style="border: 1px solid black;">N</td>
+      <td style="border: 1px solid black;"><strong>State:</strong></td>
+      <td style="border: 1px solid black;">{{bstate}}</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid black;"><strong>SAC CODE:</strong></td>
+      <td style="border: 1px solid black;">{{saccode}}</td>
+      <td style="border: 1px solid black;"><strong>State Code:</strong></td>
+      <td style="border: 1px solid black;">{{settingstatecode}}</td>
+    </tr>
+  </table>
+
+  <!-- Bill to Party -->
+  <h3 style="margin-bottom: 5px;">Bill to Party</h3>
+  <table style="width: 100%; border: 1px solid black; border-collapse: collapse;">
+    <tr>
+      <td style="border: 1px solid black; padding: 5px;" colspan="3"><strong>Client Name:</strong></td>
+      <td style="border: 1px solid black;">{{clientname}}</td>
+      <td style="border: 1px solid black;"><strong>Mobile no:</strong></td>
+      <td style="border: 1px solid black;">{{PhoneNo}}</td>
+    </tr>
+  
+    <tr>
+      <td style="border: 1px solid black;"><strong>City:</strong></td>
+      <td style="border: 1px solid black;">{{city}}</td>
+     <td style="border: 1px solid black;"><strong>State:</strong></td>
+      <td style="border: 1px solid black;">{{state}}</td>
+     <td style="border: 1px solid black;"><strong>State Code:</strong></td>
+      <td style="border: 1px solid black;">{{statecode}}</td>
+    </tr>
+    <tr>
+      
+      
+    </tr>
+    <tr>
+      <td style="border: 1px solid black;"><strong>Email:</strong></td>
+      <td style="border: 1px solid black;" colspan="2">{{email}}</td>
+       <td style="border: 1px solid black;"><strong>PAN:</strong></td>
+      <td style="border: 1px solid black;" colspan="2">{{panno}}</td>
+     
+    </tr>
+  
+  </table>
+
+  <!-- Product Table -->
+  <br>
+  <table style="width: 100%; border: 1px solid black; border-collapse: collapse;">
+    <thead>
+      <tr style="background-color: #f2f2f2;">
+        <th style="border: 1px solid black; padding: 5px;">S. No.</th>
+        <th style="border: 1px solid black; padding: 5px;">Product</th>
+        <th style="border: 1px solid black; padding: 5px;">Duration</th>
+        <th style="border: 1px solid black; padding: 5px;">Rate</th>
+        <th style="border: 1px solid black; padding: 5px;">Received Amount</th>
+        <th style="border: 1px solid black; padding: 5px;">Discount</th>
+        <th style="border: 1px solid black; padding: 5px;">Taxable Values</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border: 1px solid black; padding: 5px;">1</td>
+        <td style="border: 1px solid black; padding: 5px;">{{planname}}</td>
+        <td style="border: 1px solid black; padding: 5px;">{{validity}}</td>
+        <td style="border: 1px solid black; padding: 5px;">{{plan_price}}</td>
+        <td style="border: 1px solid black; padding: 5px;">{{total}}</td>
+        <td style="border: 1px solid black; padding: 5px;">{{discount}}</td>
+        <td style="border: 1px solid black; padding: 5px;">{{ttotal}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Amounts -->
+  
+
+  <table style="width: 100%; border-collapse: collapse;border: 1px solid black; border-collapse: collapse;">
+    <tr>
+         <td style="padding: 5px;border: 1px solid black;"><strong>Total Invoice amount in words:</strong> {{totalworld}}</td>
+          <td  style="padding: 5px;border: 1px solid black;"><strong>CGST({{pergstsc}}%)</strong></td>
+           <td style="padding: 5px;border: 1px solid black;">{{sgst}}</td>
+     
+    </tr>
+   
+    <tr>
+<td style="padding: 5px;border: 1px solid black;"><strong>Remark</strong></td>
+      <td style="padding: 5px;border: 1px solid black;"><strong>SGST({{pergstsc}}%)</strong></td>
+      <td style="padding: 5px;border: 1px solid black;">{{cgst}}</td>
+    </tr>
+    <tr >
+        <td rowspan="3" style="padding: 5px;border: 1px solid black;"> </td>
+      <td style="padding: 5px;border: 1px solid black;"><strong> IGST({{pergstt}}%)</strong></td>
+      <td style="padding: 5px;border: 1px solid black;">{{igst}}</td>
+    </tr>
+    <tr>
+       
+      <td style="padding: 5px;border: 1px solid black;"><strong>Total Amount GST</strong></td>
+      <td style="padding: 5px;border: 1px solid black;">{{gstamount}}</td>
+    </tr>
+    <tr>
+       
+      <td style="padding: 5px;border: 1px solid black;"><strong>Total Amount after Tax</strong></td>
+      <td style="padding: 5px;border: 1px solid black;">{{total}}</td>
+    </tr>
+     <tr>
+       
+      <td style="padding: 5px;border: 1px solid black; text-align:center;"><strong>Terms & Condition</strong></td>
+      <td colspan="2" style="padding: 5px;border: 1px solid black;">Total Amount after Tax {{total}} </td>
+    </tr>
+  </table>
+
+  <p><strong>Remark:</strong>  {{invoicetnc}}</p>
+
+</body>
+</html>
