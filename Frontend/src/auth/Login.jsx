@@ -1,65 +1,60 @@
 import React from "react";
-import { useNavigate, Link } from "react-router-dom";
+import * as Yup from "yup";
+import ReusableForm from "../extracomponents/ResuableForm";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [error, setError] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      await login({ email, password });
-      navigate("/superadmin/superadmindashboard", { replace: true });
-    } catch (err) {
-      setError(err?.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
+  const navigate=useNavigate();
+
+  const initialValues = {
+    UserName: "",
+    password: "",
+  };
+
+  const validationSchema = Yup.object({
+    UserName: Yup.string().required("Username is required"),
+    password: Yup.string().required("Password is required"),
+  });
+
+  const fields = [
+    {
+      name: "UserName",
+      label: "UserName*",
+      type: "text",
+    },
+    {
+      name: "password",
+      label: "Password*",
+      type: "password",
+    },
+  ];
+
+  const onSubmit = (values) => {
+    const formData = new FormData();
+    formData.append("UserName", values.UserName);
+    formData.append("password", values.password);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="max-w-sm w-full p-6 space-y-4">
-        <h1 className="text-xl font-semibold">Login</h1>
-        <form onSubmit={onSubmit} className="space-y-3">
-          <div className="space-y-1">
-            <label className="text-sm">Email</label>
-            <Input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              type="email"
-              placeholder="you@example.com"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="text-sm">Password</label>
-            <Input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              type="password"
-              placeholder="••••••••"
-            />
-          </div>
-          {error ? <p className="text-sm text-red-600">{error}</p> : null}
-          <Button disabled={loading} type="submit" className="w-full">
-            {loading ? "Logging in..." : "Login"}
-          </Button>
-        </form>
-        <p className="text-sm text-muted-foreground">
-          No account?{" "}
-          <Link className="underline" to="/register">
-            Register
-          </Link>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="w-full max-w-lg bg-white shadow-lg rounded-2xl p-8">
+        <ReusableForm
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={onSubmit}
+          fields={fields}
+        />
+        <p className="text-sm text-center mt-4">
+          Don’t have an account?{" "}
+       <button
+            onClick={() => navigate("/register")}
+            className="text-blue-600 hover:underline"
+          >
+            Register here
+          </button>
         </p>
-      </Card>
+      </div>
     </div>
   );
 };

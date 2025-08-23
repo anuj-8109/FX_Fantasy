@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import * as Yup from "yup";
 import ReusableForm from "../extracomponents/ResuableForm";
+import { useNavigate } from "react-router-dom";
+
 
 const Register = () => {
+
+	  const navigate=useNavigate();
+	
+
   const initialValues = {
     FullName: "",
     Email: "",
@@ -49,24 +55,14 @@ const Register = () => {
     },
   ];
 
-//   const onSubmit = (values) => {
-//     const formData = new FormData();
-
-//     formData.append("FullName", values.FullName);
-//     formData.append("Email", values.Email);
-//     formData.append("PhoneNo", values.PhoneNo);
-//     formData.append("UserName", values.UserName);
-//     formData.append("password", values.password);
-//   };
-
-
   const onSubmit = (values) => {
-    const existingUsers = JSON.parse(localStorage.getItem("users")) || [];
-    existingUsers.push(values);
-    localStorage.setItem("users", JSON.stringify(existingUsers));
+    const formData = new FormData();
 
-    alert("Registration successful! Data saved in localStorage ✅");
-    console.log("Saved Data:", values);
+    formData.append("FullName", values.FullName);
+    formData.append("Email", values.Email);
+    formData.append("PhoneNo", values.PhoneNo);
+    formData.append("UserName", values.UserName);
+    formData.append("password", values.password);
   };
 
   return (
@@ -78,6 +74,15 @@ const Register = () => {
           onSubmit={onSubmit}
           fields={fields}
         />
+        <p className="text-sm text-center mt-4">
+          Already have an account?{" "}
+           <button
+            onClick={() => navigate("/")}
+            className="text-blue-600 hover:underline"
+          >
+            Login here
+          </button>
+        </p>
       </div>
     </div>
   );
