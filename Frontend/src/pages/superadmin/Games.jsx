@@ -1,20 +1,7 @@
-import React, { useState } from 'react';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { ThemeProvider } from '@/contexts/ThemeContext';
-import AdminSidebar from '@/components/AdminSidebar';
-import AdminHeader from '@/components/AdminHeader';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { Gamepad2, Settings, Clock, Trophy, Users, DollarSign } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import React from "react";
 
 const Games = () => {
-  const { toast } = useToast();
-  const [gameSettings, setGameSettings] = useState({
+  const gameSettings = {
     maxContestsPerUser: 5,
     minEntryFee: 1,
     maxEntryFee: 1000,
@@ -22,228 +9,136 @@ const Games = () => {
     autoApproveWithdrawals: false,
     enableReferralSystem: true,
     referralBonus: 10,
-    maxPlayersPerContest: 1000
-  });
+    maxPlayersPerContest: 1000,
+  };
 
   const gameTypes = [
     {
-      id: 'stock-trading',
-      name: 'Stock Trading',
-      description: 'Fantasy stock trading contests',
+      id: "stock-trading",
+      name: "Stock Trading",
+      description: "Fantasy stock trading contests",
       isActive: true,
       players: 5420,
-      avgDuration: '7 days',
-      avgPrize: '$500'
+      avgDuration: "7 days",
+      avgPrize: "$500",
     },
     {
-      id: 'crypto-trading',
-      name: 'Crypto Trading',
-      description: 'Cryptocurrency trading contests',
+      id: "crypto-trading",
+      name: "Crypto Trading",
+      description: "Cryptocurrency trading contests",
       isActive: true,
       players: 3210,
-      avgDuration: '3 days',
-      avgPrize: '$250'
+      avgDuration: "3 days",
+      avgPrize: "$250",
     },
     {
-      id: 'forex-trading',
-      name: 'Forex Trading',
-      description: 'Foreign exchange trading contests',
+      id: "forex-trading",
+      name: "Forex Trading",
+      description: "Foreign exchange trading contests",
       isActive: false,
       players: 1890,
-      avgDuration: '5 days',
-      avgPrize: '$300'
+      avgDuration: "5 days",
+      avgPrize: "$300",
     },
     {
-      id: 'commodity-trading',
-      name: 'Commodity Trading',
-      description: 'Commodity futures trading contests',
+      id: "commodity-trading",
+      name: "Commodity Trading",
+      description: "Commodity futures trading contests",
       isActive: true,
       players: 980,
-      avgDuration: '14 days',
-      avgPrize: '$750'
-    }
+      avgDuration: "14 days",
+      avgPrize: "$750",
+    },
   ];
 
-  const handleSettingChange = (key, value) => {
-    setGameSettings(prev => ({ ...prev, [key]: value }));
-  };
-
-  const handleSaveSettings = () => {
-    toast({
-      title: "Settings Saved",
-      description: "Game settings have been successfully updated.",
-    });
-  };
-
-  const toggleGameType = (gameId) => {
-    toast({
-      title: "Game Type Updated",
-      description: `Game type has been ${gameTypes.find(g => g.id === gameId)?.isActive ? 'disabled' : 'enabled'}.`,
-    });
-  };
-
   return (
-    <ThemeProvider>
-      <SidebarProvider>
-        <div className="min-h-screen flex w-full">
-          <AdminSidebar />
-          <div className="flex-1 flex flex-col">
-            <AdminHeader />
-            <main className="flex-1 p-6 overflow-auto">
-              <div className="space-y-6">
-                <h1 className="text-3xl font-bold">Game Settings</h1>
+    <div className="min-h-screen p-6 bg-gray-100">
+      <h1 className="text-3xl font-bold mb-6">Game Settings</h1>
 
-                {/* Game Types */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Gamepad2 className="h-5 w-5" />
-                      Game Types
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid gap-4 md:grid-cols-2">
-                      {gameTypes.map((gameType) => (
-                        <div key={gameType.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-semibold">{gameType.name}</h3>
-                              <Badge variant={gameType.isActive ? 'default' : 'secondary'}>
-                                {gameType.isActive ? 'Active' : 'Inactive'}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground mb-2">
-                              {gameType.description}
-                            </p>
-                            <div className="flex items-center gap-4 text-sm">
-                              <span className="flex items-center gap-1">
-                                <Users className="h-3 w-3" />
-                                {gameType.players.toLocaleString()}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                {gameType.avgDuration}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Trophy className="h-3 w-3" />
-                                {gameType.avgPrize}
-                              </span>
-                            </div>
-                          </div>
-                          <Switch
-                            checked={gameType.isActive}
-                            onCheckedChange={() => toggleGameType(gameType.id)}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* General Settings */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Settings className="h-5 w-5" />
-                      General Settings
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="maxContests">Max Contests Per User</Label>
-                        <Input
-                          id="maxContests"
-                          type="number"
-                          value={gameSettings.maxContestsPerUser}
-                          onChange={(e) => handleSettingChange('maxContestsPerUser', parseInt(e.target.value))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="contestDuration">Contest Duration (days)</Label>
-                        <Input
-                          id="contestDuration"
-                          type="number"
-                          value={gameSettings.contestDuration}
-                          onChange={(e) => handleSettingChange('contestDuration', parseInt(e.target.value))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="minEntryFee">Minimum Entry Fee ($)</Label>
-                        <Input
-                          id="minEntryFee"
-                          type="number"
-                          value={gameSettings.minEntryFee}
-                          onChange={(e) => handleSettingChange('minEntryFee', parseInt(e.target.value))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="maxEntryFee">Maximum Entry Fee ($)</Label>
-                        <Input
-                          id="maxEntryFee"
-                          type="number"
-                          value={gameSettings.maxEntryFee}
-                          onChange={(e) => handleSettingChange('maxEntryFee', parseInt(e.target.value))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="maxPlayers">Max Players Per Contest</Label>
-                        <Input
-                          id="maxPlayers"
-                          type="number"
-                          value={gameSettings.maxPlayersPerContest}
-                          onChange={(e) => handleSettingChange('maxPlayersPerContest', parseInt(e.target.value))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="referralBonus">Referral Bonus (%)</Label>
-                        <Input
-                          id="referralBonus"
-                          type="number"
-                          value={gameSettings.referralBonus}
-                          onChange={(e) => handleSettingChange('referralBonus', parseInt(e.target.value))}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                          <Label>Auto-approve Withdrawals</Label>
-                          <p className="text-sm text-muted-foreground">
-                            Automatically approve withdrawal requests
-                          </p>
-                        </div>
-                        <Switch
-                          checked={gameSettings.autoApproveWithdrawals}
-                          onCheckedChange={(checked) => handleSettingChange('autoApproveWithdrawals', checked)}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                          <Label>Enable Referral System</Label>
-                          <p className="text-sm text-muted-foreground">
-                            Allow users to refer friends and earn bonuses
-                          </p>
-                        </div>
-                        <Switch
-                          checked={gameSettings.enableReferralSystem}
-                          onCheckedChange={(checked) => handleSettingChange('enableReferralSystem', checked)}
-                        />
-                      </div>
-                    </div>
-
-                    <Button onClick={handleSaveSettings} className="w-full">
-                      Save Settings
-                    </Button>
-                  </CardContent>
-                </Card>
+      {/* Game Types */}
+      <div className="bg-white shadow rounded-xl p-6 mb-6">
+        <h2 className="text-xl font-semibold mb-4">Game Types</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          {gameTypes.map((gameType) => (
+            <div
+              key={gameType.id}
+              className="p-4 border rounded-lg hover:shadow transition"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold">{gameType.name}</h3>
+                <span
+                  className={`text-xs px-2 py-1 rounded ${
+                    gameType.isActive
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  {gameType.isActive ? "Active" : "Inactive"}
+                </span>
               </div>
-            </main>
+              <p className="text-sm text-gray-600 mb-2">
+                {gameType.description}
+              </p>
+              <div className="flex flex-wrap gap-4 text-sm">
+                <span>Players: {gameType.players.toLocaleString()}</span>
+                <span>Avg Duration: {gameType.avgDuration}</span>
+                <span>Avg Prize: {gameType.avgPrize}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* General Settings */}
+      <div className="bg-white shadow rounded-xl p-6">
+        <h2 className="text-xl font-semibold mb-4">General Settings</h2>
+        <div className="grid gap-4 md:grid-cols-2 text-sm">
+          <div className="p-3 border rounded-lg">
+            <strong>Max Contests Per User: </strong>
+            {gameSettings.maxContestsPerUser}
+          </div>
+          <div className="p-3 border rounded-lg">
+            <strong>Contest Duration (days): </strong>
+            {gameSettings.contestDuration}
+          </div>
+          <div className="p-3 border rounded-lg">
+            <strong>Minimum Entry Fee ($): </strong>
+            {gameSettings.minEntryFee}
+          </div>
+          <div className="p-3 border rounded-lg">
+            <strong>Maximum Entry Fee ($): </strong>
+            {gameSettings.maxEntryFee}
+          </div>
+          <div className="p-3 border rounded-lg">
+            <strong>Max Players Per Contest: </strong>
+            {gameSettings.maxPlayersPerContest}
+          </div>
+          <div className="p-3 border rounded-lg">
+            <strong>Referral Bonus (%): </strong>
+            {gameSettings.referralBonus}
           </div>
         </div>
-      </SidebarProvider>
-    </ThemeProvider>
+
+        <div className="grid gap-4 mt-6 text-sm">
+          <div className="p-3 border rounded-lg flex justify-between">
+            <span>
+              <strong>Auto-approve Withdrawals: </strong>
+            </span>
+            <span>
+              {gameSettings.autoApproveWithdrawals ? "Enabled" : "Disabled"}
+            </span>
+          </div>
+          <div className="p-3 border rounded-lg flex justify-between">
+            <span>
+              <strong>Referral System: </strong>
+            </span>
+            <span>
+              {gameSettings.enableReferralSystem ? "Enabled" : "Disabled"}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
