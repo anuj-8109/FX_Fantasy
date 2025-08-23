@@ -9,11 +9,10 @@ import {
   Gamepad,
   CreditCard,
   Shield,
-  Settings
+  Settings,
 } from "lucide-react";
 
-const SuperAdminSidebar = () => {
-  const menuItems = [
+const menuItems = [
   { title: "Dashboard", url: "/superadmin/superadmindashboard", icon: <Home /> },
   { title: "User Management", url: "/superadmin/user", icon: <Users /> },
   { title: "Game Analytics", url: "/superadmin/analytics", icon: <BarChart2 /> },
@@ -25,29 +24,35 @@ const SuperAdminSidebar = () => {
   { title: "Settings", url: "/superadmin/settings", icon: <Settings /> },
 ];
 
+const SuperAdminSidebar = ({ collapsed }) => {
   return (
-    <aside className="w-64 bg-white shadow-lg min-h-screen border-r p-4">
-      <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
-       Super Admin
-      </h2>
-      <nav className="space-y-2">
-        {menuItems.map((item) => (
-          <NavLink
-            key={item.title}
-            to={item.url}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded-lg transition ${
-                isActive
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`
-            }
-          >
-            <span>{item.icon}</span>
-            {item.title}
-          </NavLink>
-        ))}
-      </nav>
+    <aside
+      className={`bg-white border-r shadow-lg min-h-screen transition-all duration-300 ${
+        collapsed ? "w-20" : "w-64"
+      }`}
+    >
+      <div className="flex flex-col p-4 h-full">
+        {/* Menu Items */}
+        <nav className="flex-1 space-y-2">
+          {menuItems.map((item) => (
+            <NavLink
+              key={item.title}
+              to={item.url}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 ${
+                  isActive
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`
+              }
+              title={collapsed ? item.title : ""}
+            >
+              <span>{item.icon}</span>
+              {!collapsed && <span>{item.title}</span>}
+            </NavLink>
+          ))}
+        </nav>
+      </div>
     </aside>
   );
 };

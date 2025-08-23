@@ -1,15 +1,16 @@
 import React, { useState } from "react";
-import { Sun, Moon, Bell } from "lucide-react";
+import { Sun, Moon, Bell, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
-const SuperAdminHeader = () => {
+const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
 
   const adminUser = {
-    name: "Shakti Kumar",
+    name: "Shakti Jat",
     email: "shakti@example.com",
     role: "super-admin",
   };
@@ -38,28 +39,61 @@ const SuperAdminHeader = () => {
     },
   ];
 
+  const unreadCount = notifications.filter((n) => n.unread).length;
+
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
     document.documentElement.classList.toggle("dark");
   };
 
-  const unreadCount = notifications.filter((n) => n.unread).length;
+  const toggleSidebar = () => setCollapsed(!collapsed);
+
+  const Logout = async () => {
+    const confirm = await Swal.fire({
+      title: "Are you sure you want to logout?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Yes, logout",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    localStorage.clear();
+
+    await Swal.fire(
+      "Logged out",
+      "You have been successfully logged out.",
+      "success"
+    );
+    navigate("/");
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
-        <div
-          className="flex items-center gap-3 cursor-pointer"
-          onClick={() => navigate("/superadmin/superadmindashboard")}
-        >
-          {/* <img src="/images/logo.png" alt="FX Fantasy" className="w-8 h-8" />{" "} */}
-          {/* apna logo yaha */}
-          <div>
+        {/* Left: Sidebar toggle + Logo */}
+        <div className="flex items-center gap-3">
+          <div
+            className="cursor-pointer"
+            onClick={() => navigate("/superadmin/superadmindashboard")}
+          >
             <h1 className="font-bold text-lg">FX Fantasy</h1>
           </div>
+
+          {/* Sidebar toggle button moved after heading */}
+          <button
+            onClick={toggleSidebar}
+            className="p-2 rounded hover:bg-gray-100"
+          >
+            {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          </button>
         </div>
 
+        {/* Right: Theme toggle, notifications, profile */}
         <div className="flex items-center gap-4">
+          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
             className="p-2 rounded-full hover:bg-gray-100"
@@ -68,6 +102,7 @@ const SuperAdminHeader = () => {
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
 
+          {/* Notifications */}
           <div className="relative">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
@@ -107,6 +142,7 @@ const SuperAdminHeader = () => {
             )}
           </div>
 
+          {/* Profile */}
           <div className="relative">
             <button
               onClick={() => setShowProfile(!showProfile)}
@@ -130,7 +166,10 @@ const SuperAdminHeader = () => {
                 >
                   Profile Management
                 </button>
-                <button className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                <button
+                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                  onClick={Logout}
+                >
                   Log Out
                 </button>
               </div>
