@@ -11,17 +11,7 @@ const Contests = () => {
       participants: 45,
       maxParticipants: 100,
       startDate: "2024-07-08T09:00",
-      endDate: "2024-07-14T17:00",
       status: "active",
-      createdAt: "2024-07-01T10:00:00",
-      selectedStocks: ["1", "2", "3", "4", "5"],
-      contestType: "stock_trading",
-      rules: {
-        maxStockSelection: 5,
-        initialBudget: 100000,
-        tradingHours: "9:30 AM - 4:00 PM EST",
-        allowShortSelling: false,
-      },
     },
     {
       id: "2",
@@ -33,17 +23,7 @@ const Contests = () => {
       participants: 23,
       maxParticipants: 50,
       startDate: "2024-07-15T09:00",
-      endDate: "2024-07-22T17:00",
       status: "upcoming",
-      createdAt: "2024-07-02T14:00:00",
-      selectedStocks: ["6", "7", "8"],
-      contestType: "crypto_trading",
-      rules: {
-        maxStockSelection: 3,
-        initialBudget: 50000,
-        tradingHours: "24/7",
-        allowShortSelling: true,
-      },
     },
   ];
 
@@ -65,29 +45,28 @@ const Contests = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-gray-100">
+    <div className="min-h-screen p-6 bg-gray-50">
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Contests</h1>
-          <p className="text-gray-500">
+          <p className="text-gray-600 text-sm">
             Manage trading contests and tournaments
           </p>
         </div>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm">
           + Create Contest
         </button>
       </div>
 
+      {/* Contest List */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {contests.map((contest) => (
-          <div
-            key={contest.id}
-            className="bg-white shadow rounded-xl p-4 hover:shadow-lg transition"
-          >
+          <div key={contest.id} className="p-4 border border-gray-300">
             <div className="flex justify-between items-start mb-2">
               <h2 className="text-lg font-semibold">{contest.name}</h2>
               <span
-                className={`text-xs px-2 py-1 rounded ${
+                className={`text-xs px-2 py-1 ${
                   contest.status === "active"
                     ? "bg-green-100 text-green-700"
                     : contest.status === "upcoming"
@@ -117,10 +96,8 @@ const Contests = () => {
             </div>
 
             <div className="flex gap-2">
-              <button className="flex-1 border px-3 py-1 rounded-lg text-sm">
-                Edit
-              </button>
-              <button className="border px-3 py-1 rounded-lg text-sm text-red-600">
+              <button className="flex-1 border px-3 py-1 text-sm">Edit</button>
+              <button className="border px-3 py-1 text-sm text-red-600">
                 Delete
               </button>
             </div>
