@@ -1,21 +1,17 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import SuperAdminRoute from "./routes/SuperAdminRoute";
-import Login from "./auth/Login";
+// import SuperAdminRoute from "./routes/SuperAdminRoute";
 import AuthRoute from "./routes/AuthRoute";
-import { ThemeProvider } from "./contexts/ThemeContext";
 
 function App() {
   return (
     <>
-    <ThemeProvider>
-        <Router>
+      <Router>
         <Routes>
-        {AuthRoute()}
-        {SuperAdminRoute()}
+          {AuthRoute()}
+          {/* {SuperAdminRoute()} */}
         </Routes>
       </Router>
-    </ThemeProvider>
     </>
   );
 }

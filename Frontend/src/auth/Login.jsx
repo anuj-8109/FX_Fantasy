@@ -1,9 +1,5 @@
 import React from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext.jsx";
-import { Button } from "@/components/ui/button.jsx";
-import { Input } from "@/components/ui/input.jsx";
-import { Card } from "@/components/ui/card.jsx";
 
 const Login = () => {
   const navigate = useNavigate();

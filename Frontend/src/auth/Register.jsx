@@ -1,59 +1,86 @@
-import React from "react"
-import { useNavigate, Link } from "react-router-dom"
-import { useAuth } from "@/contexts/AuthContext.jsx"
-import { Button } from "@/components/ui/button.jsx"
-import { Input } from "@/components/ui/input.jsx"
-import { Card } from "@/components/ui/card.jsx"
+import React, { useState } from "react";
+import * as Yup from "yup";
+import ReusableForm from "../extracomponents/ResuableForm";
 
 const Register = () => {
-	const navigate = useNavigate()
-	const { register } = useAuth()
-	const [name, setName] = React.useState("")
-	const [email, setEmail] = React.useState("")
-	const [password, setPassword] = React.useState("")
-	const [error, setError] = React.useState("")
-	const [loading, setLoading] = React.useState(false)
+  const initialValues = {
+    FullName: "",
+    Email: "",
+    PhoneNo: "",
+    UserName: "",
+    password: "",
+  };
 
-	const onSubmit = async (e) => {
-		e.preventDefault()
-		setError("")
-		setLoading(true)
-		try {
-			await register({ name, email, password })
-			navigate("/", { replace: true })
-		} catch (err) {
-			setError(err?.message || "Registration failed")
-		} finally {
-			setLoading(false)
-		}
-	}
+  const validationSchema = Yup.object({
+    FullName: Yup.string().required("Name is required"),
+    Email: Yup.string().email("Invalid email").required("Email is required"),
+    PhoneNo: Yup.string()
+      .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
+      .required("Phone No is required"),
+    UserName: Yup.string().required("Username is required"),
+    password: Yup.string().required("Password is required"),
+  });
 
-	return (
-		<div className="min-h-screen flex items-center justify-center p-4">
-			<Card className="max-w-sm w-full p-6 space-y-4">
-				<h1 className="text-xl font-semibold">Create account</h1>
-				<form onSubmit={onSubmit} className="space-y-3">
-					<div className="space-y-1">
-						<label className="text-sm">Name</label>
-						<Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
-					</div>
-					<div className="space-y-1">
-						<label className="text-sm">Email</label>
-						<Input value={email} onChange={(e) => setEmail(e.target.value)} required type="email" placeholder="you@example.com" />
-					</div>
-					<div className="space-y-1">
-						<label className="text-sm">Password</label>
-						<Input value={password} onChange={(e) => setPassword(e.target.value)} required type="password" placeholder="••••••••" />
-					</div>
-					{error ? <p className="text-sm text-red-600">{error}</p> : null}
-					<Button disabled={loading} type="submit" className="w-full">{loading ? "Creating..." : "Register"}</Button>
-				</form>
-				<p className="text-sm text-muted-foreground">Already have an account? <Link className="underline" to="/">Login</Link></p>
-			</Card>
-		</div>
-	)
-}
+  const fields = [
+    {
+      name: "FullName",
+      label: "FullName*",
+      type: "text",
+    },
+    {
+      name: "Email",
+      label: "Email*",
+      type: "email",
+    },
+    {
+      name: "PhoneNo",
+      label: "Phone No*",
+      type: "text",
+    },
+    {
+      name: "UserName",
+      label: "UserName*",
+      type: "text",
+    },
+    {
+      name: "password",
+      label: "Password*",
+      type: "password",
+    },
+  ];
 
-export default Register
+//   const onSubmit = (values) => {
+//     const formData = new FormData();
+
+//     formData.append("FullName", values.FullName);
+//     formData.append("Email", values.Email);
+//     formData.append("PhoneNo", values.PhoneNo);
+//     formData.append("UserName", values.UserName);
+//     formData.append("password", values.password);
+//   };
 
 
+  const onSubmit = (values) => {
+    const existingUsers = JSON.parse(localStorage.getItem("users")) || [];
+    existingUsers.push(values);
+    localStorage.setItem("users", JSON.stringify(existingUsers));
+
+    alert("Registration successful! Data saved in localStorage ✅");
+    console.log("Saved Data:", values);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="w-full max-w-lg bg-white shadow-lg rounded-2xl p-8">
+        <ReusableForm
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={onSubmit}
+          fields={fields}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Register;
