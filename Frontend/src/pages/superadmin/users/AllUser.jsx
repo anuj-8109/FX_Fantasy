@@ -46,7 +46,7 @@ const AllUsers = () => {
          console.log("res",res)
 
           if (res?.status) {
-            Swal.fire("Deleted!", "User has been deleted.", "success");
+            Swal.fire("Deleted!",res?.message, "success");
          
           } 
         } catch (err) {

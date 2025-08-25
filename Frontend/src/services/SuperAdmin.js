@@ -31,7 +31,7 @@ export async function AddUser(data, token) {
     }
     return response?.data;
   } catch (error) {
-    console.log(error)
+    return error?.response?.data;
   }
 }
 export async function GetActiveUser(token) {
@@ -74,6 +74,7 @@ export async function DeleteUser(token, id) {
         },
       }
     )
+    return response?.data;
   } catch (error) {
     return error?.response?.data;
   }
