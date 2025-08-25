@@ -8,12 +8,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
-
-  const adminUser = {
-    name: "Shakti Jat",
-    email: "shakti@example.com",
-    role: "super-admin",
-  };
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const notifications = [
     {
@@ -148,7 +143,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
               onClick={() => setShowProfile(!showProfile)}
               className="h-10 w-10 rounded-full bg-blue-600 text-white flex items-center justify-center"
             >
-              {adminUser.name
+              {user?.FullName
                 .split(" ")
                 .map((n) => n[0])
                 .join("")}
@@ -157,8 +152,8 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
             {showProfile && (
               <div className="absolute right-0 mt-2 w-56 bg-white shadow-lg rounded-lg border z-50">
                 <div className="p-3 border-b text-sm">
-                  <p className="font-medium">{adminUser.name}</p>
-                  <p className="text-xs text-gray-500">{adminUser.email}</p>
+                  <p className="font-medium">{user?.FullName}</p>
+                  <p className="text-xs text-gray-500">{user?.Email}</p>
                 </div>
 
                 <button
