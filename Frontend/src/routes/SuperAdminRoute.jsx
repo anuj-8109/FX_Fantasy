@@ -13,6 +13,8 @@ import Settings from "../pages/superadmin/Settings";
 import Trading from "../pages/superadmin/Trading";
 import Users from "../pages/superadmin/Users";
 import Wallet from "../pages/superadmin/Wallet";
+import AllUsers from "../pages/superadmin/users/AllUser";
+import ActiveUser from "../pages/superadmin/users/ActiveUser";
 
 const SuperAdminRoutes = () => {
   return (
@@ -29,6 +31,8 @@ const SuperAdminRoutes = () => {
         <Route path="trading" element={<Trading />} />
         <Route path="user" element={<Users />} />
         <Route path="wallet" element={<Wallet />} />
+        <Route path="alluser" element={<AllUsers />} />
+        <Route path="activeuser" element={<ActiveUser />} />
       </Route>
     </>
   );

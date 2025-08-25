@@ -7,19 +7,16 @@ const SuperAdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-   <div className="flex flex-col min-h-screen">
-  {/* Header at top */}
-  <SuperAdminHeader collapsed={collapsed} setCollapsed={setCollapsed} />
+    <div className="flex flex-col min-h-screen">
+      <SuperAdminHeader collapsed={collapsed} setCollapsed={setCollapsed} />
 
-  {/* Below header: sidebar + content */}
-  <div className="flex flex-1">
-    <SuperAdminSidebar collapsed={collapsed} />
-    <main className="flex-1 ">
-      <Outlet />
-    </main>
-  </div>
-</div>
-
+      <div className="flex flex-1">
+        <SuperAdminSidebar collapsed={collapsed} />
+        <main className="flex-1 ">
+          <Outlet />
+        </main>
+      </div>
+    </div>
   );
 };
 
