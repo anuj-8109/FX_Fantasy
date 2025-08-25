@@ -44,12 +44,15 @@ const User = () => {
       PhoneNo: values.PhoneNo,
       UserName: values.UserName,
       password: values.password,
+      add_by : add_by
     };
 
-    const token = localStorage.getItem("token");
+   const token = localStorage.getItem("token");
+   const add_by = localStorage.getItem("add_by");
+
 
     try {
-      const res = await AddUser(data, token);
+      const res = await AddUser(data,token);
       console.log("API Response:", res);
       Swal.fire("Success!", "User added successfully", "success");
       // navigate("/users");
