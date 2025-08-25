@@ -17,7 +17,7 @@ const AllUsers = () => {
     }
   };
 
-  const handleStatusChange = async (newStatus,userId ) => {
+  const handleStatusChange = async (newStatus, userId) => {
     const isEnabling = newStatus === 1;
 
     const confirm = await Swal.fire({
@@ -36,27 +36,27 @@ const AllUsers = () => {
     if (!confirm.isConfirmed) return;
 
     try {
-      const res = await StatusChange({
+      const response = await StatusChange(
         token,
-        status: newStatus,
-        id: userId,
-      });
+       newStatus,
+        userId,
+      );
 
-      if (res?.status === true || res?.status === "true") {
+      if (response?.status === true || response?.status === "true") {
         await Swal.fire({
           icon: "success",
           title: "Success",
-          text: "User status updated successfully.",
+          text: response?.message||"User status updated successfully.",
           confirmButtonColor: "#2563eb",
         });
 
         setAllUsers((prev) =>
           prev?.map((item) =>
-            item.id === userId ? { ...item, ActiveStatus: newStatus } : item
+            item._id === userId ? { ...item, ActiveStatus: newStatus } : item
           )
         );
       } else {
-        throw new Error(res?.message || "Failed to update status");
+         throw new Error(response?.message || "Failed to update status");
       }
     } catch (err) {
       console.error(err);
@@ -107,7 +107,7 @@ const AllUsers = () => {
             type="checkbox"
             checked={row.ActiveStatus === 1}
             onChange={(e) =>
-              handleStatusChange(row?.id, e.target.checked ? 1 : 0)
+              handleStatusChange( e.target.checked ? "1" :"0",row?._id)
             }
             className="sr-only peer"
           />
