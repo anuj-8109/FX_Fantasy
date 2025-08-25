@@ -80,10 +80,18 @@ export async function DeleteUser(token, id) {
   }
 }
 
-
-
-
-
+export async function GetUserDetails(token, id) {
+  try {
+    const response = await axios.get(`${config.base_url}user/detail/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
 
 
 
