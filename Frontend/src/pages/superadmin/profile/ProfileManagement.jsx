@@ -72,7 +72,7 @@ const ProfileManagement = () => {
 
           <div className="mt-6 flex justify-center">
             <button
-              onClick={() => navigate("/reset-password")}
+              onClick={() => navigate("/superadmin/resetpassword")}
               className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow hover:opacity-90 transition"
             >
               Reset Password

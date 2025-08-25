@@ -160,12 +160,21 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
                   <p className="font-medium">{adminUser.name}</p>
                   <p className="text-xs text-gray-500">{adminUser.email}</p>
                 </div>
+
                 <button
-                  onClick={() => navigate("/superadmin/profile")}
+                  onClick={() => navigate("/superadmin/profilemanagement")}
                   className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                 >
                   Profile Management
                 </button>
+
+                <button
+                  onClick={() => navigate("/superadmin/resetpassword")}
+                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                >
+                  Reset Password
+                </button>
+
                 <button
                   className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                   onClick={Logout}
