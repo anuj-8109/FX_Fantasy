@@ -61,6 +61,7 @@
     "react-resizable-panels": "^2.1.3",
     "react-router-dom": "^6.30.1",
     "react-select": "^5.10.2",
+    "react-toaster": "^0.0.3",
     "recharts": "^2.12.7",
     "sonner": "^1.5.0",
     "swal": "^0.1.0",

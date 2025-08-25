@@ -36,17 +36,13 @@ const AllUsers = () => {
     if (!confirm.isConfirmed) return;
 
     try {
-      const response = await StatusChange(
-        token,
-       newStatus,
-        userId,
-      );
+      const response = await StatusChange(token, newStatus, userId);
 
       if (response?.status === true || response?.status === "true") {
         await Swal.fire({
           icon: "success",
           title: "Success",
-          text: response?.message||"User status updated successfully.",
+          text: response?.message || "User status updated successfully.",
           confirmButtonColor: "#2563eb",
         });
 
@@ -56,14 +52,18 @@ const AllUsers = () => {
           )
         );
       } else {
-         throw new Error(response?.message || "Failed to update status");
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: response?.message || "Failed to update status",
+          confirmButtonColor: "#dc2626",
+        });
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
       await Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to update status.",
+        text: error?.message || "Unexpected error",
         confirmButtonColor: "#dc2626",
       });
     }
@@ -107,7 +107,7 @@ const AllUsers = () => {
             type="checkbox"
             checked={row.ActiveStatus === 1}
             onChange={(e) =>
-              handleStatusChange( e.target.checked ? "1" :"0",row?._id)
+              handleStatusChange(e.target.checked ? "1" : "0", row?._id)
             }
             className="sr-only peer"
           />
