@@ -198,7 +198,7 @@ const ReusableForm = ({
           }}
         >
           {fields.map((field) => (
-            <div key={field.name} className={field.colClass || "col-span-1"}>
+            <div key={field.name} className={field.colClass || "col-span-2"}>
               <div className="flex flex-col space-y-1">
                 {field.type !== "checkbox" && field.type !== "radio" && (
                   <label
