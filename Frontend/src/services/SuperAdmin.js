@@ -13,3 +13,20 @@ export async function GetAllUser(token) {
     return error;
   }
 }
+
+
+// Add User 
+
+export async function AddUser(data,token){
+  try {
+    const response = await axios.post(`${config.base_url}user/add`,data,
+      {
+        headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      });
+     return response?.data;
+  } catch (error) {
+    console.log(error)
+  }
+}

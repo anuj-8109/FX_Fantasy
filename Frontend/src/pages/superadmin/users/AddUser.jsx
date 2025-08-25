@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import * as Yup from "yup";
-import ReusableForm from "../extracomponents/ResuableForm";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import ReusableForm from "../../../extracomponents/ResuableForm";
+import { AddUser } from "../../../services/SuperAdmin"
 
-const AddUser = () => {
+const User = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const initialValues = {
     FullName: "",
@@ -26,69 +28,60 @@ const AddUser = () => {
   });
 
   const fields = [
-    {
-      name: "FullName",
-      label: "FullName*",
-      type: "text",
-    },
-    {
-      name: "Email",
-      label: "Email*",
-      type: "email",
-    },
-    {
-      name: "PhoneNo",
-      label: "Phone No*",
-      type: "text",
-    },
-    {
-      name: "UserName",
-      label: "UserName*",
-      type: "text",
-    },
-    {
-      name: "password",
-      label: "Password*",
-      type: "password",
-    },
+    { name: "FullName", label: "Full Name*", type: "text" },
+    { name: "Email", label: "Email*", type: "email" },
+    { name: "PhoneNo", label: "Phone No*", type: "text" },
+    { name: "UserName", label: "Username*", type: "text" },
+    { name: "password", label: "Password*", type: "password" },
   ];
 
-  const onSubmit = (values) => {
-    const formData = new FormData();
+  const onSubmit = async (values) => {
+    setLoading(true);
 
-    formData.append("FullName", values.FullName);
-    formData.append("Email", values.Email);
-    formData.append("PhoneNo", values.PhoneNo);
-    formData.append("UserName", values.UserName);
-    formData.append("password", values.password);
+    const data = {
+      FullName: values.FullName,
+      Email: values.Email,
+      PhoneNo: values.PhoneNo,
+      UserName: values.UserName,
+      password: values.password,
+    };
 
+    const token = localStorage.getItem("token");
 
-
-
+    try {
+      const res = await AddUser(data, token);
+      console.log("API Response:", res);
+      Swal.fire("Success!", "User added successfully", "success");
+      // navigate("/users");
+    } catch (error) {
+      console.error("API Error:", error);
+      Swal.fire("Error!", "Something went wrong", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-blue-50 to-white relative overflow-hidden">
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-300/30 rounded-full blur-3xl"></div>
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-300/30 rounded-full blur-3xl"></div>
 
-      <div className="w-full max-w-lg relative z-10 bg-white/70 backdrop-blur-xl shadow-xl rounded-3xl p-10 border border-blue-100">
-        <div className="text-center mb-6">
-          <h1 className="text-4xl font-extrabold text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text drop-shadow-md">
-            FX Fantasy
-          </h1>
-          <p className="text-gray-600 text-sm mt-2 tracking-wide">Add User</p>
-        </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-lg bg-white shadow-lg rounded-2xl p-6">
+        <h2 className="text-center text-2xl font-bold mb-4">Add User</h2>
 
         <ReusableForm
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={onSubmit}
           fields={fields}
+          submitButton={{
+            label: loading ? "Adding..." : "Add User",
+            className:
+              "w-full mt-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold shadow-lg hover:opacity-90 transition disabled:opacity-50",
+            disabled: loading,
+          }}
         />
       </div>
     </div>
   );
 };
 
-export default AddUser;
+export default User;
