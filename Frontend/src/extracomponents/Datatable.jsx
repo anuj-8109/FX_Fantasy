@@ -4,7 +4,7 @@ import DataTable from "react-data-table-component";
 const Datatable = ({ columns, data, title }) => {
   const [filterText, setFilterText] = useState("");
 
-  const filteredData = data.filter((item) =>
+  const filteredData = data?.filter((item) =>
     Object.values(item)
       .join(" ")
       .toLowerCase()

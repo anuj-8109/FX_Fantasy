@@ -30,3 +30,30 @@ export async function AddUser(data,token){
     console.log(error)
   }
 }
+export async function GetActiveUser(token) {
+  try {
+    const response = await axios.get(`${config.base_url}user/activeuser`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function StatusChange(token,status,id) {
+  console.log("Token",token);
+  console.log("Status and Id",status,id);
+  try {
+    const response = await axios.post(`${config.base_url}user/change-status`,{ status,id},{
+      headers:{
+        Authorization:`Bearer ${token}`
+      }
+    });
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}

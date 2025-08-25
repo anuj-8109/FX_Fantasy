@@ -48,7 +48,7 @@ const Login = () => {
         const user = response?.data;
         const roleId = user?.Role;
 
-        localStorage.setItem("token", response?.data?.token);
+        localStorage.setItem("token", response?.data?.tokenjwt);
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("roleId", roleId);
 
