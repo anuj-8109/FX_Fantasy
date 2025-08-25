@@ -5,7 +5,7 @@ import { GetAllUser, StatusChange } from "../../../services/SuperAdmin";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { DeleteUser } from "../../../services/SuperAdmin"
+import { DeleteUser, EditUser } from "../../../services/SuperAdmin"
 import toast from "react-hot-toast";
 
 const AllUsers = () => {
@@ -27,17 +27,20 @@ const AllUsers = () => {
 
   const handleEdit = async (row) => {
     const token = localStorage.getItem("token");
+
     const updatedData = {
-      FullName: "Updated Name",
+      FullName: "Updated Name", 
       Email: row.Email,
       PhoneNo: row.PhoneNo,
       UserName: row.UserName,
     };
 
     try {
-      const res = await EditUser(token, row._id, updatedData);
+      const res = await EditUser(token, row._id, updatedData); 
+
       if (res?.status === true) {
         toast.success("User updated successfully!");
+        fetchAllUsers(); // refresh list after edit
       } else {
         toast.error(res?.message || "Failed to update user");
       }
@@ -45,6 +48,7 @@ const AllUsers = () => {
       toast.error("Something went wrong while editing");
     }
   };
+
 
 
   const handleDelete = (row) => {
