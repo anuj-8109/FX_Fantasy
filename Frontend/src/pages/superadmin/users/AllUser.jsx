@@ -3,8 +3,12 @@ import Datatable from "../../../extracomponents/Datatable";
 import { User } from "lucide-react";
 import { GetAllUser, StatusChange } from "../../../services/SuperAdmin";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { DeleteUser } from "../../../services/SuperAdmin"
 
 const AllUsers = () => {
+  const navigate = useNavigate();
   const [allusers, setAllUsers] = useState([]);
   const token = localStorage.getItem("token");
 
@@ -16,6 +20,44 @@ const AllUsers = () => {
       console.log(`Error in fetching All Users`);
     }
   };
+  const addUser = () => {
+    navigate("/superadmin/addUser");
+  };
+
+  const handleEdit = (row) => {
+    console.log("Edit clicked", row);
+    // Your edit logic here
+  };
+
+  const handleDelete = (row) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await DeleteUser(token, row._id);
+         console.log("res",res)
+
+          if (res?.status) {
+            Swal.fire("Deleted!", "User has been deleted.", "success");
+         
+          } 
+        } catch (err) {
+          Swal.fire("Error!", "Server error occurred.", "error");
+        }
+      }
+    });
+  };
+
+
+
 
   const handleStatusChange = async (newStatus, userId) => {
     const isEnabling = newStatus === 1;
@@ -71,7 +113,7 @@ const AllUsers = () => {
 
   useEffect(() => {
     fetchAllUsers();
-  }, []);
+  },[]);
 
   const columns = [
     {
@@ -117,14 +159,44 @@ const AllUsers = () => {
       ),
       sortable: true,
     },
+    {
+      name: "Action",
+      selector: (row) => row?.PhoneNo,
+      sortable: true,
+      cell: (row) => (
+        <div className="flex gap-3">
+
+          <FaEdit
+            className="text-blue-600 cursor-pointer hover:text-blue-800"
+            onClick={() => handleEdit(row)}
+          />
+
+          {/* Delete Icon */}
+          <FaTrash
+            className="text-red-600 cursor-pointer hover:text-red-800"
+            onClick={() => handleDelete(row)}
+          />
+        </div>
+      ),
+    },
   ];
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex items-center gap-2 mb-6">
-        <User className="text-blue-600" />
-        <h1 className="text-2xl font-bold text-gray-800">All Users</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <User className="text-blue-600" />
+          <h1 className="text-2xl font-bold text-gray-800">All Users</h1>
+        </div>
+
+        <button
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm rounded"
+          onClick={addUser}
+        >
+          Add User +
+        </button>
       </div>
+
 
       <div className="bg-white shadow-lg rounded-xl p-4">
         <Datatable columns={columns} data={allusers} title="Users List" />

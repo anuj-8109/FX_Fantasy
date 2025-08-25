@@ -18,18 +18,18 @@ export async function GetAllUser(token) {
 
 // Add User 
 
-export async function AddUser(data,token){
+export async function AddUser(data, token) {
   try {
-    const response = await axios.post(`${config.base_url}user/add`,data,
+    const response = await axios.post(`${config.base_url}user/add`, data,
       {
         headers: {
-        Authorization: `Bearer ${token}`,
-      },
+          Authorization: `Bearer ${token}`,
+        },
       });
-      if(!token){
-        return logout()
-      }
-     return response?.data;
+    if (!token) {
+      return logout()
+    }
+    return response?.data;
   } catch (error) {
     console.log(error)
   }
@@ -65,8 +65,36 @@ export async function StatusChange(token, status, id) {
 }
 
 
+export async function DeleteUser(token, id) {
+  try {
+    const response = await axios.get(`${config.base_url}user/delete/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
 
-const logout =()=>{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const logout = () => {
   localStorage.clear()
-  window.location.href="/"
+  window.location.href = "/"
 }

@@ -60,9 +60,6 @@ const Contests = () => {
       
       </div>
       
-         <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm mb-4">
-          Add user
-        </button>
 
       {/* Contest List */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

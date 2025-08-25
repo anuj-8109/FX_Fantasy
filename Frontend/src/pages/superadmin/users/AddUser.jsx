@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import ReusableForm from "../../../extracomponents/ResuableForm";
 import { AddUser } from "../../../services/SuperAdmin";
+import toast, { Toaster } from "react-hot-toast";
 
 const User = () => {
   const navigate = useNavigate();
@@ -45,8 +46,8 @@ const User = () => {
     try {
       const res = await AddUser(data, token);
       console.log("API Response:", res);
-      Swal.fire("Success!", "User added successfully", "success");
-      // navigate("/users");
+      toast.success("User added successfully!");
+      navigate("/superadmin/alluser");
     } catch (error) {
       console.error("API Error:", error);
       Swal.fire("Error!", "Something went wrong", "error");
