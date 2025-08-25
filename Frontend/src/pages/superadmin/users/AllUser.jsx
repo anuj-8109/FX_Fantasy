@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { DeleteUser } from "../../../services/SuperAdmin"
+import toast from "react-hot-toast";
 
 const AllUsers = () => {
   const navigate = useNavigate();
@@ -24,10 +25,27 @@ const AllUsers = () => {
     navigate("/superadmin/addUser");
   };
 
-  const handleEdit = (row) => {
-    console.log("Edit clicked", row);
-    // Your edit logic here
+  const handleEdit = async (row) => {
+    const token = localStorage.getItem("token");
+    const updatedData = {
+      FullName: "Updated Name",
+      Email: row.Email,
+      PhoneNo: row.PhoneNo,
+      UserName: row.UserName,
+    };
+
+    try {
+      const res = await EditUser(token, row._id, updatedData);
+      if (res?.status === true) {
+        toast.success("User updated successfully!");
+      } else {
+        toast.error(res?.message || "Failed to update user");
+      }
+    } catch (error) {
+      toast.error("Something went wrong while editing");
+    }
   };
+
 
   const handleDelete = (row) => {
     Swal.fire({
@@ -39,25 +57,22 @@ const AllUsers = () => {
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
-      if (result.isConfirmed) {
+      if (result?.isConfirmed) {
         try {
           const token = localStorage.getItem("token");
           const res = await DeleteUser(token, row._id);
-         console.log("res",res)
+          console.log("res", res)
 
           if (res?.status) {
-            Swal.fire("Deleted!",res?.message, "success");
-         
-          } 
+            toast.success("User Deleted successfully!", res?.message, "success");
+            fetchAllUsers();
+          }
         } catch (err) {
           Swal.fire("Error!", "Server error occurred.", "error");
         }
       }
     });
   };
-
-
-
 
   const handleStatusChange = async (newStatus, userId) => {
     const isEnabling = newStatus === 1;
@@ -113,7 +128,7 @@ const AllUsers = () => {
 
   useEffect(() => {
     fetchAllUsers();
-  },[]);
+  }, []);
 
   const columns = [
     {

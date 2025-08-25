@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import ReusableForm from "../../../extracomponents/ResuableForm";
 import { AddUser } from "../../../services/SuperAdmin";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 const User = () => {
   const navigate = useNavigate();
@@ -18,14 +18,27 @@ const User = () => {
     password: "",
   };
 
+  // ✅ Same validation as backend
   const validationSchema = Yup.object({
-    FullName: Yup.string().required("Name is required"),
-    Email: Yup.string().email("Invalid email").required("Email is required"),
+    FullName: Yup.string()
+      .required("Full Name is required")
+      .min(3, "Full Name must be at least 3 characters"),
+    Email: Yup.string()
+      .email("Invalid email format")
+      .required("Email is required"),
     PhoneNo: Yup.string()
       .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
-      .required("Phone No is required"),
-    UserName: Yup.string().required("Username is required"),
-    password: Yup.string().required("Password is required"),
+      .required("Phone number is required"),
+    UserName: Yup.string()
+      .min(3, "Username must be at least 3 characters long")
+      .required("Username is required"),
+    password: Yup.string()
+      .min(8, "Password must be at least 8 characters")
+      .matches(/[A-Z]/, "Password must have at least one uppercase letter")
+      .matches(/[a-z]/, "Password must have at least one lowercase letter")
+      .matches(/\d/, "Password must have at least one number")
+      .matches(/[@$!%*?&#]/, "Password must have at least one special character (@$!%*?&#)")
+      .required("Password is required"),
   });
 
   const fields = [
@@ -45,9 +58,19 @@ const User = () => {
 
     try {
       const res = await AddUser(data, token);
-      console.log("API Response:", res);
-      toast.success("User added successfully!");
-      navigate("/superadmin/alluser");
+
+      // ✅ Backend duplicate check error
+      if (res?.status === false && res?.message?.includes("exists")) {
+        toast.error(res.message);
+        return;
+      }
+
+      if (res?.status === true) {
+        toast.success("User added successfully!");
+        navigate("/superadmin/alluser");
+      } else {
+        toast.error(res?.message || "Something went wrong");
+      }
     } catch (error) {
       console.error("API Error:", error);
       Swal.fire("Error!", "Something went wrong", "error");

@@ -64,7 +64,7 @@ export async function StatusChange(token, status, id) {
   }
 }
 
-
+// Delete User
 export async function DeleteUser(token, id) {
   try {
     const response = await axios.get(`${config.base_url}user/delete/${id}`,
@@ -75,6 +75,22 @@ export async function DeleteUser(token, id) {
       }
     )
     return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+// Update Or Edit User
+export async function EditUser(token,id,data) {
+  try {
+    const response = await axios.put(`${config.base_url}user/update/${id}`,data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+     return response?.data;
   } catch (error) {
     return error?.response?.data;
   }

@@ -50,6 +50,7 @@ const Login = () => {
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("roleId", roleId);
         localStorage.setItem("add_by", response?.data?.id);
+        localStorage.setItem("userId", response?.data?.id);
 
         Swal.fire({
           title: "Login Success",
