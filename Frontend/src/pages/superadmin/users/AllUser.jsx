@@ -6,6 +6,7 @@ import { GetAllUser } from "../../../services/SuperAdmin";
 const AllUsers = () => {
   const [allusers, setAllUsers] = useState([]);
   const token = localStorage.getItem("token");
+console.log("Token",token);
 
   const fetchAllUsers = async () => {
     try {

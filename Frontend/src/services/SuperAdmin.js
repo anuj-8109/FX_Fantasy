@@ -5,7 +5,7 @@ export async function GetAllUser(token) {
   try {
     const response = await axios.get(`${config.base_url}user/list`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: token,
       },
     });
     return response?.data;
