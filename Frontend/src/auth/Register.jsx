@@ -54,6 +54,7 @@ const Register = () => {
       label: "Password*",
       type: "password",
       className: "w-full",
+      colClass: "col-span-2"
     },
   ];
 
