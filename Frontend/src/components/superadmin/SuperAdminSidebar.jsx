@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   Home,
@@ -10,12 +10,34 @@ import {
   CreditCard,
   Shield,
   Settings,
+  ChevronRight,
+  ChevronDown,
+  UserCheck,
 } from "lucide-react";
 
 const menuItems = [
-  { title: "Dashboard", url: "/superadmin/superadmindashboard", icon: <Home /> },
-  { title: "User Management", url: "/superadmin/user", icon: <Users /> },
-  { title: "Game Analytics", url: "/superadmin/analytics", icon: <BarChart2 /> },
+  {
+    title: "Dashboard",
+    url: "/superadmin/superadmindashboard",
+    icon: <Home />,
+  },
+  {
+    title: "User Management",
+    icon: <Users />,
+    children: [
+      { title: "All Users", url: "/superadmin/alluser", icon: <Users /> },
+      {
+        title: "Active Users",
+        url: "/superadmin/activeuser",
+        icon: <UserCheck />,
+      },
+    ],
+  },
+  {
+    title: "Game Analytics",
+    url: "/superadmin/analytics",
+    icon: <BarChart2 />,
+  },
   { title: "Trading Contests", url: "/superadmin/contest", icon: <Award /> },
   { title: "Live Trading", url: "/superadmin/trading", icon: <Activity /> },
   { title: "Game Settings", url: "/superadmin/games", icon: <Gamepad /> },
@@ -25,6 +47,12 @@ const menuItems = [
 ];
 
 const SuperAdminSidebar = ({ collapsed }) => {
+  const [openMenus, setOpenMenus] = useState({});
+
+  const toggleMenu = (title) => {
+    setOpenMenus((prev) => ({ ...prev, [title]: !prev[title] }));
+  };
+
   return (
     <aside
       className={`bg-white border-r shadow-lg min-h-screen transition-all duration-300 ${
@@ -32,24 +60,67 @@ const SuperAdminSidebar = ({ collapsed }) => {
       }`}
     >
       <div className="flex flex-col p-4 h-full">
-        {/* Menu Items */}
         <nav className="flex-1 space-y-2">
           {menuItems.map((item) => (
-            <NavLink
-              key={item.title}
-              to={item.url}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 ${
-                  isActive
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`
-              }
-              title={collapsed ? item.title : ""}
-            >
-              <span>{item.icon}</span>
-              {!collapsed && <span>{item.title}</span>}
-            </NavLink>
+            <div key={item.title}>
+              {/* Parent Item */}
+              {item.children ? (
+                <div
+                  onClick={() => toggleMenu(item.title)}
+                  className="flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer text-gray-600 hover:bg-gray-100"
+                  title={collapsed ? item.title : ""}
+                >
+                  <div className="flex items-center gap-3">
+                    <span>{item.icon}</span>
+                    {!collapsed && <span>{item.title}</span>}
+                  </div>
+                  {!collapsed &&
+                    (openMenus[item.title] ? (
+                      <ChevronDown />
+                    ) : (
+                      <ChevronRight />
+                    ))}
+                </div>
+              ) : (
+                <NavLink
+                  to={item.url}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 ${
+                      isActive
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`
+                  }
+                  title={collapsed ? item.title : ""}
+                >
+                  <span>{item.icon}</span>
+                  {!collapsed && <span>{item.title}</span>}
+                </NavLink>
+              )}
+
+              {/* Submenu */}
+              {item.children && openMenus[item.title] && !collapsed && (
+                <div className="ml-8 mt-1 space-y-1">
+                  {item.children.map((child) => (
+                    <NavLink
+                      key={child.title}
+                      to={child.url}
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 text-sm px-3 py-1 rounded-md transition-colors duration-200 ${
+                          isActive
+                            ? "bg-blue-100 text-blue-700"
+                            : "text-gray-600 hover:bg-gray-100"
+                        }`
+                      }
+                    >
+                      {/* 👇 child icon */}
+                      <span>{child.icon}</span>
+                      <span>{child.title}</span>
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </nav>
       </div>
