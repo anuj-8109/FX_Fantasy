@@ -151,7 +151,7 @@ const AllUsers = () => {
             className="sr-only peer"
           />
           <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors duration-200"></div>
-          <div className="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full border border-gray-300 peer-checked:translate-x-full transition-transform duration-200"></div>
+          <div className="absolute left-0.5 top-0.5  w-5 h-5 rounded-full border border-gray-300 peer-checked:translate-x-full transition-transform duration-200"></div>
         </label>
       ),
       sortable: true,
@@ -180,7 +180,7 @@ const AllUsers = () => {
   ];
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6  min-h-screen">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <User className="text-blue-600" />
@@ -188,7 +188,7 @@ const AllUsers = () => {
         </div>
 
         <button
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm rounded"
+          className="bg-blue-600 hover:bg-blue-700  px-4 py-2 text-sm rounded"
           onClick={addUser}
         >
           Add User +
@@ -196,7 +196,7 @@ const AllUsers = () => {
       </div>
 
 
-      <div className="bg-white shadow-lg rounded-xl p-4">
+      <div className=" shadow-lg rounded-xl p-4">
         <Datatable columns={columns} data={allusers} title="Users List" />
       </div>
     </div>

@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import ReusableForm from "../../../extracomponents/ResuableForm";
 import { AddUser } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
+import Content from "../../../components/superadmin/Content";
 
 const User = () => {
   const navigate = useNavigate();
@@ -85,9 +86,7 @@ const User = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="w-full max-w-2xl-lg bg-white rounded-2xl shadow-xl p-8">
-        <h2 className="text-center text-2xl font-bold mb-6 text-gray-700">Add User</h2>
+    <Content Page_title="Add User"  button_status={true}  >
 
         <ReusableForm
           initialValues={initialValues}
@@ -97,12 +96,12 @@ const User = () => {
           submitButton={{
             label: loading ? "Adding..." : "Add User",
             className:
-              "col-span-2 mt-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold shadow-lg hover:opacity-90 transition disabled:opacity-50",
+              "col-span-2 mt-4 py-2 rounded-lg  from-blue-500 to-indigo-500 text-white font-semibold shadow-lg hover:opacity-90 transition disabled:opacity-50",
             disabled: loading,
           }}
         />
-      </div>
-    </div>
+      
+  </Content>
   );
 };
 

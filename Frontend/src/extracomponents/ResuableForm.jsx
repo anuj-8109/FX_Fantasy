@@ -3,7 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import Select from "react-select";
 
 const renderField = (field) => {
-  const baseInputClasses = "w-full rounded-lg bg-white text-gray-700 placeholder-gray-400 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400";
+  const baseInputClasses = "w-full rounded-lg  placeholder-gray-400 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400";
   
   switch (field.type) {
     case "textarea":
@@ -299,7 +299,7 @@ const ReusableForm = ({
     <button
       type="submit"
       disabled={loading || isSubmitting || submitButtonProps.disabled}
-      className={`w-full px-4 py-3 mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:from-blue-700 hover:to-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed ${submitButtonProps.className || ""}`}
+      className={`w-full px-4 py-3 mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 font-semibold rounded-lg shadow-md hover:from-blue-700 hover:to-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed ${submitButtonProps.className || ""}`}
       {...submitButtonProps}
     >
       {loading || isSubmitting
