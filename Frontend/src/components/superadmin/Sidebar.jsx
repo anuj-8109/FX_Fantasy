@@ -42,7 +42,7 @@ const menuItems = [
     icon: <Settings2 />,
     children: [
       { title:"Email Templates", url: "/superadmin/email-templates", icon: <Mail /> },
-     {title:"SMS Provider", url: "/superadmin/sms-provider", icon: <MessageSquare  />}
+     {title:"SMS Provider", url: "/superadmin/sms-providers", icon: <MessageSquare  />}
 
     ],
   },

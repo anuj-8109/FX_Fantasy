@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Pencil } from "lucide-react";
+import { Edit } from "lucide-react";
 import {
   GetMailTemplateList,
   GetMailTemplateDetails,
@@ -108,7 +108,7 @@ const EmailTemplates = () => {
                   className="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition"
                   title="Edit Template"
                 >
-                  <Pencil size={18} />
+                  <Edit size={18} />
                 </button>
               </div>
 

@@ -78,15 +78,11 @@ export async function DeleteUser(token, id) {
 // Update Or Edit User
 export async function EditUser(token, data) {
   try {
-    const response = await axios.put(
-      `${config.base_url}user/update`,
-      data,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await axios.put(`${config.base_url}user/update`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -158,6 +154,53 @@ export async function UpdateMailTemplate(token, data) {
     const response = await axios.put(
       `${config.base_url}mailtemplate/update`,
       data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function GetSmsProviderList(token) {
+  try {
+    const response = await axios.get(`${config.base_url}smsprovider/list`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function UpdateSmsProvider(token, data) {
+  try {
+    const response = await axios.put(
+      `${config.base_url}smsprovider/update`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function UpdateSmsProviderStatus(token, providerId) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}smsprovider/changestatus`,
+      providerId,
       {
         headers: {
           Authorization: `Bearer ${token}`,
