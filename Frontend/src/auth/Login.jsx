@@ -69,7 +69,7 @@ const Login = () => {
       } else {
         Swal.fire({
           title: "Error",
-          text: response.msg || "Invalid credentials",
+          text: response?.message || "Invalid credentials",
           icon: "error",
         });
       }

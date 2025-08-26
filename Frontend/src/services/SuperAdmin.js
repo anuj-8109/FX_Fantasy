@@ -1,7 +1,6 @@
 import axios from "axios";
 import * as config from "../utils/config";
 
-
 export async function GetAllUser(token) {
   try {
     const response = await axios.get(`${config.base_url}user/list`, {
@@ -15,19 +14,17 @@ export async function GetAllUser(token) {
   }
 }
 
-
-// Add User 
+// Add User
 
 export async function AddUser(data, token) {
   try {
-    const response = await axios.post(`${config.base_url}user/add`, data,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    const response = await axios.post(`${config.base_url}user/add`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     if (!token) {
-      return logout()
+      return logout();
     }
     return response?.data;
   } catch (error) {
@@ -67,13 +64,11 @@ export async function StatusChange(token, status, id) {
 // Delete User
 export async function DeleteUser(token, id) {
   try {
-    const response = await axios.get(`${config.base_url}user/delete/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
+    const response = await axios.get(`${config.base_url}user/delete/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -81,22 +76,22 @@ export async function DeleteUser(token, id) {
 }
 
 // Update Or Edit User
-export async function EditUser(token,id,data) {
+export async function EditUser(token, id, data) {
   try {
-    const response = await axios.put(`${config.base_url}user/update/${id}`,data,
+    const response = await axios.put(
+      `${config.base_url}user/update/${id}`,
+      data,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
-    )
-     return response?.data;
- } catch (error) {
+    );
+    return response?.data;
+  } catch (error) {
     return error?.response?.data;
   }
 }
-
-
 
 export async function GetUserDetails(token, id) {
   try {
@@ -111,13 +106,24 @@ export async function GetUserDetails(token, id) {
   }
 }
 
-
-
-
-
-
+export async function ChangePassword(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}user/change-password`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
 
 const logout = () => {
-  localStorage.clear()
-  window.location.href = "/"
-}
+  localStorage.clear();
+  window.location.href = "/";
+};

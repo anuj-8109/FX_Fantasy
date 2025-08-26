@@ -16,6 +16,7 @@ const User = () => {
     PhoneNo: "",
     UserName: "",
     password: "",
+    confirmPassword: "",
   };
 
   // ✅ Same validation as backend
@@ -39,6 +40,9 @@ const User = () => {
       .matches(/\d/, "Password must have at least one number")
       .matches(/[@$!%*?&#]/, "Password must have at least one special character (@$!%*?&#)")
       .required("Password is required"),
+       confirmPassword: Yup.string()
+    .oneOf([Yup.ref("password"), null], "Passwords must match")
+    .required("Confirm Password is required"),
   });
 
   const fields = [
@@ -47,6 +51,7 @@ const User = () => {
     { name: "PhoneNo", label: "Phone No*", type: "text", className: "w-full" },
     { name: "UserName", label: "Username*", type: "text", className: "w-full" },
     { name: "password", label: "Password*", type: "password", className: "w-full", colClass: "col-span-2" },
+     { name: "confirmPassword", label: "Confirm Password*", type: "password", className: "w-full" },
   ];
 
   const onSubmit = async (values) => {
@@ -54,8 +59,8 @@ const User = () => {
     const token = localStorage.getItem("token");
     const add_by = localStorage.getItem("add_by");
 
-    const data = { ...values, add_by };
-
+      const { confirmPassword, ...rest } = values;
+  const data = { ...rest, add_by };
     try {
       const res = await AddUser(data, token);
 

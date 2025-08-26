@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Eye, EyeOff } from "lucide-react"; // 👀 Eye icons
+import { Eye, EyeOff } from "lucide-react"; 
 
-const ResetPassword = () => {
+
+const ChangePassword = () => {
   const [formData, setFormData] = useState({
     oldPassword: "",
     newPassword: "",
@@ -167,4 +168,4 @@ const ResetPassword = () => {
   );
 };
 
-export default ResetPassword;
+export default ChangePassword;

@@ -19,7 +19,9 @@ import AddUser from "../pages/superadmin/users/AddUser";
 import EditUsers from "../pages/superadmin/users/EditUser";
 
 import MyProfile from "../pages/superadmin/profile/MyProfile";
-import ResetPassword from "../pages/superadmin/profile/ResetPassword";
+
+import ChangePassword from "../pages/superadmin/profile/ChangePassword";
+import EmailTemplates from "../pages/superadmin/basicsettings/EmailTempelates";
 
 const SuperAdminRoutes = () => {
   return (
@@ -41,7 +43,8 @@ const SuperAdminRoutes = () => {
          <Route path="AddUser" element={<AddUser />} />
          <Route path="EditUsers/:id" element={<EditUsers />} />
          <Route path="myprofile" element={<MyProfile />} />
-         <Route path="resetpassword" element={<ResetPassword />} />
+         <Route path="changepassword" element={<ChangePassword />} />
+         <Route path="email-templates" element={<EmailTemplates />} />
       </Route>
     </>
   );

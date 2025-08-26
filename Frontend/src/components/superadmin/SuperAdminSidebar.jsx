@@ -13,6 +13,8 @@ import {
   ChevronRight,
   ChevronDown,
   UserCheck,
+  Settings2,
+  Mail,
 } from "lucide-react";
 
 const menuItems = [
@@ -31,6 +33,15 @@ const menuItems = [
         url: "/superadmin/activeuser",
         icon: <UserCheck />,
       },
+    ],
+  },
+  {
+    title:"Basic Settings",
+    url: "/superadmin/basicsettings",
+    icon: <Settings2 />,
+    children: [
+      { title:"Email Templates", url: "/superadmin/email-templates", icon: <Mail /> },
+     
     ],
   },
   {
