@@ -9,7 +9,7 @@ class Mailtemplate {
     try {
 
 
-      const { } = req.body;
+      // const { } = req.body;
 
     //  const result = await Mailtemplate_Modal.find()
       const result = await Mailtemplate_Modal.find();
