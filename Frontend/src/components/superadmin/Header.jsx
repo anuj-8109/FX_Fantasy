@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Sun, Moon, Bell, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -10,39 +10,35 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
 
+  const notifRef = useRef();
+  const profileRef = useRef();
+
   const notifications = [
-    {
-      id: 1,
-      title: "New user registered",
-      message: "John Doe just joined",
-      time: "2 min ago",
-      unread: true,
-    },
-    {
-      id: 2,
-      title: "Contest finished",
-      message: "Weekly Trading Challenge ended",
-      time: "1 hour ago",
-      unread: true,
-    },
-    {
-      id: 3,
-      title: "System maintenance",
-      message: "Scheduled maintenance done",
-      time: "3 hours ago",
-      unread: false,
-    },
+    { id: 1, title: "New user registered", message: "John Doe just joined", time: "2 min ago", unread: true },
+    { id: 2, title: "Contest finished", message: "Weekly Trading Challenge ended", time: "1 hour ago", unread: true },
+    { id: 3, title: "System maintenance", message: "Scheduled maintenance done", time: "3 hours ago", unread: false },
   ];
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
+  // Theme Toggle
   const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle("dark");
+    setIsDarkMode((prev) => {
+      const newMode = !prev;
+      document.documentElement.classList.remove(
+        newMode ? "theme-trading-light" : "theme-trading-pro"
+      );
+      document.documentElement.classList.add(
+        newMode ? "theme-trading-pro" : "theme-trading-light"
+      );
+      return newMode;
+    });
   };
 
+  // Sidebar Toggle
   const toggleSidebar = () => setCollapsed(!collapsed);
 
+  // Logout Handler
   const Logout = async () => {
     const confirm = await Swal.fire({
       title: "Are you sure you want to logout?",
@@ -53,55 +49,58 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
       confirmButtonText: "Yes, logout",
     });
 
-    if (!confirm.isConfirmed) return;
-
-    localStorage.clear();
-
-    await Swal.fire(
-      "Logged out",
-      "You have been successfully logged out.",
-      "success"
-    );
-    navigate("/");
+    if (confirm.isConfirmed) {
+      localStorage.clear();
+      await Swal.fire("Logged out", "You have been successfully logged out.", "success");
+      navigate("/");
+    }
   };
 
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) setShowNotifications(false);
+      if (profileRef.current && !profileRef.current.contains(e.target)) setShowProfile(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b bg-white dark:bg-gray-900 shadow-sm transition-colors">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
-        {/* Left: Sidebar toggle + Logo */}
+        {/* Logo + Sidebar Toggle */}
         <div className="flex items-center gap-3">
           <div
-            className="cursor-pointer"
+            className="cursor-pointer flex items-center gap-3"
             onClick={() => navigate("/superadmin/superadmindashboard")}
           >
-            <h1 className="font-bold text-lg">FX Fantasy</h1>
+            <img src="/images/logo.png" alt="FX Fantasy" className="h-20 w-24" />
           </div>
-
-          {/* Sidebar toggle button moved after heading */}
           <button
             onClick={toggleSidebar}
-            className="p-2 rounded hover:bg-gray-100"
+            className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </button>
         </div>
 
-        {/* Right: Theme toggle, notifications, profile */}
+        {/* Right Side: Theme, Notifications, Profile */}
         <div className="flex items-center gap-4">
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-gray-100"
+            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
             title="Toggle theme"
           >
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
 
           {/* Notifications */}
-          <div className="relative">
+          <div className="relative" ref={notifRef}>
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2 rounded-full hover:bg-gray-100 relative"
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 relative"
             >
               <Bell size={20} />
               {unreadCount > 0 && (
@@ -112,17 +111,16 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-lg border z-50">
-                <div className="p-3 font-medium text-sm border-b">
+              <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 shadow-lg rounded-lg border dark:border-gray-700 z-50">
+                <div className="p-3 font-medium text-sm border-b dark:border-gray-700">
                   Notifications ({unreadCount} new)
                 </div>
                 <div className="max-h-60 overflow-y-auto">
                   {notifications.map((n) => (
                     <div
                       key={n.id}
-                      className={`p-3 border-b text-sm ${
-                        n.unread ? "bg-gray-50 font-medium" : ""
-                      }`}
+                      className={`p-3 border-b dark:border-gray-700 text-sm ${n.unread ? "bg-gray-50 dark:bg-gray-700 font-medium" : ""
+                        }`}
                     >
                       <p>{n.title}</p>
                       <p className="text-xs text-gray-500">{n.message}</p>
@@ -130,7 +128,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
                     </div>
                   ))}
                 </div>
-                <button className="w-full text-center py-2 text-xs hover:bg-gray-100">
+                <button className="w-full text-center py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-700">
                   View all
                 </button>
               </div>
@@ -138,40 +136,39 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
           </div>
 
           {/* Profile */}
-          <div className="relative">
+          <div className="relative" ref={profileRef}>
             <button
               onClick={() => setShowProfile(!showProfile)}
               className="h-10 w-10 rounded-full bg-blue-600 text-white flex items-center justify-center"
             >
-              {user?.FullName
-                .split(" ")
+              {user?.FullName?.split(" ")
                 .map((n) => n[0])
                 .join("")}
             </button>
 
             {showProfile && (
-              <div className="absolute right-0 mt-2 w-56 bg-white shadow-lg rounded-lg border z-50">
-                <div className="p-3 border-b text-sm">
+              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 shadow-lg rounded-lg border dark:border-gray-700 z-50">
+                <div className="p-3 border-b dark:border-gray-700 text-sm">
                   <p className="font-medium">{user?.FullName}</p>
                   <p className="text-xs text-gray-500">{user?.Email}</p>
                 </div>
 
                 <button
                   onClick={() => navigate("/superadmin/myprofile")}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   Profile Management
                 </button>
 
                 <button
                   onClick={() => navigate("/superadmin/changepassword")}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   Reset Password
                 </button>
 
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
                   onClick={Logout}
                 >
                   Log Out

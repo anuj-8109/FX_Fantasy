@@ -51,7 +51,7 @@ const User = () => {
     { name: "PhoneNo", label: "Phone No*", type: "text", className: "w-full" },
     { name: "UserName", label: "Username*", type: "text", className: "w-full" },
     { name: "password", label: "Password*", type: "password", className: "w-full", colClass: "col-span-2" },
-     { name: "confirmPassword", label: "Confirm Password*", type: "password", className: "w-full" },
+    { name: "confirmPassword", label: "Confirm Password*", type: "password", className: "w-full" },
   ];
 
   const onSubmit = async (values) => {
@@ -64,7 +64,7 @@ const User = () => {
     try {
       const res = await AddUser(data, token);
 
-      // ✅ Backend duplicate check error
+     
       if (res?.status === false && res?.message?.includes("exists")) {
         toast.error(res.message);
         return;
