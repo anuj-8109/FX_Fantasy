@@ -79,7 +79,7 @@ export async function DeleteUser(token, id) {
 export async function EditUser(token,data) {
   try {
     const response = await axios.put(
-      `${config.base_url}user/update/${id}`,
+      `${config.base_url}user/update`,
       data,
       {
         headers: {

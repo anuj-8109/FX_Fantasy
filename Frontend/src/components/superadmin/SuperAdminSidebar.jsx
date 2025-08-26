@@ -36,12 +36,12 @@ const menuItems = [
     ],
   },
   {
-    title:"Basic Settings",
+    title: "Basic Settings",
     url: "/superadmin/basicsettings",
     icon: <Settings2 />,
     children: [
-      { title:"Email Templates", url: "/superadmin/email-templates", icon: <Mail /> },
-     
+      { title: "Email Templates", url: "/superadmin/email-templates", icon: <Mail /> },
+
     ],
   },
   {
@@ -66,9 +66,12 @@ const SuperAdminSidebar = ({ collapsed }) => {
 
   return (
     <aside
-      className={`bg-white border-r shadow-lg min-h-screen transition-all duration-300 ${
-        collapsed ? "w-20" : "w-64"
-      }`}
+      className={`min-h-screen transition-all duration-300 ${collapsed ? "w-20" : "w-64"
+        }`}
+      style={{
+        background: " linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+        color: "white",
+      }}
     >
       <div className="flex flex-col p-4 h-full">
         <nav className="flex-1 space-y-2">
@@ -96,10 +99,9 @@ const SuperAdminSidebar = ({ collapsed }) => {
                 <NavLink
                   to={item.url}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 ${
-                      isActive
-                        ? "bg-blue-600 text-white"
-                        : "text-gray-600 hover:bg-gray-100"
+                    `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 ${isActive
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-600 hover:bg-gray-100"
                     }`
                   }
                   title={collapsed ? item.title : ""}
@@ -117,10 +119,9 @@ const SuperAdminSidebar = ({ collapsed }) => {
                       key={child.title}
                       to={child.url}
                       className={({ isActive }) =>
-                        `flex items-center gap-2 text-sm px-3 py-1 rounded-md transition-colors duration-200 ${
-                          isActive
-                            ? "bg-blue-100 text-blue-700"
-                            : "text-gray-600 hover:bg-gray-100"
+                        `flex items-center gap-2 text-sm px-3 py-1 rounded-md transition-colors duration-200 ${isActive
+                          ? "bg-blue-100 text-blue-700"
+                          : "text-gray-600 hover:bg-gray-100"
                         }`
                       }
                     >
