@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GetUserDetails } from "../../../services/SuperAdmin";
 
-const ProfileManagement = () => {
+const MyProfile = () => {
   const [userdetails, setUserDetails] = useState(null);
   const token = localStorage.getItem("token");
   const id = localStorage.getItem("userId");
@@ -92,4 +92,4 @@ const ProfileManagement = () => {
   );
 };
 
-export default ProfileManagement;
+export default MyProfile;

@@ -16,7 +16,7 @@ import Wallet from "../pages/superadmin/Wallet";
 import AllUsers from "../pages/superadmin/users/AllUser";
 import ActiveUser from "../pages/superadmin/users/ActiveUser";
 import AddUser from "../pages/superadmin/users/AddUser";
-import ProfileManagement from "../pages/superadmin/profile/ProfileManagement";
+import MyProfile from "../pages/superadmin/profile/MyProfile";
 import ResetPassword from "../pages/superadmin/profile/ResetPassword";
 
 const SuperAdminRoutes = () => {
@@ -37,7 +37,7 @@ const SuperAdminRoutes = () => {
         <Route path="alluser" element={<AllUsers />} />
         <Route path="activeuser" element={<ActiveUser />} />
          <Route path="AddUser" element={<AddUser />} />
-         <Route path="profilemanagement" element={<ProfileManagement />} />
+         <Route path="myprofile" element={<MyProfile />} />
          <Route path="resetpassword" element={<ResetPassword />} />
       </Route>
     </>
