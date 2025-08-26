@@ -151,7 +151,7 @@
 }
 
 /* Cyber Arena Theme */
-/* .theme-cyber-arena {
+.theme-cyber-arena {
   --background: 195 100% 5%;
   --foreground: 180 100% 90%;
   --card: 195 100% 7%;
@@ -163,10 +163,10 @@
   --muted: 195 50% 15%;
   --muted-foreground: 195 30% 65%;
   --border: 195 50% 20%;
-} */
+}
 
 /* Retro Arcade Theme */
-/* .theme-retro-arcade {
+.theme-retro-arcade {
   --background: 315 100% 8%;
   --foreground: 60 100% 95%;
   --card: 315 100% 12%;
@@ -178,10 +178,10 @@
   --muted: 315 50% 20%;
   --muted-foreground: 315 30% 70%;
   --border: 315 50% 25%;
-} */
+}
 
 /* eSports Pro Theme */
-/* .theme-esports-pro {
+.theme-esports-pro {
   --background: 240 15% 8%;
   --foreground: 240 20% 95%;
   --card: 240 15% 12%;
@@ -193,10 +193,10 @@
   --muted: 240 10% 20%;
   --muted-foreground: 240 8% 65%;
   --border: 240 10% 25%;
-} */
+}
 
 /* Additional themes with similar patterns... */
-/* .theme-sports-green {
+.theme-sports-green {
   --background: 120 50% 95%;
   --foreground: 120 15% 10%;
   --card: 120 50% 100%;
@@ -207,7 +207,7 @@
   --secondary-foreground: 120 15% 10%;
   --muted: 120 30% 85%;
   --muted-foreground: 120 10% 45%;
-  --border: 120 30% 75%;
+  --border: 120 30% 75%; 
 }
 
 .theme-champion-gold {
@@ -306,9 +306,9 @@
   --muted: 210 50% 90%;
   --muted-foreground: 210 15% 45%;
   --border: 210 50% 80%;
-} */
+} 
 
-/* .theme-luxury-black {
+.theme-luxury-black {
   --background: 0 0% 3%;
   --foreground: 45 93% 47%;
   --card: 0 0% 6%;
@@ -320,9 +320,9 @@
   --muted: 0 0% 12%;
   --muted-foreground: 0 0% 65%;
   --border: 0 0% 18%;
-} */
+} 
 
-/* .theme-marketplace-multi {
+.theme-marketplace-multi {
   --background: 340 100% 98%;
   --foreground: 340 15% 10%;
   --card: 340 100% 100%;
@@ -334,7 +334,7 @@
   --muted: 340 50% 90%;
   --muted-foreground: 340 15% 45%;
   --border: 340 50% 80%;
-} */
+} 
 
 @layer base {
   * {
@@ -371,4 +371,17 @@
 .layout-minimal {
   --card: transparent;
   --border: transparent;
+}
+.rdt_Table {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.rdt_TableHeadRow {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
+}
+
+.rdt_TableRow:hover {
+  background-color: hsl(var(--secondary)) !important;
 }

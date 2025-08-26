@@ -67,9 +67,9 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white dark:bg-gray-900 shadow-sm transition-colors">
+    <header className="sticky top-0 z-50 w-full border-b  dark:bg-gray-900 shadow-sm transition-colors">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
-        {/* Logo + Sidebar Toggle */}
+       
         <div className="flex items-center gap-3">
           <div
             className="cursor-pointer flex items-center gap-3"
@@ -88,13 +88,13 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
         {/* Right Side: Theme, Notifications, Profile */}
         <div className="flex items-center gap-4">
           {/* Theme Toggle */}
-          <button
+          <span
             onClick={toggleTheme}
             className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
             title="Toggle theme"
           >
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
+          </span>
 
           {/* Notifications */}
           <div className="relative" ref={notifRef}>
@@ -111,7 +111,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 shadow-lg rounded-lg border dark:border-gray-700 z-50">
+              <div className="absolute right-0 mt-2 w-80  dark:bg-gray-800 shadow-lg rounded-lg border dark:border-gray-700 z-50">
                 <div className="p-3 font-medium text-sm border-b dark:border-gray-700">
                   Notifications ({unreadCount} new)
                 </div>
@@ -147,7 +147,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
             </button>
 
             {showProfile && (
-              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 shadow-lg rounded-lg border dark:border-gray-700 z-50">
+              <div className="absolute right-0 mt-2 w-56  dark:bg-gray-800 shadow-lg rounded-lg border dark:border-gray-700 z-50">
                 <div className="p-3 border-b dark:border-gray-700 text-sm">
                   <p className="font-medium">{user?.FullName}</p>
                   <p className="text-xs text-gray-500">{user?.Email}</p>

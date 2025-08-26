@@ -61,18 +61,18 @@ const EmailTemplateCard = ({ template }) => {
   return (
     <>
       {/* Template Card */}
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-md p-5 flex flex-col transition hover:shadow-lg hover:scale-[1.01] duration-200">
+      <div className=" border border-gray-200 rounded-2xl shadow-md p-5 flex flex-col transition hover:shadow-lg hover:scale-[1.01] duration-200">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <p className="text-xs uppercase tracking-wide text-gray-400">
+            <p className="text-xs uppercase tracking-wide ">
               Mail Type
             </p>
-            <p className="text-base font-medium text-gray-800">{mailType}</p>
+            <p className="text-base font-medium ">{mailType}</p>
           </div>
 
           <button
             onClick={() => setOpen(true)}
-            className="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition"
+            className="p-2 rounded-full hover:bg-gray-100 transition"
             title="Edit Template"
           >
             <Pencil size={18} />
@@ -80,17 +80,17 @@ const EmailTemplateCard = ({ template }) => {
         </div>
 
         <div className="mb-3">
-          <p className="text-xs uppercase tracking-wide text-gray-400 mb-1">
+          <p className="text-xs uppercase tracking-wide  mb-1">
             Subject
           </p>
-          <p className="text-sm font-medium text-gray-700">{subject}</p>
+          <p className="text-sm font-medium ">{subject}</p>
         </div>
 
         <div>
-          <p className="text-xs uppercase tracking-wide text-gray-400 mb-1">
+          <p className="text-xs uppercase tracking-wide  mb-1">
             Mail Body
           </p>
-          <pre className="bg-gray-50 text-sm text-gray-700 p-3 rounded-lg h-36 overflow-auto whitespace-pre-wrap border border-gray-100">
+          <pre className=" text-sm  p-3 rounded-lg h-36 overflow-auto whitespace-pre-wrap border border-gray-100">
             {body}
           </pre>
         </div>
@@ -98,18 +98,18 @@ const EmailTemplateCard = ({ template }) => {
 
       {/* Modal */}
       {open && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl p-6 animate-fadeIn">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6 border-b pb-3">
+        <div className="fixed inset-0 flex items-center justify-center  z-50">
+          <div className=" w-full max-w-xl rounded-2xl shadow-2xl p-6 animate-fadeIn">
+            <h2 className="text-xl font-semibold  mb-6 border-b pb-3">
               ✉️ Edit Email Template
             </h2>
 
             {loading ? (
-              <p className="text-center text-gray-500">Loading...</p>
+              <p className="text-center ">Loading...</p>
             ) : (
               <div className="space-y-5">
                 <div>
-                  <label className="text-sm font-medium text-gray-600 mb-1 block">
+                  <label className="text-sm font-medium  mb-1 block">
                     Mail Type
                   </label>
                   <input
@@ -121,7 +121,7 @@ const EmailTemplateCard = ({ template }) => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-600 mb-1 block">
+                  <label className="text-sm font-medium  mb-1 block">
                     Subject
                   </label>
                   <input
@@ -132,7 +132,7 @@ const EmailTemplateCard = ({ template }) => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-600 mb-1 block">
+                  <label className="text-sm font-medium  mb-1 block">
                     Mail Body
                   </label>
                   <textarea
@@ -148,13 +148,13 @@ const EmailTemplateCard = ({ template }) => {
             <div className="flex justify-end gap-3 mt-8">
               <button
                 onClick={handleCancel}
-                className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition"
+                className="px-5 py-2.5 border border-gray-300 rounded-lg  hover:bg-gray-50 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow"
+                className="px-5 py-2.5 bg-indigo-600  rounded-lg hover:bg-indigo-700 transition shadow"
                 disabled={loading}
               >
                 Save Changes
