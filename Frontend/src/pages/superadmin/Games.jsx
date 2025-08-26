@@ -52,11 +52,11 @@ const Games = () => {
   ];
 
   return (
-    <div className="min-h-screen p-6 bg-gray-100">
+    <div className="min-h-screen p-6 ">
       <h1 className="text-3xl font-bold mb-6">Game Settings</h1>
 
       {/* Game Types */}
-      <div className="bg-white shadow rounded-xl p-6 mb-6">
+      <div className=" shadow rounded-xl p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Game Types</h2>
         <div className="grid gap-4 md:grid-cols-2">
           {gameTypes.map((gameType) => (
@@ -69,14 +69,14 @@ const Games = () => {
                 <span
                   className={`text-xs px-2 py-1 rounded ${
                     gameType.isActive
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-200 text-gray-700"
+                      ? ""
+                      : ""
                   }`}
                 >
                   {gameType.isActive ? "Active" : "Inactive"}
                 </span>
               </div>
-              <p className="text-sm text-gray-600 mb-2">
+              <p className="text-sm  mb-2">
                 {gameType.description}
               </p>
               <div className="flex flex-wrap gap-4 text-sm">
@@ -90,7 +90,7 @@ const Games = () => {
       </div>
 
       {/* General Settings */}
-      <div className="bg-white shadow rounded-xl p-6">
+      <div className=" shadow rounded-xl p-6">
         <h2 className="text-xl font-semibold mb-4">General Settings</h2>
         <div className="grid gap-4 md:grid-cols-2 text-sm">
           <div className="p-3 border rounded-lg">

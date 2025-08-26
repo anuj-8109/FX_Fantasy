@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import AdminSidebar from "../../components/superadmin/Sidebar";
-import AdminHeader from "../../components/superadmin/Header";
+
 
 const Settings = () => {
   const [general, setGeneral] = useState({
@@ -51,9 +50,9 @@ const Settings = () => {
 
   return (
     <div className="min-h-screen flex w-full">
-      <AdminSidebar />
+    
       <div className="flex-1 flex flex-col">
-        <AdminHeader />
+      
         <main className="flex-1 p-6 overflow-auto">
           <h1 className="text-3xl font-bold mb-6">Settings</h1>
 
@@ -72,7 +71,7 @@ const Settings = () => {
 
           <button
             onClick={() => handleSave("General Settings")}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
+            className="bg-blue-600  px-4 py-2 rounded"
           >
             Save General Settings
           </button>

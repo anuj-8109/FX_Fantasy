@@ -86,7 +86,7 @@ const User = () => {
   };
 
   return (
-    <Content Page_title="Add User"  button_status={true}  >
+    <Content Page_title="Add User" button_status={true}  >
 
         <ReusableForm
           initialValues={initialValues}

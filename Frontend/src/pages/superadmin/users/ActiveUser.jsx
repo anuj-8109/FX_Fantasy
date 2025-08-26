@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/Datatable";
 import { UserCheck } from "lucide-react";
 import { GetActiveUser } from "../../../services/SuperAdmin";
+import Content from "../../../components/superadmin/Content";
+
 
 const ActiveUser = () => {
   const [activeuser, setActiveUser] = useState([]);
@@ -23,7 +25,7 @@ const ActiveUser = () => {
   const columns = [
     {
       name: "S.No",
-      selector: (row,index) => index+1,
+      selector: (row, index) => index + 1,
       sortable: true,
       width: "80px",
     },
@@ -49,16 +51,16 @@ const ActiveUser = () => {
   ];
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex items-center gap-2 mb-6">
-        <UserCheck className="text-blue-600" />
-        <h1 className="text-2xl font-bold text-gray-800">Active Users</h1>
-      </div>
+    <Content Page_title="Active Users" button_status={true}  >
+      <div className="p-6 min-h-screen">
+        <div className="flex items-center gap-2 mb-6">
+        </div>
 
-      <div className="bg-white shadow-lg rounded-xl p-4">
-        <Datatable columns={columns} data={activeuser} title="Users List" />
+        <div className=" shadow-lg rounded-xl p-4">
+          <Datatable columns={columns} data={activeuser} title="Users List" />
+        </div>
       </div>
-    </div>
+    </Content>
   );
 };
 

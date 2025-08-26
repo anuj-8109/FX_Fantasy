@@ -129,8 +129,6 @@ const Wallet = () => {
             onClick={() => setFilter(f)}
             style={{
               padding: "5px 10px",
-              backgroundColor: filter === f ? "#007bff" : "#fff",
-              color: filter === f ? "#fff" : "#000",
               border: "1px solid #ccc",
               cursor: "pointer",
             }}

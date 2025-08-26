@@ -164,14 +164,14 @@ const AllUsers = () => {
         <div className="flex gap-3">
 
           <FaEdit
-            className="text-blue-600 cursor-pointer hover:text-blue-800"
+            className=" cursor-pointer"
             onClick={() => navigate(`/superadmin/EditUsers/${row._id}`, { state: { userId: row._id } })
             }
           />
 
           {/* Delete Icon */}
           <FaTrash
-            className="text-red-600 cursor-pointer hover:text-red-800"
+            className=" cursor-pointer"
             onClick={() => handleDelete(row)}
           />
         </div>
@@ -183,8 +183,8 @@ const AllUsers = () => {
     <div className="p-6  min-h-screen">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <User className="text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-800">All Users</h1>
+          <User className="" />
+          <h1 className="text-2xl font-bold">All Users</h1>
         </div>
 
         <button
