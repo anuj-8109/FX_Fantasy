@@ -2,10 +2,10 @@ import React from "react";
 
 const Analytics = () => {
   const stats = [
-    { title: "Total Revenue", value: "$45,230", change: "+12.5%", color: "text-green-600" },
-    { title: "Active Users", value: "8,450", change: "+8.2%", color: "text-blue-600" },
-    { title: "Contests Played", value: "1,234", change: "+15.3%", color: "text-purple-600" },
-    { title: "Avg Session Time", value: "24m 30s", change: "+5.1%", color: "text-orange-600" },
+    { title: "Total Revenue", value: "$45,230", change: "+12.5%",  },
+    { title: "Active Users", value: "8,450", change: "+8.2%",  },
+    { title: "Contests Played", value: "1,234", change: "+15.3%",  },
+    { title: "Avg Session Time", value: "24m 30s", change: "+5.1%", },
   ];
 
   const contestTypeData = [
@@ -26,11 +26,11 @@ const Analytics = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen p-8">
       {/* Heading */}
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold">FX Fantasy Analytics</h1>
-        <p className="text-gray-600 text-sm mt-2">Monitor your game performance and user activity</p>
+        <p className=" text-sm mt-2">Monitor your game performance and user activity</p>
       </div>
 
       {/* Stats Section */}

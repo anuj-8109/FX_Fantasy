@@ -91,7 +91,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
           <span
             onClick={toggleTheme}
             className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
-            title="Toggle theme"
+           
           >
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
           </span>

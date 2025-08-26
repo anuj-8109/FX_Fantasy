@@ -45,16 +45,16 @@ const Contests = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-gray-50">
+    <div className="min-h-screen p-6 ">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Contests</h1>
-          <p className="text-gray-600 text-sm">
+          <p className=" text-sm">
             Manage trading contests and tournaments
           </p>
         </div>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm">
+        <button className=" hover:bg-blue-700  px-4 py-2 text-sm">
           + Create Contest
         </button>
       
@@ -70,16 +70,16 @@ const Contests = () => {
               <span
                 className={`text-xs px-2 py-1 ${
                   contest.status === "active"
-                    ? "bg-green-100 text-green-700"
+                    ? " "
                     : contest.status === "upcoming"
-                    ? "bg-gray-200 text-gray-700"
-                    : "bg-red-100 text-red-700"
+                    ? ""
+                    : " "
                 }`}
               >
                 {contest.status}
               </span>
             </div>
-            <p className="text-sm text-gray-600 mb-4">{contest.description}</p>
+            <p className="text-sm mb-4">{contest.description}</p>
 
             <div className="grid grid-cols-2 gap-2 text-sm mb-4">
               <div>
@@ -99,7 +99,7 @@ const Contests = () => {
 
             <div className="flex gap-2">
               <button className="flex-1 border px-3 py-1 text-sm">Edit</button>
-              <button className="border px-3 py-1 text-sm text-red-600">
+              <button className="border px-3 py-1 text-sm ">
                 Delete
               </button>
             </div>
