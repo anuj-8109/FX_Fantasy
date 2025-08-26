@@ -43,10 +43,10 @@ const User = () => {
 
   const fields = [
     { name: "FullName", label: "Full Name*", type: "text", className: "w-full" },
-    { name: "Email", label: "Email*", type: "email", className: "w-full" },
+    { name: "Email", label: "Email*", type: "email", className: "w-full"  },
     { name: "PhoneNo", label: "Phone No*", type: "text", className: "w-full" },
     { name: "UserName", label: "Username*", type: "text", className: "w-full" },
-    { name: "password", label: "Password*", type: "password", className: "w-full", colClass: "col-span-2" },
+    { name: "password", label: "Password*", type: "password", className: "w-full"},
   ];
 
   const onSubmit = async (values) => {

@@ -24,12 +24,14 @@ const Login = () => {
       label: "Username*",
       type: "text",
       fullWidth: true,
+      colClass:"col-span-4"
     },
     {
       name: "password",
       label: "Password*",
       type: "password",
       fullWidth: true,
+      colClass:"col-span-4"
     },
   ];
 

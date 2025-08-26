@@ -13,6 +13,7 @@ const AllUsers = () => {
   const [allusers, setAllUsers] = useState([]);
   const token = localStorage.getItem("token");
 
+
   const fetchAllUsers = async () => {
     try {
       const response = await GetAllUser(token);
@@ -25,9 +26,7 @@ const AllUsers = () => {
     navigate("/superadmin/addUser");
   };
 
-  const handleEdit = (row) => {
-  navigate(`/superadmin/EditUsers/${row._id}`);
-};
+
 
 
   const handleDelete = (row) => {
@@ -166,7 +165,8 @@ const AllUsers = () => {
 
           <FaEdit
             className="text-blue-600 cursor-pointer hover:text-blue-800"
-            onClick={() => handleEdit(row)}
+            onClick={() => navigate(`/superadmin/EditUsers/${row._id}`, { state: { userId: row._id } })
+            }
           />
 
           {/* Delete Icon */}

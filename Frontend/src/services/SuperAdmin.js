@@ -81,9 +81,9 @@ export async function DeleteUser(token, id) {
 }
 
 // Update Or Edit User
-export async function EditUser(token,id,data) {
+export async function EditUser(token,data) {
   try {
-    const response = await axios.put(`${config.base_url}user/update/${id}`,data,
+    const response = await axios.put(`${config.base_url}user/update`,data,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -99,6 +99,7 @@ export async function EditUser(token,id,data) {
 
 
 export async function GetUserDetails(token, id) {
+  console.log(token,id)
   try {
     const response = await axios.get(`${config.base_url}user/detail/${id}`, {
       headers: {
