@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GetUserDetails } from "../../../services/SuperAdmin";
 
-const ProfileManagement = () => {
+const MyProfile = () => {
   const [userdetails, setUserDetails] = useState(null);
   const token = localStorage.getItem("token");
-  const id = localStorage.getItem("id");
+  const id = localStorage.getItem("userId");
   const navigate = useNavigate();
 
   const fetchUserDetails = async () => {
@@ -58,15 +58,23 @@ const ProfileManagement = () => {
           <div className="space-y-4 text-gray-700">
             <div className="flex justify-between">
               <span className="font-medium">Name:</span>
-              <span>{userdetails?.name || ""}</span>
+              <span>{userdetails?.FullName || ""}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-medium">UserName:</span>
+              <span>{userdetails?.UserName || ""}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-medium">Email:</span>
-              <span>{userdetails?.email || ""}</span>
+              <span>{userdetails?.Email || ""}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium">Role:</span>
-              <span>{userdetails?.role || ""}</span>
+              <span className="font-medium">PhoneNo:</span>
+              <span>{userdetails?.PhoneNo || ""}</span>
+            </div>
+        <div className="flex justify-between">
+              <span className="font-medium">Active Status:</span>
+              <span>{userdetails?.ActiveStatus || ""}</span>
             </div>
           </div>
 
@@ -84,4 +92,4 @@ const ProfileManagement = () => {
   );
 };
 
-export default ProfileManagement;
+export default MyProfile;
