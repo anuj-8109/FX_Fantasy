@@ -72,18 +72,29 @@ const MyProfile = () => {
               <span className="font-medium">PhoneNo:</span>
               <span>{userdetails?.PhoneNo || ""}</span>
             </div>
-        <div className="flex justify-between">
+            <div className="flex justify-between">
               <span className="font-medium">Active Status:</span>
-              <span>{userdetails?.ActiveStatus || ""}</span>
+              <span>
+                {userdetails?.ActiveStatus === 1 ? "Active" : "Inactive"}
+              </span>
             </div>
           </div>
 
-          <div className="mt-6 flex justify-center">
+          <div className="mt-6 flex justify-center gap-4">
             <button
-              onClick={() => navigate("/superadmin/resetpassword")}
+              onClick={() => navigate("/superadmin/changepassword")}
               className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow hover:opacity-90 transition"
             >
               Reset Password
+            </button>
+
+            <button
+              onClick={() =>
+                navigate(`/superadmin/EditUsers/${userdetails?.id}`)
+              }
+              className="px-4 py-2 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg shadow hover:opacity-90 transition"
+            >
+              Update Profile
             </button>
           </div>
         </div>
