@@ -39,12 +39,7 @@ class BasicSetting {
 
 
 
-        // if (existingSetting && existingSetting.kyc == 2 && (kyc == 0 || kyc == 1)) {
-        //   await Clients_Modal.updateMany(
-        //     { kyc_verification: 2 },
-        //     { $set: { kyc_verification: 0 } }
-        //   );
-        // }
+       
 
 
         const favicon = req.files["favicon"]
@@ -101,7 +96,6 @@ class BasicSetting {
         });
       });
     } catch (error) {
-      // console.log("Error adding/updating basic setting:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",
@@ -123,7 +117,6 @@ class BasicSetting {
 
       });
     } catch (error) {
-      // console.log("Error retrieving settings:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",

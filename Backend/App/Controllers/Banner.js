@@ -12,7 +12,6 @@ class BannerController {
             await new Promise((resolve, reject) => {
                 upload('banner').fields([{ name: 'image', maxCount: 1 }])(req, res, (err) => {
                     if (err) {
-                        // console.log('File upload error:', err);
                         return reject(err);
                     }
 
@@ -55,7 +54,6 @@ class BannerController {
             });
     
         } catch (error) {
-            // console.log("Server error:", error);
             return res.status(500).json({ status: false, message: "Server error", data: [] });
         }
     }
@@ -63,7 +61,6 @@ class BannerController {
     // Get all Banner posts
     async getBanner(req, res) {
         try {
-        //    const Banner = await Banner_Modal.find({ del: false }).sort({created_at:-1});
         const Banner = await Banner_Modal.find({
   del: false,
   offer_status: { $ne: 1 }
@@ -75,7 +72,6 @@ class BannerController {
                 data: Banner
             });
         } catch (error) {
-            // console.log("Error retrieving Banner:", error);
             return res.status(500).json({
                 status: false,
                 message: "Server error",
@@ -87,7 +83,6 @@ class BannerController {
     async activeBanner(req, res) {
         try {
 
-           // const banner = await Banner_Modal.find({ del: false,status: true }).sort({created_at:-1});;
 const banner = await Banner_Modal.find({
   del: false,
   status: true,
@@ -101,7 +96,6 @@ const banner = await Banner_Modal.find({
                 data: banner
             });
         } catch (error) {
-            // console.log("Error retrieving Banner:", error);
             return res.status(500).json({
                 status: false,
                 message: "Server error",
@@ -114,7 +108,6 @@ const banner = await Banner_Modal.find({
     async activeBanners(req, res) {
         try {
 
-           // const banner = await Banner_Modal.find({ del: false,status: true }).sort({created_at:-1});;
 const banner = await Banner_Modal.find({
   del: false,
   offer_status: 1,
@@ -125,7 +118,6 @@ const banner = await Banner_Modal.find({
                 data: banner
             });
         } catch (error) {
-            // console.log("Error retrieving Banner:", error);
             return res.status(500).json({
                 status: false,
                 message: "Server error",
@@ -134,10 +126,6 @@ const banner = await Banner_Modal.find({
         }
     }
 
-
-
-
-    // Get a single Banner post by ID
     async detailBanner(req, res) {
         try {
             const { id } = req.params;
@@ -157,7 +145,6 @@ const banner = await Banner_Modal.find({
                 data: banner
             });
         } catch (error) {
-            // console.log("Error retrieving Banner:", error);
             return res.status(500).json({
                 status: false,
                 message: "Server error",
@@ -174,7 +161,6 @@ const banner = await Banner_Modal.find({
             await new Promise((resolve, reject) => {
                 upload('banner').fields([{ name: 'image', maxCount: 1 }])(req, res, (err) => {
                     if (err) {
-                        // console.log('File upload error:', err);
                         return reject(err);
                     }
 
@@ -219,7 +205,6 @@ const banner = await Banner_Modal.find({
                 });
             }
     
-            // console.log("Updated Banner:", updatedbanner);
             return res.json({
                 status: true,
                 message: "Banner updated successfully",
@@ -227,7 +212,6 @@ const banner = await Banner_Modal.find({
             });
     
         } catch (error) {
-            // console.log("Error updating Banner:", error);
             return res.status(500).json({
                 status: false,
                 message: "Server error",
@@ -243,7 +227,6 @@ const banner = await Banner_Modal.find({
         try {
             const { id } = req.params;
 
-            // const deletedBanner = await Banner_Modal.findByIdAndDelete(id);
             const deletedbanner = await Banner_Modal.findByIdAndUpdate(
                 id, 
                 { del: true }, // Set del to true
@@ -262,7 +245,6 @@ const banner = await Banner_Modal.find({
                 message: "Banner deleted successfully"
             });
         } catch (error) {
-            // console.log("Error deleting Banner:", error);
             return res.status(500).json({
                 status: false,
                 message: "Server error",
@@ -304,7 +286,6 @@ const banner = await Banner_Modal.find({
             });
       
         } catch (error) {
-            // console.log("Error updating status:", error);
             return res.status(500).json({
                 status: false,
                 message: "Server error",

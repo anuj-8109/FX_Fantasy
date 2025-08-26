@@ -79,14 +79,12 @@ class Users {
 
       await result.save();
 
-      // console.log("result", result);
       return res.json({
         status: true,
         message: "User added successfully",
       });
 
     } catch (error) {
-      // console.log("Error adding user:", error); // Log the full error
       return res.json({ status: false, message: "Server error", error: error.message });
     }
   }
@@ -96,7 +94,7 @@ class Users {
   async getUser(req, res) {
 
     try {
-      //const result = await Users_Modal.find()
+
       const result = await Users_Modal.find({ del: 0, Role: 2 }).sort({ createdAt: -1 });
       return res.json({
         status: true,
@@ -159,7 +157,6 @@ class Users {
       });
 
     } catch (error) {
-      // console.log("Error fetching user details:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",
@@ -218,7 +215,6 @@ class Users {
         });
       }
 
-      // console.log("Updated User:", updatedUser);
       return res.json({
         status: true,
         message: "User updated successfully",
@@ -226,7 +222,6 @@ class Users {
       });
 
     } catch (error) {
-      // console.log("Error updating User:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",
@@ -247,7 +242,6 @@ class Users {
         });
       }
 
-      //   const deletedUser = await Users_Modal.findByIdAndDelete(id);
       const deletedUser = await Users_Modal.findByIdAndDelete(
         id,
         { del: 1 }, // Set del to true
@@ -262,14 +256,12 @@ class Users {
         });
       }
 
-      // console.log("Deleted User:", deletedUser);
       return res.json({
         status: true,
         message: "User deleted successfully",
         data: deletedUser,
       });
     } catch (error) {
-      // console.log("Error deleting User:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",
@@ -283,10 +275,7 @@ class Users {
     try {
       const { UserName, password } = req.body;  // Extract password here
       const settings = await BasicSetting_Modal.findOne();
-      // if (!settings.staffstatus) {
-      //   return res.json({ status: false, message: "Your panel has been deactivated. Please contact the administrator for assistance." });
-      // }
-
+   
       if (!UserName) {
         return res.json({ status: false, message: "username is required" });
       }
@@ -443,7 +432,6 @@ class Users {
       });
 
     } catch (error) {
-      // console.log("Error updating User permissions:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",
@@ -583,7 +571,6 @@ class Users {
       });
 
     } catch (error) {
-      // console.log("Error in resetPassword:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",
@@ -631,7 +618,6 @@ class Users {
 
 
     } catch (error) {
-      // console.log("Error in changePassword:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",
@@ -683,7 +669,6 @@ class Users {
       });
 
     } catch (error) {
-      // console.log("Error in updateProfile:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",
