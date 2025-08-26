@@ -117,15 +117,6 @@ export async function GetUserDetails(token, id) {
 
 
 
-
-
-
-
-
-
-
-
-
 const logout = () => {
   localStorage.clear()
   window.location.href = "/"

@@ -1,104 +1,104 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as Yup from "yup";
-import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import { useNavigate, useParams } from "react-router-dom";
 import ReusableForm from "../../../extracomponents/ResuableForm";
-import { AddUser } from "../../../services/SuperAdmin";
+import { EditUser, GetUserDetails } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 
-const User = () => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+const EditUsers = () => {
+    const navigate = useNavigate();
+    const { id } = useParams();
+    const [loading, setLoading] = useState(false);
+    const [initialValues, setInitialValues] = useState({
+        FullName: "",
+        Email: "",
+        PhoneNo: "",
+        UserName: "",
+        password: "",
+    });
 
-  const initialValues = {
-    FullName: "",
-    Email: "",
-    PhoneNo: "",
-    UserName: "",
-    password: "",
-  };
+    const validationSchema = Yup.object({
+        FullName: Yup.string().required("Full Name is required").min(3, "Min 3 characters"),
+        Email: Yup.string().email("Invalid email format").required("Email is required"),
+        PhoneNo: Yup.string().matches(/^\d{10}$/, "Must be 10 digits").required("Phone number is required"),
+        UserName: Yup.string().min(3, "Min 3 characters").required("Username is required"),
+        password: Yup.string()
+            .min(8, "Min 8 characters")
+            .matches(/[A-Z]/, "At least one uppercase")
+            .matches(/[a-z]/, "At least one lowercase")
+            .matches(/\d/, "At least one number")
+            .matches(/[@$!%*?&#]/, "At least one special character")
+            .notRequired(),
+    });
 
-  // ✅ Same validation as backend
-  const validationSchema = Yup.object({
-    FullName: Yup.string()
-      .required("Full Name is required")
-      .min(3, "Full Name must be at least 3 characters"),
-    Email: Yup.string()
-      .email("Invalid email format")
-      .required("Email is required"),
-    PhoneNo: Yup.string()
-      .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
-      .required("Phone number is required"),
-    UserName: Yup.string()
-      .min(3, "Username must be at least 3 characters long")
-      .required("Username is required"),
-    password: Yup.string()
-      .min(8, "Password must be at least 8 characters")
-      .matches(/[A-Z]/, "Password must have at least one uppercase letter")
-      .matches(/[a-z]/, "Password must have at least one lowercase letter")
-      .matches(/\d/, "Password must have at least one number")
-      .matches(/[@$!%*?&#]/, "Password must have at least one special character (@$!%*?&#)")
-      .required("Password is required"),
-  });
+    const fields = [
+        { name: "FullName", label: "Full Name*", type: "text", className: "w-full" },
+        { name: "Email", label: "Email*", type: "email", className: "w-full" },
+        { name: "PhoneNo", label: "Phone No*", type: "text", className: "w-full" },
+        { name: "UserName", label: "Username*", type: "text", className: "w-full" },
+        { name: "password", label: "Password (Leave blank if unchanged)", type: "password", className: "w-full col-span-2" },
+    ];
 
-  const fields = [
-    { name: "FullName", label: "Full Name*", type: "text", className: "w-full" },
-    { name: "Email", label: "Email*", type: "email", className: "w-full" },
-    { name: "PhoneNo", label: "Phone No*", type: "text", className: "w-full" },
-    { name: "UserName", label: "Username*", type: "text", className: "w-full" },
-    { name: "password", label: "Password*", type: "password", className: "w-full", colClass: "col-span-2" },
-  ];
+    useEffect(() => {
+        const fetchUserDetails = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const response = await GetUserDetails(token, id);
+                if (response?.data) {
+                    setInitialValues({
+                        FullName: response.data.FullName || "",
+                        Email: response.data.Email || "",
+                        PhoneNo: response.data.PhoneNo || "",
+                        UserName: response.data.UserName || "",
+                        password: "",
+                    });
+                }
+            } catch (err) {
+                toast.error("Failed to load user details");
+            }
+        };
+        fetchUserDetails();
+    }, [id]);
 
-  const onSubmit = async (values) => {
-    setLoading(true);
-    const token = localStorage.getItem("token");
-    const add_by = localStorage.getItem("add_by");
+    const onSubmit = async (values) => {
+        setLoading(true);
+        const token = localStorage.getItem("token");
 
-    const data = { ...values, add_by };
+        try {
+            const res = await EditUser(token, id, values);
+            if (res?.status === true) {
+                toast.success("User updated successfully!");
+                navigate("/superadmin/alluser");
+            } else {
+                toast.error(res?.message || "Failed to update user");
+            }
+        } catch (error) {
+            toast.error("Something went wrong while editing");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    try {
-      const res = await AddUser(data, token);
-
-      // ✅ Backend duplicate check error
-      if (res?.status === false && res?.message?.includes("exists")) {
-        toast.error(res.message);
-        return;
-      }
-
-      if (res?.status === true) {
-        toast.success("User added successfully!");
-        navigate("/superadmin/alluser");
-      } else {
-        toast.error(res?.message || "Something went wrong");
-      }
-    } catch (error) {
-      console.error("API Error:", error);
-      Swal.fire("Error!", "Something went wrong", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="w-full max-w-2xl-lg bg-white rounded-2xl shadow-xl p-8">
-        <h2 className="text-center text-2xl font-bold mb-6 text-gray-700">Add User</h2>
-
-        <ReusableForm
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={onSubmit}
-          fields={fields}
-          submitButton={{
-            label: loading ? "Adding..." : "Add User",
-            className:
-              "col-span-2 mt-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold shadow-lg hover:opacity-90 transition disabled:opacity-50",
-            disabled: loading,
-          }}
-        />
-      </div>
-    </div>
-  );
+    return (
+        <div className="min-h-screen bg-gray-50 p-8">
+            <h2 className="text-left ms-3 text-2xl font-bold mb-6 text-gray-700">Edit User</h2>
+            <div className="w-full max-w-2xl-lg bg-white rounded-2xl shadow-xl p-8">
+                <ReusableForm
+                    initialValues={initialValues}
+                    enableReinitialize={true} // Ensures form updates when data loads
+                    validationSchema={validationSchema}
+                    onSubmit={onSubmit}
+                    fields={fields}
+                    submitButton={{
+                        label: loading ? "Updating..." : "Update User",
+                        className:
+                            "col-span-2 mt-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold shadow-lg hover:opacity-90 transition disabled:opacity-50",
+                        disabled: loading,
+                    }}
+                />
+            </div>
+        </div>
+    );
 };
 
-export default User;
+export default EditUsers;

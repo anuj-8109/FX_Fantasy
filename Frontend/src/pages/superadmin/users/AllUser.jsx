@@ -25,30 +25,9 @@ const AllUsers = () => {
     navigate("/superadmin/addUser");
   };
 
-  const handleEdit = async (row) => {
-    const token = localStorage.getItem("token");
-
-    const updatedData = {
-      FullName: "Updated Name", 
-      Email: row.Email,
-      PhoneNo: row.PhoneNo,
-      UserName: row.UserName,
-    };
-
-    try {
-      const res = await EditUser(token, row._id, updatedData); 
-
-      if (res?.status === true) {
-        toast.success("User updated successfully!");
-        fetchAllUsers(); // refresh list after edit
-      } else {
-        toast.error(res?.message || "Failed to update user");
-      }
-    } catch (error) {
-      toast.error("Something went wrong while editing");
-    }
-  };
-
+  const handleEdit = (row) => {
+  navigate(`/superadmin/EditUsers/${row._id}`);
+};
 
 
   const handleDelete = (row) => {
