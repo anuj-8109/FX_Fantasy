@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
-import SuperAdminHeader from "../components/superadmin/SuperAdminHeader";
-import SuperAdminSidebar from "../components/superadmin/SuperAdminSidebar";
+import SuperAdminHeader from "../components/superadmin/Header";
+import SuperAdminSidebar from "../components/superadmin/Sidebar";
 
 const SuperAdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);

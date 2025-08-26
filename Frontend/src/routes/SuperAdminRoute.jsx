@@ -3,8 +3,8 @@ import { Route } from "react-router-dom";
 import SuperAdminLayout from "../layouts/SuperAdminLayout";
 
 import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard";
-import SuperAdminHeader from "../components/superadmin/SuperAdminHeader";
-import SuperAdminSidebar from "../components/superadmin/SuperAdminSidebar";
+import SuperAdminHeader from "../components/superadmin/Header";
+import SuperAdminSidebar from "../components/superadmin/Sidebar";
 import Analytics from "../pages/superadmin/Analytics";
 import Contests from "../pages/superadmin/Contests";
 import Games from "../pages/superadmin/Games";
@@ -21,7 +21,7 @@ import EditUsers from "../pages/superadmin/users/EditUser";
 import MyProfile from "../pages/superadmin/profile/MyProfile";
 
 import ChangePassword from "../pages/superadmin/profile/ChangePassword";
-import EmailTemplates from "../pages/superadmin/basicsettings/EmailTempelates";
+import EmailTemplates from "../pages/superadmin/basicsettings/EmailTemplates";
 
 const SuperAdminRoutes = () => {
   return (

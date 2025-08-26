@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import AdminSidebar from "../../components/superadmin/SuperAdminSidebar";
-import AdminHeader from "../../components/superadmin/SuperAdminHeader";
+import AdminSidebar from "../../components/superadmin/Sidebar";
+import AdminHeader from "../../components/superadmin/Header";
 
 const Settings = () => {
   const [general, setGeneral] = useState({
