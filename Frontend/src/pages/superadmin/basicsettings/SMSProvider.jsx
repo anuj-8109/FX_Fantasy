@@ -15,6 +15,7 @@ const SMSProviders = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // form states
   const [name, setName] = useState("");
   const [apikey, setApikey] = useState("");
   const [username, setUsername] = useState("");
@@ -57,7 +58,9 @@ const SMSProviders = () => {
   };
 
   // save provider
-  const handleSave = async () => {
+  const handleSave = async (e) => {
+    e.preventDefault();
+
     const confirm = await Swal.fire({
       title: "Are you sure?",
       text: "Do you want to update this SMS Provider?",
@@ -109,7 +112,6 @@ const SMSProviders = () => {
     if (!confirm.isConfirmed) return;
 
     const payload = { providerId: provider._id };
-    
     const res = await UpdateSmsProviderStatus(token, payload);
 
     if (res?.status) {
@@ -137,191 +139,170 @@ const SMSProviders = () => {
           {providers?.map((provider) => (
             <div
               key={provider._id}
-              className="border rounded-2xl shadow-md p-5 flex flex-col"
+              className="border rounded-2xl shadow-md p-5 flex flex-col bg-white"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <p className="text-xs uppercase tracking-wide ">
-                    Provider Name
-                  </p>
-                  <p className="text-base font-semibold text-gray-800">
-                    {provider.name}
-                  </p>
-                </div>
-
+              {/* Top - Active Status & Edit */}
+              <div className="flex items-center justify-between mb-4">
+                <label className="flex items-center gap-2 text-sm font-medium">
+                  <input
+                    type="checkbox"
+                    checked={provider.status === 1}
+                    onChange={() => handleStatusChange(provider)}
+                    className="h-4 w-4"
+                  />
+                  Active Status
+                </label>
                 <button
                   onClick={() => handleEdit(provider)}
-                  className="p-2 rounded-full   transition"
+                  className="p-2 rounded-full hover:bg-gray-100 transition"
                   title="Edit Provider"
                 >
                   <Edit size={18} />
                 </button>
               </div>
 
-              {/* Details Section */}
-              <div className="text-sm space-y-2">
-                <p>
-                  <span className="font-medium">API Key:</span>{" "}
-                  {provider.apikey || "-"}
-                </p>
-                <p>
-                  <span className="font-medium">Username:</span>{" "}
-                  {provider.username || "-"}
-                </p>
-                <p>
-                  <span className="font-medium">Password:</span>{" "}
-                  {provider.password || "-"}
-                </p>
-                <p>
-                  <span className="font-medium">Route:</span>{" "}
-                  {provider.route || "-"}
-                </p>
-                <p>
-                  <span className="font-medium">Entity ID:</span>{" "}
-                  {provider.entity_id || "-"}
-                </p>
-                <p>
-                  <span className="font-medium">Sender:</span>{" "}
-                  {provider.sender || "-"}
-                </p>
-                <p className="break-words">
-                  <span className="font-medium">URL:</span>{" "}
-                  {provider.url || "-"}
-                </p>
-                <p>
-                  <span className="font-medium">Status:</span>{" "}
-                  {provider.status === 1 ? "Active" : "Inactive"}
-                </p>
-              </div>
+              {/* Divider */}
+              <div className="border-b mb-3"></div>
 
-              <button
-                onClick={() => handleStatusChange(provider)}
-                className={`mt-4 px-4 py-2 rounded-lg  ${
-                  provider.status === 1
-                    ? "bg-red-500 hover:bg-red-600"
-                    : "bg-green-500 hover:bg-green-600"
-                }`}
-              >
-                {provider.status === 1 ? "Deactivate" : "Activate"}
-              </button>
+              {/* Data Fields */}
+              <div className="space-y-2 text-sm flex-1">
+                {[
+                  { label: "Name", value: provider.name },
+                  { label: "Username", value: provider.username },
+                  { label: "Password", value: provider.password },
+                  { label: "API Key", value: provider.apikey },
+                  { label: "Sender", value: provider.sender },
+                  { label: "Route", value: provider.route },
+                  { label: "Entity ID", value: provider.entity_id },
+                  { label: "URL", value: provider.url },
+                ]?.map((field, i) => (
+                  <div key={i}>
+                    <label className="text-gray-500 text-xs">
+                      {field.label}
+                    </label>
+                    <input
+                      type="text"
+                      value={field.value || "-"}
+                      readOnly
+                      className="w-full mt-1 border rounded-md px-2 py-1 text-gray-700 bg-gray-50 text-sm"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>
 
         {/* Modal */}
         {open && (
-          <div className="fixed inset-0 flex items-center justify-center  z-50">
-            <div className=" w-full max-w-lg rounded-2xl bg-blue-400 shadow-2xl p-6 animate-fadeIn max-h-[90vh] overflow-y-auto">
-              <h2 className="text-xl font-semibold  mb-6 border-b pb-3">
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6 animate-fadeIn max-h-[90vh] overflow-y-auto">
+              <h2 className="text-xl font-semibold mb-6 border-b pb-3 text-gray-800">
                 ✏️ Edit SMS Provider
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium  mb-1 block">
-                    Name
-                  </label>
-                  <input
-                    className="w-full border rounded-lg px-3 py-2 text-sm"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
+              {/* Edit Form */}
+              <form onSubmit={handleSave}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-gray-600 text-sm">Name</label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full border rounded-md px-3 py-2 mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-gray-600 text-sm">Username</label>
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="w-full border rounded-md px-3 py-2 mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-gray-600 text-sm">Password</label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full border rounded-md px-3 py-2 mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-gray-600 text-sm">API Key</label>
+                    <input
+                      type="text"
+                      value={apikey}
+                      onChange={(e) => setApikey(e.target.value)}
+                      className="w-full border rounded-md px-3 py-2 mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-gray-600 text-sm">Sender</label>
+                    <input
+                      type="text"
+                      value={sender}
+                      onChange={(e) => setSender(e.target.value)}
+                      className="w-full border rounded-md px-3 py-2 mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-gray-600 text-sm">Route</label>
+                    <input
+                      type="text"
+                      value={route}
+                      onChange={(e) => setRoute(e.target.value)}
+                      className="w-full border rounded-md px-3 py-2 mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-gray-600 text-sm">Entity ID</label>
+                    <input
+                      type="text"
+                      value={entityId}
+                      onChange={(e) => setEntityId(e.target.value)}
+                      className="w-full border rounded-md px-3 py-2 mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-gray-600 text-sm">URL</label>
+                    <input
+                      type="text"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      className="w-full border rounded-md px-3 py-2 mt-1"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="text-sm font-medium  mb-1 block">
-                    API Key
-                  </label>
-                  <input
-                    className="w-full border rounded-lg px-3 py-2 text-sm"
-                    value={apikey}
-                    onChange={(e) => setApikey(e.target.value)}
-                  />
+                {/* Buttons */}
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="px-4 py-2 rounded-md border bg-gray-100 hover:bg-gray-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+                  >
+                    {loading ? "Saving..." : "Save"}
+                  </button>
                 </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-1 block">
-                    Username
-                  </label>
-                  <input
-                    className="w-full border rounded-lg px-3 py-2 text-sm"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium  mb-1 block">
-                    Password
-                  </label>
-                  <input
-                    className="w-full border rounded-lg px-3 py-2 text-sm"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium  mb-1 block">
-                    Route
-                  </label>
-                  <input
-                    className="w-full border rounded-lg px-3 py-2 text-sm"
-                    value={route}
-                    onChange={(e) => setRoute(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium  mb-1 block">
-                    Entity ID
-                  </label>
-                  <input
-                    className="w-full border rounded-lg px-3 py-2 text-sm"
-                    value={entityId}
-                    onChange={(e) => setEntityId(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-gray-600 mb-1 block">
-                    Sender
-                  </label>
-                  <input
-                    className="w-full border rounded-lg px-3 py-2 text-sm"
-                    value={sender}
-                    onChange={(e) => setSender(e.target.value)}
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="text-sm font-medium text-gray-600 mb-1 block">
-                    URL
-                  </label>
-                  <input
-                    className="w-full border rounded-lg px-3 py-2 text-sm"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="flex justify-end gap-3 mt-8">
-                <button
-                  onClick={handleCancel}
-                  className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow"
-                  disabled={loading}
-                >
-                  {loading ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
+              </form>
             </div>
           </div>
         )}

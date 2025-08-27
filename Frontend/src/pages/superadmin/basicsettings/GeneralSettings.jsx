@@ -5,6 +5,7 @@ import {
 } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Content from "../../../components/superadmin/Content";
+import Swal from "sweetalert2";
 
 const GeneralSettings = () => {
   const token = localStorage.getItem("token");
@@ -70,21 +71,33 @@ const GeneralSettings = () => {
     }));
   };
 
-  const updateBasicSettings = async () => {
-    setUpdateLoading(true);
-    try {
-      const response = await UpdateBasicSettings(token, formData);
-      toast.success(response?.message || "Basic settings updated successfully");
-      fetchBasicSettings();
-    } catch (error) {
-      toast.error(
-        "Error updating basic settings: " + (error?.message || error)
-      );
-      console.error("Error updating settings:", error);
-    } finally {
-      setUpdateLoading(false);
-    }
-  };
+const updateBasicSettings = async () => {
+  const confirm = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to update the basic settings?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Update",
+    cancelButtonText: "Cancel",
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  setUpdateLoading(true);
+  try {
+    const response = await UpdateBasicSettings(token, formData);
+    toast.success(response?.message || "Basic settings updated successfully");
+    fetchBasicSettings();
+  } catch (error) {
+    toast.error(
+      "Error updating basic settings: " + (error?.message || error)
+    );
+    console.error("Error updating settings:", error);
+  } finally {
+    setUpdateLoading(false);
+  }
+};
+
 
   const handleSubmit = (e) => {
     e.preventDefault();

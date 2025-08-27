@@ -24,6 +24,9 @@ import ChangePassword from "../pages/superadmin/profile/ChangePassword";
 import EmailTemplates from "../pages/superadmin/basicsettings/EmailTemplates";
 import SMSProviders from "../pages/superadmin/basicsettings/SMSProvider";
 import GeneralSettings from "../pages/superadmin/basicsettings/GeneralSettings";
+import SMSTemplates from "../pages/superadmin/basicsettings/SMSTemplates";
+import Content from "../pages/superadmin/content/Content";
+import Banner from "../pages/superadmin/banner/Banner";
 
 const SuperAdminRoutes = () => {
   return (
@@ -42,13 +45,16 @@ const SuperAdminRoutes = () => {
         <Route path="wallet" element={<Wallet />} />
         <Route path="alluser" element={<AllUsers />} />
         <Route path="activeuser" element={<ActiveUser />} />
-         <Route path="AddUser" element={<AddUser />} />
-         <Route path="EditUsers/:id" element={<EditUsers />} />
-         <Route path="myprofile" element={<MyProfile />} />
-         <Route path="changepassword" element={<ChangePassword />} />
-         <Route path="email-templates" element={<EmailTemplates />} />
-         <Route path="sms-providers" element={<SMSProviders />} />
-         <Route path="general-settings" element={<GeneralSettings />} />
+        <Route path="AddUser" element={<AddUser />} />
+        <Route path="EditUsers/:id" element={<EditUsers />} />
+        <Route path="myprofile" element={<MyProfile />} />
+        <Route path="changepassword" element={<ChangePassword />} />
+        <Route path="email-templates" element={<EmailTemplates />} />
+        <Route path="sms-providers" element={<SMSProviders />} />
+        <Route path="general-settings" element={<GeneralSettings />} />
+        <Route path="sms-templates" element={<SMSTemplates />} />
+        <Route path="content" element={<Content />} />
+        <Route path="banner" element={<Banner />} />
       </Route>
     </>
   );

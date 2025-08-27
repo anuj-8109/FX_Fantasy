@@ -1,0 +1,200 @@
+import React, { useState, useEffect } from "react";
+import { Edit } from "lucide-react";
+import Swal from "sweetalert2";
+import { GetSMSTemplateList, UpdateSMSTemplate } from "../../../services/SuperAdmin";
+import toast from "react-hot-toast";
+import Content from "../../../components/superadmin/Content";
+
+const SMSTemplates = () => {
+  const token = localStorage.getItem("token");
+
+  const [templates, setTemplates] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // modal states
+  const [open, setOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+
+  // form states
+  const [templateid, setTemplateId] = useState("");
+  const [smsBody, setSmsBody] = useState("");
+
+  // fetch templates
+  const fetchTemplates = async () => {
+    try {
+      setLoading(true);
+      const response = await GetSMSTemplateList(token);
+      if (response?.status) {
+        setTemplates(response?.data || []);
+      } else {
+        toast.error(response?.message || "Failed to load templates");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error fetching SMS Templates");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  // handle edit
+  const handleEdit = (template) => {
+    setSelectedTemplate(template);
+    setTemplateId(template?.templateid || "");
+    setSmsBody(template?.sms_body || "");
+    setOpen(true);
+  };
+
+  // cancel
+  const handleCancel = () => {
+    setOpen(false);
+    setSelectedTemplate(null);
+  };
+
+  // save
+  const handleSave = async (e) => {
+    e.preventDefault();
+
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to update this SMS Template?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Update",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    const payload = {
+      id: selectedTemplate._id,
+      templateid,
+      sms_body: smsBody,
+    };
+
+    try {
+      setLoading(true);
+      const response = await UpdateSMSTemplate(token, payload);
+      if (response?.status) {
+        toast.success(response?.message || "Template updated successfully");
+        fetchTemplates();
+        setOpen(false);
+      } else {
+        toast.error(response?.message || "Failed to update template");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error updating SMS Template");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Content Page_title="SMS Templates" button_title="back" button_status={true}>
+      <div className="p-6 min-h-screen">
+        {/* Template Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {templates?.map((template) => (
+            <div
+              key={template._id}
+              className="border rounded-2xl shadow-md p-5 flex flex-col bg-white"
+            >
+              {/* Top - Edit */}
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-medium text-gray-600">SMS Template</span>
+                <button
+                  onClick={() => handleEdit(template)}
+                  className="p-2 rounded-full hover:bg-gray-100 transition"
+                  title="Edit Template"
+                >
+                  <Edit size={18} />
+                </button>
+              </div>
+
+              <div className="border-b mb-3"></div>
+
+              {/* Fields */}
+              <div className="space-y-2 text-sm flex-1">
+                {[
+                  { label: "SMS Type", value: template.sms_type },
+                  { label: "Template ID", value: template.templateid },
+                  { label: "SMS Body", value: template.sms_body },
+                ].map((field, i) => (
+                  <div key={i}>
+                    <label className="text-gray-500 text-xs">{field.label}</label>
+                    <input
+                      type="text"
+                      value={field.value || "-"}
+                      readOnly
+                      className="w-full mt-1 border rounded-md px-2 py-1 text-gray-700 bg-gray-50 text-sm"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Modal */}
+        {open && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6 animate-fadeIn">
+              <h2 className="text-xl font-semibold mb-6 border-b pb-3 text-gray-800">
+                ✏️ Edit SMS Template
+              </h2>
+
+              <form onSubmit={handleSave}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-gray-600 text-sm">Template ID</label>
+                    <input
+                      type="text"
+                      value={templateid}
+                      onChange={(e) => setTemplateId(e.target.value)}
+                      className="w-full border rounded-md px-3 py-2 mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-gray-600 text-sm">SMS Body</label>
+                    <textarea
+                      value={smsBody}
+                      onChange={(e) => setSmsBody(e.target.value)}
+                      rows="4"
+                      className="w-full border rounded-md px-3 py-2 mt-1"
+                    />
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="px-4 py-2 rounded-md border bg-gray-100 hover:bg-gray-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+                  >
+                    {loading ? "Saving..." : "Save"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    </Content>
+  );
+};
+
+export default SMSTemplates;
