@@ -23,6 +23,7 @@ import MyProfile from "../pages/superadmin/profile/MyProfile";
 import ChangePassword from "../pages/superadmin/profile/ChangePassword";
 import EmailTemplates from "../pages/superadmin/basicsettings/EmailTemplates";
 import SMSProviders from "../pages/superadmin/basicsettings/SMSProvider";
+import GeneralSettings from "../pages/superadmin/basicsettings/GeneralSettings";
 
 const SuperAdminRoutes = () => {
   return (
@@ -47,6 +48,7 @@ const SuperAdminRoutes = () => {
          <Route path="changepassword" element={<ChangePassword />} />
          <Route path="email-templates" element={<EmailTemplates />} />
          <Route path="sms-providers" element={<SMSProviders />} />
+         <Route path="general-settings" element={<GeneralSettings />} />
       </Route>
     </>
   );

@@ -16,6 +16,7 @@ import {
   Settings2,
   Mail,
   MessageSquare ,
+  SettingsIcon
 } from "lucide-react";
 
 const menuItems = [
@@ -42,7 +43,8 @@ const menuItems = [
     icon: <Settings2 />,
     children: [
       { title:"Email Templates", url: "/superadmin/email-templates", icon: <Mail /> },
-     {title:"SMS Provider", url: "/superadmin/sms-providers", icon: <MessageSquare  />}
+      {title:"General Settings", url: "/superadmin/general-settings", icon: <SettingsIcon />},
+     {title:"SMS Provider", url: "/superadmin/sms-providers", icon: <MessageSquare  />},
 
     ],
   },
