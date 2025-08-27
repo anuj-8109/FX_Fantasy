@@ -213,6 +213,32 @@ export async function UpdateSmsProviderStatus(token, providerId) {
   }
 }
 
+export async function GetBasicSettingDetails(token){
+  try{
+    const response=await axios.get(`${config.base_url}basicsetting/detail`,{
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function UpdateBasicSettings(token, data){
+  try{
+    const response=await axios.post(`${config.base_url}basicsetting/add`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
 const logout = () => {
   localStorage.clear();
   window.location.href = "/";
