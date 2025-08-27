@@ -15,7 +15,7 @@ import {
   UserCheck,
   Settings2,
   Mail,
-  MessageSquare ,
+  MessageSquare,
 } from "lucide-react";
 
 const menuItems = [
@@ -41,8 +41,8 @@ const menuItems = [
     url: "/superadmin/basicsettings",
     icon: <Settings2 />,
     children: [
-      { title:"Email Templates", url: "/superadmin/email-templates", icon: <Mail /> },
-     {title:"SMS Provider", url: "/superadmin/sms-providers", icon: <MessageSquare  />}
+      { title: "Email Templates", url: "/superadmin/email-templates", icon: <Mail /> },
+      { title: "SMS Provider", url: "/superadmin/sms-providers", icon: <MessageSquare /> }
 
     ],
   },
@@ -67,11 +67,7 @@ const SuperAdminSidebar = ({ collapsed }) => {
   };
 
   return (
-    <aside
-      className={`min-h-screen transition-all duration-300 ${collapsed ? "w-20" : "w-64"
-        }`}
-     
-    >
+    <aside className={` ${collapsed ? "w-20" : "w-64"} sticky top-0 h-screen transition-all`}>
       <div className="flex flex-col p-4 h-full">
         <nav className="flex-1 space-y-2">
           {menuItems.map((item) => (
