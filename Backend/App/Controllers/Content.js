@@ -19,7 +19,6 @@ class Content {
               return res.status(400).json({ status: false, message: "add_by is required" });
             }
     
-            // console.log("Request Body:", req.body);
     
             const result = new Content_Modal({
                 title,
@@ -29,7 +28,6 @@ class Content {
     
             await result.save();
     
-            // console.log("Content successfully added:", result);
             return res.json({
                 status: true,
                 message: "Content added successfully",
@@ -37,8 +35,6 @@ class Content {
             });
     
         } catch (error) {
-            // Enhanced error logging
-            // console.log("Error adding Content:", error);
     
             return res.status(500).json({
                 status: false,
@@ -112,7 +108,6 @@ class Content {
         });
 
     } catch (error) {
-        // console.log("Error fetching Content details:", error);
         return res.status(500).json({
             status: false,
             message: "Server error",
@@ -158,7 +153,6 @@ class Content {
         });
       }
   
-      // console.log("Updated Content:", updatedContent);
       return res.json({
         status: true,
         message: "Content updated successfully",
@@ -166,7 +160,6 @@ class Content {
       });
   
     } catch (error) {
-      // console.log("Error updating Content:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",
@@ -187,7 +180,6 @@ class Content {
         });
       }
 
-     // const deletedContent = await Content_Modal.findByIdAndDelete(id);
 
       const deletedContent = await Content_Modal.findByIdAndUpdate(
         id, 
@@ -203,14 +195,12 @@ class Content {
         });
       }
 
-      // console.log("Deleted Content:", deletedContent);
       return res.json({
         status: true,
         message: "Content deleted successfully",
         data: deletedContent,
       });
     } catch (error) {
-      // console.log("Error deleting Content:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",
@@ -253,7 +243,6 @@ class Content {
         });
   
     } catch (error) {
-        // console.log("Error updating status:", error);
         return res.status(500).json({
             status: false,
             message: "Server error",

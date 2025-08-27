@@ -61,7 +61,6 @@ class Smsprovider {
         });
       }
   
-      // console.log("Updated Mailtemplate:", updatedMailtemplate);
       return res.json({
         status: true,
         message: "Smsprovider updated successfully",
@@ -69,7 +68,6 @@ class Smsprovider {
       });
   
     } catch (error) {
-      // console.error("Error updating Mailtemplate:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",

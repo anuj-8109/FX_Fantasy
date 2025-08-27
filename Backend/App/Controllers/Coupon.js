@@ -10,14 +10,11 @@ class Coupon {
     async AddCoupon(req, res) {
         try {
 
-
           await new Promise((resolve, reject) => {
             upload('coupon').fields([{ name: 'image', maxCount: 1 }])(req, res, (err) => {
                 if (err) {
-                    // console.log('File upload error:', err);
                     return reject(err);
                 }
-
 
                 resolve();
             });
@@ -91,47 +88,7 @@ class Coupon {
 
            
 
-          // const clients = await Clients_Modal.find({
-          //   del: 0,
-          //   ActiveStatus: 1,
-          //   devicetoken: { $exists: true, $ne: null }
-          // }).select('devicetoken');
-
-          // const tokens = clients.map(client => client.devicetoken);
-
-          // if (tokens.length > 0) {
-
-
-          //   const notificationTitle = 'Important Update';
-          //   const notificationBody =`Discount Offer: Get up to ${value} off! Use code: ${code}.`;
-
-            
-          //   const resultn = new Notification_Modal({
-          //     segmentid:result._id,
-          //     type:"add coupon",
-          //     title: notificationTitle,
-          //     message: notificationBody
-          // });
-  
-          // await resultn.save();
-
-
-          // try {
-          //   // Send notifications to all device tokens
-          //   await sendFCMNotification(notificationTitle, notificationBody, tokens, "add coupon");
-          //   console.log('Notifications sent successfully');
-          // } catch (error) {
-          //   console.log('Error sending notifications:', error);
-          // }
-
-
-          // }
-
-
-
-
-
-            // console.log("Coupon successfully added:", result);
+       
             return res.json({
                 status: true,
                 message: "Coupon added successfully",
@@ -139,8 +96,7 @@ class Coupon {
             });
     
         } catch (error) {
-            // Enhanced error logging
-            // console.log("Error adding coupon:", error);
+            
     
             return res.status(500).json({
                 status: false,
@@ -216,7 +172,6 @@ class Coupon {
         });
 
     } catch (error) {
-        // console.log("Error fetching Coupon details:", error);
         return res.status(500).json({
             status: false,
             message: "Server error",
@@ -235,7 +190,6 @@ class Coupon {
       await new Promise((resolve, reject) => {
         upload('coupon').fields([{ name: 'image', maxCount: 1 }])(req, res, (err) => {
             if (err) {
-                // console.log('File upload error:', err);
                 return reject(err);
             }
 
@@ -270,9 +224,7 @@ class Coupon {
         return res.status(400).json({ status: false, message: "min purchase value  is required" });
       }
 
-     
-
-  
+    
 
       if (!id) {
         return res.status(400).json({
@@ -337,7 +289,6 @@ class Coupon {
         });
       }
   
-      // console.log("Updated Coupon:", updatedCoupon);
       return res.json({
         status: true,
         message: "Coupon updated successfully",
@@ -345,7 +296,6 @@ class Coupon {
       });
   
     } catch (error) {
-      // console.log("Error updating Coupon:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",
@@ -366,7 +316,6 @@ class Coupon {
         });
       }
 
-      //const deletedCoupon = await Coupon_Modal.findByIdAndDelete(id);
       const deletedCoupon = await Coupon_Modal.findByIdAndUpdate(
         id, 
         { del: true }, // Set del to true
@@ -380,14 +329,12 @@ class Coupon {
         });
       }
 
-      // console.log("Deleted Coupon:", deletedCoupon);
       return res.json({
         status: true,
         message: "Coupon deleted successfully",
         data: deletedCoupon,
       });
     } catch (error) {
-      // console.log("Error deleting Coupon:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",
@@ -429,7 +376,6 @@ class Coupon {
         });
   
     } catch (error) {
-        // console.log("Error updating status:", error);
         return res.status(500).json({
             status: false,
             message: "Server error",
@@ -500,11 +446,8 @@ if(status=='1')
 
 
           try {
-            // Send notifications to all device tokens
             await sendFCMNotification(notificationTitle, notificationBody, tokens, "add coupon");
-            // console.log('Notifications sent successfully');
           } catch (error) {
-            // console.log('Error sending notifications:', error);
           }
 
 
@@ -537,7 +480,6 @@ if(status=='1')
         });
   
     } catch (error) {
-        // console.log("Error updating status:", error);
         return res.status(500).json({
             status: false,
             message: "Server error",

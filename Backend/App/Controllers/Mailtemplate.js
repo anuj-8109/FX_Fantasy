@@ -8,10 +8,6 @@ class Mailtemplate {
   async getMailtemplate(req, res) {
     try {
 
-
-      // const { } = req.body;
-
-    //  const result = await Mailtemplate_Modal.find()
       const result = await Mailtemplate_Modal.find();
 
 

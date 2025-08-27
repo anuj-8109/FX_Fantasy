@@ -70,9 +70,6 @@ class NewsController {
     async getNews(req, res) {
         try {
 
-
-        
-           // const news = await News_Modal.find();
             const news = await News_Modal.find({ del: false }).sort({created_at:-1});
 
             return res.status(200).json({
@@ -93,9 +90,6 @@ class NewsController {
     async activeNews(req, res) {
         try {
 
-
-        
-           // const news = await News_Modal.find();
             const news = await News_Modal.find({ del: false,status: true });
 
             return res.status(200).json({
@@ -229,8 +223,6 @@ class NewsController {
     async deleteNews(req, res) {
         try {
             const { id } = req.params;
-
-          //  const deletedNews = await News_Modal.findByIdAndDelete(id);
 
           const deletedNews = await News_Modal.findByIdAndUpdate(
             id, 
