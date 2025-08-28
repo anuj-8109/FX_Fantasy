@@ -33,6 +33,14 @@ const ContestJoinSchema = new Schema({
     default: 1,
     min: 0
   },
+   points: {
+    type: Number,
+    default: 0 // calculate later
+  },
+  rank: {
+    type: Number,
+    default: 0 // assign when contest ends
+  },
   joined_at: {
     type: Date,
     default: Date.now
