@@ -1,7 +1,6 @@
 import React from "react";
 import { Route } from "react-router-dom";
 import SuperAdminLayout from "../layouts/SuperAdminLayout";
-
 import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard";
 import SuperAdminHeader from "../components/superadmin/Header";
 import SuperAdminSidebar from "../components/superadmin/Sidebar";
@@ -17,9 +16,7 @@ import AllUsers from "../pages/superadmin/users/AllUser";
 import ActiveUser from "../pages/superadmin/users/ActiveUser";
 import AddUser from "../pages/superadmin/users/AddUser";
 import EditUsers from "../pages/superadmin/users/EditUser";
-
 import MyProfile from "../pages/superadmin/profile/MyProfile";
-
 import ChangePassword from "../pages/superadmin/profile/ChangePassword";
 import EmailTemplates from "../pages/superadmin/basicsettings/EmailTemplates";
 import SMSProviders from "../pages/superadmin/basicsettings/SMSProvider";
@@ -27,6 +24,7 @@ import GeneralSettings from "../pages/superadmin/basicsettings/GeneralSettings";
 import SMSTemplates from "../pages/superadmin/basicsettings/SMSTemplates";
 import Content from "../pages/superadmin/content/Content";
 import Banner from "../pages/superadmin/banner/Banner";
+import Blog from "../pages/superadmin/blog/Blog";
 
 const SuperAdminRoutes = () => {
   return (
@@ -55,6 +53,7 @@ const SuperAdminRoutes = () => {
         <Route path="sms-templates" element={<SMSTemplates />} />
         <Route path="content" element={<Content />} />
         <Route path="banner" element={<Banner />} />
+        <Route path="blog" element={<Blog />} />
       </Route>
     </>
   );

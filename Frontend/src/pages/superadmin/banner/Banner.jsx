@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/Datatable";
-import { Image, Edit, Eye, FileImage } from "lucide-react";
+import { Image, Edit, FileImage } from "lucide-react";
 import {
   GetBannerList,
   AddBanner,
@@ -16,17 +16,13 @@ const Banner = () => {
   const [open, setOpen] = useState(false);
   const [selectedBanner, setSelectedBanner] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [viewOpen, setViewOpen] = useState(false);
-  const [viewBanner, setViewBanner] = useState(null);
-
-  // form fields
+  const add_by = localStorage.getItem("add_by");
   const [image, setImage] = useState("");
   const [hyperlink, setHyperlink] = useState("");
   const [type, setType] = useState("");
 
   const token = localStorage.getItem("token");
 
-  // fetch banners
   const fetchBanners = async () => {
     setLoading(true);
     const response = await GetBannerList(token);
@@ -42,7 +38,6 @@ const Banner = () => {
     fetchBanners();
   }, []);
 
-  // open modal
   const handleOpen = (banner = null) => {
     setSelectedBanner(banner);
     setImage(banner?.image || "");
@@ -59,7 +54,6 @@ const Banner = () => {
     setType("");
   };
 
-  // save (add/update)
   const handleSave = async (e) => {
     e.preventDefault();
 
@@ -76,19 +70,19 @@ const Banner = () => {
 
     if (!confirm.isConfirmed) return;
 
-    const data = {
-      image,
-      hyperlink,
-      type,
-    };
+    const formData = new FormData();
+    formData.append("add_by", add_by);
+    formData.append("image", image);
+    formData.append("hyperlink", hyperlink);
+    formData.append("type", type);
+    if (selectedBanner) formData.append("id", selectedBanner._id);
 
     setLoading(true);
     let response;
     if (selectedBanner) {
-      data.id = selectedBanner._id;
-      response = await UpdateBanner(token, data);
+      response = await UpdateBanner(token, formData);
     } else {
-      response = await AddBanner(token, data);
+      response = await AddBanner(token, formData);
     }
 
     if (response?.status) {
@@ -102,7 +96,6 @@ const Banner = () => {
     setLoading(false);
   };
 
-  // status change
   const handleStatusChange = async (banner) => {
     const actionText = banner.status ? "Deactivate" : "Activate";
 
@@ -132,7 +125,6 @@ const Banner = () => {
     }
   };
 
-  // Datatable columns
   const columns = [
     {
       name: "S.No",
@@ -142,9 +134,9 @@ const Banner = () => {
     {
       name: "Image",
       cell: (row) =>
-        row.image ? (
+        row?.image ? (
           <img
-            src={row.image}
+            src={`/uploads/banner/${row.image}`}
             alt="banner"
             className="w-20 h-12 object-cover rounded"
           />
@@ -188,19 +180,6 @@ const Banner = () => {
         </div>
       ),
     },
-    {
-      name: "View",
-      cell: (row) => (
-        <Eye
-          className="cursor-pointer text-green-600"
-          size={20}
-          onClick={() => {
-            setViewBanner(row);
-            setViewOpen(true);
-          }}
-        />
-      ),
-    },
   ];
 
   return (
@@ -210,7 +189,6 @@ const Banner = () => {
       button_status={true}
     >
       <div className="p-6 min-h-screen">
-        {/* Header + Add button */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <FileImage />
@@ -225,12 +203,10 @@ const Banner = () => {
           </button>
         </div>
 
-        {/* DataTable */}
         <div className="shadow-lg rounded-xl p-4 bg-white">
           <Datatable columns={columns} data={banners} title="Banners List" />
         </div>
 
-        {/* Modal */}
         {open && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
             <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl p-6">
@@ -241,10 +217,9 @@ const Banner = () => {
                 <div>
                   <label className="text-sm text-gray-600">Image URL</label>
                   <input
-                    type="text"
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                    placeholder="Enter image URL"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setImage(e.target.files[0])}
                     className="w-full border rounded-md px-3 py-2 mt-1"
                   />
                 </div>
@@ -285,63 +260,6 @@ const Banner = () => {
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
-        )}
-
-        {/* View Modal */}
-        {viewOpen && viewBanner && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
-              <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
-                <span>👁️ Banner Details</span>
-                <button
-                  onClick={() => {
-                    setViewOpen(false);
-                    setViewBanner(null);
-                  }}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✖
-                </button>
-              </h2>
-
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold text-gray-800">Image:</h3>
-                  {viewBanner.image ? (
-                    <img
-                      src={viewBanner.image}
-                      alt="banner"
-                      className="w-full max-h-56 object-cover rounded"
-                    />
-                  ) : (
-                    <p>No Image</p>
-                  )}
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-gray-800">Hyperlink:</h3>
-                  <p className="text-blue-600">{viewBanner.hyperlink}</p>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-gray-800">Type:</h3>
-                  <p className="text-gray-600">{viewBanner.type}</p>
-                </div>
-              </div>
-
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={() => {
-                    setViewOpen(false);
-                    setViewBanner(null);
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md"
-                >
-                  Close
-                </button>
-              </div>
             </div>
           </div>
         )}

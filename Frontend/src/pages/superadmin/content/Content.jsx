@@ -27,7 +27,6 @@ const Contents = () => {
 
   const token = localStorage.getItem("token");
 
-  // fetch content
   const fetchContent = async () => {
     setLoading(true);
     const response = await GetContentList(token);
@@ -43,7 +42,6 @@ const Contents = () => {
     fetchContent();
   }, []);
 
-  // open modal
   const handleOpen = (content = null) => {
     setSelectedContent(content);
     setTitle(content?.title || "");
@@ -58,7 +56,6 @@ const Contents = () => {
     setDescription("");
   };
 
-  // save (add/update)
   const handleSave = async (e) => {
     e.preventDefault();
 
@@ -78,7 +75,7 @@ const Contents = () => {
     const data = {
       title,
       description,
-      add_by: "68008bb27f449bc31b57916c", // static for now
+      add_by: "68008bb27f449bc31b57916c",
     };
 
     setLoading(true);
@@ -101,7 +98,6 @@ const Contents = () => {
     setLoading(false);
   };
 
-  // status change
   const handleStatusChange = async (content) => {
     const actionText = content.status ? "Deactivate" : "Activate";
 
@@ -118,7 +114,7 @@ const Contents = () => {
 
     const payload = {
       id: content._id,
-      status: (!content.status).toString(), // 👈 boolean ko string me convert kiya
+      status: (!content.status).toString(),
     };
 
     const res = await UpdateContentStatus(token, payload);
@@ -131,7 +127,6 @@ const Contents = () => {
     }
   };
 
-  // Datatable columns
   const columns = [
     {
       name: "S.No",
@@ -203,7 +198,6 @@ const Contents = () => {
       button_status={true}
     >
       <div className="p-6 min-h-screen">
-        {/* Header + Add button */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <FileText />
@@ -217,13 +211,10 @@ const Contents = () => {
             + Add Content
           </button>
         </div>
-
-        {/* DataTable */}
         <div className="shadow-lg rounded-xl p-4 bg-white">
           <Datatable columns={columns} data={contents} title="Contents List" />
         </div>
 
-        {/* Modal */}
         {open && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
             <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl p-6">

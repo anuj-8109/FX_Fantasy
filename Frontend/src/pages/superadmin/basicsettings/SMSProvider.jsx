@@ -15,7 +15,6 @@ const SMSProviders = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // form states
   const [name, setName] = useState("");
   const [apikey, setApikey] = useState("");
   const [username, setUsername] = useState("");
@@ -26,8 +25,6 @@ const SMSProviders = () => {
   const [url, setUrl] = useState("");
 
   const token = localStorage.getItem("token");
-
-  // fetch all providers
   const fetchProviders = async () => {
     setLoading(true);
     const response = await GetSmsProviderList(token);
@@ -43,7 +40,6 @@ const SMSProviders = () => {
     fetchProviders();
   }, []);
 
-  // handle edit click
   const handleEdit = (provider) => {
     setSelectedProvider(provider);
     setName(provider?.name || "");
@@ -57,7 +53,6 @@ const SMSProviders = () => {
     setOpen(true);
   };
 
-  // save provider
   const handleSave = async (e) => {
     e.preventDefault();
 
@@ -96,7 +91,6 @@ const SMSProviders = () => {
     setLoading(false);
   };
 
-  // change status
   const handleStatusChange = async (provider) => {
     const actionText = provider.status === 1 ? "Deactivate" : "Activate";
 
@@ -134,14 +128,12 @@ const SMSProviders = () => {
       button_status={true}
     >
       <div className="p-6 min-h-screen">
-        {/* Provider Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {providers?.map((provider) => (
             <div
               key={provider._id}
               className="border rounded-2xl shadow-md p-5 flex flex-col bg-white"
             >
-              {/* Top - Active Status & Edit */}
               <div className="flex items-center justify-between mb-4">
                 <label className="flex items-center gap-2 text-sm font-medium">
                   <input
@@ -161,10 +153,7 @@ const SMSProviders = () => {
                 </button>
               </div>
 
-              {/* Divider */}
               <div className="border-b mb-3"></div>
-
-              {/* Data Fields */}
               <div className="space-y-2 text-sm flex-1">
                 {[
                   { label: "Name", value: provider.name },
@@ -193,7 +182,6 @@ const SMSProviders = () => {
           ))}
         </div>
 
-        {/* Modal */}
         {open && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
             <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6 animate-fadeIn max-h-[90vh] overflow-y-auto">
@@ -201,7 +189,6 @@ const SMSProviders = () => {
                 ✏️ Edit SMS Provider
               </h2>
 
-              {/* Edit Form */}
               <form onSubmit={handleSave}>
                 <div className="space-y-4">
                   <div>
@@ -285,7 +272,6 @@ const SMSProviders = () => {
                   </div>
                 </div>
 
-                {/* Buttons */}
                 <div className="mt-6 flex justify-end gap-3">
                   <button
                     type="button"

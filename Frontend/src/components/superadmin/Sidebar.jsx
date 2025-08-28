@@ -20,6 +20,7 @@ import {
   MessageCircle,
   FileText,
   RectangleHorizontal,
+  Quote,
 } from "lucide-react";
 
 const menuItems = [
@@ -51,6 +52,11 @@ const menuItems = [
     icon: <FileText />,
   },
   {
+    title: "Blog",
+    url: "/superadmin/blog",
+    icon: <Quote />,
+  },
+  {
     title: "Basic Settings",
     url: "/superadmin/basicsettings",
     icon: <Settings2 />,
@@ -77,17 +83,17 @@ const menuItems = [
       },
     ],
   },
-  {
-    title: "Game Analytics",
-    url: "/superadmin/analytics",
-    icon: <BarChart2 />,
-  },
-  { title: "Trading Contests", url: "/superadmin/contest", icon: <Award /> },
-  { title: "Live Trading", url: "/superadmin/trading", icon: <Activity /> },
-  { title: "Game Settings", url: "/superadmin/games", icon: <Gamepad /> },
-  { title: "Wallet System", url: "/superadmin/wallet", icon: <CreditCard /> },
-  { title: "Security", url: "/superadmin/security", icon: <Shield /> },
-  { title: "Settings", url: "/superadmin/settings", icon: <Settings /> },
+  // {
+  //   title: "Game Analytics",
+  //   url: "/superadmin/analytics",
+  //   icon: <BarChart2 />,
+  // },
+  // { title: "Trading Contests", url: "/superadmin/contest", icon: <Award /> },
+  // { title: "Live Trading", url: "/superadmin/trading", icon: <Activity /> },
+  // { title: "Game Settings", url: "/superadmin/games", icon: <Gamepad /> },
+  // { title: "Wallet System", url: "/superadmin/wallet", icon: <CreditCard /> },
+  // { title: "Security", url: "/superadmin/security", icon: <Shield /> },
+  // { title: "Settings", url: "/superadmin/settings", icon: <Settings /> },
 ];
 
 const SuperAdminSidebar = ({ collapsed }) => {

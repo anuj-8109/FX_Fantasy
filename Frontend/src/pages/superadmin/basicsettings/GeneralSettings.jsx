@@ -71,33 +71,32 @@ const GeneralSettings = () => {
     }));
   };
 
-const updateBasicSettings = async () => {
-  const confirm = await Swal.fire({
-    title: "Are you sure?",
-    text: "Do you want to update the basic settings?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Yes, Update",
-    cancelButtonText: "Cancel",
-  });
+  const updateBasicSettings = async () => {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to update the basic settings?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Update",
+      cancelButtonText: "Cancel",
+    });
 
-  if (!confirm.isConfirmed) return;
+    if (!confirm.isConfirmed) return;
 
-  setUpdateLoading(true);
-  try {
-    const response = await UpdateBasicSettings(token, formData);
-    toast.success(response?.message || "Basic settings updated successfully");
-    fetchBasicSettings();
-  } catch (error) {
-    toast.error(
-      "Error updating basic settings: " + (error?.message || error)
-    );
-    console.error("Error updating settings:", error);
-  } finally {
-    setUpdateLoading(false);
-  }
-};
-
+    setUpdateLoading(true);
+    try {
+      const response = await UpdateBasicSettings(token, formData);
+      toast.success(response?.message || "Basic settings updated successfully");
+      fetchBasicSettings();
+    } catch (error) {
+      toast.error(
+        "Error updating basic settings: " + (error?.message || error)
+      );
+      console.error("Error updating settings:", error);
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -131,12 +130,7 @@ const updateBasicSettings = async () => {
       <div className="max-w-4xl mx-auto">
         <form onSubmit={handleSubmit}>
           <div className="p-6 border rounded-lg shadow-sm">
-            {/* <h2 className="text-xl font-semibold  mb-5 pb-3 border-b-2 border-blue-500">
-              General Settings
-            </h2> */}
-
             <div className="grid gap-4">
-              {/* Website Title */}
               <div>
                 <label className="block text-sm font-medium   mb-2">
                   Website Title:
@@ -151,7 +145,6 @@ const updateBasicSettings = async () => {
                 />
               </div>
 
-              {/* Favicon */}
               <div>
                 <label className="block text-sm font-medium  mb-2">
                   Favicon URL:
@@ -165,7 +158,6 @@ const updateBasicSettings = async () => {
                 />
               </div>
 
-              {/* Logo */}
               <div>
                 <label className="block text-sm font-medium  mb-2">
                   Logo URL:
@@ -179,7 +171,6 @@ const updateBasicSettings = async () => {
                 />
               </div>
 
-              {/* Email */}
               <div>
                 <label className="block text-sm font-medium  mb-2">
                   Email Address:
@@ -193,7 +184,6 @@ const updateBasicSettings = async () => {
                 />
               </div>
 
-              {/* Contact Number */}
               <div>
                 <label className="block text-sm font-medium  mb-2">
                   Contact Number:
@@ -207,7 +197,6 @@ const updateBasicSettings = async () => {
                 />
               </div>
 
-              {/* Address */}
               <div>
                 <label className="block text-sm font-medium  mb-2">
                   Address:
@@ -221,7 +210,6 @@ const updateBasicSettings = async () => {
                 />
               </div>
 
-              {/* SMTP Status */}
               <div>
                 <label className="block text-sm font-medium  mb-2">
                   SMTP Status:
@@ -238,7 +226,6 @@ const updateBasicSettings = async () => {
                 </select>
               </div>
 
-              {/* SMTP Host / Port */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium  mb-2">
@@ -268,7 +255,6 @@ const updateBasicSettings = async () => {
                 </div>
               </div>
 
-              {/* Encryption */}
               <div>
                 <label className="block text-sm font-medium  mb-2">
                   Encryption:
@@ -286,7 +272,6 @@ const updateBasicSettings = async () => {
                 </select>
               </div>
 
-              {/* Username / Password */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium  mb-2">
@@ -314,7 +299,6 @@ const updateBasicSettings = async () => {
                 </div>
               </div>
 
-              {/* From Name */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   From Name:
@@ -330,7 +314,6 @@ const updateBasicSettings = async () => {
             </div>
           </div>
 
-          {/* Update Button */}
           <div className="text-center mt-8">
             <button
               type="submit"

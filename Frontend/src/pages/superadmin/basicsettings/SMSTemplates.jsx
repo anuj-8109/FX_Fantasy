@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Edit } from "lucide-react";
 import Swal from "sweetalert2";
-import { GetSMSTemplateList, UpdateSMSTemplate } from "../../../services/SuperAdmin";
+import {
+  GetSMSTemplateList,
+  UpdateSMSTemplate,
+} from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Content from "../../../components/superadmin/Content";
 
@@ -10,16 +13,11 @@ const SMSTemplates = () => {
 
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // modal states
   const [open, setOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
-
-  // form states
   const [templateid, setTemplateId] = useState("");
   const [smsBody, setSmsBody] = useState("");
 
-  // fetch templates
   const fetchTemplates = async () => {
     try {
       setLoading(true);
@@ -41,7 +39,6 @@ const SMSTemplates = () => {
     fetchTemplates();
   }, []);
 
-  // handle edit
   const handleEdit = (template) => {
     setSelectedTemplate(template);
     setTemplateId(template?.templateid || "");
@@ -49,13 +46,11 @@ const SMSTemplates = () => {
     setOpen(true);
   };
 
-  // cancel
   const handleCancel = () => {
     setOpen(false);
     setSelectedTemplate(null);
   };
 
-  // save
   const handleSave = async (e) => {
     e.preventDefault();
 
@@ -95,18 +90,22 @@ const SMSTemplates = () => {
   };
 
   return (
-    <Content Page_title="SMS Templates" button_title="back" button_status={true}>
+    <Content
+      Page_title="SMS Templates"
+      button_title="back"
+      button_status={true}
+    >
       <div className="p-6 min-h-screen">
-        {/* Template Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates?.map((template) => (
             <div
               key={template._id}
               className="border rounded-2xl shadow-md p-5 flex flex-col bg-white"
             >
-              {/* Top - Edit */}
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-gray-600">SMS Template</span>
+                <span className="text-sm font-medium text-gray-600">
+                  SMS Template
+                </span>
                 <button
                   onClick={() => handleEdit(template)}
                   className="p-2 rounded-full hover:bg-gray-100 transition"
@@ -117,8 +116,6 @@ const SMSTemplates = () => {
               </div>
 
               <div className="border-b mb-3"></div>
-
-              {/* Fields */}
               <div className="space-y-2 text-sm flex-1">
                 {[
                   { label: "SMS Type", value: template.sms_type },
@@ -126,7 +123,9 @@ const SMSTemplates = () => {
                   { label: "SMS Body", value: template.sms_body },
                 ].map((field, i) => (
                   <div key={i}>
-                    <label className="text-gray-500 text-xs">{field.label}</label>
+                    <label className="text-gray-500 text-xs">
+                      {field.label}
+                    </label>
                     <input
                       type="text"
                       value={field.value || "-"}
@@ -140,7 +139,6 @@ const SMSTemplates = () => {
           ))}
         </div>
 
-        {/* Modal */}
         {open && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
             <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6 animate-fadeIn">
@@ -171,7 +169,6 @@ const SMSTemplates = () => {
                   </div>
                 </div>
 
-                {/* Buttons */}
                 <div className="mt-6 flex justify-end gap-3">
                   <button
                     type="button"

@@ -369,7 +369,7 @@ export async function AddBanner(token,data){
 export async function UpdateBanner(token,data){
 
   try {
-    const response = await axios.put(`${config.base_url}banner/update`, data, {
+    const response = await axios.post(`${config.base_url}banner/update`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -387,6 +387,62 @@ export async function UpdateBannerStatus(token,data) {
         Authorization: `Bearer ${token}`,
       },
     });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function GetBlogList(token) {
+  try {
+    const response = await axios.get(`${config.base_url}blogs/list`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function AddBlog(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}blogs/add`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function UpdateBlog(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}blogs/update`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function UpdateBlogStatus(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}blogs/change-status`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;

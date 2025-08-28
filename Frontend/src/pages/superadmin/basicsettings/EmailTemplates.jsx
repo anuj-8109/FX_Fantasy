@@ -20,7 +20,6 @@ const EmailTemplates = () => {
 
   const token = localStorage.getItem("token");
 
-  // fetch all templates
   const fetchTemplates = async () => {
     const response = await GetMailTemplateList(token);
     if (response?.status) {
@@ -34,7 +33,6 @@ const EmailTemplates = () => {
     fetchTemplates();
   }, []);
 
-  // fetch single template details
   const fetchTemplateDetails = async (id) => {
     try {
       setLoading(true);
@@ -54,14 +52,12 @@ const EmailTemplates = () => {
     }
   };
 
-  // handle edit click
   const handleEdit = (template) => {
     setSelectedTemplate(template);
     setOpen(true);
     fetchTemplateDetails(template._id);
   };
 
-  // save template
   const handleSave = async () => {
     const confirm = await Swal.fire({
       title: "Are you sure?",
@@ -84,7 +80,7 @@ const EmailTemplates = () => {
 
     if (response?.status) {
       toast.success(response?.message || "Template updated successfully");
-      fetchTemplates(); // refresh list after update
+      fetchTemplates();
     } else {
       toast.error(response?.message || "Failed to update template");
     }
@@ -104,7 +100,6 @@ const EmailTemplates = () => {
       button_status={true}
     >
       <div className="p-6 min-h-screen">
-        {/* Template Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates?.map((template) => (
             <div
@@ -117,11 +112,8 @@ const EmailTemplates = () => {
                     Mail Type
                   </p>
                   <p className="text-base font-medium">{template.mail_type}</p>
-                  {/* Divider */}
                   <div className="border-b border-gray-300 mt-2 mb-2"></div>
                 </div>
-
-                {/* Edit Icon Button */}
                 <button
                   onClick={() => handleEdit(template)}
                   className="p-2 rounded-full transition"
@@ -150,7 +142,6 @@ const EmailTemplates = () => {
           ))}
         </div>
 
-        {/* Modal for Editing */}
         {open && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
             <div className="w-full max-w-xl rounded-2xl shadow-2xl p-6 animate-fadeIn bg-white">
@@ -162,7 +153,6 @@ const EmailTemplates = () => {
                 <p className="text-center">Loading...</p>
               ) : (
                 <div className="space-y-5">
-                  {/* Mail Type */}
                   <div>
                     <label className="text-base font-semibold mb-1 block">
                       Mail Type
@@ -174,7 +164,6 @@ const EmailTemplates = () => {
                     />
                   </div>
 
-                  {/* Subject */}
                   <div>
                     <label className="text-base font-semibold mb-1 block">
                       Subject
@@ -186,7 +175,6 @@ const EmailTemplates = () => {
                     />
                   </div>
 
-                  {/* Mail Body */}
                   <div>
                     <label className="text-base font-semibold mb-1 block">
                       Mail Body
@@ -200,7 +188,6 @@ const EmailTemplates = () => {
                 </div>
               )}
 
-              {/* Modal Footer */}
               <div className="flex justify-end gap-3 mt-8">
                 <button
                   onClick={handleCancel}
