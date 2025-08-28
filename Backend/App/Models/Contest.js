@@ -22,6 +22,11 @@ const ContestSchema = new Schema({
     required: true,
     min: 0
   },
+  useamount: {
+    type: Number,
+    required: true,
+    min: 0
+  },
   total_spots: {
     type: Number,
     required: true,

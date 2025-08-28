@@ -36,6 +36,7 @@ module.exports = {
     Bank: require("./Bank"),
     Moneyhistory: require("./Moneyhistory"),
     Contest: require("./Contest"),
+    Contestjoin: require("./Contestjoin"),
 
     States:States,
     City:City,
