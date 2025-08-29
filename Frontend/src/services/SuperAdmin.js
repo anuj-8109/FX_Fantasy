@@ -503,6 +503,45 @@ export async function UpdateBlogStatus(token, data) {
   }
 }
 
+export async function GetBlogDetails(token, blogId) {
+  try {
+    const response = await axios.get(`${config.base_url}blogs/detail/${blogId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function GetActiveBlogs(token) {
+  try {
+    const response = await axios.get(`${config.base_url}blogs/activeblogs`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function DeleteBlog(token, blogId) {
+  try {
+    const response = await axios.get(`${config.base_url}blogs/delete/${blogId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
 //Blogs API Ends Here
 
 //News API Starts Here
@@ -564,7 +603,7 @@ export async function GetNewsDetails(token, newsId) {
 
 export async function UpdateNewsStatus(token, data) {
   try {
-    const response = await axios.post(
+    const response = await axios.get(
       `${config.base_url}news/activenews`,
       data,
       {
@@ -697,7 +736,7 @@ export async function DeleteFAQs(token, faqId) {
 
 export async function GetCouponsList(token) {
   try {
-    const response = await axios.get(`${config.base_url}coupons/list`, {
+    const response = await axios.get(`${config.base_url}coupon/list`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -710,7 +749,7 @@ export async function GetCouponsList(token) {
 
 export async function AddCoupons(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}coupons/add`, data, {
+    const response = await axios.post(`${config.base_url}coupon/add`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -721,8 +760,72 @@ export async function AddCoupons(token, data) {
   }
 }
 
+export async function UpdateCoupons(token, data) {
+  try {
+    const response = await axios.put(`${config.base_url}coupon/update`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
 
+export async function UpdateCouponsStatus(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}coupon/change-status`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
 
+export async function GetCouponsDetails(token, couponId) {
+  try {
+    const response = await axios.get(`${config.base_url}coupon/detail/${couponId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function GetActiveCoupons(token) {
+  try {
+    const response = await axios.get(`${config.base_url}coupon/activecoupon`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function DeleteCoupons(token, couponId) {
+  try {
+    const response = await axios.get(`${config.base_url}coupon/delete/${couponId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+//Coupons API Ends Here
 
 const logout = () => {
   localStorage.clear();

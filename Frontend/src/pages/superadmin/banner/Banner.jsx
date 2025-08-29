@@ -66,8 +66,10 @@ const Banner = () => {
     });
 
     if (!confirm.isConfirmed) return;
-
+    
+    setLoading(true);
     const res = await DeleteBanner(token, banner._id);
+    setLoading(false);
 
     if (res?.status) {
       toast.success(res?.message || "Banner deleted successfully");
