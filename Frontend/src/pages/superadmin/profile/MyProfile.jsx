@@ -82,7 +82,7 @@ const MyProfile = () => {
         {/* Right Section */}
         <div className="lg:col-span-3">
           <div className="border rounded-xl shadow-sm">
-            {/* Tabs */}
+          
             <div className="flex border-b">
               <button
                 onClick={() => setActiveTab("profile")}
@@ -104,11 +104,11 @@ const MyProfile = () => {
               </button>
             </div>
 
-            {/* Tab Content */}
+    
             <div className="p-4">
               {activeTab === "profile" && (
                 <div className="space-y-2">
-                  {/* Header */}
+            
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-lg font-semibold">Profile Information</h3>
                     <button
@@ -119,7 +119,7 @@ const MyProfile = () => {
                     </button>
                   </div>
 
-                  {/* Full Name */}
+             
                   <div className="border rounded-lg p-3">
                     <p className="text-xs">Full Name</p>
                     {isEditing ? (
@@ -137,19 +137,19 @@ const MyProfile = () => {
                     )}
                   </div>
 
-                  {/* Username */}
+           
                   <div className="border rounded-lg p-3">
                     <p className="text-xs">Username</p>
                     <p>{userdetails?.UserName || "Not specified"}</p>
                   </div>
 
-                  {/* Phone */}
+         
                   <div className="border rounded-lg p-3">
                     <p className="text-xs">Phone Number</p>
                     <p>{userdetails?.PhoneNo || "Not provided"}</p>
                   </div>
 
-                  {/* Email */}
+                 
                   <div className="border rounded-lg p-3">
                     <p className="text-xs">Email Address</p>
                     <p>{userdetails?.Email || "user@example.com"}</p>
@@ -164,15 +164,10 @@ const MyProfile = () => {
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Change Password</h3>
                   <div className="space-y-4">
-
-                    {/* Change Password */}
                     <div className="border rounded-lg p-4">
                       
                       <ChangePassword />
                     </div>
-
-                
-
                   </div>
                 </div>
               )}
