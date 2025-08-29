@@ -161,12 +161,12 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
                   Profile Management
                 </button>
 
-                <button
+                {/* <button
                   onClick={() => navigate("/superadmin/changepassword")}
                   className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   Reset Password
-                </button>
+                </button> */}
 
                 <button
                   className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
