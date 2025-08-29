@@ -16,8 +16,6 @@ export async function GetAllUser(token) {
   }
 }
 
-// Add User
-
 export async function AddUser(data, token) {
   try {
     const response = await axios.post(`${config.base_url}user/add`, data, {
@@ -25,14 +23,12 @@ export async function AddUser(data, token) {
         Authorization: `Bearer ${token}`,
       },
     });
-    if (!token) {
-      return logout();
-    }
     return response?.data;
   } catch (error) {
     return error?.response?.data;
   }
 }
+
 export async function GetActiveUser(token) {
   try {
     const response = await axios.get(`${config.base_url}user/activeuser`, {
@@ -57,6 +53,19 @@ export async function StatusChange(token, status, id) {
         },
       }
     );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function UpdatePermissions(token, data) {
+  try {
+    const response = await axios.put(`${config.base_url}user/update-permissions`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -116,6 +125,45 @@ export async function ChangePassword(token, data) {
         },
       }
     );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function UpdateProfile(token, data) {
+  try {
+    const response = await axios.put(`${config.base_url}user/update-profile`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function ForgotPassword(token, email) {
+  try {
+    const response = await axios.post(`${config.base_url}user/forgot-password`, email , {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function ResetPassword(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}user/reset-password`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -291,6 +339,19 @@ export async function UpdateSMSTemplate(token, data) {
   }
 }
 
+export async function GetSMSTemplateDetails(token, id) {
+  try {
+    const response = await axios.get(`${config.base_url}smstemplate/detail/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
 //SMS Tempelate API Ends Here
 
 //Content API Starts Here
@@ -361,6 +422,19 @@ export async function GetContentDetails(token, contentId) {
         },
       }
     );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function GetActiveContent(token) {
+  try {
+    const response = await axios.get(`${config.base_url}content/activecontent`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -443,6 +517,35 @@ export async function DeleteBanner(token, bannerId) {
   }
 }
 
+export async function GetBannerDetails(token, bannerId) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}banner/detail/${bannerId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function GetActiveBanners(token) {
+  try {
+    const response = await axios.get(`${config.base_url}banner/activebanner`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
 //Banner API Ends Here
 
 //Blogs API Starts Here
@@ -505,11 +608,14 @@ export async function UpdateBlogStatus(token, data) {
 
 export async function GetBlogDetails(token, blogId) {
   try {
-    const response = await axios.get(`${config.base_url}blogs/detail/${blogId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${config.base_url}blogs/detail/${blogId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -531,11 +637,14 @@ export async function GetActiveBlogs(token) {
 
 export async function DeleteBlog(token, blogId) {
   try {
-    const response = await axios.get(`${config.base_url}blogs/delete/${blogId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${config.base_url}blogs/delete/${blogId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -636,7 +745,6 @@ export async function DeleteNews(token, newsId) {
 
 //News API Ends Here
 
-
 // FAQs API Starts Here
 
 export async function GetFAQsList(token) {
@@ -680,11 +788,15 @@ export async function UpdateFAQs(token, data) {
 
 export async function UpdateFAQsStatus(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}faq/change-status`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}faq/change-status`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -775,11 +887,15 @@ export async function UpdateCoupons(token, data) {
 
 export async function UpdateCouponsStatus(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}coupon/change-status`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}coupon/change-status`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -788,11 +904,14 @@ export async function UpdateCouponsStatus(token, data) {
 
 export async function GetCouponsDetails(token, couponId) {
   try {
-    const response = await axios.get(`${config.base_url}coupon/detail/${couponId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${config.base_url}coupon/detail/${couponId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -814,7 +933,23 @@ export async function GetActiveCoupons(token) {
 
 export async function DeleteCoupons(token, couponId) {
   try {
-    const response = await axios.get(`${config.base_url}coupon/delete/${couponId}`, {
+    const response = await axios.get(
+      `${config.base_url}coupon/delete/${couponId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function ShowChangeStatus(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}coupon/show-change-status`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -826,6 +961,11 @@ export async function DeleteCoupons(token, couponId) {
 }
 
 //Coupons API Ends Here
+
+
+
+
+
 
 const logout = () => {
   localStorage.clear();
