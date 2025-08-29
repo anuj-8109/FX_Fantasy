@@ -55,13 +55,6 @@ For security purposes, we recommend changing your password after your first logi
 We look forward to helping you on your journey with {compamy_name}!`,
       },
       {
-        _id: "677b9b459d79fba3a08c65db",
-        mail_type: "invoice",
-        mail_subject: "Invoice",
-        mail_body: `Hi {clientName},
-      We are pleased to inform you that your plan has been successfully purchased!`,
-      },
-      {
         _id: "67eb73de1da8c1a764688b91",
         mail_type: "kyc",
         mail_subject: "Kyc Agreement",
