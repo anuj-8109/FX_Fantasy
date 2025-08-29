@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/Datatable";
-import { Image, Edit, FileImage } from "lucide-react";
+import { Image, Edit, FileImage, Trash2 } from "lucide-react";
 import {
   GetBannerList,
   AddBanner,
   UpdateBanner,
   UpdateBannerStatus,
+  DeleteBanner,
 } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -52,6 +53,28 @@ const Banner = () => {
     setImage("");
     setHyperlink("");
     setType("");
+  };
+
+  const handleDelete = async (banner) => {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to delete this banner?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Delete",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    const res = await DeleteBanner(token, banner._id);
+
+    if (res?.status) {
+      toast.success(res?.message || "Banner deleted successfully");
+      fetchBanners();
+    } else {
+      toast.error(res?.message || "Failed to delete banner");
+    }
   };
 
   const handleSave = async (e) => {
@@ -176,6 +199,10 @@ const Banner = () => {
           <Edit
             className="cursor-pointer text-blue-600"
             onClick={() => handleOpen(row)}
+          />
+          <Trash2
+            className="cursor-pointer text-red-600"
+            onClick={() => handleDelete(row)}
           />
         </div>
       ),

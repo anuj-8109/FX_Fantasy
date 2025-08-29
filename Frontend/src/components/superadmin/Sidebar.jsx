@@ -22,6 +22,9 @@ import {
   FileText,
   RectangleHorizontal,
   Quote,
+  Newspaper,
+  BadgeHelp,
+  TicketPercent,
 } from "lucide-react";
 
 const menuItems = [
@@ -56,6 +59,21 @@ const menuItems = [
     title: "Blog",
     url: "/superadmin/blog",
     icon: <Quote />,
+  },
+  {
+    title:"News",
+    url: "/superadmin/news",
+    icon: <Newspaper />,
+  },
+  {
+    title: "FAQs",
+    url: "/superadmin/faqs",
+    icon: <BadgeHelp />,
+  },
+  {
+    title:"Coupons",
+    url: "/superadmin/coupons",
+    icon: <TicketPercent />,
   },
   {
     title: "Basic Settings",

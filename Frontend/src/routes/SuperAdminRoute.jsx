@@ -25,6 +25,9 @@ import SMSTemplates from "../pages/superadmin/basicsettings/SMSTemplates";
 import Content from "../pages/superadmin/content/Content";
 import Banner from "../pages/superadmin/banner/Banner";
 import Blog from "../pages/superadmin/blog/Blog";
+import News from "../pages/superadmin/news/News";
+import FAQs from "../pages/superadmin/faqs/FAQs";
+import Coupons from "../pages/superadmin/coupons/Coupons";
 
 const SuperAdminRoutes = () => {
   return (
@@ -54,6 +57,9 @@ const SuperAdminRoutes = () => {
         <Route path="content" element={<Content />} />
         <Route path="banner" element={<Banner />} />
         <Route path="blog" element={<Blog />} />
+        <Route path="news" element={<News />} />
+        <Route path="faqs" element={<FAQs />} />
+        <Route path="coupons" element={<Coupons />} />
       </Route>
     </>
   );
