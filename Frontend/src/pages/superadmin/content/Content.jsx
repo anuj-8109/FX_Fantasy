@@ -26,6 +26,7 @@ const Contents = () => {
   const [description, setDescription] = useState("");
 
   const token = localStorage.getItem("token");
+  const add_by = localStorage.getItem("add_by");
 
   const fetchContent = async () => {
     setLoading(true);
@@ -75,7 +76,7 @@ const Contents = () => {
     const data = {
       title,
       description,
-      add_by: "68008bb27f449bc31b57916c",
+      add_by: add_by,
     };
 
     setLoading(true);

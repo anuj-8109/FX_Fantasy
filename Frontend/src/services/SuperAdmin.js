@@ -503,6 +503,45 @@ export async function UpdateBlogStatus(token, data) {
   }
 }
 
+export async function GetBlogDetails(token, blogId) {
+  try {
+    const response = await axios.get(`${config.base_url}blogs/detail/${blogId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function GetActiveBlogs(token) {
+  try {
+    const response = await axios.get(`${config.base_url}blogs/activeblogs`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function DeleteBlog(token, blogId) {
+  try {
+    const response = await axios.get(`${config.base_url}blogs/delete/${blogId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
 //Blogs API Ends Here
 
 //News API Starts Here
@@ -564,7 +603,7 @@ export async function GetNewsDetails(token, newsId) {
 
 export async function UpdateNewsStatus(token, data) {
   try {
-    const response = await axios.post(
+    const response = await axios.get(
       `${config.base_url}news/activenews`,
       data,
       {
