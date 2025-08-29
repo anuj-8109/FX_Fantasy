@@ -180,15 +180,15 @@ const AllUsers = () => {
   ];
 
   return (
-    <div className="p-6  min-h-screen">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-8 min-h-screen">
+      <div className="flex items-center justify-between mb-6 border  rounded-xl shadow-sm p-2">
         <div className="flex items-center gap-2">
           <User className="" />
-          <h1 className="text-2xl font-bold">All Users</h1>
+          <h1 className="text-xl font-bold ">All Users</h1>
         </div>
 
         <button
-          className="bg-blue-600 hover:bg-blue-700  px-4 py-2 text-sm rounded"
+          className="  border px-4 py-2 text-sm rounded-lg shadow-md"
           onClick={addUser}
         >
           Add User +
@@ -196,7 +196,8 @@ const AllUsers = () => {
       </div>
 
 
-      <div className=" shadow-lg rounded-xl p-4">
+
+      <div className=" border shadow-lg rounded-xl p-4 ">
         <Datatable columns={columns} data={allusers} title="Users List" />
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
+
 import {
   Home,
   Users,
@@ -105,11 +106,12 @@ const SuperAdminSidebar = ({ collapsed }) => {
 
   return (
     <aside
+    
       className={` ${
-        collapsed ? "w-20" : "w-64"
-      } sticky top-0 h-screen transition-all`}
+        collapsed ? "w-16" : "w-56"
+      } sticky top-0 h-screen transition-all border 1px solid red`}
     >
-      <div className="flex flex-col p-4 h-full">
+      <div className="flex flex-col  h-full mt-4 ">
         <nav className="flex-1 space-y-2">
           {menuItems.map((item) => (
             <div key={item.title}>

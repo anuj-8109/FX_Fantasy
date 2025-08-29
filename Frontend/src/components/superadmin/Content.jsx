@@ -16,11 +16,11 @@ const Content = ({
   ...rest
 }) => {
   return (
-    <div className="flex-1 p-6 min-h-screen ">
+    <div className="flex-1 p-6 min-h-screen  ">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div className="flex flex-col">
-          <div className="flex items-center gap-3">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border p-3 rounded-xl">
+        <div className="flex flex-col ">
+          <div className="flex items-center gap-3 ">
             {button_status !== false && button_title === "Back" && (
               <Link
                 to={route}
@@ -40,7 +40,7 @@ const Content = ({
         {button_status !== false && button_title !== "Back" && (
           <Link
             to={route}
-            className=" px-4 py-2 rounded-lg shadow hover:bg-blue-500 transition flex items-center gap-2 text-sm font-medium"
+            className=" px-4 py-2 border rounded-lg shadow hover:bg-blue-500 transition flex items-center gap-2 text-sm font-medium"
           >
             <i className="fa-solid fa-plus"></i>
             {button_title}
@@ -49,7 +49,7 @@ const Content = ({
       </div>
 
       {/* Main Card */}
- <div className="rounded-xl shadow-lg p-6 space-y-4 border border-gray-100 hover:shadow-2xl transition duration-300">
+ <div className="rounded-xl  space-y-4 border transition duration-300">
   {/* Card Header (Optional) */}
   {rest.cardTitle && (
     <h4 className="text-lg font-semibold text-gray-900">{rest.cardTitle}</h4>

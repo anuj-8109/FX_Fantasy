@@ -51,13 +51,10 @@ const ActiveUser = () => {
   ];
 
   return (
-    <Content Page_title="Active Users" button_status={true}  >
-      <div className="p-6 min-h-screen">
-        <div className="flex items-center gap-2 mb-6">
-        </div>
-
+    <Content Page_title="Active Users" button_status={true} button_title="back" >
+      <div className="p-6 min-h-screen ">
         <div className=" shadow-lg rounded-xl p-4">
-          <Datatable columns={columns} data={activeuser} title="Users List" />
+          <Datatable columns={columns} data={activeuser} title="Users List"  />
         </div>
       </div>
     </Content>
