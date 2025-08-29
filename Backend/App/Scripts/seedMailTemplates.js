@@ -29,10 +29,8 @@ Your verification code is {resetToken}. This code is valid for 10 minutes. Pleas
         _id: "66f6586e01cc91347391827b",
         mail_type: "staff_reset_password",
         mail_subject: "Password Reset",
-        mail_body: `You are receiving this because you (or someone else) have requested to reset the password for your account.\n\n
-               Please click on the following link, or paste it into your browser to complete the process:\n\n
-               {url}
-               If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+        mail_body: `Dear Users
+Your verification code is {resetToken}. This code is valid for 10 minutes. Please do not share this codea with anyone.`,
       },
       {
         _id: "66f674d601cc913473918286",
