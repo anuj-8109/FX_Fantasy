@@ -1114,7 +1114,7 @@ export async function GetContestDetails(token, contestId) {
 
 export async function UpdateContest(token, data) {
   try {
-    const response = await axios.put(`${config.base_url}contest/update`, data, {
+    const response = await axios.post(`${config.base_url}contest/update`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
