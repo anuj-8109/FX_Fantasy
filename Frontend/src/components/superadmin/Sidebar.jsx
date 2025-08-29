@@ -25,6 +25,7 @@ import {
   Newspaper,
   BadgeHelp,
   TicketPercent,
+  User,
 } from "lucide-react";
 
 const menuItems = [
@@ -44,6 +45,16 @@ const menuItems = [
         icon: <UserCheck />,
       },
     ],
+  },
+  {
+    title: "Clients",
+    url: "/superadmin/clients",
+    icon: <User />,
+  },
+  {
+    title: "Contest",
+    url: "/superadmin/contest",
+    icon: <Award />,
   },
   {
     title: "Banner",
@@ -107,7 +118,6 @@ const menuItems = [
   //   url: "/superadmin/analytics",
   //   icon: <BarChart2 />,
   // },
-  // { title: "Trading Contests", url: "/superadmin/contest", icon: <Award /> },
   // { title: "Live Trading", url: "/superadmin/trading", icon: <Activity /> },
   // { title: "Game Settings", url: "/superadmin/games", icon: <Gamepad /> },
   // { title: "Wallet System", url: "/superadmin/wallet", icon: <CreditCard /> },
