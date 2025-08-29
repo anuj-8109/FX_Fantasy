@@ -49,15 +49,15 @@ const Content = ({
       </div>
 
       {/* Main Card */}
- <div className="rounded-xl  space-y-4 border transition duration-300">
-  {/* Card Header (Optional) */}
-  {rest.cardTitle && (
-    <h4 className="text-lg font-semibold text-gray-900">{rest.cardTitle}</h4>
-  )}
+      <div className="rounded-xl  space-y-4 border transition duration-300">
+        {/* Card Header (Optional) */}
+        {rest.cardTitle && (
+          <h4 className="text-lg font-semibold text-gray-900">{rest.cardTitle}</h4>
+        )}
 
-  {/* Form / Child Content */}
-  <div className="form-validation">{rest.children}</div>
-</div>
+        {/* Form / Child Content */}
+        <div className="form-validation">{rest.children}</div>
+      </div>
 
     </div>
   );
