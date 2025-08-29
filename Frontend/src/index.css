@@ -385,3 +385,13 @@
 .rdt_TableRow:hover {
   background-color: hsl(var(--secondary)) !important;
 }
+
+
+/* global.css ya index.css me */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
