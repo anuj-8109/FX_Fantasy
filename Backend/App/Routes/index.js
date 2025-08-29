@@ -10,5 +10,9 @@ module.exports = function (app) {
     app.use(require("./Coupon"))
     app.use(require("./Faq"))
     app.use(require("./Banner"))
+    app.use(require("./Clients"))
+    app.use(require("./Cron"))
+    app.use(require("./Contest"))
+
 
 }
