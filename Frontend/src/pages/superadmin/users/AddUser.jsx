@@ -20,7 +20,6 @@ const User = () => {
     confirmPassword: "",
   };
 
-  // ✅ Same validation as backend
   const validationSchema = Yup.object({
     FullName: Yup.string()
       .required("Full Name is required")
@@ -41,31 +40,32 @@ const User = () => {
       .matches(/\d/, "Password must have at least one number")
       .matches(/[@$!%*?&#]/, "Password must have at least one special character (@$!%*?&#)")
       .required("Password is required"),
-       confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password"), null], "Passwords must match")
-    .required("Confirm Password is required"),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref("password"), null], "Passwords must match")
+      .required("Confirm Password is required"),
   });
 
   const fields = [
-    { name: "FullName", label: "Full Name*", type: "text", className: "w-full" },
-    { name: "Email", label: "Email*", type: "email", className: "w-full"  },
-    { name: "PhoneNo", label: "Phone No*", type: "text", className: "w-full" },
-    { name: "UserName", label: "Username*", type: "text", className: "w-full" },
-    { name: "password", label: "Password*", type: "password", className: "w-full", colClass: "col-span-2" },
-    { name: "confirmPassword", label: "Confirm Password*", type: "password", className: "w-full" },
+    { name: "FullName", label: "Full Name*", type: "text", className: "w-full", autoComplete: "off" },
+    { name: "Email", label: "Email*", type: "email", className: "w-full", autoComplete: "off" },
+    { name: "PhoneNo", label: "Phone No*", type: "text", className: "w-full", autoComplete: "off" },
+    { name: "UserName", label: "Username*", type: "text", className: "w-full", autoComplete: "new-username" }, // important
+    { name: "password", label: "Password*", type: "password", className: "w-full", colClass: "col-span-2", autoComplete: "new-password" },
+    { name: "confirmPassword", label: "Confirm Password*", type: "password", className: "w-full", autoComplete: "new-password" },
   ];
+
 
   const onSubmit = async (values) => {
     setLoading(true);
     const token = localStorage.getItem("token");
     const add_by = localStorage.getItem("add_by");
 
-      const { confirmPassword, ...rest } = values;
-  const data = { ...rest, add_by };
+    const { confirmPassword, ...rest } = values;
+    const data = { ...rest, add_by };
     try {
       const res = await AddUser(data, token);
 
-     
+
       if (res?.status === false && res?.message?.includes("exists")) {
         toast.error(res.message);
         return;
@@ -88,20 +88,20 @@ const User = () => {
   return (
     <Content Page_title="Add User" button_status={true}  >
 
-        <ReusableForm
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={onSubmit}
-          fields={fields}
-          submitButton={{
-            label: loading ? "Adding..." : "Add User",
-            className:
-              "col-span-2 mt-4 py-2 rounded-lg  from-blue-500 to-indigo-500 text-white font-semibold shadow-lg hover:opacity-90 transition disabled:opacity-50",
-            disabled: loading,
-          }}
-        />
-      
-  </Content>
+      <ReusableForm
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={onSubmit}
+        fields={fields}
+        submitButton={{
+          label: loading ? "Adding..." : "Add User",
+          className:
+            "col-span-4 mt-4 py-2 rounded-lg  from-blue-500 to-indigo-500 text-white font-semibold shadow-lg hover:opacity-90 transition disabled:opacity-50",
+          disabled: loading,
+        }}
+      />
+
+    </Content>
   );
 };
 

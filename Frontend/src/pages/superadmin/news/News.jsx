@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/Datatable";
 import { FileText, Edit, Eye, Trash2 } from "lucide-react";
 import {
- GetNewsList,AddNews,UpdateNews,UpdateNewsStatus,DeleteNews
+  GetNewsList, AddNews, UpdateNews, UpdateNewsStatus, DeleteNews
 } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -192,11 +192,12 @@ const News = () => {
             onChange={() => handleStatusChange(row)}
             className="sr-only peer"
           />
-          <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors duration-200"></div>
-          <div className="absolute left-0.5 top-0.5  w-5 h-5 rounded-full border border-gray-300 peer-checked:translate-x-full transition-transform duration-200"></div>
+          <div className="w-10 h-5 bg-gray-300 peer-checked:bg-green-500 rounded-full transition-colors duration-300 peer-focus:ring-2 peer-focus:ring-green-300"></div>
+          <div className="absolute left-1 top-1 w-3 h-3 bg-white rounded-full shadow-md transition-transform duration-300 peer-checked:translate-x-5"></div>
         </label>
       ),
     },
+
     {
       name: "Action",
       cell: (row) => (

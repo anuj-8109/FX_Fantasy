@@ -66,7 +66,7 @@ const Banner = () => {
     });
 
     if (!confirm.isConfirmed) return;
-    
+
     setLoading(true);
     const res = await DeleteBanner(token, banner._id);
     setLoading(false);
@@ -189,9 +189,13 @@ const Banner = () => {
             onChange={() => handleStatusChange(row)}
             className="sr-only peer"
           />
-          <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 transition-colors duration-200"></div>
-          <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border border-gray-300 peer-checked:translate-x-full transition-transform duration-200"></div>
+          {/* Track */}
+          <div className="w-10 h-5 bg-gray-300 peer-focus:ring-2 peer-focus:ring-green-300 rounded-full peer peer-checked:bg-green-500 transition-colors duration-300"></div>
+
+          {/* Thumb */}
+          <div className="absolute left-0.5  w-4 h-4 bg-white rounded-full border border-gray-300 shadow-sm peer-checked:translate-x-5 transition-transform duration-300"></div>
         </label>
+
       ),
     },
     {

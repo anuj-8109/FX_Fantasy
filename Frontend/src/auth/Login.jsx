@@ -116,7 +116,7 @@ const Login = () => {
 
         <div className="flex flex-col lg:flex-row w-full max-w-4xl h-[90vh]  shadow-lg rounded-lg overflow-hidden">
 
-          {/* Left Side - Design Section */}
+       
           <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-red-900 via-red-800 to-red-700">
             <div className="absolute inset-0 opacity-20">
               <div className="absolute top-10 left-10 w-8 h-8 bg-red-300 rounded transform rotate-45"></div>

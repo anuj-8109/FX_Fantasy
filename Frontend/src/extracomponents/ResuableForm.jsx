@@ -4,7 +4,7 @@ import Select from "react-select";
 
 const renderField = (field) => {
   const baseInputClasses = "w-full rounded-lg  placeholder-gray-400 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400";
-  
+
   switch (field.type) {
     case "textarea":
       return (
@@ -198,7 +198,7 @@ const renderField = (field) => {
           {...field.fieldProps}
         />
       );
-  
+
     default:
       return (
         <Field
@@ -233,81 +233,80 @@ const ReusableForm = ({
       enableReinitialize={enableReinitialize}
     >
       {({ handleSubmit, validateForm, setTouched, isSubmitting, errors, touched }) => (
-       <Form
-  className={`grid grid-cols-1 md:grid-cols-4 gap-4 ${formClassName}`}
-  encType="multipart/form-data"
-  onSubmit={async (e) => {
-    e.preventDefault();
-    const formErrors = await validateForm();
+        <Form
+          className={`grid grid-cols-1 md:grid-cols-4 gap-4 p-4 ${formClassName}`}
+          encType="multipart/form-data"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const formErrors = await validateForm();
 
-    if (Object.keys(formErrors).length > 0) {
-      const touchedFields = {};
-      Object.keys(formErrors).forEach((key) => {
-        touchedFields[key] = true;
-      });
-      setTouched(touchedFields);
+            if (Object.keys(formErrors).length > 0) {
+              const touchedFields = {};
+              Object.keys(formErrors).forEach((key) => {
+                touchedFields[key] = true;
+              });
+              setTouched(touchedFields);
 
-      setTimeout(() => {
-        const errorElement = document.querySelector(".text-red-500");
-        if (errorElement) {
-          errorElement.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-        }
-      }, 100);
+              setTimeout(() => {
+                const errorElement = document.querySelector(".text-red-500");
+                if (errorElement) {
+                  errorElement.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
+                }
+              }, 100);
 
-      return;
-    }
-    handleSubmit(e);
-  }}
->
-  {fields.map((field) => (
-    <div key={field.name} className={field.colClass || "col-span-2"}>
-      <div className="flex flex-col space-y-1">
-        {field.type !== "checkbox" && field.type !== "radio" && (
-          <label
-            htmlFor={field.name}
-            className={`text-sm font-medium text-gray-700 ${
-              field.required ? "after:content-['*'] after:text-red-500 after:ml-1" : ""
-            }`}
-          >
-            {field.label}
-          </label>
-        )}
+              return;
+            }
+            handleSubmit(e);
+          }}
+        >
+          {fields.map((field) => (
+            <div key={field.name} className={field.colClass || "col-span-2"}>
+              <div className="flex flex-col space-y-1">
+                {field.type !== "checkbox" && field.type !== "radio" && (
+                  <label
+                    htmlFor={field.name}
+                    className={`text-sm font-medium text-gray-700 ${field.required ? "after:content-['*'] after:text-red-500 after:ml-1" : ""
+                      }`}
+                  >
+                    {field.label}
+                  </label>
+                )}
 
-        <div className={`relative ${errors[field.name] && touched[field.name] ? "border-red-300" : ""}`}>
-          {renderField(field)}
-        </div>
+                <div className={`relative ${errors[field.name] && touched[field.name] ? "border-red-300" : ""}`}>
+                  {renderField(field)}
+                </div>
 
-        <ErrorMessage
-          name={field.name}
-          component="div"
-          className="text-red-500 text-xs mt-1 font-medium"
-        />
+                <ErrorMessage
+                  name={field.name}
+                  component="div"
+                  className="text-red-500 text-xs mt-1 font-medium"
+                />
 
-        {field.helpText && (
-          <div className="text-gray-500 text-xs mt-1">
-            {field.helpText}
+                {field.helpText && (
+                  <div className="text-gray-500 text-xs mt-1">
+                    {field.helpText}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+
+          <div className="col-span-4">
+            <button
+              type="submit"
+              disabled={loading || isSubmitting || submitButtonProps.disabled}
+              className={`w-full px-4 py-3 mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 font-semibold rounded-lg shadow-md hover:from-blue-700 hover:to-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed ${submitButtonProps.className || ""}`}
+              {...submitButtonProps}
+            >
+              {loading || isSubmitting
+                ? (submitButtonProps.loadingText || "Processing...")
+                : (SubmitBtn || submitButtonProps.label || "Submit")}
+            </button>
           </div>
-        )}
-      </div>
-    </div>
-  ))}
-
-  <div className="col-span-4">
-    <button
-      type="submit"
-      disabled={loading || isSubmitting || submitButtonProps.disabled}
-      className={`w-full px-4 py-3 mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 font-semibold rounded-lg shadow-md hover:from-blue-700 hover:to-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed ${submitButtonProps.className || ""}`}
-      {...submitButtonProps}
-    >
-      {loading || isSubmitting
-        ? (submitButtonProps.loadingText || "Processing...")
-        : (SubmitBtn || submitButtonProps.label || "Submit")}
-    </button>
-  </div>
-</Form>
+        </Form>
 
       )}
     </Formik>
