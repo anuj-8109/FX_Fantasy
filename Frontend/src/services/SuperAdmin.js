@@ -712,8 +712,8 @@ export async function GetNewsDetails(token, newsId) {
 
 export async function UpdateNewsStatus(token, data) {
   try {
-    const response = await axios.get(
-      `${config.base_url}news/activenews`,
+    const response = await axios.post(
+      `${config.base_url}news/change-status`,
       data,
       {
         headers: {
@@ -721,6 +721,19 @@ export async function UpdateNewsStatus(token, data) {
         },
       }
     );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function GetActiveNews(token) {
+  try {
+    const response = await axios.get(`${config.base_url}news/activenews`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -962,10 +975,209 @@ export async function ShowChangeStatus(token, data) {
 
 //Coupons API Ends Here
 
+//Client API Start here 
+
+export async function AddClient(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}client/add`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function GetClientsWithFilter(token, filters) {
+  try {
+    const response = await axios.post(`${config.base_url}client/listwithfilter`, filters, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function DeleteClientsWithFilter(token, filters) {
+  try {
+    const response = await axios.post(`${config.base_url}client/deletelistwithfilter`, filters, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function GetClientDetails(token, clientId) {
+  try {
+    const response = await axios.get(`${config.base_url}client/detail/${clientId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function DeleteClient(token, clientId) {
+  try {
+    const response = await axios.get(`${config.base_url}client/delete/${clientId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function UpdateClientStatus(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}client/change-status`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function UpdateClient(token, data) {
+  try {
+    const response = await axios.put(`${config.base_url}client/update`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+// Client API Ends Here
 
 
+//Contest API Start Here
 
+export async function AddContest(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}contest/add`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
 
+export async function GetContestsList(token) {
+  try {
+    const response = await axios.get(`${config.base_url}contest/list`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function GetContestDetails(token, contestId) {
+  try {
+    const response = await axios.get(`${config.base_url}contest/detail/${contestId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function UpdateContest(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}contest/update`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function DeleteContest(token, contestId) {
+  try {
+    const response = await axios.get(`${config.base_url}contest/delete/${contestId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function UpdateContestStatus(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}contest/change-status`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function UpdateContestStatusActive(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}contest/change-status-active`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function GetContestStockList(token) {
+  try {
+    const response = await axios.get(`${config.base_url}contest/stock-list`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+// Contest API Ends Here
 
 const logout = () => {
   localStorage.clear();

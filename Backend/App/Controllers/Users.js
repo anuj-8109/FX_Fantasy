@@ -440,96 +440,95 @@ class Users {
     }
   }
 
-  async forgotPassword(req, res) {
 
-    try {
-
-      const { Email } = req.body;
-
-      if (!Email) {
-        return res.status(400).json({ status: false, message: "email is required" });
-      } else if (!/^\S+@\S+\.\S+$/.test(Email)) {
-        return res.status(400).json({ status: false, message: "Invalid email format" });
-      }
-      // Find the user by email
-      const user = await Users_Modal.findOne({ Email });
-
-      if (!user) {
-        return res.status(404).json({
-          status: false,
-          message: "User with this email does not exist",
-        });
-      }
-
-      // Generate a reset token
-      const resetToken = crypto.randomBytes(20).toString('hex');
-
-      // Set the token and expiry on the user
-      user.forgotPasswordToken = resetToken;
-      user.forgotPasswordTokenExpiry = Date.now() + 3600000; // 1 hour from now
-
-      await user.save();
-
+    async forgotPassword(req, res) {
+  
+      try {
+  
+        const { Email } = req.body;
+  
+        if (!Email) {
+          return res.status(400).json({ status: false, message: "email is required" });
+        } else if (!/^\S+@\S+\.\S+$/.test(Email)) {
+          return res.status(400).json({ status: false, message: "Invalid email format" });
+        }
+        // Find the user by email
+        const user = await Users_Modal.findOne({ Email });
+  
+        if (!user) {
+          return res.status(404).json({
+            status: false,
+            message: "User with this email does not exist",
+          });
+        }
+  
+  
       const settings = await BasicSetting_Modal.findOne();
       if (!settings || !settings.smtp_status) {
         throw new Error('SMTP settings are not configured or are disabled');
       }
 
-
-
-      const mailtemplate = await Mailtemplate_Modal.findOne({ mail_type: 'staff_reset_password' }); // Use findOne if you expect a single document
-      if (!mailtemplate || !mailtemplate.mail_body) {
-        throw new Error('Mail template not found');
-      }
-
-      const templatePath = path.join(__dirname, '../../template', 'mailtemplate.html');
-
-
-      fs.readFile(templatePath, 'utf8', async (err, htmlTemplate) => {
-        if (err) {
-          return;
+  
+        const resetToken = Math.floor(100000 + Math.random() * 900000);
+  
+         user.forgotPasswordToken = resetToken;
+        user.forgotPasswordTokenExpiry = Date.now() + 3600000; // 1 hour from now
+  
+        await user.save();
+  
+        const mailtemplate = await Mailtemplate_Modal.findOne({ mail_type: 'staff_reset_password' }); // Use findOne if you expect a single document
+        if (!mailtemplate || !mailtemplate.mail_body) {
+          throw new Error('Mail template not found');
         }
-        const url = `${req.protocol}://${req.headers.host}/#/resetpassword/${resetToken}`;
-
-        const logo = `${req.protocol}://${req.headers.host}/uploads/basicsetting/${settings.logo}`;
-
-
-        const finalMailBody = mailtemplate.mail_body.replace('{url}', url);
-        // Replace placeholders with actual values
-        const finalHtml = htmlTemplate
-          .replace(/{{company_name}}/g, settings.website_title)
-          .replace(/{{body}}/g, finalMailBody)
-          .replace(/{{logo}}/g, logo)
-          .replace(/{{resetToken}}/g, resetToken);
-
-        // Email options
-        const mailOptions = {
-          to: user.Email,
-          from: `${settings.from_name} <${settings.from_mail}>`, // Include business name
-          subject: `${mailtemplate.mail_subject}`,
-          html: finalHtml // Use the HTML template with dynamic variables
-        };
-
-        // Send email
-        await sendEmail(mailOptions);
-      });
-
-
-
-      return res.json({
-        status: true,
-        message: 'Reset token sent to email',
-      });
-
-    } catch (error) {
-      // console.log("Error in forgotPassword:", error);
-      return res.status(500).json({
-        status: false,
-        message: "Server error",
-        error: error.message,
-      });
+  
+        const templatePath = path.join(__dirname, '../../template', 'mailtemplate.html');
+  
+  
+        fs.readFile(templatePath, 'utf8', async (err, htmlTemplate) => {
+          if (err) {
+            console.error('Error reading HTML template:', err);
+            return;
+          }
+  
+          const finalMailBody = mailtemplate.mail_body.replace('{resetToken}', resetToken);
+          const logo = `https://${req.headers.host}/uploads/basicsetting/${settings.logo}`;
+  
+          // Replace placeholders with actual values
+          const finalHtml = htmlTemplate
+            .replace(/{{company_name}}/g, settings.website_title)
+            .replace(/{{body}}/g, finalMailBody)
+            .replace(/{{logo}}/g, logo)
+            .replace(/{{resetToken}}/g, resetToken);
+  
+          // Email options
+          const mailOptions = {
+            to: user.Email,
+            from: `${settings.from_name} <${settings.from_mail}>`, // Include business name
+            subject: `${mailtemplate.mail_subject}`,
+            html: finalHtml // Use the HTML template with dynamic variables
+          };
+  
+          // Send email
+          await sendEmail(mailOptions);
+        });
+  
+  
+  
+        return res.json({
+          status: true,
+          message: 'Reset token sent to email',
+        });
+  
+      } catch (error) {
+        // console.log("Error in forgotPassword:", error);
+        return res.status(500).json({
+          status: false,
+          message: "Server error",
+          error: error.message,
+        });
+      }
     }
-  }
+    
   async resetPassword(req, res) {
     try {
       const { resetToken, newPassword } = req.body;

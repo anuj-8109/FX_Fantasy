@@ -5,7 +5,6 @@ import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard";
 import SuperAdminHeader from "../components/superadmin/Header";
 import SuperAdminSidebar from "../components/superadmin/Sidebar";
 import Analytics from "../pages/superadmin/Analytics";
-import Contests from "../pages/superadmin/Contests";
 import Games from "../pages/superadmin/Games";
 import Security from "../pages/superadmin/Security";
 import Settings from "../pages/superadmin/Settings";
@@ -28,6 +27,8 @@ import Blog from "../pages/superadmin/blog/Blog";
 import News from "../pages/superadmin/news/News";
 import FAQs from "../pages/superadmin/faqs/FAQs";
 import Coupons from "../pages/superadmin/coupons/Coupons";
+import Contest from "../pages/superadmin/contest/Contest";
+import Client from "../pages/superadmin/clients/Clients";
 
 const SuperAdminRoutes = () => {
   return (
@@ -37,7 +38,6 @@ const SuperAdminRoutes = () => {
         <Route path="superadminheader" element={<SuperAdminHeader />} />
         <Route path="superadminsidebar" element={<SuperAdminSidebar />} />
         <Route path="analytics" element={<Analytics />} />
-        <Route path="contest" element={<Contests />} />
         <Route path="games" element={<Games />} />
         <Route path="security" element={<Security />} />
         <Route path="settings" element={<Settings />} />
@@ -60,6 +60,8 @@ const SuperAdminRoutes = () => {
         <Route path="news" element={<News />} />
         <Route path="faqs" element={<FAQs />} />
         <Route path="coupons" element={<Coupons />} />
+        <Route path="contest" element={<Contest />} />
+      <Route path="clients" element={<Client />} />
       </Route>
     </>
   );
