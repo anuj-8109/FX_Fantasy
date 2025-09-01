@@ -176,7 +176,7 @@ const Contest = () => {
     }
   };
 
-  // datatable columns
+ 
   const columns = [
     { name: "S.No", selector: (row, i) => i + 1, width: "80px" },
     { name: "Name", selector: (row) => row.name, sortable: true },
@@ -248,11 +248,11 @@ const Contest = () => {
           <Datatable columns={columns} data={contests} title="Contest List" />
         </div>
 
-        {/* Add/Edit Modal */}
+        
         {open && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl p-6">
-              <h2 className="text-lg font-semibold mb-4 border-b pb-2">
+          <div className="fixed mt-10 inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+            <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl p-4">
+              <h2 className="text-lg font-semibold mb-2 border-b pb-2">
                 {selectedContest ? "✏️ Edit Contest" : "➕ Add Contest"}
               </h2>
               <form onSubmit={handleSave} className="space-y-4">

@@ -8,7 +8,7 @@ import {
   GetClientDetails,
   UpdateClientStatus,
   UpdateClient,
-} from "../../../services/SuperAdmin"; 
+} from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import Content from "../../../components/superadmin/Content";
@@ -33,7 +33,7 @@ const Client = () => {
   // fetch clients
   const fetchClients = async () => {
     setLoading(true);
-    const response = await GetClientsWithFilter(token, {}); 
+    const response = await GetClientsWithFilter(token, {});
     if (response?.status) {
       setClients(response?.data);
     } else {
@@ -155,8 +155,10 @@ const Client = () => {
 
     const payload = {
       id: client._id,
-      status: client.ActiveStatus === 1 ? 0 :1,
+      status: client.ActiveStatus === 1 ? "0" : "1", 
     };
+
+    console.log(payload);
 
     const res = await UpdateClientStatus(token, payload);
 
@@ -182,7 +184,7 @@ const Client = () => {
         <label className="relative inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
-            checked={row.ActiveStatus === 1}
+            checked={row?.ActiveStatus === 1}
             onChange={() => handleStatusChange(row)}
             className="sr-only peer"
           />
@@ -241,11 +243,10 @@ const Client = () => {
           <Datatable columns={columns} data={clients} title="Client List" />
         </div>
 
-        {/* Add/Edit Modal */}
         {open && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl p-6">
-              <h2 className="text-lg font-semibold mb-4 border-b pb-2">
+          <div className="fixed mt-10 inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+            <div className="w-full max-w-md max-h-[80vh] overflow-y-auto  bg-white shadow-2xl p-6">
+              <h2 className="text-lg font-semibold  border-b pb-2">
                 {selectedClient ? "✏️ Edit Client" : "➕ Add Client"}
               </h2>
               <form onSubmit={handleSave} className="space-y-4">
@@ -304,7 +305,7 @@ const Client = () => {
                   />
                 </div>
 
-                <div className="flex justify-end gap-3">
+                <div className="flex justify-end gap-3 sticky  bg-white ">
                   <button
                     type="button"
                     onClick={handleCancel}
@@ -324,6 +325,7 @@ const Client = () => {
             </div>
           </div>
         )}
+
 
         {/* View Client */}
         {viewOpen && viewClient && (
