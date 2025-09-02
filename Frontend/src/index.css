@@ -87,7 +87,7 @@
   --secondary-foreground: 220 13% 8%;
   --muted: 210 40% 95%;
   --muted-foreground: 220 8% 46%;
-  --border: 210 40% 85%;
+
 }
 
 /* Wall Street Elite Theme */
@@ -181,7 +181,7 @@
 }
 
 /* eSports Pro Theme */
-.theme-esports-pro {
+/* .theme-esports-pro {
   --background: 240 15% 8%;
   --foreground: 240 20% 95%;
   --card: 240 15% 12%;
@@ -193,10 +193,10 @@
   --muted: 240 10% 20%;
   --muted-foreground: 240 8% 65%;
   --border: 240 10% 25%;
-}
+} */
 
 /* Additional themes with similar patterns... */
-.theme-sports-green {
+/* .theme-sports-green {
   --background: 120 50% 95%;
   --foreground: 120 15% 10%;
   --card: 120 50% 100%;
@@ -334,7 +334,7 @@
   --muted: 340 50% 90%;
   --muted-foreground: 340 15% 45%;
   --border: 340 50% 80%;
-} 
+}  */
 
 @layer base {
   * {
@@ -394,4 +394,11 @@
 }
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
+}
+
+
+
+
+.border-style{
+  border: none !important;
 }

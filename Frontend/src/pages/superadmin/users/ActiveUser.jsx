@@ -51,8 +51,8 @@ const ActiveUser = () => {
   ];
 
   return (
-    <Content Page_title="Active Users" button_status={true} button_title="back" >
-      <div className="p-6 min-h-screen ">
+    <Content Page_title="Active Users" button_status={true} button_title="back"  >
+      <div className="p-2  ">
         <div className=" shadow-lg rounded-xl p-4">
           <Datatable columns={columns} data={activeuser} title="Users List"  />
         </div>

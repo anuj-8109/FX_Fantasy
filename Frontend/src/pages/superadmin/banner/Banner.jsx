@@ -220,23 +220,12 @@ const Banner = () => {
       Page_title="Banner Management"
       button_title="back"
       button_status={true}
+      extra_button="+ Add Banner" extra_button_action={handleOpen}
     >
-      <div className="p-6 min-h-screen">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <FileImage />
-            <h1 className="text-2xl font-bold">All Banners</h1>
-          </div>
+      <div className="p-2 ">
+       
 
-          <button
-            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm rounded text-white"
-            onClick={() => handleOpen()}
-          >
-            + Add Banner
-          </button>
-        </div>
-
-        <div className="shadow-lg rounded-xl p-4 bg-white">
+        <div className="shadow-lg rounded-xl p-4 bg-#1E293B">
           <Datatable columns={columns} data={banners} title="Banners List" />
         </div>
 

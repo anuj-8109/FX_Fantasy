@@ -1,31 +1,25 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 import {
   Home,
   Users,
-  BarChart2,
   Award,
-  Activity,
-  Gamepad,
-  CreditCard,
-  Shield,
-  Settings,
-  ChevronRight,
-  ChevronDown,
   UserCheck,
-  Settings2,
-  Mail,
-  MessageSquare,
-  SettingsIcon,
-  MessageCircle,
-  FileText,
   RectangleHorizontal,
+  FileText,
   Quote,
   Newspaper,
   BadgeHelp,
   TicketPercent,
+  Settings2,
+  Mail,
+  Settings as SettingsIcon,
+  MessageSquare,
+  MessageCircle,
   User,
+  ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 
 const menuItems = [
@@ -88,7 +82,6 @@ const menuItems = [
   },
   {
     title: "Basic Settings",
-    url: "/superadmin/basicsettings",
     icon: <Settings2 />,
     children: [
       {
@@ -113,20 +106,26 @@ const menuItems = [
       },
     ],
   },
-  // {
-  //   title: "Game Analytics",
-  //   url: "/superadmin/analytics",
-  //   icon: <BarChart2 />,
-  // },
-  // { title: "Live Trading", url: "/superadmin/trading", icon: <Activity /> },
-  // { title: "Game Settings", url: "/superadmin/games", icon: <Gamepad /> },
-  // { title: "Wallet System", url: "/superadmin/wallet", icon: <CreditCard /> },
-  // { title: "Security", url: "/superadmin/security", icon: <Shield /> },
-  // { title: "Settings", url: "/superadmin/settings", icon: <Settings /> },
 ];
 
 const SuperAdminSidebar = ({ collapsed }) => {
-  const [openMenus, setOpenMenus] = useState({});
+  const location = useLocation();
+
+  
+  const [openMenus, setOpenMenus] = useState(() => {
+    const initial = {};
+    menuItems.forEach((item) => {
+      if (
+        item.children &&
+        item.children.some((child) =>
+          location.pathname.startsWith(child.url)
+        )
+      ) {
+        initial[item.title] = true;
+      }
+    });
+    return initial;
+  });
 
   const toggleMenu = (title) => {
     setOpenMenus((prev) => ({ ...prev, [title]: !prev[title] }));
@@ -134,74 +133,81 @@ const SuperAdminSidebar = ({ collapsed }) => {
 
   return (
     <aside
-      className={`${collapsed ? "w-16" : "w-56"}
-    fixed top-16 left-0 h-[calc(100vh-64px)] 
-    overflow-y-auto hide-scrollbar 
-    transition-all border-r  z-40`}
+      className={`${collapsed ? "w-16" : "w-64"}
+        fixed top-16 left-0 h-[calc(100vh-64px)] 
+        overflow-y-auto hide-scrollbar 
+        transition-all z-40 `}
     >
-      <div className="flex flex-col h-full mt-4">
+      <div className="flex flex-col h-full mt-4 p-1">
         <nav className="flex-1 space-y-2">
-          {menuItems.map((item) => (
-            <div key={item.title}>
-              {/* Parent Item */}
-              {item.children ? (
-                <div
-                  onClick={() => toggleMenu(item.title)}
-                  className="flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer text-gray-600 hover:bg-gray-100"
-                  title={collapsed ? item.title : ""}
-                >
-                  <div className="flex items-center gap-3">
+          {menuItems.map((item) => {
+            const isChildActive =
+              item.children &&
+              item.children.some((child) =>
+                location.pathname.startsWith(child.url)
+              );
+
+            return (
+              <div key={item.title}>
+                {item.children ? (
+                  <div
+                    onClick={() => toggleMenu(item.title)}
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg transition-colors cursor-pointer ${isChildActive
+                        ? "bg-blue-400 "
+                        : "hover:bg-blue-400"
+                      }`}
+                    title={collapsed ? item.title : ""}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span>{item.icon}</span>
+                      {!collapsed && <span>{item.title}</span>}
+                    </div>
+                    {!collapsed &&
+                      (openMenus[item.title] ? (
+                        <ChevronDown />
+                      ) : (
+                        <ChevronRight />
+                      ))}
+                  </div>
+                ) : (
+                  <NavLink
+                    to={item.url}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 ${isActive
+                        ? "bg-blue-400 "
+                        : "text-white-700"
+                      }`
+                    }
+                    title={collapsed ? item.title : ""}
+                  >
                     <span>{item.icon}</span>
                     {!collapsed && <span>{item.title}</span>}
-                  </div>
-                  {!collapsed &&
-                    (openMenus[item.title] ? (
-                      <ChevronDown />
-                    ) : (
-                      <ChevronRight />
-                    ))}
-                </div>
-              ) : (
-                <NavLink
-                  to={item.url}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 ${
-                      isActive
-                        ? "bg-blue-600 "
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`
-                  }
-                  title={collapsed ? item.title : ""}
-                >
-                  <span>{item.icon}</span>
-                  {!collapsed && <span>{item.title}</span>}
-                </NavLink>
-              )}
+                  </NavLink>
+                )}
 
-              {/* Submenu */}
-              {item.children && openMenus[item.title] && !collapsed && (
-                <div className="ml-8 mt-1 space-y-1">
-                  {item.children.map((child) => (
-                    <NavLink
-                      key={child.title}
-                      to={child.url}
-                      className={({ isActive }) =>
-                        `flex items-center gap-2 text-sm px-3 py-1 rounded-md transition-colors duration-200 ${
-                          isActive
-                            ? "bg-blue-100 text-blue-700"
-                            : "text-gray-600 hover:bg-gray-100"
-                        }`
-                      }
-                    >
-                      {/* 👇 child icon */}
-                      <span>{child.icon}</span>
-                      <span>{child.title}</span>
-                    </NavLink>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+                {/* Submenu */}
+                {item.children && openMenus[item.title] && !collapsed && (
+                  <div className="ml-8 mt-1 space-y-1">
+                    {item.children.map((child) => (
+                      <NavLink
+                        key={child.title}
+                        to={child.url}
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 text-sm px-3 py-1 rounded-md transition-colors duration-200 ${isActive
+                            ? "bg-blue-400 text-blue-100"
+                            : "text-white-400 "
+                          }`
+                        }
+                      >
+                        <span>{child.icon}</span>
+                        <span>{child.title}</span>
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
       </div>
     </aside>

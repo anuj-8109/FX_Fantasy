@@ -67,7 +67,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
   }, []);
 
   return (
-   <header className="sticky top-0 z-50 w-full border-b shadow-sm backdrop-blur-lg transition-colors">
+   <header className="sticky top-0 z-50 w-full border-b shadow-sm backdrop-blur-lg transition-colors Main-Header ">
 
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo + Sidebar Toggle */}
@@ -91,7 +91,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+            className="p-2 rounded-full transition"
             title="Toggle theme"
           >
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
@@ -101,7 +101,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
           <div className="relative" ref={notifRef}>
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 relative"
+              className="p-2 rounded-full  relative"
             >
               <Bell size={20} />
               {unreadCount > 0 && (

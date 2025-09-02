@@ -242,10 +242,12 @@ const FAQs = () => {
   ];
 
   return (
-    <Content Page_title="FAQ Management" button_status={true}>
-      <div className="p-6 min-h-screen">
+    <Content Page_title="FAQ Management" button_status={true} button_title="back"
+     extra_button="+ Add FAQ" extra_button_action={handleOpen}
+    >
+      <div className="p-2 ">
 
-        <div className="flex items-center justify-between mb-6">
+        {/* <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <FileQuestion />
             <h1 className="text-2xl font-bold">All FAQs</h1>
@@ -257,7 +259,7 @@ const FAQs = () => {
           >
             + Add FAQ
           </button>
-        </div>
+        </div> */}
 
         <div className="shadow-lg rounded-xl p-4 bg-white">
           <Datatable columns={columns} data={faqs} title="FAQs List" progressPending={loading} />

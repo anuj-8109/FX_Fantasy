@@ -236,12 +236,14 @@ const Blog = () => {
 
   return (
     <Content
-      Page_title="Blog Management"
+      Page_title="All Blogs"
       button_title="back"
       button_status={true}
+       extra_button="+ Add Blog" extra_button_action={handleOpen}
     >
-      <div className="p-6 min-h-screen">
-        <div className="flex items-center justify-between mb-6">
+      <div className="p-2 ">
+
+        {/* <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <FileText />
             <h1 className="text-2xl font-bold">All Blogs</h1>
@@ -253,8 +255,9 @@ const Blog = () => {
           >
             + Add Blog
           </button>
-        </div>
-        <div className="shadow-lg rounded-xl p-4 bg-white">
+        </div> */}
+
+        <div className="shadow-lg rounded-xl p-4 bg-#1E293B">
           <Datatable columns={columns} data={blogs} title="Blogs List" />
         </div>
 

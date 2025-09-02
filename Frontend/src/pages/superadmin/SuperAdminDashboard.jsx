@@ -25,11 +25,11 @@ const SuperAdminDashboard = () => {
   ];
 
   return (
-  <div className="min-h-screen flex w-full">
+  <div className="min-h-screen flex w-full dashBoardSuper">
 
   <div className="flex-1 flex flex-col">
    
-    <main className="flex-1 p-6 overflow-auto">
+    <main className="flex-1 p-6 overflow-auto ">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>

@@ -184,7 +184,7 @@ const AllUsers = () => {
   ];
 
   return (
-    <div className="p-8 min-h-screen">
+    <div className="p-8 min-h-screen AllUsers_Style">
       <div className="flex items-center justify-between mb-6 border  rounded-xl shadow-sm p-2">
         <div className="flex items-center gap-2">
           <User className="" />
@@ -201,7 +201,7 @@ const AllUsers = () => {
 
 
 
-      <div className=" border shadow-lg rounded-xl p-4 ">
+      <div className=" border shadow-lg rounded-xl  ">
         <Datatable columns={columns} data={allusers} title="Users List" />
       </div>
     </div>

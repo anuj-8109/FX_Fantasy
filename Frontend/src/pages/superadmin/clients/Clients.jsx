@@ -155,7 +155,7 @@ const Client = () => {
 
     const payload = {
       id: client._id,
-      status: client.ActiveStatus === 1 ? "0" : "1", 
+      status: client.ActiveStatus === 1 ? "0" : "1",
     };
 
     console.log(payload);
@@ -224,22 +224,11 @@ const Client = () => {
   ];
 
   return (
-    <Content Page_title="Client Management" button_title="back" button_status={true}>
-      <div className="p-6 min-h-screen">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <FileText />
-            <h1 className="text-2xl font-bold">All Clients</h1>
-          </div>
-          <button
-            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm rounded text-white"
-            onClick={() => handleOpen()}
-          >
-            + Add Client
-          </button>
-        </div>
-
-        <div className="shadow-lg rounded-xl p-4 bg-white">
+    <Content Page_title="Client Management" button_title="back" button_status={true}
+      route={"/superadmin/superadmindashboard"} extra_button="Add Client"
+      extra_button_action={handleOpen} >
+      <div className="p-2 ">
+        <div className="shadow-lg rounded-xl p-4">
           <Datatable columns={columns} data={clients} title="Client List" />
         </div>
 

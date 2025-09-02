@@ -269,9 +269,11 @@ const Coupons = () => {
       Page_title="Coupon Management"
       button_title="back"
       button_status={true}
+       extra_button="+ Add Coupon" extra_button_action={handleOpen}
     >
-      <div className="p-6 min-h-screen">
-        <div className="flex items-center justify-between mb-6">
+      <div className="p-2 ">
+
+        {/* <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <FileText />
             <h1 className="text-2xl font-bold">All Coupons</h1>
@@ -283,7 +285,8 @@ const Coupons = () => {
           >
             + Add Coupon
           </button>
-        </div>
+        </div> */}
+
         <div className="shadow-lg rounded-xl p-4 bg-white">
           <Datatable columns={columns} data={coupons} title="Coupons List" />
         </div>

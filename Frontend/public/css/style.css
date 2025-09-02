@@ -1,0 +1,101 @@
+.theme-trading-pro .rdt_TableCell {
+    background: #1E293B;
+    color: #fffbff;
+}
+
+.theme-trading-pro .Search_btn {
+    background: #1E293B;
+    color: #fffbff;
+
+}
+.theme-trading-pro .searchBd{
+     border: 1px solid white;
+}
+
+.theme-trading-pro .rdt_Pagination {
+    background: #1E293B;
+    color: #fffbff;
+}
+
+.theme-trading-pro .cvFfSA {
+    background: #1E293B;
+    color: #fffbff;
+}
+
+.theme-trading-pro aside {
+    box-shadow: inset rgba(165, 154, 154, 0.082) 0.95px 1.95px 18px;
+    background-color: #151d29;
+    color: white !important;
+}
+
+.theme-trading-pro .Main-Header {
+    background-color: #0F172A;
+}
+
+.theme-trading-pro .dashBoardSuper {
+    background-color: #111827;
+}
+
+aside {
+    padding: 10px 5px;
+}
+
+.theme-trading-light aside {
+    box-shadow: inset rgba(189, 112, 112, 0.486) 0.95px 1.95px 18px;
+    background-color: #0284C7;
+    color: #FFFFFF !important;
+    border: none !important;
+}
+
+.theme-trading-light .Main-Header {
+    box-shadow: inset rgba(189, 112, 112, 0.212) 0.95px 1.95px 18px;
+    background-color: #0284C7;
+    color: #1e293b;
+
+}
+
+.theme-trading-light .dashBoardSuper {
+    background-color: #F9FAFB;
+}
+
+.theme-trading-light .card {
+    background-color: #FFFFFF;
+    color: #000000 !important;
+}
+
+.theme-trading-light .transition-colors {
+    color: #FFFFFF !important;
+}
+
+.theme-trading-light .dashBoardSuper {
+    background-color: #f1f1f198;
+    color: #000;
+}
+
+.theme-trading-light .AllUsers_Style {
+    background-color: #f1f1f198;
+    color: #000000;
+}
+
+.theme-trading-light .rdt_TableCell {
+    background: #f1f1f1c0 !important;
+    color: #000000;
+}
+
+.theme-trading-light .rdt_Pagination {
+    background-color: #f1f1f198 !important;
+    color: #000000;
+}
+
+.theme-trading-light .rdt_TableHeadRow {
+    background-color: #3a8ddfb4 !important;
+    color: #030303;
+}
+.theme-trading-light .Content_Style{
+    background-color: #0284c7 !important;
+    color: #fffbff;
+}
+
+
+/* Drak Theme Css */
+

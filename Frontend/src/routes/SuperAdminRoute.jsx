@@ -29,6 +29,7 @@ import FAQs from "../pages/superadmin/faqs/FAQs";
 import Coupons from "../pages/superadmin/coupons/Coupons";
 import Contest from "../pages/superadmin/contest/Contest";
 import Client from "../pages/superadmin/clients/Clients";
+import AddContest from "../pages/superadmin/contest/AddContest";
 
 const SuperAdminRoutes = () => {
   return (
@@ -61,6 +62,7 @@ const SuperAdminRoutes = () => {
         <Route path="faqs" element={<FAQs />} />
         <Route path="coupons" element={<Coupons />} />
         <Route path="contest" element={<Contest />} />
+        <Route path="add-contest" element={<AddContest />} />
       <Route path="clients" element={<Client />} />
       </Route>
     </>

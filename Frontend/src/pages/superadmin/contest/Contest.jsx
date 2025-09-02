@@ -13,8 +13,12 @@ import {
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import Content from "../../../components/superadmin/Content";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { useNavigate } from "react-router-dom";
 
 const Contest = () => {
+  const navigate = useNavigate();
   const [contests, setContests] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedContest, setSelectedContest] = useState(null);
@@ -33,7 +37,7 @@ const Contest = () => {
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
 
-  // fetch contests
+
   const fetchContests = async () => {
     setLoading(true);
     const response = await GetContestsList(token);
@@ -49,7 +53,7 @@ const Contest = () => {
     fetchContests();
   }, []);
 
-  // open modal
+
   const handleOpen = (contest = null) => {
     setSelectedContest(contest);
     setName(contest?.name || "");
@@ -176,28 +180,87 @@ const Contest = () => {
     }
   };
 
- 
+
   const columns = [
-    { name: "S.No", selector: (row, i) => i + 1, width: "80px" },
-    { name: "Name", selector: (row) => row.name, sortable: true },
+    { name: "S.No", selector: (row, i) => i + 1, width: "70px" },
+    { name: "Name", selector: (row) => row.name, sortable: true, width: "160px" },
+    { name: "Description", selector: (row) => row.description, grow: 2 },
+    { name: "Type", selector: (row) => row.contest_type },
     { name: "Entry Fee", selector: (row) => row.entry_fee },
     { name: "Total Spots", selector: (row) => row.total_spots },
+    { name: "Max/User", selector: (row) => row.max_entry_per_user },
     { name: "Prize Pool", selector: (row) => row.prize_pool },
+
+    {
+      name: "Prize Dist.",
+      cell: (row) => (
+        <div className="text-xs">
+          {row.prize_distribution?.map((p, idx) => (
+            <div key={idx}>
+              #{p.rank}: ₹{p.amount}
+            </div>
+          ))}
+        </div>
+      ),
+      width: "150px",
+    },
+
+    {
+      name: "Stocks",
+      cell: (row) => (
+        <div className="text-xs">
+          {row.stocks?.map((s, idx) => (
+            <div key={idx}>{s.stock_name}</div>
+          ))}
+        </div>
+      ),
+      width: "120px",
+    },
+
+    {
+      name: "Guaranteed",
+      selector: (row) => (row.is_guaranteed ? " Yes" : " No"),
+      width: "120px",
+    },
+
+    {
+      name: "Private",
+      selector: (row) => (row.is_private ? " Yes" : " No"),
+      width: "100px",
+    },
+
+    { name: "Code", selector: (row) => row.contest_code, width: "120px" },
+
+    {
+      name: "Start Date",
+      selector: (row) =>
+        row.startdate ? new Date(row.startdate).toLocaleString() : "-",
+      width: "180px",
+    },
+    {
+      name: "End Date",
+      selector: (row) =>
+        row.enddate ? new Date(row.enddate).toLocaleString() : "-",
+      width: "180px",
+    },
+
     {
       name: "Status",
       cell: (row) => (
         <label className="relative inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
-            checked={row.status === "live"}
+            checked={row.status === "live" }
             onChange={() => handleStatusChange(row)}
             className="sr-only peer"
           />
           <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
-          <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border peer-checked:translate-x-full transition-transform"></div>
+          <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border bg-white peer-checked:translate-x-full transition-transform"></div>
         </label>
       ),
+      width: "120px",
     },
+
     {
       name: "Action",
       cell: (row) => (
@@ -212,7 +275,9 @@ const Contest = () => {
           />
         </div>
       ),
+      width: "100px",
     },
+
     {
       name: "View",
       cell: (row) => (
@@ -225,106 +290,37 @@ const Contest = () => {
           }}
         />
       ),
+      width: "80px",
     },
   ];
 
-  return (
-    <Content Page_title="Contest Management" button_title="back" button_status={true}>
-      <div className="p-6 min-h-screen">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <FileText />
-            <h1 className="text-2xl font-bold">All Contests</h1>
-          </div>
-          <button
-            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm rounded text-white"
-            onClick={() => handleOpen()}
-          >
-            + Add Contest
-          </button>
-        </div>
 
-        <div className="shadow-lg rounded-xl p-4 bg-white">
+  return (
+    <Content Page_title="Contest Management" button_title="back" button_status={true} 
+    extra_button="Add Contest" extra_button_action={"/superadmin/add-contest"}
+    >
+      <div className="p-2 ">
+
+        <div className="shadow-lg rounded-xl p-4">
           <Datatable columns={columns} data={contests} title="Contest List" />
         </div>
 
-        
-        {open && (
-          <div className="fixed mt-10 inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl p-4">
-              <h2 className="text-lg font-semibold mb-2 border-b pb-2">
-                {selectedContest ? "✏️ Edit Contest" : "➕ Add Contest"}
-              </h2>
-              <form onSubmit={handleSave} className="space-y-4">
-                <div>
-                  <label className="text-sm">Name</label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full border rounded-md px-3 py-2 mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm">Description</label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="w-full border rounded-md px-3 py-2 mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm">Entry Fee</label>
-                  <input
-                    type="number"
-                    value={entryFee}
-                    onChange={(e) => setEntryFee(e.target.value)}
-                    className="w-full border rounded-md px-3 py-2 mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm">Total Spots</label>
-                  <input
-                    type="number"
-                    value={totalSpots}
-                    onChange={(e) => setTotalSpots(e.target.value)}
-                    className="w-full border rounded-md px-3 py-2 mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm">Prize Pool</label>
-                  <input
-                    type="number"
-                    value={prizePool}
-                    onChange={(e) => setPrizePool(e.target.value)}
-                    className="w-full border rounded-md px-3 py-2 mt-1"
-                  />
-                </div>
 
-                <div className="flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={handleCancel}
-                    className="px-4 py-2 bg-gray-200 rounded-md"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md"
-                  >
-                    {loading ? "Saving..." : "Save"}
-                  </button>
-                </div>
-              </form>
-            </div>
+        {open && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+            <AddContest
+              token={token}
+              onSuccess={() => {
+                fetchContests();
+                setOpen(false);
+              }}
+              onCancel={() => setOpen(false)}
+            />
           </div>
         )}
 
-        {/* View Contest */}
         {viewOpen && viewContest && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 ">
             <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
               <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
                 <span>👁️ Contest Details</span>

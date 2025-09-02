@@ -195,12 +195,13 @@ const Contents = () => {
 
   return (
     <Content
-      Page_title="Content Management"
+      Page_title="All Contents"
       button_title="back"
       button_status={true}
+      extra_button="+ Add Content" extra_button_action={handleOpen}
     >
-      <div className="p-6 min-h-screen">
-        <div className="flex items-center justify-between mb-6">
+      <div className="p-2 ">
+        {/* <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <FileText />
             <h1 className="text-2xl font-bold">All Contents</h1>
@@ -212,8 +213,8 @@ const Contents = () => {
           >
             + Add Content
           </button>
-        </div>
-        <div className="shadow-lg rounded-xl p-4 bg-white">
+        </div> */}
+        <div className="shadow-lg rounded-xl p-4 bg-#1E293B">
           <Datatable columns={columns} data={contents} title="Contents List" />
         </div>
 

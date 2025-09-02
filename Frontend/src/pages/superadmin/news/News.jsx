@@ -232,12 +232,14 @@ const News = () => {
 
   return (
     <Content
-      Page_title="News Management"
+      Page_title="All News"
       button_title="back"
       button_status={true}
+      extra_button="+ Add News" extra_button_action={handleOpen}
     >
-      <div className="p-6 min-h-screen">
-        <div className="flex items-center justify-between mb-6">
+      <div className="p-2 ">
+
+        {/* <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <FileText />
             <h1 className="text-2xl font-bold">All News</h1>
@@ -249,8 +251,9 @@ const News = () => {
           >
             + Add News
           </button>
-        </div>
-        <div className="shadow-lg rounded-xl p-4 bg-white">
+        </div> */}
+
+        <div className="shadow-lg rounded-xl p-4 ">
           <Datatable columns={columns} data={news} title="News List" />
         </div>
 
