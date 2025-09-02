@@ -19,13 +19,11 @@ class ContestController {
                 max_entry_per_user,
                 prize_pool,
                 prize_distribution,
-                stocks,
                 is_guaranteed,
                 is_private,
                 contest_code,
-                startdate,
-                enddate,
-                add_by
+                add_by,
+                tournament_id,
             } = req.body;
 
             // Basic validations
@@ -34,7 +32,6 @@ class ContestController {
             if (!entry_fee && entry_fee !== 0) return res.status(400).json({ status: false, message: "entry_fee is required" });
             if (!total_spots) return res.status(400).json({ status: false, message: "total_spots is required" });
             if (!prize_pool && prize_pool !== 0) return res.status(400).json({ status: false, message: "prize_pool is required" });
-            if (!startdate || !enddate) return res.status(400).json({ status: false, message: "startdate and enddate are required" });
 
             // Convert prize_distribution from JSON string if needed
             let prizeDist = prize_distribution;
@@ -56,13 +53,11 @@ class ContestController {
                 max_entry_per_user,
                 prize_pool,
                 prize_distribution: prizeDist,
-                stocks,
                 is_guaranteed,
                 is_private,
                 contest_code,
-                startdate,
-                enddate,
-                add_by
+                add_by,
+                tournament_id
             });
 
             await contest.save();
@@ -181,12 +176,9 @@ class ContestController {
                 max_entry_per_user,
                 prize_pool,
                 prize_distribution,
-                stocks,
                 is_guaranteed,
                 is_private,
                 contest_code,
-                startdate,
-                enddate
             } = req.body;
 
             if (!id) return res.status(400).json({ status: false, message: "Contest ID is required" });
@@ -212,13 +204,10 @@ class ContestController {
                 max_entry_per_user,
                 prize_pool,
                 prize_distribution: prizeDist,
-                stocks,
                 is_guaranteed,
                 is_private,
                 contest_code,
-                startdate,
-                enddate
-            };
+             };
 
             const updatedContest = await Contest_Model.findByIdAndUpdate(
                 id,
