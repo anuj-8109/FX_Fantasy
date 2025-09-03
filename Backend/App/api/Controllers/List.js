@@ -8,6 +8,10 @@ const Coupon_Modal = db.Coupon;
 const Faq_Modal = db.Faq;
 const Content_Modal = db.Content;
 const Clients_Modal = db.Clients;
+const Tournament_Model = db.Tournament;
+const Contest_Model = db.Contest;
+
+
 
 mongoose = require('mongoose');
 
@@ -278,6 +282,84 @@ class List {
       return res.status(500).json({ status: false, message: 'Server error', data: [] });
     }
   }
+async getUpcomingTournaments(req, res) {
+    try {
+        const { search } = req.query;
+
+        const matchConditions = { 
+            del: false,
+            status: "upcoming" 
+        };
+
+        if (search && search.trim() !== "") {
+            matchConditions.$or = [
+                { name: { $regex: search, $options: "i" } },
+                { description: { $regex: search, $options: "i" } }
+            ];
+        }
+
+        const tournaments = await Tournament_Model.find(matchConditions)
+            .sort({ created_at: -1 });
+
+        return res.status(200).json({
+            status: true,
+            message: "Upcoming tournaments retrieved successfully",
+            data: tournaments
+        });
+
+    } catch (error) {
+        return res.status(500).json({ 
+            status: false, 
+            message: "Server error", 
+            error: error.message 
+        });
+    }
+}
+
+// Get contests by tournament id + tournament data (no pagination)
+async getContestsByTournamentId(req, res) {
+    try {
+        const { tournament_id } = req.params;  // URL param
+        const { status, contest_type, search } = req.query;
+
+        // Tournament find करो
+        const tournament = await Tournament_Model.findOne({ 
+            _id: tournament_id, 
+            del: false 
+        });
+
+        if (!tournament) {
+            return res.status(404).json({
+                status: false,
+                message: "Tournament not found"
+            });
+        }
+
+        // Contest filter conditions
+        const matchConditions = { 
+            del: false, 
+            tournament_id: tournament_id 
+        };
+
+        const contests = await Contest_Model.find(matchConditions)
+            .sort({ created_at: -1 });
+
+        return res.status(200).json({
+            status: true,
+            message: "Tournament contests retrieved successfully",
+            tournament: tournament,  // full tournament data
+            contests: contests
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            status: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+}
+
 
 }
 
