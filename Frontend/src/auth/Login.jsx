@@ -90,7 +90,7 @@ const Login = () => {
             navigate("/Staff/Staffdashboard");
           }
           else if (roleId === 3) {
-            navigate("/User/Userdashboard");
+            navigate("/Client/Clientdashboard");
           }
           else {
             navigate("/");
