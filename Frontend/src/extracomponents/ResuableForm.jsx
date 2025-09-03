@@ -234,7 +234,7 @@ const ReusableForm = ({
     >
       {({ handleSubmit, validateForm, setTouched, isSubmitting, errors, touched }) => (
         <Form
-          className={`grid grid-cols-1 md:grid-cols-4 gap-4 p-4 ${formClassName}`}
+          className={`grid grid-cols-1 md:grid-cols-4 gap-4 p-4 Form_style  ${formClassName}`}
           encType="multipart/form-data"
           onSubmit={async (e) => {
             e.preventDefault();
@@ -248,7 +248,7 @@ const ReusableForm = ({
               setTouched(touchedFields);
 
               setTimeout(() => {
-                const errorElement = document.querySelector(".text-red-500");
+                const errorElement = document.querySelector("");
                 if (errorElement) {
                   errorElement.scrollIntoView({
                     behavior: "smooth",
@@ -264,29 +264,29 @@ const ReusableForm = ({
         >
           {fields.map((field) => (
             <div key={field.name} className={field.colClass || "col-span-2"}>
-              <div className="flex flex-col space-y-1">
+              <div className="flex flex-col space-y-1 ">
                 {field.type !== "checkbox" && field.type !== "radio" && (
                   <label
                     htmlFor={field.name}
-                    className={`text-sm font-medium text-gray-700 ${field.required ? "after:content-['*'] after:text-red-500 after:ml-1" : ""
+                    className={`text-sm font-medium   ${field.required ? "after:content-['*'] after:text-red-500 after:ml-1" : ""
                       }`}
                   >
                     {field.label}
                   </label>
                 )}
 
-                <div className={`relative ${errors[field.name] && touched[field.name] ? "border-red-300" : ""}`}>
+                <div className={`relative    ${errors[field.name] && touched[field.name] ? "border-red-300" : ""}`}>
                   {renderField(field)}
                 </div>
 
                 <ErrorMessage
                   name={field.name}
                   component="div"
-                  className="text-red-500 text-xs mt-1 font-medium"
+                  className=" text-xs mt-1 font-medium "
                 />
 
                 {field.helpText && (
-                  <div className="text-gray-500 text-xs mt-1">
+                  <div className=" text-xs mt-1 ">
                     {field.helpText}
                   </div>
                 )}
@@ -298,7 +298,7 @@ const ReusableForm = ({
             <button
               type="submit"
               disabled={loading || isSubmitting || submitButtonProps.disabled}
-              className={`w-full px-4 py-3 mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 font-semibold rounded-lg shadow-md hover:from-blue-700 hover:to-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed ${submitButtonProps.className || ""}`}
+              className={`w-full px-4 py-3 mt-4 font-semibold rounded-lg shadow-md  transition disabled:opacity-50 disabled:cursor-not-allowed ${submitButtonProps.className || ""}`}
               {...submitButtonProps}
             >
               {loading || isSubmitting

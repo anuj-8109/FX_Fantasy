@@ -287,112 +287,112 @@ const Coupons = () => {
           </button>
         </div> */}
 
-        <div className="shadow-lg rounded-xl p-4 bg-white">
+        <div className="shadow-lg rounded-xl p-4 ">
           <Datatable columns={columns} data={coupons} title="Coupons List" />
         </div>
 
         {open && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl p-6">
+            <div className="w-full max-w-2xl max-h-[85vh] mt-10 overflow-y-auto rounded-2xl shadow-2xl p-6 Add-client-style hide-scrollbar">
               <h2 className="text-lg font-semibold mb-4 border-b pb-2">
                 {selectedCoupon ? "✏️ Edit Coupon" : "➕ Add Coupon"}
               </h2>
               <form onSubmit={handleSave} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-gray-600">Name</label>
+                    <label className="text-sm ">Name</label>
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 input-Add "
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Code</label>
+                    <label className="text-sm ">Code</label>
                     <input
                       type="text"
                       value={code}
                       onChange={(e) => setCode(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Type</label>
+                    <label className="text-sm ">Type</label>
                     <select
                       value={type}
                       onChange={(e) => setType(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                     >
                       <option value="percentage">Percentage</option>
                       <option value="flat">Flat</option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Value</label>
+                    <label className="text-sm ">Value</label>
                     <input
                       type="number"
                       value={value}
                       onChange={(e) => setValue(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Start Date</label>
+                    <label className="text-sm ">Start Date</label>
                     <input
                       type="date"
                       value={startdate}
                       onChange={(e) => setStartdate(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">End Date</label>
+                    <label className="text-sm ">End Date</label>
                     <input
                       type="date"
                       value={enddate}
                       onChange={(e) => setEnddate(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">
+                    <label className="text-sm ">
                       Min Purchase Value
                     </label>
                     <input
                       type="number"
                       value={minpurchasevalue}
                       onChange={(e) => setMinpurchasevalue(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">
+                    <label className="text-sm ">
                       Min Coupon Value
                     </label>
                     <input
                       type="number"
                       value={mincouponvalue}
                       onChange={(e) => setMinCouponvalue(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Limitation</label>
+                    <label className="text-sm ">Limitation</label>
                     <input
                       type="number"
                       value={limitation}
                       onChange={(e) => setLimitation(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Image</label>
+                    <label className="text-sm ">Image</label>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => setImage(e.target.files[0])}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                     />
                   </div>
                 </div>
@@ -401,7 +401,7 @@ const Coupons = () => {
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="px-4 py-2 bg-gray-200 rounded-md"
+                    className="px-4 py-2 bg-blue-600 rounded-md"
                   >
                     Cancel
                   </button>

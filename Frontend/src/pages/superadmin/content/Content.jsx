@@ -220,22 +220,22 @@ const Contents = () => {
 
         {open && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl p-6">
+            <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl p-6 Add-client-style">
               <h2 className="text-lg font-semibold mb-4 border-b pb-2">
                 {selectedContent ? "✏️ Edit Content" : "➕ Add Content"}
               </h2>
               <form onSubmit={handleSave} className="space-y-4">
                 <div>
-                  <label className="text-sm text-gray-600">Title</label>
+                  <label className="text-sm ">Title</label>
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full border rounded-md px-3 py-2 mt-1"
+                    className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-600">Description</label>
+                  <label className="text-sm ">Description</label>
                   <CKEditor
                     editor={ClassicEditor}
                     data={description}
@@ -249,7 +249,7 @@ const Contents = () => {
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="px-4 py-2 bg-gray-200 rounded-md"
+                    className="px-4 py-2 bg-blue-600 rounded-md"
                   >
                     Cancel
                   </button>

@@ -65,7 +65,7 @@ const Client = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, Delete",
       cancelButtonText: "Cancel",
-       customClass: {
+      customClass: {
         popup: "custom-swal-popup",
         title: "text-xl font-semibold text-white-800",
         confirmButton:
@@ -116,7 +116,7 @@ const Client = () => {
 
     if (!confirm.isConfirmed) return;
 
-    const payload = {
+    let payload = {
       add_by,
       FullName: fullName,
       Email: email,
@@ -169,7 +169,7 @@ const Client = () => {
 
     if (!confirm.isConfirmed) return;
 
-    const payload = {
+    let payload = {
       id: client._id,
       status: client.ActiveStatus === 1 ? "0" : "1",
     };
@@ -249,72 +249,78 @@ const Client = () => {
         </div>
 
         {open && (
-          <div className="fixed mt-10 inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full max-w-md max-h-[80vh] overflow-y-auto  bg-white shadow-2xl p-6">
-              <h2 className="text-lg font-semibold  border-b pb-2">
+          <div className="fixed mt-5 inset-0 flex items-center justify-center z-50 bg-opacity-40">
+            <div className=" w-lg max-h-[80vh] overflow-y-auto Add-client-style shadow-2xl p-6 hide-scrollbar">
+              <h2 className="text-lg font-semibold border-b pb-2">
                 {selectedClient ? "✏️ Edit Client" : "➕ Add Client"}
               </h2>
-              <form onSubmit={handleSave} className="space-y-4">
-                <div>
+
+              <form onSubmit={handleSave} className="grid grid-cols-2 gap-4 mt-4">
+                <div className="">
                   <label className="text-sm">Full Name</label>
                   <input
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full border rounded-md px-3 py-2 mt-1"
+                    className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   />
                 </div>
+
                 <div>
                   <label className="text-sm">Email</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full border rounded-md px-3 py-2 mt-1"
+                    className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   />
                 </div>
+
                 <div>
                   <label className="text-sm">Phone No</label>
                   <input
                     type="text"
                     value={phoneNo}
                     onChange={(e) => setPhoneNo(e.target.value)}
-                    className="w-full border rounded-md px-3 py-2 mt-1"
+                    className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   />
                 </div>
+
                 <div>
                   <label className="text-sm">State</label>
                   <input
                     type="text"
                     value={state}
                     onChange={(e) => setState(e.target.value)}
-                    className="w-full border rounded-md px-3 py-2 mt-1"
+                    className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   />
                 </div>
+
                 <div>
                   <label className="text-sm">City</label>
                   <input
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="w-full border rounded-md px-3 py-2 mt-1"
+                    className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   />
                 </div>
-                <div>
+
+                <div className="">
                   <label className="text-sm">DOB</label>
                   <input
                     type="date"
                     value={dob}
                     onChange={(e) => setDob(e.target.value)}
-                    className="w-full border rounded-md px-3 py-2 mt-1"
+                    className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   />
                 </div>
 
-                <div className="flex justify-end gap-3 sticky  bg-white ">
+                <div className="col-span-2 flex justify-end gap-3">
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="px-4 py-2 bg-gray-200 rounded-md"
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
                   >
                     Cancel
                   </button>
@@ -332,9 +338,10 @@ const Client = () => {
         )}
 
 
+
         {/* View Client */}
         {viewOpen && viewClient && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+          <div className="fixed inset-0 flex items-center justify-center z-50  bg-opacity-40 ">
             <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
               <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
                 <span>👁️ Client Details</span>

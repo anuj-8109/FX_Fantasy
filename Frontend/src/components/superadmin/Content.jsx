@@ -17,7 +17,7 @@ const Content = ({
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border p-2 rounded-md Content_Style">
         <div className="flex flex-col ">
-          <div className="flex items-center gap-2 ">
+          <div className="flex items-center gap-2 Content-Style ">
             {button_status !== false && button_title === "Back" && (
               <Link
                 to={route}

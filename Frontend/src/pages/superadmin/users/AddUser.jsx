@@ -86,8 +86,8 @@ const User = () => {
   };
 
   return (
-    <Content Page_title="Add User" button_status={true}  >
-
+    <Content Page_title="Add User" button_status={false}  >
+<div className="Form-style">
       <ReusableForm
         initialValues={initialValues}
         validationSchema={validationSchema}
@@ -96,11 +96,11 @@ const User = () => {
         submitButton={{
           label: loading ? "Adding..." : "Add User",
           className:
-            "col-span-4 mt-4 py-2 rounded-lg  from-blue-500 to-indigo-500 text-white font-semibold shadow-lg hover:opacity-90 transition disabled:opacity-50",
+            "col-span-4 mt-4 py-2 rounded-lg   font-semibold shadow-lg  transition disabled:opacity-50 ",
           disabled: loading,
         }}
       />
-
+</div>
     </Content>
   );
 };

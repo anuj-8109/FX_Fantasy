@@ -176,7 +176,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
               <div className="absolute right-0 mt-2 w-56 shadow-lg rounded-lg border z-50 profile_dropdown">
                 <div className="p-3 border-b  text-sm">
                   <p className="font-medium">{user?.FullName}</p>
-                  <p className="text-xs text-gray-500">{user?.Email}</p>
+                  <p className="text-xs text-white-500">{user?.Email}</p>
                 </div>
 
                 <button

@@ -219,7 +219,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
 
     return (
         <Content Page_title="Add-content" button_title="Back" button_status={true} route="/superadmin/contest">
-            <div className="w-full max-w-6xl bg-white shadow-xl rounded-xl p-6">
+            <div className="w-full max-w-6xl shadow-xl rounded-xl p-6 Add-client-style ">
                 <h2 className="text-xl font-semibold mb-4 border-b pb-2">Add Contest</h2>
 
                 <form onSubmit={handleSave} className="space-y-6">
@@ -230,29 +230,30 @@ export default function AddContest1({ onSuccess, onCancel }) {
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full border rounded-md px-3 py-2 mt-1"
+                            className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                             required
                         />
                     </div>
 
                     
                     <div>
-                        <label className="text-sm font-medium">Description</label>
+                        <label className="text-sm font-medium input-Add">Description</label>
                         <CKEditor
                             editor={ClassicEditor}
                             data={description}
                             dangerouslySetInnerHTML={{ __html: description }}
                             onChange={(event, editor) => setDescription(editor.getData())}
+                            className="input-Add"
                         />
                     </div>
 
                     
                     <div>
-                        <label className="text-sm font-medium">Contest Type *</label>
+                        <label className="text-sm font-medium  input-Add" >Contest Type *</label>
                         <select
                             value={contestType}
                             onChange={(e) => setContestType(e.target.value)}
-                            className="w-full border rounded-md px-3 py-2 mt-1"
+                            className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
                             required
                         >
                             <option value="Mega">Mega</option>
@@ -270,7 +271,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                                 min="0"
                                 value={entryFee}
                                 onChange={(e) => setEntryFee(e.target.value)}
-                                className="w-full border rounded-md px-3 py-2 mt-1"
+                                className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                                 required
                             />
                         </div>
@@ -281,7 +282,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                                 min="0"
                                 value={useAmount}
                                 onChange={(e) => setUseAmount(e.target.value)}
-                                className="w-full border rounded-md px-3 py-2 mt-1"
+                                className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                                 placeholder="Amount to be used"
                                 required
                             />
@@ -293,7 +294,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                                 min="1"
                                 value={totalSpots}
                                 onChange={(e) => setTotalSpots(e.target.value)}
-                                className="w-full border rounded-md px-3 py-2 mt-1"
+                                className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                                 required
                             />
                         </div>
@@ -304,7 +305,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                                 min="1"
                                 value={maxEntryPerUser}
                                 onChange={(e) => setMaxEntryPerUser(e.target.value)}
-                                className="w-full border rounded-md px-3 py-2 mt-1"
+                                className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
                             />
                         </div>
                     </div>
@@ -317,7 +318,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                             min="0"
                             value={prizePool}
                             onChange={(e) => setPrizePool(e.target.value)}
-                            className="w-full border rounded-md px-3 py-2 mt-1"
+                            className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
                             required
                         />
                     </div>
@@ -333,7 +334,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                                     min="1"
                                     value={p.rank}
                                     onChange={(e) => handlePrizeChange(idx, "rank", e.target.value)}
-                                    className="w-1/3 border rounded-md px-2 py-1"
+                                    className="w-1/3 border rounded-md px-2 py-1  input-Add"
                                 />
                                 <input
                                     type="number"
@@ -341,35 +342,35 @@ export default function AddContest1({ onSuccess, onCancel }) {
                                     min="0"
                                     value={p.amount}
                                     onChange={(e) => handlePrizeChange(idx, "amount", e.target.value)}
-                                    className="w-2/3 border rounded-md px-2 py-1"
+                                    className="w-2/3 border rounded-md px-2 py-1  input-Add"
                                 />
                                 {prizeDistribution.length > 1 && (
                                     <button
                                         type="button"
                                         onClick={() => removePrizeRow(idx)}
-                                        className="text-red-600 text-sm px-2"
+                                        className="text-red-600 text-sm px-2  input-Add"
                                     >
                                         X
                                     </button>
                                 )}
                             </div>
                         ))}
-                        <button type="button" onClick={addPrizeRow} className="text-blue-600 text-sm">
+                        <button type="button" onClick={addPrizeRow} className="text-blue-600 text-sm   input-Add">
                              Add Prize
                         </button>
                     </div>
 
                    
                     <div>
-                        <h3 className="font-medium mb-2">📈 Stocks *</h3>
+                        <h3 className="font-medium mb-2 input-Add">📈 Stocks *</h3>
                         {stocks.map((s, idx) => (
-                            <div key={idx} className="flex gap-2 mb-1 items-center">
+                            <div key={idx} className="flex gap-2 mb-1 items-center ">
                                 <input
                                     type="text"
                                     placeholder="Stock Name (e.g., TCS, RELIANCE)"
                                     value={s.stock_name}
                                     onChange={(e) => handleStockChange(idx, "stock_name", e.target.value)}
-                                    className="w-full border rounded-md px-2 py-1"
+                                    className="w-full border rounded-md px-2 py-1 input-Add"
                                 />
                                 {stocks.length > 1 && (
                                     <button
@@ -391,11 +392,12 @@ export default function AddContest1({ onSuccess, onCancel }) {
                     <div>
                         <h3 className="font-medium mb-2"> Settings</h3>
                         <div className="space-y-2">
-                            <label className="flex items-center gap-2 text-sm">
+                            <label className="flex items-center gap-2 text-sm  input-Add">
                                 <input
                                     type="checkbox"
                                     checked={isGuaranteed}
                                     onChange={(e) => setIsGuaranteed(e.target.checked)}
+                                    className=" input-Add"
                                 />
                                 Guaranteed Contest
                             </label>
@@ -404,6 +406,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                                     type="checkbox"
                                     checked={isPrivate}
                                     onChange={(e) => setIsPrivate(e.target.checked)}
+                                    className=" input-Add"
                                 />
                                 Private Contest
                             </label>
@@ -413,7 +416,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
-                                className="w-full border rounded-md px-3 py-2 mt-1"
+                                className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
                             >
                                 <option value="upcoming">Upcoming</option>
                                 <option value="live">Live</option>
@@ -424,13 +427,13 @@ export default function AddContest1({ onSuccess, onCancel }) {
 
           
                     <div>
-                        <label className="text-sm font-medium">Contest Code</label>
+                        <label className="text-sm font-medium ">Contest Code</label>
                         <input
                             type="text"
                             value={contestCode}
                             onChange={(e) => setContestCode(e.target.value)}
-                            className="w-full border rounded-md px-3 py-2 mt-1"
-                            placeholder="Optional unique code for the contest"
+                            className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
+                            placeholder="Optional unique code for the contest "
                         />
                     </div>
 
@@ -444,7 +447,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                                     type="datetime-local"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    className="w-full border rounded-md px-3 py-2 mt-1"
+                                    className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                                     required
                                 />
                             </div>
@@ -454,39 +457,27 @@ export default function AddContest1({ onSuccess, onCancel }) {
                                     type="datetime-local"
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    className="w-full border rounded-md px-3 py-2 mt-1"
+                                    className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
                                     required
                                 />
                             </div>
                         </div>
                     </div>
 
-                    {/* Auth Status Display */}
-                    <div className="bg-gray-50 p-3 rounded-md">
-                        <h4 className="text-sm font-medium mb-2">Debug Info:</h4>
-                        <div className="text-xs text-gray-600">
-                            <p>Add By: {authData.add_by || 'Not found'}</p>
-                            <p>Token: {authData.token ? 'Present' : 'Missing'}</p>
-                            <p>Auth Valid: {authData.isValid ? 'Yes' : 'No'}</p>
-                        </div>
-                    </div>
-
+                 
               
                     <div className="flex justify-end gap-3 pt-4 border-t">
                         <button
                             type="button"
                             onClick={onCancel}
-                            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+                            className="px-4 py-2 rounded-md   border bg-blue-600"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={loading || !authData.isValid}
-                            className={`px-4 py-2 rounded-md text-white ${loading || !authData.isValid
-                                    ? 'bg-gray-400 cursor-not-allowed'
-                                    : 'bg-blue-600 hover:bg-blue-700'
-                                }`}
+                            className={`px-4 py-2 rounded-md  bg-blue-600  border 1px solid red`}
                         >
                             {loading ? "Saving..." : "Save Contest"}
                         </button>

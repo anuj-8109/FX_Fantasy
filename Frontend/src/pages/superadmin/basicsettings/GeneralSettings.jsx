@@ -127,7 +127,7 @@ const GeneralSettings = () => {
       button_title="back"
       button_status={true}
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto Content_Style">
         <form onSubmit={handleSubmit}>
           <div className="p-6 border rounded-lg shadow-sm">
             <div className="grid gap-4">
@@ -141,7 +141,7 @@ const GeneralSettings = () => {
                   name="website_title"
                   value={formData.website_title}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm  focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm  focus:outline-none focus:ring-2 focus:ring-blue-500 input-Add"
                 />
               </div>
 
@@ -154,8 +154,8 @@ const GeneralSettings = () => {
                   name="favicon"
                   value={formData.favicon}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 input-Add"
+                /> 
               </div>
 
               <div>
@@ -167,7 +167,7 @@ const GeneralSettings = () => {
                   name="logo"
                   value={formData.logo}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 input-Add"
                 />
               </div>
 
@@ -180,7 +180,7 @@ const GeneralSettings = () => {
                   name="email_address"
                   value={formData.email_address}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500 input-Add"
                 />
               </div>
 
@@ -193,7 +193,7 @@ const GeneralSettings = () => {
                   name="contact_number"
                   value={formData.contact_number}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500 input-Add"
                 />
               </div>
 
@@ -206,7 +206,7 @@ const GeneralSettings = () => {
                   value={formData.address}
                   onChange={handleInputChange}
                   rows="3"
-                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-y"
+                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-y input-Add"
                 />
               </div>
 
@@ -218,7 +218,7 @@ const GeneralSettings = () => {
                   name="smtp_status"
                   value={formData.smtp_status}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 input-Add"
                 >
                   <option value="">Select Status</option>
                   <option value="active">Active</option>
@@ -237,7 +237,7 @@ const GeneralSettings = () => {
                     value={formData.smtp_host}
                     onChange={handleInputChange}
                     placeholder="smtp.gmail.com"
-                    className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 input-Add"
                   />
                 </div>
                 <div>
@@ -250,7 +250,7 @@ const GeneralSettings = () => {
                     value={formData.smtp_port}
                     onChange={handleInputChange}
                     placeholder="587"
-                    className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 input-Add"
                   />
                 </div>
               </div>
@@ -263,7 +263,7 @@ const GeneralSettings = () => {
                   name="encryption"
                   value={formData.encryption}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 input-Add"
                 >
                   <option value="">Select Encryption</option>
                   <option value="tls">TLS</option>
@@ -282,7 +282,7 @@ const GeneralSettings = () => {
                     name="smtp_username"
                     value={formData.smtp_username}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 input-Add"
                   />
                 </div>
                 <div>
@@ -294,7 +294,7 @@ const GeneralSettings = () => {
                     name="smtp_password"
                     value={formData.smtp_password}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 input-Add"
                   />
                 </div>
               </div>
@@ -308,7 +308,7 @@ const GeneralSettings = () => {
                   name="from_name"
                   value={formData.from_name}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 input-Add"
                 />
               </div>
             </div>
@@ -318,7 +318,7 @@ const GeneralSettings = () => {
             <button
               type="submit"
               disabled={updateLoading}
-              className={`px-8 py-3 rounded-md text-sm font-medium transition-colors duration-300 ${
+              className={`px-8 py-3 rounded-md text-sm font-medium transition-colors duration-300  ${
                 updateLoading
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"

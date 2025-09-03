@@ -8,8 +8,9 @@
     color: #fffbff;
 
 }
-.theme-trading-pro .searchBd{
-     border: 1px solid white;
+
+.theme-trading-pro .searchBd {
+    border: 1px solid white;
 }
 
 .theme-trading-pro .rdt_Pagination {
@@ -91,7 +92,8 @@ aside {
     background-color: #3a8ddfb4 !important;
     color: #030303;
 }
-.theme-trading-light .Content_Style{
+
+.theme-trading-light .Content_Style {
     background-color: #0284c7 !important;
     color: #fffbff;
 }
@@ -99,42 +101,82 @@ aside {
 
 /* Drak Theme Css */
 
-.theme-trading-pro  .profile_dropdown{
-    background-color: black;
+.theme-trading-pro .profile_dropdown {
+    background-color: #111827;
     color: #fffbff !important;
 }
 
-.theme-trading-light .profile_dropdown{
+.theme-trading-light .profile_dropdown {
     background: white;
-     color: black;
+    color: black;
 }
 
-.theme-trading-pro .Notification_dropdown{
+.theme-trading-pro .Notification_dropdown {
     background: #111827;
     color: white;
 }
 
-.theme-trading-light .Notification_dropdown{
+.theme-trading-light .Notification_dropdown {
     background: white;
     color: #000;
 }
+
 .custom-swal-popup {
-  width: 380px !important;   
-  min-height: 180px !important; 
-  border-radius: 1rem !important; 
-  background-color: #111827;
-  color: white;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important; 
-  
+    width: 300px !important;
+    min-height: 180px !important;
+    border-radius: 1rem solid gray !important;
+    background-color: #111827;
+    color: white;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+
 }
 
 
-.theme-trading-light .custom-swal-popup{
+.theme-trading-light .custom-swal-popup {
     background-color: white;
     color: black;
 }
 
-.theme-trading-pro .custom-swal-popup{
+.theme-trading-pro .custom-swal-popup {
     background-color: #111827;
     color: white;
+}
+
+.theme-trading-pro .Add_User_Style {
+    background-color: #111827;
+    color: #fffbff !important;
+}
+
+.theme-trading-pro .Form-style{
+    background-color: #111827;
+    color: #fffbff !important;
+}
+
+.theme-trading-pro .Add-client-style{
+    background-color: #111827;
+    color: white;
+}
+
+.theme-trading-pro .input-Add{
+   background-color: #111827; 
+}
+
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; 
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;  
+  scrollbar-width: none;     
+}
+
+
+.theme-trading-pro .ck{
+    background-color: #111827 !important; 
+    color: white !important;
+}
+
+.theme-trading-pro .Content_Style{
+    background-color: #111827 !important;
 }
