@@ -41,19 +41,44 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
   // Logout Handler
   const Logout = async () => {
     const confirm = await Swal.fire({
-      title: "Are you sure you want to logout?",
+      title: "Logout Confirmation",
+      text: "Are you sure you want to logout?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#6c757d",
-      confirmButtonText: "Yes, logout",
+      confirmButtonText: "Yes, Logout",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#2563eb", 
+      cancelButtonColor: "#6b7280", 
+      reverseButtons: true,
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "text-xl font-semibold text-gray-800",
+        htmlContainer: "text-gray-600 text-base",
+        confirmButton:
+          "px-5 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
+        cancelButton:
+          "px-5 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+      },
     });
 
+  
     if (confirm.isConfirmed) {
       localStorage.clear();
-      await Swal.fire("Logged out", "You have been successfully logged out.", "success");
+      await Swal.fire({
+        title: "✅ Logged Out",
+        text: "You have been successfully logged out.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+        customClass: {
+          popup: "custom-swal-popup",
+          title: "text-lg font-medium text-gray-800",
+          htmlContainer: "text-gray-600",
+        },
+      });
       navigate("/");
     }
+
   };
 
   // Close dropdowns on outside click
@@ -67,7 +92,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
   }, []);
 
   return (
-   <header className="sticky top-0 z-50 w-full border-b shadow-sm backdrop-blur-lg transition-colors Main-Header ">
+    <header className="sticky top-0 z-50 w-full border-b shadow-sm backdrop-blur-lg transition-colors Main-Header ">
 
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo + Sidebar Toggle */}
@@ -112,24 +137,24 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 shadow-lg rounded-lg border dark:border-gray-700 z-50">
-                <div className="p-3 font-medium text-sm border-b dark:border-gray-700">
+              <div className="absolute right-0 mt-2 w-80  shadow-lg rounded-lg border z-50 Notification_dropdown">
+                <div className="p-3 font-medium text-sm border-b ">
                   Notifications ({unreadCount} new)
                 </div>
                 <div className="max-h-60 overflow-y-auto">
                   {notifications.map((n) => (
                     <div
                       key={n.id}
-                      className={`p-3 border-b dark:border-gray-700 text-sm ${n.unread ? "bg-gray-50 dark:bg-gray-700 font-medium" : ""
+                      className={`p-3 border-b  text-sm ${n.unread ? "font-medium" : ""
                         }`}
                     >
                       <p>{n.title}</p>
-                      <p className="text-xs text-gray-500">{n.message}</p>
-                      <p className="text-xs text-gray-400">{n.time}</p>
+                      <p className="text-xs ">{n.message}</p>
+                      <p className="text-xs ">{n.time}</p>
                     </div>
                   ))}
                 </div>
-                <button className="w-full text-center py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-700">
+                <button className="w-full text-center py-2 text-xs">
                   View all
                 </button>
               </div>
@@ -148,28 +173,28 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
             </button>
 
             {showProfile && (
-              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 shadow-lg rounded-lg border dark:border-gray-700 z-50">
-                <div className="p-3 border-b dark:border-gray-700 text-sm">
+              <div className="absolute right-0 mt-2 w-56 shadow-lg rounded-lg border z-50 profile_dropdown">
+                <div className="p-3 border-b  text-sm">
                   <p className="font-medium">{user?.FullName}</p>
                   <p className="text-xs text-gray-500">{user?.Email}</p>
                 </div>
 
                 <button
                   onClick={() => navigate("/superadmin/myprofile")}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="block w-full text-left px-4 py-2 text-sm "
                 >
                   Profile Management
                 </button>
 
                 {/* <button
                   onClick={() => navigate("/superadmin/changepassword")}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="block w-full text-left px-4 py-2 text-sm "
                 >
                   Reset Password
                 </button> */}
 
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="block w-full text-left px-4 py-2 text-sm text-white-600 "
                   onClick={Logout}
                 >
                   Log Out

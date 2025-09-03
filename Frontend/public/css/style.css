@@ -99,3 +99,42 @@ aside {
 
 /* Drak Theme Css */
 
+.theme-trading-pro  .profile_dropdown{
+    background-color: black;
+    color: #fffbff !important;
+}
+
+.theme-trading-light .profile_dropdown{
+    background: white;
+     color: black;
+}
+
+.theme-trading-pro .Notification_dropdown{
+    background: #111827;
+    color: white;
+}
+
+.theme-trading-light .Notification_dropdown{
+    background: white;
+    color: #000;
+}
+.custom-swal-popup {
+  width: 380px !important;   
+  min-height: 180px !important; 
+  border-radius: 1rem !important; 
+  background-color: #111827;
+  color: white;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important; 
+  
+}
+
+
+.theme-trading-light .custom-swal-popup{
+    background-color: white;
+    color: black;
+}
+
+.theme-trading-pro .custom-swal-popup{
+    background-color: #111827;
+    color: white;
+}
