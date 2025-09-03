@@ -119,11 +119,7 @@ const Login = () => {
     <>
 
       <div className="min-h-screen flex items-center justify-center bg-gray-100 py-4">
-
-
         <div className="flex flex-col lg:flex-row w-full max-w-4xl h-[90vh]  shadow-lg rounded-lg overflow-hidden">
-
-
           <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-red-900 via-red-800 to-red-700">
             <div className="absolute inset-0 opacity-20">
               <div className="absolute top-10 left-10 w-8 h-8 bg-red-300 rounded transform rotate-45"></div>
@@ -140,9 +136,6 @@ const Login = () => {
               <div className="absolute bottom-32 right-24 w-12 h-12 bg-red-500 rounded transform -rotate-12"></div>
               <div className="absolute bottom-56 right-40 w-6 h-6 bg-red-300 rounded-full"></div>
             </div>
-
-
-
             <div className="absolute inset-0 opacity-10">
               {[...Array(20)].map((_, i) => (
                 <div
