@@ -12,6 +12,11 @@ const ContestSchema = new Schema({
     type: String,
     default: null
   },
+   tournament_id: {
+    type: Schema.Types.ObjectId,
+    ref: "Tournament",  // Reference to Tournament model
+    required: true
+  },
   contest_type: {
     type: String,
     enum: ["Mega", "Head-to-Head", "Private"],
@@ -55,16 +60,6 @@ const ContestSchema = new Schema({
     type: Boolean,
     default: false
   },
-  status: {
-    type: String,
-    enum: ["upcoming", "live", "completed", "cancelled"],
-    default: "upcoming"
-  },
-  stocks: [
-    {
-      stock_name: { type: String, required: true }
-    }
-  ],
   is_private: {
     type: Boolean,
     default: false
@@ -73,14 +68,6 @@ const ContestSchema = new Schema({
     type: String,
     default: null
   },
-  startdate: {
-        type: Date,
-        required: true
-    },
-  enddate: {
-        type: Date,
-        required: true
-    },
   add_by: {
         type: String,
         trim: true,
