@@ -85,7 +85,14 @@ const Login = () => {
         setTimeout(() => {
           if (roleId === 1) {
             navigate("/superadmin/superadmindashboard");
-          } else {
+          }
+          else if (roleId === 2) {
+            navigate("/Staff/Staffdashboard");
+          }
+          else if (roleId === 3) {
+            navigate("/User/Userdashboard");
+          }
+          else {
             navigate("/");
           }
         });
@@ -110,13 +117,13 @@ const Login = () => {
 
   return (
     <>
-     
+
       <div className="min-h-screen flex items-center justify-center bg-gray-100 py-4">
 
 
         <div className="flex flex-col lg:flex-row w-full max-w-4xl h-[90vh]  shadow-lg rounded-lg overflow-hidden">
 
-       
+
           <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-red-900 via-red-800 to-red-700">
             <div className="absolute inset-0 opacity-20">
               <div className="absolute top-10 left-10 w-8 h-8 bg-red-300 rounded transform rotate-45"></div>

@@ -65,6 +65,14 @@ const Client = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, Delete",
       cancelButtonText: "Cancel",
+       customClass: {
+        popup: "custom-swal-popup",
+        title: "text-xl font-semibold text-white-800",
+        confirmButton:
+          "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
+        cancelButton:
+          "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+      },
     });
 
     if (!confirm.isConfirmed) return;
@@ -149,6 +157,14 @@ const Client = () => {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "text-xl font-semibold text-white-800",
+        confirmButton:
+          "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
+        cancelButton:
+          "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+      },
     });
 
     if (!confirm.isConfirmed) return;
