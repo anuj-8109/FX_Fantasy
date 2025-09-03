@@ -315,40 +315,28 @@ async getUpcomingTournaments(req, res) {
         });
     }
 }
-
-// Get contests by tournament id + tournament data (no pagination)
 async getContestsByTournamentId(req, res) {
     try {
-        const { tournament_id } = req.params;  // URL param
-        const { status, contest_type, search } = req.query;
+        const { tournament_id } = req.params;
 
-        // Tournament find करो
-        const tournament = await Tournament_Model.findOne({ 
-            _id: tournament_id, 
-            del: false 
-        });
-
-        if (!tournament) {
-            return res.status(404).json({
-                status: false,
-                message: "Tournament not found"
-            });
-        }
-
-        // Contest filter conditions
-        const matchConditions = { 
+        const contests = await Contest_Model.find({ 
             del: false, 
             tournament_id: tournament_id 
-        };
+        })
+        .populate("tournament_id")  // tournament का पूरा object ले आएगा
+        .sort({ created_at: -1 });
 
-        const contests = await Contest_Model.find(matchConditions)
-            .sort({ created_at: -1 });
+        if (!contests || contests.length === 0) {
+            return res.status(404).json({
+                status: false,
+                message: "No contests found for this tournament"
+            });
+        }
 
         return res.status(200).json({
             status: true,
             message: "Tournament contests retrieved successfully",
-            tournament: tournament,  // full tournament data
-            contests: contests
+            contests: contests  // हर contest में tournament_id field पूरा object होगा
         });
 
     } catch (error) {
