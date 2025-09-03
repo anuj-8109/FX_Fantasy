@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import SuperAdminHeader from "../components/superadmin/Header";
 import SuperAdminSidebar from "../components/superadmin/Sidebar";
+import UserMenu from "../components/UserMenu";
 
 const SuperAdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -30,6 +31,7 @@ const SuperAdminLayout = () => {
         >
           <Outlet />
         </main>
+        <UserMenu />
 
       </div>
     </div>
