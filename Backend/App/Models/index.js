@@ -38,7 +38,7 @@ module.exports = {
     Contest: require("./Contest"),
     Contestjoin: require("./Contestjoin"),
     Tournament: require("./Tournament"),
-
+    Contesttrade: require("./Contesttrade"),  // Add this line to export the
     States:States,
     City:City,
    
