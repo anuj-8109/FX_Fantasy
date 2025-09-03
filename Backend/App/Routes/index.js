@@ -14,6 +14,7 @@ module.exports = function (app) {
     app.use(require("./Cron"))
     app.use(require("./Contest"))
     app.use(require("./Tournament"))
+    app.use(require("./Ticket"))
 
 
 }

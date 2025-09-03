@@ -1,7 +1,7 @@
 const router = require("express").Router()
 const auth = require('../Middleware/auth');
 
-const {AddClient,updateClient,deleteClient,detailClient,statusChange,activeClient,deActiveClient,getClientWithFilter,getClientWithFilterExcel,getDeleteClientWithFilter} = require('../Controllers/Clients')
+const {AddClient,updateClient,deleteClient,detailClient,statusChange,getClientWithFilter,getClientWithFilterExcel,getDeleteClientWithFilter} = require('../Controllers/Clients')
 
 
 
