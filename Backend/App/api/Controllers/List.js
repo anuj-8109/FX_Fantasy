@@ -392,6 +392,7 @@ async  joinContest(req, res) {
       discount,
       total,
       entry_count: 1,
+      wallet_balance: contest.useamount,
       joined_at: new Date()
     });
 
@@ -421,10 +422,39 @@ async  addTrade(req, res) {
     if (!contest_id || !client_id || !stock_symbol || !trade_type || !quantity) {
       return res.status(400).json({ status: false, message: "All fields are required" });
     }
+
+   const joinData = await ContestJoin.findOne({ contest_id, client_id });
+    if (!joinData) {
+      return res.status(404).json({ status: false, message: "Client has not joined this contest" });
+    }
+
+
      const price = 100; // live stock price
-    // Save trade
+   
+         const tradeAmount = price * quantity;
+
+    // 3. Update wallet balance based on trade_type
+    let updatedWalletBalance = joinData.wallet_balance;
+
+    if (trade_type.toUpperCase() === "BUY") {
+      if (updatedWalletBalance < tradeAmount) {
+        return res.status(400).json({ status: false, message: "Insufficient wallet balance" });
+      }
+      updatedWalletBalance -= tradeAmount;
+    } else if (trade_type.toUpperCase() === "SELL") {
+      updatedWalletBalance += tradeAmount;
+    } else {
+      return res.status(400).json({ status: false, message: "Invalid trade type" });
+    }
+
+
+
     const trade = new Contesttrade_Modal({ contest_id, client_id, stock_symbol, trade_type, quantity, price });
     await trade.save();
+
+
+      joinData.wallet_balance = updatedWalletBalance;
+      await joinData.save();
 
     return res.status(200).json({
       status: true,
