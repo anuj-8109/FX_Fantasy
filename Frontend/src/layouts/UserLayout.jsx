@@ -1,39 +1,45 @@
-import React, { useState } from "react";
-import { Outlet } from "react-router-dom";
-import { Home, Search, Bell, User } from "lucide-react";
+import React, { useState, useLayoutEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import SuperAdminHeader from "../components/superadmin/Header";
-import SuperAdminSidebar from "../components/superadmin/Sidebar";
 import UserMenu from "../components/UserMenu";
 
 const SuperAdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
+
+  useLayoutEffect(() => {
+    const html = document.documentElement;
+    if (location.pathname.startsWith("/user")) {
+      html.classList.add("Usertheme");
+      html.classList.remove("theme-staff-pro", "theme-trading-pro");
+    } else if (location.pathname.startsWith("/staff")) {
+      html.classList.add("theme-staff-pro");
+      html.classList.remove("Usertheme", "theme-trading-pro");
+    } else {
+      html.classList.remove("Usertheme", "theme-trading-pro", "theme-staff-pro");
+    }
+  }, [location.pathname]);
 
   return (
-    <div className="flex">
-      <div
-        className={`fixed top-16 z-50 left-0 h-[calc(100vh-64px)] ${collapsed ? "w-20" : "w-64"
-          }`}
-      >
-        {/* <SuperAdminSidebar collapsed={collapsed} /> */}
-      </div>
+    <div className="flex flex-col min-h-screen items-center">
 
+      <div className="w-full max-w-4xl">
 
-      <div className={`flex-1 ${collapsed ? "ml-20" : "ml-64"}`}>
-
-        <div className="fixed top-0 left-0 right-0 h-16 z-50 shadow">
+        <header className="fixed top-0  left-1/2 -translate-x-1/2 w-full max-w-4xl h-16 z-50 shadow bg-white">
           <SuperAdminHeader collapsed={collapsed} setCollapsed={setCollapsed} />
-        </div>
+        </header>
 
 
-        <main
-          className={`fixed top-16 right-0 p-4 overflow-y-auto transition-all duration-300
-    ${collapsed ? "w-[calc(100%-5rem)]" : "w-[calc(100%-16rem)]"}
-    h-[calc(100vh-64px)]`}
-        >
-          <Outlet />
+        <main className="pt-20 pb-16  flex justify-center ">
+          <div className="w-full max-w-5xl px-6  ">
+            <Outlet />
+          </div>
         </main>
-        <UserMenu />
 
+
+        <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl z-50 bg-white shadow">
+          <UserMenu />
+        </footer>
       </div>
     </div>
   );

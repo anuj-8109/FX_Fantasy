@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
-import { UserLoginApi, LoginWithOtpApi } from "../services/Auth"; 
+import { UserLoginApi, LoginWithOtpApi } from "../services/Auth";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
-
 
 const UserLogin = () => {
   const navigate = useNavigate();
@@ -15,15 +14,27 @@ const UserLogin = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const [timer, setTimer] = useState(30);
+  const inputRefs = useRef([]);
 
   const validationSchema = Yup.object({
-    UserName: Yup.string().required("Username or Phone number is required"),
+    UserName: Yup.string().required("Phone number is required"),
     ...(otpSent && {
       otp: Yup.string()
         .required("OTP is required")
         .matches(/^\d{6}$/, "OTP must be 6 digits"),
     }),
   });
+
+  useEffect(() => {
+    if (otpSent && timer > 0) {
+      const countdown = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(countdown);
+    }
+  }, [otpSent, timer]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -33,6 +44,25 @@ const UserLogin = () => {
     }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleOtpChange = (value, index) => {
+    if (!/^\d*$/.test(value)) return;
+
+    const otpArray = formData.otp.split("");
+    otpArray[index] = value;
+    const newOtp = otpArray.join("");
+    setFormData((prev) => ({ ...prev, otp: newOtp }));
+
+    if (value && index < 5) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !formData.otp[index] && index > 0) {
+      inputRefs.current[index - 1].focus();
     }
   };
 
@@ -51,10 +81,13 @@ const UserLogin = () => {
     }
   };
 
-
   const handleSendOtp = async (e) => {
     e.preventDefault();
     if (!(await validateForm())) return;
+    if (!checked) {
+      Swal.fire("Error", "You must certify age above 18 years", "error");
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -62,6 +95,8 @@ const UserLogin = () => {
       if (response.status === true) {
         toast.success(response.message || "OTP sent successfully");
         setOtpSent(true);
+        setTimer(30);
+        setFormData((prev) => ({ ...prev, otp: "" }));
       } else {
         Swal.fire("Error", response.message || "Failed to send OTP", "error");
       }
@@ -75,7 +110,6 @@ const UserLogin = () => {
       setIsLoading(false);
     }
   };
-
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
@@ -104,7 +138,7 @@ const UserLogin = () => {
         });
 
         setTimeout(() => {
-          navigate("/user/userDashboard");
+          navigate("/userDashboard");
         }, 1000);
       } else {
         Swal.fire("Error", response.message || "Invalid OTP", "error");
@@ -121,92 +155,129 @@ const UserLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-4">
-      <div className="flex flex-col lg:flex-row w-full max-w-4xl h-[90vh] shadow-lg rounded-lg overflow-hidden">
-      
-        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-red-900 via-red-800 to-red-700">
-          <div className="relative z-10 flex flex-col justify-center items-start p-8 text-white">
-            <h1 className="text-2xl font-bold mb-6">OTP Login</h1>
-            <p className="text-base leading-relaxed opacity-90">
-              Enter your phone/email to receive an OTP and login securely.
-            </p>
-          </div>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <div className="w-full max-w-md text-center">
+        <h2 className="text-xl font-semibold mb-6">
+          {otpSent ? "Almost There!" : "Login / Register"}
+        </h2>
 
- 
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-white">
-          <div className="w-full max-w-md">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-              Sign in with OTP
-            </h2>
-
-            <form
-              onSubmit={otpSent ? handleVerifyOtp : handleSendOtp}
-              className="space-y-4"
-            >
        
-              <div>
+        {!otpSent && (
+          <>
+            <div className="flex items-center border rounded-full px-4 py-3 mb-4">
+              <span className="flex items-center mr-2">
+                <img
+                  src="https://flagcdn.com/w20/in.png"
+                  alt="flag"
+                  className="w-5 h-5 mr-1"
+                />
+                +91
+              </span>
+              <input
+                type="text"
+                name="UserName"
+                placeholder="Enter Your Number"
+                value={formData.UserName}
+                onChange={handleInputChange}
+                className="bg-transparent flex-1 outline-none"
+              />
+            </div>
+            {errors.UserName && (
+              <p className="text-sm text-red-600 mb-2">{errors.UserName}</p>
+            )}
+          </>
+        )}
+
+   
+        {otpSent && (
+          <div className="mb-4">
+            <p className="text-gray-600 mb-4">
+              Please enter OTP sent on <b>{formData.UserName}</b>
+            </p>
+            <div className="flex justify-center gap-3 mb-4">
+              {[...Array(6)].map((_, index) => (
                 <input
+                  key={index}
                   type="text"
-                  name="UserName"
-                  placeholder="Enter phone/email"
-                  value={formData.UserName}
-                  onChange={handleInputChange}
-                  disabled={otpSent}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none 
+                  maxLength={1}
+                  value={formData.otp[index] || ""}
+                  onChange={(e) => handleOtpChange(e.target.value, index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  ref={(el) => (inputRefs.current[index] = el)}
+                  className={`w-12 h-12 text-center text-xl font-bold border rounded ${
+                    formData.otp[index]
+                      ? "bg-orange-500 text-white"
+                      : "bg-white-100"
                   }`}
                 />
-                {errors.UserName && (
-                  <p className="mt-1 text-sm text-red-600">{errors.UserName}</p>
-                )}
-              </div>
-
-      
-              {otpSent && (
-                <div>
-                  <input
-                    type="text"
-                    name="otp"
-                    placeholder="Enter OTP"
-                    value={formData.otp}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none 
-                    }`}
-                  />
-                  {errors.otp && (
-                    <p className="mt-1 text-sm text-red-600">{errors.otp}</p>
-                  )}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-gray-800 text-white py-3 px-4 rounded-lg hover:bg-gray-900 focus:ring-2 focus:ring-gray-500 transition-colors font-medium disabled:opacity-50"
-              >
-                {isLoading
-                  ? otpSent
-                    ? "Verifying..."
-                    : "Sending OTP..."
-                  : otpSent
-                  ? "Verify OTP"
-                  : "Send OTP"}
-              </button>
-            </form>
-
-            <div className="text-center mt-6">
-              <span className="text-sm text-gray-500">
-                Don&apos;t have an account?{" "}
-              </span>
-              <button
-                onClick={() => navigate("/register")}
-                className="text-blue-600 hover:text-blue-700 font-medium underline"
-              >
-                Sign up
-              </button>
+              ))}
             </div>
+            {errors.otp && (
+              <p className="mt-1 text-sm text-red-600">{errors.otp}</p>
+            )}
+
+            {timer > 0 ? (
+              <p className="text-sm text-gray-600">
+                Didn’t receive OTP? Resend in{" "}
+                <span className="font-semibold">{timer} Seconds</span>
+              </p>
+            ) : (
+              <button
+                onClick={handleSendOtp}
+                className="text-sm text-blue-600 hover:underline"
+              >
+                Resend OTP
+              </button>
+            )}
           </div>
-        </div>
+        )}
+
+        {/* Checkbox */}
+        {!otpSent && (
+          <div className="flex items-center justify-start mb-4">
+            <input
+              type="checkbox"
+              id="certify"
+              checked={checked}
+              onChange={() => setChecked(!checked)}
+              className="mr-2"
+            />
+            <label htmlFor="certify" className="text-sm text-gray-700">
+              I certify that I am above 18 years
+            </label>
+          </div>
+        )}
+
+        {/* Button */}
+        <button
+          onClick={otpSent ? handleVerifyOtp : handleSendOtp}
+          disabled={isLoading}
+          className="w-full bg-orange-500 text-white py-3 rounded-full font-medium hover:bg-orange-600 transition disabled:opacity-50"
+        >
+          {isLoading
+            ? otpSent
+              ? "Verifying..."
+              : "Sending OTP..."
+            : "Continue"}
+        </button>
+
+     
+        {!otpSent && (
+          <>
+            <p className="text-xs text-gray-500 mt-4">
+              By continuing, I agree to Dream Trading T&C.
+            </p>
+            <div className="text-sm mt-2">
+              <a href="#" className="text-blue-600 hover:underline">
+                Have an Invite Code?
+              </a>{" "}
+              |{" "}
+              <a href="#" className="text-blue-600 hover:underline">
+                Other login options
+              </a>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import UserRoutes from "./routes/UserRoutes.jsx";
 function App() {
   return (
     <ThemeProvider>
+      <div className="wrapper">
       <Router>
         <Routes>
           {AuthRoute()}
@@ -19,6 +20,8 @@ function App() {
         </Routes>
       </Router>
       <Toaster position="top-right" reverseOrder={false} />
+
+</div>
     </ThemeProvider>
   );
 }

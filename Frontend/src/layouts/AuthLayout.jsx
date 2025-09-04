@@ -8,7 +8,7 @@ const AuthLayout = () => {
   const location = useLocation();
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100 perspective-[1200px]">
+    <div className="flex items-center justify-center h-screen  perspective-[1200px]">
       <AnimatePresence mode="wait">
         <motion.div
           key={location.pathname}

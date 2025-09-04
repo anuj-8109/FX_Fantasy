@@ -31,7 +31,7 @@ const SuperAdminLayout = () => {
         >
           <Outlet />
         </main>
-        <UserMenu />
+      
 
       </div>
     </div>

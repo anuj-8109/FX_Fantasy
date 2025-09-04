@@ -3,6 +3,7 @@ import { Route } from "react-router-dom";
 
 import UserDashboard from "../pages/user/UserDashboard";
 import UserLayout from "../layouts/UserLayout";
+import Pricepol from "../pages/user/Pricepol";
 // import SuperAdminHeader from "../components/superadmin/Header";
 // import SuperAdminSidebar from "../components/superadmin/Sidebar";
 
@@ -10,9 +11,11 @@ import UserLayout from "../layouts/UserLayout";
 const UserRoutes = () => {
   return (
     <>
-      <Route path="/user" element={<UserLayout />}>
+    
+      <Route path="/" element={<UserLayout />}>
       
         <Route path="userDashboard" element={<UserDashboard />} />
+        <Route path="pricepol" element={<Pricepol />} />
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
       
         {/* <Route path="analytics" element={<Analytics />} />
@@ -42,6 +45,7 @@ const UserRoutes = () => {
         <Route path="add-contest" element={<AddContest />} />
       <Route path="clients" element={<Client />} /> */}
       </Route>
+   
     </>
   );
 };
