@@ -17,7 +17,7 @@ const Ticketmessage_Modal = db.Ticketmessage;
 const { sendSMS } = require('../../Utils/smsHelper');
 const upload = require('../../Utils/multerHelper');
 const jwt = require('jsonwebtoken');
-
+const otpStore = new Map();
 
 class Clients {
 
@@ -644,7 +644,10 @@ async LoginWithOTP(req, res) {
 
     // --- Generate OTP ---
     const otp = Math.floor(100000 + Math.random() * 900000);
+      otpStore.set(PhoneNo, { otp, expires: Date.now() + 5 * 60 * 1000 });
 
+    // TODO: SMS bhejna hai to yaha sendSMS(PhoneNo, otp) call karo
+    console.log(`OTP for ${PhoneNo}: ${otp}`);
     // --- Send OTP if SMS Provider is active ---
     if (String(settings.smsprovider) === '1') {
       const smstemplate = await Smstemplate_Modal.findOne({ sms_type: "otp" });
@@ -660,7 +663,7 @@ async LoginWithOTP(req, res) {
     // --- Response ---
     return res.json({
       status: true,
-      otp, // remove in production
+     // otp, // remove in production
       PhoneNo,
       type: isNewUser ? "register" : "login",  // <-- Added explicit type
       message: isNewUser 
@@ -686,6 +689,23 @@ async otpSubmitWithPhone(req, res) {
         message: "Please enter OTP",
       });
     }
+
+
+  const record = otpStore.get(PhoneNo);
+  console.log('record', record);
+  if (!record) {
+    return res.status(400).json({ status: false, message: "OTP not found" });
+  }
+
+  if (record.expiry < Date.now()) {
+    otpStore.delete(PhoneNo);
+    return res.status(400).json({ status: false, message: "OTP expired" });
+  }
+
+  if (record.otp != otp) {
+    return res.status(400).json({ status: false, message: "Invalid OTP" });
+  }
+
 
     if (!PhoneNo) {
       return res.status(400).json({
@@ -726,7 +746,8 @@ async otpSubmitWithPhone(req, res) {
     { expiresIn: "7d" }
   );
   
-  
+   otpStore.delete(PhoneNo); 
+ 
     return res.json({
       status: true,
       message: isNewSignup ? "Registration successful." : "OTP verified. Login successful.",
