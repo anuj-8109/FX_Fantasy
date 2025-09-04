@@ -5,7 +5,7 @@ import SuperAdminHeader from "../components/superadmin/Header";
 import SuperAdminSidebar from "../components/superadmin/Sidebar";
 import UserMenu from "../components/UserMenu";
 
-const SuperAdminLayout = () => {
+const UserLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -39,4 +39,4 @@ const SuperAdminLayout = () => {
   );
 };
 
-export default SuperAdminLayout;
+export default UserLayout;
