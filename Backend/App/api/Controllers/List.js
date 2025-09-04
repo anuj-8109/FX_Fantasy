@@ -10,6 +10,8 @@ const Content_Modal = db.Content;
 const Clients_Modal = db.Clients;
 const Tournament_Model = db.Tournament;
 const Contest_Model = db.Contest;
+const Contestjoin_Modal = db.Contestjoin;
+const Contesttrade_Modal = db.Contesttrade;
 
 
 
@@ -348,6 +350,122 @@ async getContestsByTournamentId(req, res) {
     }
 }
 
+
+async  joinContest(req, res) {
+  try {
+    const { contest_id, client_id, price, discount = 0 } = req.body;
+
+    // Validate inputs
+    if (!contest_id || !client_id) {
+      return res.status(400).json({ status: false, message: "contest_id and client_id are required" });
+    }
+
+    // Validate contest exists
+    const contest = await Contest_Model.findOne({ _id: contest_id, del: false });
+    if (!contest) {
+      return res.status(404).json({ status: false, message: "Contest not found" });
+    }
+
+    // Validate client exists
+    const client = await Clients_Modal.findOne({ _id: client_id, del: 0 });
+    if (!client) {
+      return res.status(404).json({ status: false, message: "Client not found" });
+    }
+
+    // Check if already joined
+    const existingJoin = await Contestjoin_Modal.findOne({ contest_id, client_id });
+    if (existingJoin) {
+      return res.status(400).json({ status: false, message: "You have already joined this contest" });
+    }
+
+    // Calculate total price
+    const total = price - discount;
+    if (total < 0) {
+      return res.status(400).json({ status: false, message: "Invalid discount" });
+    }
+
+    // Save new join entry
+    const joinEntry = new Contestjoin_Modal({
+      contest_id,
+      client_id,
+      price,
+      discount,
+      total,
+      entry_count: 1,
+      wallet_balance: contest.useamount,
+      joined_at: new Date()
+    });
+
+    await joinEntry.save();
+
+    return res.status(200).json({
+      status: true,
+      message: "Contest joined successfully",
+      data: joinEntry
+    });
+
+  } catch (error) {
+    console.error("joinContest Error:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+}
+
+async  addTrade(req, res) {
+  try {
+    const { contest_id, client_id, stock_symbol, trade_type, quantity } = req.body;
+
+    // Validate
+    if (!contest_id || !client_id || !stock_symbol || !trade_type || !quantity) {
+      return res.status(400).json({ status: false, message: "All fields are required" });
+    }
+
+   const joinData = await ContestJoin.findOne({ contest_id, client_id });
+    if (!joinData) {
+      return res.status(404).json({ status: false, message: "Client has not joined this contest" });
+    }
+
+
+     const price = 100; // live stock price
+   
+         const tradeAmount = price * quantity;
+
+    // 3. Update wallet balance based on trade_type
+    let updatedWalletBalance = joinData.wallet_balance;
+
+    if (trade_type.toUpperCase() === "BUY") {
+      if (updatedWalletBalance < tradeAmount) {
+        return res.status(400).json({ status: false, message: "Insufficient wallet balance" });
+      }
+      updatedWalletBalance -= tradeAmount;
+    } else if (trade_type.toUpperCase() === "SELL") {
+      updatedWalletBalance += tradeAmount;
+    } else {
+      return res.status(400).json({ status: false, message: "Invalid trade type" });
+    }
+
+
+
+    const trade = new Contesttrade_Modal({ contest_id, client_id, stock_symbol, trade_type, quantity, price });
+    await trade.save();
+
+
+      joinData.wallet_balance = updatedWalletBalance;
+      await joinData.save();
+
+    return res.status(200).json({
+      status: true,
+      message: "Trade added successfully",
+      data: trade
+    });
+
+  } catch (error) {
+    return res.status(500).json({ status: false, message: "Server error", error: error.message });
+  }
+}
 
 }
 

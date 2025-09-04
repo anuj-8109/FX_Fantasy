@@ -491,8 +491,7 @@ class Users {
           }
   
           const finalMailBody = mailtemplate.mail_body.replace('{resetToken}', resetToken);
-          const logo = `https://${req.headers.host}/uploads/basicsetting/${settings.logo}`;
-  
+           const logo = `https://${req.headers.host}/uploads/basicsetting/${settings.logo}`;
           // Replace placeholders with actual values
           const finalHtml = htmlTemplate
             .replace(/{{company_name}}/g, settings.website_title)
@@ -503,7 +502,7 @@ class Users {
           // Email options
           const mailOptions = {
             to: user.Email,
-            from: `${settings.from_name} <${settings.from_mail}>`, // Include business name
+            from: `${settings.from_name} <${settings.email_address}>`, // Include business name
             subject: `${mailtemplate.mail_subject}`,
             html: finalHtml // Use the HTML template with dynamic variables
           };

@@ -66,6 +66,11 @@ const BasicSettingSchema = new Schema({
         trim: true,
         default: null
     },
+     smsprovider: {
+        type: String,
+        trim: true,
+        default: null
+    },
     
     
 }, {

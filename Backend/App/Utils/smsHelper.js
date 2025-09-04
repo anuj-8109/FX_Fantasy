@@ -17,14 +17,14 @@ const sendSMS = async (mobile, message, templateId) => {
   const entity_id = activeProvider.entity_id;
   const name = activeProvider.name; 
 
-
   const coding = '1';
 let config;
 const encodedMessage = encodeURIComponent(message);
 
 if(name=="bulksmsservice")
 {
-  config = `authkey=${authKey}&sender=${sender}&mobiles=${mobile}&route=${route}&coding=${coding}&Template_ID=${templateId}&message=${encodedMessage}`;
+ // config = `authkey=${authKey}&sender=${sender}&mobiles=${mobile}&route=${route}&coding=${coding}&Template_ID=${templateId}&message=${encodedMessage}`;
+ config = `username=${username}&pass=${password}&senderid=${sender}&dest_mobileno=${mobile}&msgtype=TXT&response=Y&dlttempid=${templateId}&message=${encodedMessage}`;
 }
 else if(name=="pushsms")
 {
