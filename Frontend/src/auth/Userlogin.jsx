@@ -91,8 +91,11 @@ const UserLogin = () => {
 
     setIsLoading(true);
     try {
-      const response = await UserLoginApi({ PhoneNo: formData.UserName });
+      const response = await UserLoginApi({ PhoneNo: formData.UserName  });
       if (response.status === true) {
+
+
+        localStorage.setItem("token", response?.data?.tokenjwt);
         toast.success(response.message || "OTP sent successfully");
         setOtpSent(true);
         setTimer(30);
@@ -122,11 +125,24 @@ const UserLogin = () => {
         otp: formData.otp,
       });
 
-      if (response.status === true) {
-        const user = response.data;
-        const roleId = user.Role;
+      console.log("OTP Verify Response:", response);
 
-        localStorage.setItem("token", user.tokenjwt);
+      if (response.status === true && response.data) {
+        const user = response.data;
+
+        // ✅ Correct token key
+        const token = user.jwtToken;
+
+        if (!token) {
+          Swal.fire("Error", "Token missing in response", "error");
+          setIsLoading(false);
+          return;
+        }
+
+        // Default role = client (OTP login users)
+        const roleId = 3;
+
+        localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("roleId", roleId);
         localStorage.setItem("add_by", user.id);
@@ -138,7 +154,7 @@ const UserLogin = () => {
         });
 
         setTimeout(() => {
-          navigate("/userDashboard");
+          navigate("/userDashboard"); 
         }, 1000);
       } else {
         Swal.fire("Error", response.message || "Invalid OTP", "error");
@@ -154,6 +170,7 @@ const UserLogin = () => {
     }
   };
 
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4">
       <div className="w-full max-w-md text-center">
@@ -161,7 +178,7 @@ const UserLogin = () => {
           {otpSent ? "Almost There!" : "Login / Register"}
         </h2>
 
-       
+
         {!otpSent && (
           <>
             <div className="flex items-center border rounded-full px-4 py-3 mb-4">
@@ -188,7 +205,7 @@ const UserLogin = () => {
           </>
         )}
 
-   
+
         {otpSent && (
           <div className="mb-4">
             <p className="text-gray-600 mb-4">
@@ -204,11 +221,10 @@ const UserLogin = () => {
                   onChange={(e) => handleOtpChange(e.target.value, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   ref={(el) => (inputRefs.current[index] = el)}
-                  className={`w-12 h-12 text-center text-xl font-bold border rounded ${
-                    formData.otp[index]
+                  className={`w-12 h-12 text-center text-xl font-bold border rounded ${formData.otp[index]
                       ? "bg-orange-500 text-white"
                       : "bg-white-100"
-                  }`}
+                    }`}
                 />
               ))}
             </div>
@@ -261,7 +277,7 @@ const UserLogin = () => {
             : "Continue"}
         </button>
 
-     
+
         {!otpSent && (
           <>
             <p className="text-xs text-gray-500 mt-4">
