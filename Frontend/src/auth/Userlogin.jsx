@@ -101,7 +101,7 @@ const UserLogin = () => {
         setTimer(30);
         setFormData((prev) => ({ ...prev, otp: "" }));
       } else {
-        Swal.fire("Error", response.message || "Failed to send OTP", "error");
+        Swal.fire("Error", response.message);
       }
     } catch (error) {
       Swal.fire(
@@ -130,7 +130,7 @@ const UserLogin = () => {
       if (response.status === true && response.data) {
         const user = response.data;
 
-        // ✅ Correct token key
+      
         const token = user.jwtToken;
 
         if (!token) {
@@ -139,7 +139,7 @@ const UserLogin = () => {
           return;
         }
 
-        // Default role = client (OTP login users)
+     
         const roleId = 3;
 
         localStorage.setItem("token", token);
@@ -157,7 +157,7 @@ const UserLogin = () => {
           navigate("/userDashboard"); 
         }, 1000);
       } else {
-        Swal.fire("Error", response.message || "Invalid OTP", "error");
+        Swal.fire("Error", response?.message?.message || "Invalid OTP");
       }
     } catch (error) {
       Swal.fire(
