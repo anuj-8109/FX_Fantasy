@@ -1,8 +1,9 @@
 import React from "react";
 import { Route } from "react-router-dom";
-import SuperAdminLayout from "../layouts/UserLayout";
+
 import UserDashboard from "../pages/user/UserDashboard";
-import SuperAdminHeader from "../components/superadmin/Header";
+import UserLayout from "../layouts/UserLayout";
+// import SuperAdminHeader from "../components/superadmin/Header";
 // import SuperAdminSidebar from "../components/superadmin/Sidebar";
 
 
@@ -11,8 +12,8 @@ const UserRoutes = () => {
     <>
       <Route path="/user" element={<UserLayout />}>
       
-        <Route path="userdashboard" element={<UserDashboard />} />
-        <Route path="userheader" element={<SuperAdminHeader />} />
+        <Route path="userDashboard" element={<UserDashboard />} />
+        {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
       
         {/* <Route path="analytics" element={<Analytics />} />
         <Route path="games" element={<Games />} />

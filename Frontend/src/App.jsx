@@ -4,6 +4,7 @@ import SuperAdminRoute from "./routes/SuperAdminRoute";
 import AuthRoute from "./routes/AuthRoute";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider, useTheme } from "./components/context/ThemeContext.jsx";
+import UserRoutes from "./routes/UserRoutes.jsx";
 
 
 
@@ -14,6 +15,7 @@ function App() {
         <Routes>
           {AuthRoute()}
           {SuperAdminRoute()}
+          {UserRoutes()}
         </Routes>
       </Router>
       <Toaster position="top-right" reverseOrder={false} />

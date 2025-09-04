@@ -5,6 +5,7 @@ import { UserLoginApi, LoginWithOtpApi } from "../services/Auth";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 
+
 const UserLogin = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -103,7 +104,7 @@ const UserLogin = () => {
         });
 
         setTimeout(() => {
-          navigate("/client/Clientdashboard");
+          navigate("/user/userDashboard");
         }, 1000);
       } else {
         Swal.fire("Error", response.message || "Invalid OTP", "error");
