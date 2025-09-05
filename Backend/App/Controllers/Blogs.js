@@ -142,7 +142,6 @@ class BlogController {
             await new Promise((resolve, reject) => {
                 upload('blogs').fields([{ name: 'image', maxCount: 1 }])(req, res, (err) => {
                     if (err) {
-                        // console.log('File upload error:', err);
                         return reject(err);
                     }
 

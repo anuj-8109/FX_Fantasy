@@ -61,8 +61,6 @@ async function generatePDF({
       path: pdfPath
     }
   } catch (error) {
-   // console.error('Error generating PDF:', error);
-   // throw error;
     return {
       status: false,
       message: error.message 

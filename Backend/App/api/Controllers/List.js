@@ -405,7 +405,6 @@ async  joinContest(req, res) {
     });
 
   } catch (error) {
-    console.error("joinContest Error:", error);
     return res.status(500).json({
       status: false,
       message: "Server error",

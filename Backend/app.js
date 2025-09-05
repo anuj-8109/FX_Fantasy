@@ -39,7 +39,6 @@ const seedContent = require('./App/Scripts/seedContent');
 const seedSmsProviders = require('./App/Scripts/seedSmsProviders');
 const seedSmsTemplates = require('./App/Scripts/seedSmsTemplates');
 async function runSeeds() {
-  console.log("🚀 Seeding started...");
   await seedRoles();
   await seedBasicSetting();
   await seedContent();
@@ -50,7 +49,6 @@ async function runSeeds() {
   await seedStates();
   await seedCities();
  
-  console.log("✅ All seeds done!");
 }
 
 // ✅ 2️⃣ Connect Mongo FIRST
