@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 
 const UserLogin = () => {
+  
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     UserName: "",
@@ -115,11 +116,13 @@ const UserLogin = () => {
   };
 
   const handleVerifyOtp = async (e) => {
+    
     e.preventDefault();
     if (!(await validateForm())) return;
 
     setIsLoading(true);
     try {
+       localStorage.setItem("token", response?.data?.tokenjwt);
       const response = await LoginWithOtpApi({
         PhoneNo: formData.UserName,
         otp: formData.otp,
