@@ -146,7 +146,7 @@ export async function UpdateProfile(token, data) {
 
 export async function ForgotPassword(token, email) {
   try {
-    const response = await axios.post(`${config.base_url}user/forgot-password`, email , {
+    const response = await axios.post(`${config.base_url}user/forgot-password`, email, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -1176,6 +1176,101 @@ export async function GetContestStockList(token) {
     return error?.response?.data;
   }
 }
+
+//Tournament
+
+export async function GetTournament(token) {
+  try {
+    // const response = await axios.get(`${config.base_url}tournament/list?page=1&status=live&search=Mega`),
+    const response = await axios.get(`${config.base_url}tournament/list`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function addTournament(data, token) {
+  try {
+    const response = await axios.post(`${config.base_url}tournament/add`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response?.data
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+// Upadate tournament 
+export async function UpdateTournament(data, token) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}tournament/update`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+
+// delete tournament
+
+export async function DeleteTournament(_id, token) {
+  try {
+    const response = await axios.get(`${config.base_url}tournament/delete/${_id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+
+export async function UpdateTournamentStatus(data, token) {
+  try {
+    const response = await axios.post(`${config.base_url}tournament/change-status`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+export async function UpdateTournamentStatusActive(data,token ) {
+  try {
+    const response = await axios.post(`${config.base_url}tournament/change-status-active`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+
+
+
+
 
 // Contest API Ends Here
 

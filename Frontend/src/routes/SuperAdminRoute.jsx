@@ -30,6 +30,8 @@ import Coupons from "../pages/superadmin/coupons/Coupons";
 import Contest from "../pages/superadmin/contest/Contest";
 import Client from "../pages/superadmin/clients/Clients";
 import AddContest from "../pages/superadmin/contest/AddContest";
+import Tournament from "../pages/superadmin/tournament/Tournament";
+import AddTournament from "../pages/superadmin/tournament/AddTournament";
 
 const SuperAdminRoutes = () => {
   return (
@@ -64,6 +66,8 @@ const SuperAdminRoutes = () => {
         <Route path="contest" element={<Contest />} />
         <Route path="add-contest" element={<AddContest />} />
       <Route path="clients" element={<Client />} />
+      <Route path="tournament" element={<Tournament />} />
+      <Route path="add-tournament" element={<AddTournament />} />
       </Route>
     </>
   );
