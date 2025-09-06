@@ -2,6 +2,7 @@ import React, { useState, useLayoutEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import SuperAdminHeader from "../components/superadmin/Header";
 import UserMenu from "../components/UserMenu";
+import UserHeader from "../components/UserHeader";
 
 const SuperAdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -26,7 +27,7 @@ const SuperAdminLayout = () => {
       <div className="w-full max-w-4xl">
 
         <header className="fixed top-0  left-1/2 -translate-x-1/2 w-full max-w-4xl h-16 z-50 shadow bg-white">
-          <SuperAdminHeader collapsed={collapsed} setCollapsed={setCollapsed} />
+          <UserHeader collapsed={collapsed} setCollapsed={setCollapsed} />
         </header>
 
 
