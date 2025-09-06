@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/Datatable";
-import { GetTournament, UpdateTournament, DeleteTournament, UpdateTournamentStatus,UpdateTournamentStatusActive } from "../../../services/SuperAdmin";
+import { GetTournament, UpdateTournament, DeleteTournament, UpdateTournamentStatus, UpdateTournamentStatusActive } from "../../../services/SuperAdmin";
 import Content from "../../../components/superadmin/Content";
 import { Edit, Trash2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import swal from "sweetalert2";
-
+import { useNavigate } from "react-router-dom";
 function Tournament() {
+    const navigate = useNavigate();
     const [tournament, setTournament] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -95,7 +96,7 @@ function Tournament() {
     };
 
     const handleStatusChange = async (tournament) => {
-        const token = localStorage.getItem("token"); 
+        const token = localStorage.getItem("token");
         const actionText = tournament.status === "live" ? "Deactivate" : "Activate";
 
         const confirm = await swal.fire({
@@ -115,7 +116,7 @@ function Tournament() {
         };
 
         try {
-            const res = await UpdateTournamentStatus(payload, token); 
+            const res = await UpdateTournamentStatus(payload, token);
 
             if (res?.status) {
                 toast.success(res?.message || `Tournament ${actionText}d`);
@@ -151,6 +152,7 @@ function Tournament() {
                     <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
                     <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border bg-white peer-checked:translate-x-full transition-transform"></div>
                 </label>
+                
             ),
             width: "120px",
         },
@@ -180,6 +182,26 @@ function Tournament() {
                 </div>
             ),
         },
+        {
+            name: "Contest",
+            cell: (row) => (
+                <div>
+                    <button
+                        className="px-4 py-2 bg-green-600 text-white rounded"
+                        onClick={() =>
+                            navigate("/superadmin/add-contest", {
+                                state: { tournament_id: row._id },
+                            })
+                        }
+                    >
+                        Add Contest
+                    </button>
+                </div>
+            ),
+            width: "140px",
+        },
+
+
     ];
 
 

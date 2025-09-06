@@ -83,6 +83,7 @@ const UserLogin = () => {
   };
 
   const handleSendOtp = async (e) => {
+    console.log("Send OTP clicked");
     e.preventDefault();
     if (!(await validateForm())) return;
     if (!checked) {
@@ -122,11 +123,12 @@ const UserLogin = () => {
 
     setIsLoading(true);
     try {
-       localStorage.setItem("token", response?.data?.tokenjwt);
+      
       const response = await LoginWithOtpApi({
         PhoneNo: formData.UserName,
         otp: formData.otp,
       });
+       localStorage.setItem("token", response?.data?.tokenjwt);
 
       console.log("OTP Verify Response:", response);
 

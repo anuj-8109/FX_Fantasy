@@ -22,20 +22,44 @@ export async function GetTurnament(token) {
 
 
 // Get contest by turnament
-
-export async function GetContestByTurnament(token,tournament_id) {
-    try {
-        const response = await axios.get(
-            `${config.base_url}api/list/getcontestsbytournamentid/${tournament_id}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
-        return response?.data;
-    } catch (error) {
-        return error?.response?.data;
-    }
-    
+export async function GetContestByTurnament(tournamentId, token) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}api/list/getcontestsbytournamentid/${tournamentId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
 }
+
+
+// join contest
+export async function JoinContest(contestId, clientId, price, discount, total, token) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/list/joincontest`,
+      {
+        contest_id: contestId,
+        client_id: clientId,
+        price,
+        discount,
+        total
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
