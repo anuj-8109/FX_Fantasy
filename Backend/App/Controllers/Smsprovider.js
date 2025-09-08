@@ -106,7 +106,6 @@ class Smsprovider {
       });
   
     } catch (error) {
-      console.error(error);
       return res.json({ status: false, message: "Server error", data: [] });
     }
   }

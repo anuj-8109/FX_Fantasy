@@ -35,16 +35,13 @@ async function AddBulkStockCron(req, res) {
   
         
           const userDataSegment_O = await createUserDataArray(filteredDataO, "O");
-          console.log("O")
           await insertData(userDataSegment_O);
        
           const userDataSegment_F = await createUserDataArray(filteredDataF, "F");
           await insertData(userDataSegment_F);
-          console.log("F")
          
           const userDataSegment_C = await createUserDataArray(filteredDataC, "C");
           await insertData(userDataSegment_C);
-          console.log("C")
   
       
           res.json({ 

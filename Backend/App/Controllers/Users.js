@@ -66,7 +66,6 @@ class Users {
 
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      //  console.log("result", hashedPassword);
       const result = new Users_Modal({
         FullName: FullName,
         UserName: UserName,
@@ -486,7 +485,6 @@ class Users {
   
         fs.readFile(templatePath, 'utf8', async (err, htmlTemplate) => {
           if (err) {
-            console.error('Error reading HTML template:', err);
             return;
           }
   
@@ -519,7 +517,6 @@ class Users {
         });
   
       } catch (error) {
-        // console.log("Error in forgotPassword:", error);
         return res.status(500).json({
           status: false,
           message: "Server error",

@@ -52,7 +52,6 @@ class Mailtemplate {
         });
 
     } catch (error) {
-        // console.error("Error fetching Mailtemplate details:", error);
         return res.status(500).json({
             status: false,
             message: "Server error",
@@ -98,7 +97,6 @@ class Mailtemplate {
         });
       }
   
-      // console.log("Updated Mailtemplate:", updatedMailtemplate);
       return res.json({
         status: true,
         message: "Mailtemplate updated successfully",
@@ -106,7 +104,6 @@ class Mailtemplate {
       });
   
     } catch (error) {
-      // console.error("Error updating Mailtemplate:", error);
       return res.status(500).json({
         status: false,
         message: "Server error",
