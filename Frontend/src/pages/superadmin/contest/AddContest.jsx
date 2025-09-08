@@ -5,9 +5,12 @@ import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 import { AddContest } from "../../../services/SuperAdmin";
 import Content from "../../../components/superadmin/Content";
+import { useLocation } from "react-router-dom";
 
-export default function AddContest1({ onSuccess, onCancel }) {
-   
+export default function AddContest1({ onSuccess, onCancel }) {  
+    const location = useLocation();
+    const tournamentId = location?.state?.tournament_id ;
+    console.log("Received tournamentId:", tournamentId);
     const [authData, setAuthData] = useState({
         add_by: null,
         token: null,
@@ -166,6 +169,8 @@ export default function AddContest1({ onSuccess, onCancel }) {
             startdate: startDate,
             enddate: endDate,
             status,
+            tournament_id: tournamentId,
+
         };
         // console.log("Payload being sent:", payload); 
 

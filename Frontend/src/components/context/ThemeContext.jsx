@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState("theme-trading-light");
+  const [theme, setTheme] = useState(location.pathname.startsWith("/user") ? "theme-trading-light Usertheme" : "theme-trading-light");
 
   useEffect(() => {
     document.documentElement.className = theme; 

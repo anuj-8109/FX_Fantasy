@@ -10,3 +10,31 @@ export async function LoginApi(data) {
   }
 }
 
+
+export async function UserLoginApi(data){
+  try {
+    const response = await axios.post(`${config.base_url}api/client/login-with-otp`,data);
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+
+export async function OtpSubmitWithPhoneApi(data){
+  try {
+    const response = await axios.post(`${config.base_url}api/client/otpsubmitwithphone`,data);
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function LoginWithOtpApi(data) {
+  try {
+    const response = await axios.post(`${config.base_url}api/client/otpsubmitwithphone`, data);
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}

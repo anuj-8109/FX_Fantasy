@@ -147,36 +147,49 @@ aside {
     color: #fffbff !important;
 }
 
-.theme-trading-pro .Form-style{
+.theme-trading-pro .Form-style {
     background-color: #111827;
     color: #fffbff !important;
 }
 
-.theme-trading-pro .Add-client-style{
+.theme-trading-pro .Add-client-style {
     background-color: #111827;
     color: white;
 }
 
-.theme-trading-pro .input-Add{
-   background-color: #111827; 
+.theme-trading-pro .input-Add {
+    background-color: #111827;
 }
 
 
 .hide-scrollbar::-webkit-scrollbar {
-  display: none; 
+    display: none;
 }
 
 .hide-scrollbar {
-  -ms-overflow-style: none;  
-  scrollbar-width: none;     
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 
-.theme-trading-pro .ck{
-    background-color: #111827 !important; 
+.theme-trading-pro .ck {
+    background-color: #111827 !important;
     color: white !important;
 }
 
-.theme-trading-pro .Content_Style{
+.theme-trading-pro .Content_Style {
     background-color: #111827 !important;
+}
+
+
+.Usertheme {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.Usertheme .wrapper {
+    width: 80vw;
+    margin: 0px auto;
 }

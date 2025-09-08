@@ -5,13 +5,11 @@ const { Schema, model } = require('mongoose');
 const clientsModel = new Schema({
     FullName: {
         type: String,
-        required: true,
         trim: true,
         default: null
     },
     Email: {
         type: String,
-        required: true,
         trim: true,
         default: null
     },

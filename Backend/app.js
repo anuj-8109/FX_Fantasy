@@ -23,6 +23,7 @@ connectDB();
 routes(app);
 app.use(errorHandler);
 require('./App/Routes/index')(app)
+require('./App/api/Routes/index')(app)
 
 
 

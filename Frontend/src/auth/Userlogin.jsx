@@ -1,26 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
-import { LoginApi } from "../services/Auth";
+import { UserLoginApi, LoginWithOtpApi } from "../services/Auth";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 
 const UserLogin = () => {
+  
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     UserName: "",
-    password: "",
+    otp: "",
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const [timer, setTimer] = useState(30);
+  const inputRefs = useRef([]);
 
-  // Validation Schema
   const validationSchema = Yup.object({
-    UserName: Yup.string().required("Username is required"),
-    password: Yup.string().required("Password is required"),
+    UserName: Yup.string().required("Phone number is required"),
+    ...(otpSent && {
+      otp: Yup.string()
+        .required("OTP is required")
+        .matches(/^\d{6}$/, "OTP must be 6 digits"),
+    }),
   });
 
-  // Handle input changes
+  useEffect(() => {
+    if (otpSent && timer > 0) {
+      const countdown = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(countdown);
+    }
+  }, [otpSent, timer]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -32,7 +48,25 @@ const UserLogin = () => {
     }
   };
 
-  // Validate form before submitting
+  const handleOtpChange = (value, index) => {
+    if (!/^\d*$/.test(value)) return;
+
+    const otpArray = formData.otp.split("");
+    otpArray[index] = value;
+    const newOtp = otpArray.join("");
+    setFormData((prev) => ({ ...prev, otp: newOtp }));
+
+    if (value && index < 5) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !formData.otp[index] && index > 0) {
+      inputRefs.current[index - 1].focus();
+    }
+  };
+
   const validateForm = async () => {
     try {
       await validationSchema.validate(formData, { abortEarly: false });
@@ -48,48 +82,28 @@ const UserLogin = () => {
     }
   };
 
-  // Submit login form
-  const onSubmit = async (e) => {
+  const handleSendOtp = async (e) => {
+    console.log("Send OTP clicked");
     e.preventDefault();
     if (!(await validateForm())) return;
+    if (!checked) {
+      Swal.fire("Error", "You must certify age above 18 years", "error");
+      return;
+    }
 
     setIsLoading(true);
-
     try {
-      const response = await LoginApi({
-        UserName: formData.UserName,
-        password: formData.password,
-      });
-
+      const response = await UserLoginApi({ PhoneNo: formData.UserName  });
       if (response.status === true) {
-        const user = response.data;
-        const roleId = user.Role;
 
-        // Save user details in localStorage
-        localStorage.setItem("token", user.tokenjwt);
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("roleId", roleId);
-        localStorage.setItem("add_by", user.id);
-        localStorage.setItem("userId", user.id);
 
-        toast.success(response.message || "Login successful", {
-          duration: 2000,
-          position: "top-right",
-        });
-
-        setTimeout(() => {
-          if (roleId === 1) {
-            navigate("/superadmin/superadmindashboard");
-          } else if (roleId === 2) {
-            navigate("/Staff/Staffdashboard");
-          } else if (roleId === 3) {
-            navigate("/Client/Clientdashboard");
-          } else {
-            navigate("/");
-          }
-        }, 1000);
+        localStorage.setItem("token", response?.data?.tokenjwt);
+        toast.success(response.message || "OTP sent successfully");
+        setOtpSent(true);
+        setTimer(30);
+        setFormData((prev) => ({ ...prev, otp: "" }));
       } else {
-        Swal.fire("Error", response.message || "Invalid credentials", "error");
+        Swal.fire("Error", response.message);
       }
     } catch (error) {
       Swal.fire(
@@ -102,84 +116,189 @@ const UserLogin = () => {
     }
   };
 
+  const handleVerifyOtp = async (e) => {
+    
+    e.preventDefault();
+    if (!(await validateForm())) return;
+
+    setIsLoading(true);
+    try {
+      
+      const response = await LoginWithOtpApi({
+        PhoneNo: formData.UserName,
+        otp: formData.otp,
+      });
+       localStorage.setItem("token", response?.data?.tokenjwt);
+
+      console.log("OTP Verify Response:", response);
+
+      if (response.status === true && response.data) {
+        const user = response.data;
+
+      
+        const token = user.jwtToken;
+
+        if (!token) {
+          Swal.fire("Error", "Token missing in response", "error");
+          setIsLoading(false);
+          return;
+        }
+
+     
+        const roleId = 3;
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("roleId", roleId);
+        localStorage.setItem("add_by", user.id);
+        localStorage.setItem("userId", user.id);
+
+        toast.success(response.message || "Login successful", {
+          duration: 2000,
+          position: "top-right",
+        });
+
+        setTimeout(() => {
+          navigate("/userDashboard"); 
+        }, 1000);
+      } else {
+        Swal.fire("Error", response?.message?.message || "Invalid OTP");
+      }
+    } catch (error) {
+      Swal.fire(
+        "Error",
+        error.response?.data?.msg || error.message || "Something went wrong",
+        "error"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-4">
-      <div className="flex flex-col lg:flex-row w-full max-w-4xl h-[90vh] shadow-lg rounded-lg overflow-hidden">
-        {/* Left Side Design */}
-        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-red-900 via-red-800 to-red-700">
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-10 left-10 w-8 h-8 bg-red-300 rounded transform rotate-45"></div>
-            <div className="absolute top-20 left-32 w-6 h-6 bg-red-400 rounded-full"></div>
-          </div>
-          <div className="relative z-10 flex flex-col justify-center items-start p-8 text-white">
-            <div className="w-12 h-12 bg-white rounded-full mb-8 flex items-center justify-center">
-              <div className="w-6 h-6 bg-red-600 rounded-full"></div>
+    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <div className="w-full max-w-md text-center">
+        <h2 className="text-xl font-semibold mb-6">
+          {otpSent ? "Almost There!" : "Login / Register"}
+        </h2>
+
+
+        {!otpSent && (
+          <>
+            <div className="flex items-center border rounded-full px-4 py-3 mb-4">
+              <span className="flex items-center mr-2">
+                <img
+                  src="https://flagcdn.com/w20/in.png"
+                  alt="flag"
+                  className="w-5 h-5 mr-1"
+                />
+                +91
+              </span>
+              <input
+                type="text"
+                name="UserName"
+                placeholder="Enter Your Number"
+                value={formData.UserName}
+                onChange={handleInputChange}
+                className="bg-transparent flex-1 outline-none"
+              />
             </div>
-            <h1 className="text-2xl font-bold mb-6">Design with us</h1>
-            <p className="text-base leading-relaxed opacity-90">
-              Welcome to our platform. Please login to continue.
+            {errors.UserName && (
+              <p className="text-sm text-red-600 mb-2">{errors.UserName}</p>
+            )}
+          </>
+        )}
+
+
+        {otpSent && (
+          <div className="mb-4">
+            <p className="text-gray-600 mb-4">
+              Please enter OTP sent on <b>{formData.UserName}</b>
             </p>
-          </div>
-        </div>
-
-        {/* Right Side Form */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-white">
-          <div className="w-full max-w-md">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Sign in</h2>
-
-            <form onSubmit={onSubmit} className="space-y-4">
-              <div>
+            <div className="flex justify-center gap-3 mb-4">
+              {[...Array(6)].map((_, index) => (
                 <input
+                  key={index}
                   type="text"
-                  name="UserName"
-                  placeholder="User name or email address"
-                  value={formData.UserName}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-colors ${
-                    errors.UserName ? "border-red-500" : "border-gray-300"
-                  }`}
+                  maxLength={1}
+                  value={formData.otp[index] || ""}
+                  onChange={(e) => handleOtpChange(e.target.value, index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  ref={(el) => (inputRefs.current[index] = el)}
+                  className={`w-12 h-12 text-center text-xl font-bold border rounded ${formData.otp[index]
+                      ? "bg-orange-500 text-white"
+                      : "bg-white-100"
+                    }`}
                 />
-                {errors.UserName && (
-                  <p className="mt-1 text-sm text-red-600">{errors.UserName}</p>
-                )}
-              </div>
-
-              <div>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Your password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-colors ${
-                    errors.password ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-gray-800 text-white py-3 px-4 rounded-lg hover:bg-gray-900 focus:ring-2 focus:ring-gray-500 transition-colors font-medium disabled:opacity-50"
-              >
-                {isLoading ? "Signing in..." : "Sign in"}
-              </button>
-            </form>
-
-            <div className="text-center mt-6">
-              <span className="text-sm text-gray-500">Don't have an account? </span>
-              <button
-                onClick={() => navigate("/register")}
-                className="text-blue-600 hover:text-blue-700 font-medium underline"
-              >
-                Sign up
-              </button>
+              ))}
             </div>
+            {errors.otp && (
+              <p className="mt-1 text-sm text-red-600">{errors.otp}</p>
+            )}
+
+            {timer > 0 ? (
+              <p className="text-sm text-gray-600">
+                Didn’t receive OTP? Resend in{" "}
+                <span className="font-semibold">{timer} Seconds</span>
+              </p>
+            ) : (
+              <button
+                onClick={handleSendOtp}
+                className="text-sm text-blue-600 hover:underline"
+              >
+                Resend OTP
+              </button>
+            )}
           </div>
-        </div>
+        )}
+
+        {/* Checkbox */}
+        {!otpSent && (
+          <div className="flex items-center justify-start mb-4">
+            <input
+              type="checkbox"
+              id="certify"
+              checked={checked}
+              onChange={() => setChecked(!checked)}
+              className="mr-2"
+            />
+            <label htmlFor="certify" className="text-sm text-gray-700">
+              I certify that I am above 18 years
+            </label>
+          </div>
+        )}
+
+        {/* Button */}
+        <button
+          onClick={otpSent ? handleVerifyOtp : handleSendOtp}
+          disabled={isLoading}
+          className="w-full bg-orange-500 text-white py-3 rounded-full font-medium hover:bg-orange-600 transition disabled:opacity-50"
+        >
+          {isLoading
+            ? otpSent
+              ? "Verifying..."
+              : "Sending OTP..."
+            : "Continue"}
+        </button>
+
+
+        {!otpSent && (
+          <>
+            <p className="text-xs text-gray-500 mt-4">
+              By continuing, I agree to Dream Trading T&C.
+            </p>
+            <div className="text-sm mt-2">
+              <a href="#" className="text-blue-600 hover:underline">
+                Have an Invite Code?
+              </a>{" "}
+              |{" "}
+              <a href="#" className="text-blue-600 hover:underline">
+                Other login options
+              </a>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

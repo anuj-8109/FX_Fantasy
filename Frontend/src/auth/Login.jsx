@@ -153,7 +153,7 @@ const Login = () => {
               ))}
             </div>
 
-            {/* Content */}
+      
             <div className="relative z-10 flex flex-col justify-center items-start p-8 text-white">
               <div className="w-12 h-12 bg-white rounded-full mb-8 flex items-center justify-center">
                 <div className="w-6 h-6 bg-red-600 rounded-full"></div>
@@ -215,7 +215,7 @@ const Login = () => {
                     placeholder="User name or email address"
                     value={formData.UserName}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors ${errors.UserName ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none 
                       }`}
                   />
                   {errors.UserName && (
@@ -230,7 +230,9 @@ const Login = () => {
                     placeholder="Your password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-colors ${errors.password ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                       outline-none 
+                       
                       }`}
                   />
                   {errors.password && (

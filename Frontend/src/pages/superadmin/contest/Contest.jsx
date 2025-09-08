@@ -26,7 +26,7 @@ const Contest = () => {
   const [viewOpen, setViewOpen] = useState(false);
   const [viewContest, setViewContest] = useState(null);
 
-  // contest fields
+  
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [entryFee, setEntryFee] = useState("");

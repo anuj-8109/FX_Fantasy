@@ -45,6 +45,11 @@ const menuItems = [
     url: "/superadmin/clients",
     icon: <User />,
   },
+    {
+    title: "Tournament",
+    url: "/superadmin/Tournament",
+    icon: <Award />,
+  },
   {
     title: "Contest",
     url: "/superadmin/contest",

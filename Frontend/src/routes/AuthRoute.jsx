@@ -4,6 +4,7 @@ import { Route } from "react-router-dom";
 import AuthLayout from "../layouts/AuthLayout";
 import Login from "../auth/Login";
 import Register from "../auth/Register";
+import UserLogin from "../auth/Userlogin";
 
 const AuthRoute = () => {
   return (
@@ -11,7 +12,9 @@ const AuthRoute = () => {
       <Route element={<AuthLayout />}>
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/userlogin" element={<UserLogin/>}/>
       </Route>
+      
     </>
   );
 };

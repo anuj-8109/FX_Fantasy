@@ -2,16 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GetUserDetails } from "../../../services/SuperAdmin";
 import ChangePassword from "../../superadmin/profile/ChangePassword";
-// import Content from "../../superadmin/content/Content"
 import Content from "../../../components/superadmin/Content";
 
 const MyProfile = () => {
   const [userdetails, setUserDetails] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState("profile"); // 🔹 Tab state
-  const [formData, setFormData] = useState({
-    fullName: "",
-  });
+  const [activeTab, setActiveTab] = useState("profile");
+  const [formData, setFormData] = useState({ fullName: "" });
+  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const token = localStorage.getItem("token");
   const id = localStorage.getItem("userId");
@@ -21,9 +20,7 @@ const MyProfile = () => {
     try {
       const response = await GetUserDetails(token, id);
       setUserDetails(response?.data);
-      setFormData({
-        fullName: response?.data?.FullName || "",
-      });
+      setFormData({ fullName: response?.data?.FullName || "" });
     } catch (error) {
       console.error("Error fetching user details:", error);
     }
@@ -34,15 +31,19 @@ const MyProfile = () => {
   }, []);
 
   const handleInputChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSave = () => {
     console.log("Saving profile data:", formData);
     setIsEditing(false);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(URL.createObjectURL(file));
+    }
   };
 
   return (
@@ -54,28 +55,37 @@ const MyProfile = () => {
     >
       <div className="min-h-screen p-6 ">
         <div className="max-w-4xl mx-auto grid lg:grid-cols-5 gap-8">
-          <div className="lg:col-span-2 ">
-            <div className="border rounded-xl p-6 text-center shadow-sm ">
-              <div className="w-32 h-32 border rounded-full flex items-center justify-center text-4xl font-bold mx-auto mb-4">
-                {userdetails?.FullName?.charAt(0) || "U"}
+          <div className="lg:col-span-2">
+            <div className="border rounded-xl p-6 text-center shadow-sm">
+              <div className="w-32 h-32 border rounded-full flex items-center justify-center text-4xl font-bold mx-auto mb-4 overflow-hidden">
+                {selectedImage ? (
+                  <img
+                    src={selectedImage}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  userdetails?.FullName?.charAt(0) || "U"
+                )}
               </div>
 
-              <h2 className="text-xl font-semibold">
-                {userdetails?.FullName || "User Name"}
-              </h2>
-              <p className="">@{userdetails?.UserName || "username"}</p>
-
-              {/* Status */}
-              <div className="mt-3">
-                <span
-                  className={`inline-block px-3 py-1 rounded-full text-sm border ${
-                    userdetails?.ActiveStatus === 1
-                      ? "bg-green-50 text-green-600 border-green-300"
-                      : "bg-red-50 text-red-600 border-red-300"
-                  }`}
+              <div className="flex items-center gap-4 mt-5">
+                <button
+                  className={`px-4 py-2 rounded-lg text-sm font-medium border ${userdetails?.ActiveStatus === 1
+                      ? "bg-green-500 text-white border-green-600"
+                      : "bg-red-100 text-red-600 border-red-300"
+                    }`}
                 >
                   {userdetails?.ActiveStatus === 1 ? "Active" : "DeActive"}
-                </span>
+                </button>
+
+                {/* Open Modal Button */}
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-700 hover:bg-blue-700 transition"
+                >
+                  Change Profile Photo
+                </button>
               </div>
             </div>
           </div>
@@ -86,23 +96,21 @@ const MyProfile = () => {
               <div className="flex border-b">
                 <button
                   onClick={() => setActiveTab("profile")}
-                  className={`flex-1 p-3 text-sm font-medium ${
-                    activeTab === "profile"
+                  className={`flex-1 p-3 text-sm font-medium ${activeTab === "profile"
                       ? "border-b-2 border-blue-600 text-blue-600"
                       : "text-gray-500"
-                  }`}
+                    }`}
                 >
                   Profile Info
                 </button>
                 <button
                   onClick={() => setActiveTab("settings")}
-                  className={`flex-1 p-3 text-sm font-medium ${
-                    activeTab === "settings"
+                  className={`flex-1 p-3 text-sm font-medium ${activeTab === "settings"
                       ? "border-b-2 border-blue-600 text-blue-600"
                       : "text-gray-500"
-                  }`}
+                    }`}
                 >
-                  ChangePassword
+                  Change Password
                 </button>
               </div>
 
@@ -177,6 +185,57 @@ const MyProfile = () => {
           </div>
         </div>
       </div>
+
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-96 p-6 relative">
+            <h2 className="text-lg font-semibold mb-4">Change Profile Photo</h2>
+
+
+            <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border">
+              {selectedImage ? (
+                <img
+                  src={selectedImage}
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="flex items-center justify-center w-full h-full text-gray-400">
+                  No Image
+                </span>
+              )}
+            </div>
+
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="block w-full text-sm text-gray-600 border border-gray-300 rounded-lg cursor-pointer mb-4"
+            />
+
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  console.log("Profile photo uploaded!");
+                  setIsModalOpen(false);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Content>
   );
 };

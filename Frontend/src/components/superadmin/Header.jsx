@@ -3,6 +3,7 @@ import { Sun, Moon, Bell, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
+
 const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -35,10 +36,20 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
     });
   };
 
-  // Sidebar Toggle
-  const toggleSidebar = () => setCollapsed(!collapsed);
+    const handleLogout = () => {
+    const roleId = localStorage.getItem("roleId");
+    localStorage.removeItem("token");
+    localStorage.removeItem("roleId");
+    // localStorage.removeItem("user");
+    // localStorage.removeItem("isLoggedIn");
+    if (roleId === "1") {
+      navigate("/");      
+    } else {
+      navigate("/userlogin");  
+    }
+  };
 
-  // Logout Handler
+  const toggleSidebar = () => setCollapsed(!collapsed);
   const Logout = async () => {
     const confirm = await Swal.fire({
       title: "Logout Confirmation",
@@ -94,7 +105,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
   return (
     <header className="sticky top-0 z-50 w-full border-b shadow-sm backdrop-blur-lg transition-colors Main-Header ">
 
-      <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
+      <div className="max-w-8xl mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo + Sidebar Toggle */}
         <div className="flex items-center gap-3">
           <div
@@ -195,7 +206,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
 
                 <button
                   className="block w-full text-left px-4 py-2 text-sm text-white-600 "
-                  onClick={Logout}
+                  onClick={handleLogout}
                 >
                   Log Out
                 </button>
