@@ -72,7 +72,7 @@ export async function GetMyContests(token, clientId) {
   try {
     const response = await axios.post(
       `${config.base_url}api/list/mycontests`,
-      { client_id: clientId }, 
+      { client_id: clientId },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -86,5 +86,43 @@ export async function GetMyContests(token, clientId) {
   }
 }
 
+// History
+export async function GetContestHistory(token, data) {
+  try {
+    const url = `${config.base_url}api/list/gettradehistory`;
+    const response = await axios.post(
+      url,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response?.data;
+  } catch (error) {
+    console.error("API error", error?.response || error);
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
 
 
+// get user details
+export async function GetUserDetails(token, id) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}api/client/detail/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    console.error("API error", error?.response || error);
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}

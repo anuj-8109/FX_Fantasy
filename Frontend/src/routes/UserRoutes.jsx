@@ -7,6 +7,7 @@ import Pricepol from "../pages/user/Pricepol";
 // import SuperAdminHeader from "../components/superadmin/Header";
 // import SuperAdminSidebar from "../components/superadmin/Sidebar";
 import HistoryPage from "../pages/user/ContestHistory";
+import UserProfile from "../pages/user/profile/UserProfile";
 
 
 const UserRoutes = () => {
@@ -18,6 +19,7 @@ const UserRoutes = () => {
         <Route path="userDashboard" element={<UserDashboard />} />
         <Route path="pricepol" element={<Pricepol />} />
         <Route path="history" element={<HistoryPage />} />
+        <Route path="profile" element={<UserProfile />} />
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
       
         {/* <Route path="analytics" element={<Analytics />} />
