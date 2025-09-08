@@ -466,6 +466,77 @@ async  addTrade(req, res) {
   }
 }
 
+// 📌 My Contests List API
+async myContests(req, res) {
+  try {
+    const { client_id, page = 1, status, tournament_id } = req.body;
+
+    if (!client_id) {
+      return res.status(400).json({ status: false, message: "client_id is required" });
+    }
+
+    // Pagination
+    const pageNum = parseInt(page) || 1;
+    const  limitNum = 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    // Filters
+    const filter = { client_id };
+
+    if (status) {
+      // status filter = upcoming, running, completed
+      const now = new Date();
+      if (status === "upcoming") {
+        filter["contest_id.startdate"] = { $gt: now };
+      } else if (status === "running") {
+        filter["contest_id.startdate"] = { $lte: now };
+        filter["contest_id.enddate"] = { $gte: now };
+      } else if (status === "completed") {
+        filter["contest_id.enddate"] = { $lt: now };
+      }
+    }
+
+    if (tournament_id) {
+      filter["contest_id.tournament_id"] = tournament_id;
+    }
+
+    // Query with populate
+    const contests = await Contestjoin_Modal.find({ client_id })
+      .populate({
+        path: "contest_id",
+        model: "Contest",
+        populate: {
+          path: "tournament_id", // contest → tournament
+          model: "Tournament",
+        },
+      })
+      .populate("client_id") // client detail
+      .sort({ created_at: -1 })
+      .skip(skip)
+      .limit(limitNum);
+
+    const totalCount = await Contestjoin_Modal.countDocuments({ client_id });
+
+    return res.status(200).json({
+      status: true,
+      message: "My contests fetched successfully",
+      page: pageNum,
+      limit: limitNum,
+      total: totalCount,
+      data: contests,
+    });
+
+  } catch (error) {
+    console.error("Error fetching my contests:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
+
 }
 
 
