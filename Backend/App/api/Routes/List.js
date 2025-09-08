@@ -1,7 +1,7 @@
 const router = require("express").Router()
 const auth = require('../../Middleware/authClient');
 
-const {Bannerlist,Couponlist,Faqlist,detailContent,basicSetting,BlogslistwithPagination,NewslistwithPagination,getUpcomingTournaments,getContestsByTournamentId,joinContest,addTrade,myContests} = require('../Controllers/List')
+const {Bannerlist,Couponlist,Faqlist,detailContent,basicSetting,BlogslistwithPagination,NewslistwithPagination,getUpcomingTournaments,getContestsByTournamentId,joinContest,addTrade,myContests,getTradeHistory} = require('../Controllers/List')
 
 
 router.get('/api/list/blogspagination', auth, BlogslistwithPagination);
@@ -16,6 +16,8 @@ router.get('/api/list/getcontestsbytournamentid/:tournament_id', auth, getContes
 router.post('/api/list/joincontest', auth, joinContest); 
 router.post('/api/list/buyselltrade', auth, addTrade); 
 router.post('/api/list/mycontests', auth, myContests); 
+router.post('/api/list/gettradehistory', auth, getTradeHistory); 
+
 
 
 module.exports = router;

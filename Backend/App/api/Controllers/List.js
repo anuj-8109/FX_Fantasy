@@ -537,6 +537,58 @@ async myContests(req, res) {
 }
 
 
+async  getTradeHistory(req, res) {
+  try {
+    const { client_id, contest_id, page = 1 } = req.body;
+const limit = 10;
+    // कम से कम एक filter चाहिए
+    if (!client_id && !contest_id) {
+      return res.status(400).json({
+        status: false,
+        message: "Either client_id or contest_id is required",
+      });
+    }
+
+    // Base filter बनाओ
+    const filter = {};
+    if (client_id) filter.client_id = client_id;
+    if (contest_id) filter.contest_id = contest_id;
+
+    // Pagination setup
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    // Fetch trades
+    const trades = await Contesttrade_Modal.find(filter)
+      .populate("contest_id", "name startdate enddate") // contest detail
+      .populate("client_id", "name email") // client detail
+      .sort({ trade_time: -1 }) // latest first
+      .skip(skip)
+      .limit(limitNum);
+
+    const total = await Contesttrade_Modal.countDocuments(filter);
+
+    return res.status(200).json({
+      status: true,
+      message: "Trade history fetched successfully",
+      page: pageNum,
+      limit: limitNum,
+      total,
+      data: trades,
+    });
+  } catch (error) {
+    console.error("Error fetching trade history:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
+
+
 }
 
 
