@@ -66,26 +66,26 @@ function Pricepol() {
         return;
       }
 
-      // Call backend API
+      
       const res = await JoinContest(contest._id, clientId, entryFee, discount, total, token);
 
       if (res?.status) {
         toast.success(`Joined ${contest.name} successfully 🎉`);
 
-        // Merge backend response with local contest
+       
         const joinedContest = {
           ...contest,
-          ...res.data // backend might return total, joined_at, rank, points, etc.
+          ...res.data 
         };
 
-        // Prevent duplicates in "My Contests"
+       
         setMyContests((prev) => {
           const exists = prev.find((c) => c._id === joinedContest._id);
           if (exists) return prev;
           return [...prev, joinedContest];
         });
 
-        // Optionally, switch to My Contests tab automatically
+       
         setActiveTab("myContests");
       } else {
         toast.error(res?.message || "Failed to join contest");
@@ -103,7 +103,7 @@ function Pricepol() {
         Tournament Contests
       </h1>
 
-      {/* -------- Stylish Tabs -------- */}
+      
       <div className="flex justify-center mb-6">
         <div className="bg-white rounded-full shadow-md flex space-x-2 p-2">
           {[
