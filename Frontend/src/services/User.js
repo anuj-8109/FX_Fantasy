@@ -63,3 +63,21 @@ export async function JoinContest(contestId, clientId, price, discount, total, t
   }
 }
 
+// get my contests
+export async function GetMyContests(token) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/list/getmycontests`,
+      
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+

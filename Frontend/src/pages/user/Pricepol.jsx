@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { GetContestByTurnament, JoinContest } from "../../services/User";
+import { GetContestByTurnament, JoinContest , GetMyContests  } from "../../services/User";
 import toast from "react-hot-toast";
 
 function Pricepol() {
@@ -66,26 +66,26 @@ function Pricepol() {
         return;
       }
 
-      
+
       const res = await JoinContest(contest._id, clientId, entryFee, discount, total, token);
 
       if (res?.status) {
         toast.success(`Joined ${contest.name} successfully 🎉`);
 
-       
+
         const joinedContest = {
           ...contest,
-          ...res.data 
+          ...res.data
         };
 
-       
+
         setMyContests((prev) => {
           const exists = prev.find((c) => c._id === joinedContest._id);
           if (exists) return prev;
           return [...prev, joinedContest];
         });
 
-       
+
         setActiveTab("myContests");
       } else {
         toast.error(res?.message || "Failed to join contest");
@@ -96,6 +96,33 @@ function Pricepol() {
     }
   };
 
+  useEffect(() => {
+    if (!token) {
+      setError("Missing authentication token");
+      return;
+    }
+
+    const fetchMyContests = async () => {
+      setLoading(true);
+      try {
+        const data = await GetMyContests(token);
+        if (data.status && data.data.length > 0) {
+          setMyContests(data.data);
+        } else {
+          setMyContests([]);
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Error fetching my contests");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMyContests();
+  }, [token]);
+
+
 
   return (
     <div className="p-4 bg-gray-50 min-h-screen">
@@ -103,7 +130,7 @@ function Pricepol() {
         Tournament Contests
       </h1>
 
-      
+
       <div className="flex justify-center mb-6">
         <div className="bg-white rounded-full shadow-md flex space-x-2 p-2">
           {[
@@ -192,17 +219,26 @@ function Pricepol() {
           {activeTab === "myContests" && (
             <div>
               {myContests.length > 0 ? (
-                myContests.map((contest) => (
-                  <div
-                    key={contest._id}
-                    className="bg-yellow-50 shadow rounded-xl p-4 mb-4 border border-yellow-200"
-                  >
-                    <p className="font-semibold text-orange-700">{contest.name}</p>
-                    <p className="text-sm text-gray-600">
-                      Prize Pool: ₹{contest.prize_pool} | Entry: ₹{contest.entry_fee}
-                    </p>
-                  </div>
-                ))
+                myContests.map((contestWrapper) => {
+                  const contest = contestWrapper.contest_id;
+                  return (
+                    <div
+                      key={contestWrapper._id}
+                      className="bg-yellow-50 shadow rounded-xl p-4 mb-4 border border-yellow-200"
+                    >
+                      <p className="font-semibold text-orange-700">{contest.name}</p>
+                      <p className="text-sm text-gray-600">
+                        Prize Pool: ₹{contest.prize_pool} | Entry: ₹{contest.entry_fee}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Tournament: {contest.tournament_id.name}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Joined At: {new Date(contestWrapper.joined_at).toLocaleString()}
+                      </p>
+                    </div>
+                  );
+                })
               ) : (
                 <p className="text-center text-gray-600">
                   📌 You haven’t joined any contests yet.
@@ -210,6 +246,7 @@ function Pricepol() {
               )}
             </div>
           )}
+
 
 
           {activeTab === "myTeam" && (
