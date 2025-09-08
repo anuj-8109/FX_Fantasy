@@ -226,11 +226,12 @@ function Tournament() {
             Page_title="Tournament"
             button_title="back"
             button_status={true}
+            route="/superadmin/superadmindashboard"
             extra_button="Add Tournament"
             extra_button_action="/superadmin/add-tournament"
         >
             <div>
-                {loading ? <p>Loading...</p> : <Datatable columns={columns} data={tournament} />}
+                {loading ? <p>Loading...</p> : <Datatable columns={columns} data={tournament} onRefresh={fatchTournament} />}
             </div>
 
 
