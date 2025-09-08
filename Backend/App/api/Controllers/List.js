@@ -488,7 +488,7 @@ async myContests(req, res) {
       const now = new Date();
       if (status === "upcoming") {
         filter["contest_id.startdate"] = { $gt: now };
-      } else if (status === "running") {
+      } else if (status === "live") {
         filter["contest_id.startdate"] = { $lte: now };
         filter["contest_id.enddate"] = { $gte: now };
       } else if (status === "completed") {
