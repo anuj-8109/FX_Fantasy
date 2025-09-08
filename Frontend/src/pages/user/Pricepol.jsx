@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { GetContestByTurnament, JoinContest , GetMyContests  } from "../../services/User";
+import { GetContestByTurnament, JoinContest, GetMyContests } from "../../services/User";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 function Pricepol() {
+  const navigate = useNavigate();
   const location = useLocation();
   const tournamentId = location?.state?._id;
   const [contests, setContests] = useState([]);
@@ -97,15 +99,18 @@ function Pricepol() {
   };
 
   useEffect(() => {
-    if (!token) {
-      setError("Missing authentication token");
+    const token = localStorage.getItem("token");
+    const clientId = localStorage.getItem("userId");
+
+    if (!token || !clientId) {
+      setError("Missing token or client ID");
       return;
     }
 
     const fetchMyContests = async () => {
       setLoading(true);
       try {
-        const data = await GetMyContests(token);
+        const data = await GetMyContests(token, clientId);
         if (data.status && data.data.length > 0) {
           setMyContests(data.data);
         } else {
@@ -120,9 +125,7 @@ function Pricepol() {
     };
 
     fetchMyContests();
-  }, [token]);
-
-
+  }, []);
 
   return (
     <div className="p-4 bg-gray-50 min-h-screen">
@@ -169,7 +172,7 @@ function Pricepol() {
                   key={contest._id}
                   className="bg-white shadow-md rounded-xl p-4 border border-gray-200"
                 >
-                  {/* Prize Pool + Entry */}
+
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="text-gray-500 text-sm">Prize Pool</p>
@@ -217,35 +220,60 @@ function Pricepol() {
 
 
           {activeTab === "myContests" && (
-            <div>
+            <div className="space-y-4">
               {myContests.length > 0 ? (
                 myContests.map((contestWrapper) => {
                   const contest = contestWrapper.contest_id;
                   return (
                     <div
                       key={contestWrapper._id}
-                      className="bg-yellow-50 shadow rounded-xl p-4 mb-4 border border-yellow-200"
+                      className="bg-yellow-50 shadow-md rounded-xl p-6 border border-yellow-200 hover:shadow-lg transition-shadow duration-200"
                     >
-                      <p className="font-semibold text-orange-700">{contest.name}</p>
-                      <p className="text-sm text-gray-600">
-                        Prize Pool: ₹{contest.prize_pool} | Entry: ₹{contest.entry_fee}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Tournament: {contest.tournament_id.name}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Joined At: {new Date(contestWrapper.joined_at).toLocaleString()}
-                      </p>
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h2 className="font-bold text-orange-700 text-lg">{contest.name}</h2>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Tournament: <span className="text-indigo-600">{contest.tournament_id.name}</span>
+                          </p>
+                        </div>
+                        <button
+                          // onClick={() => handleViewHistory(contestWrapper._id)}
+                          onClick={() => {navigate("/history", { state: { contestId: contestWrapper._id } })}}
+                          className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium"
+                        >
+                          View History
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                        <div>
+                          <p className="font-medium">Prize Pool</p>
+                          <p>₹{contest.prize_pool}</p>
+                        </div>
+                        <div>
+                          <p className="font-medium">Entry Fee</p>
+                          <p>₹{contest.entry_fee}</p>
+                        </div>
+                        <div>
+                          <p className="font-medium">Joined At</p>
+                          <p>{new Date(contestWrapper.joined_at).toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="font-medium">Status</p>
+                          <p className="text-green-600 font-semibold">Joined</p>
+                        </div>
+                      </div>
                     </div>
                   );
                 })
               ) : (
-                <p className="text-center text-gray-600">
+                <div className="text-center py-10 text-gray-600">
                   📌 You haven’t joined any contests yet.
-                </p>
+                </div>
               )}
             </div>
           )}
+
 
 
 
