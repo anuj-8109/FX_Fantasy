@@ -53,20 +53,20 @@ const UserMenu = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md">
-      <div className="flex justify-around items-center h-16">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md Footer_style">
+      <div className="flex justify-around items-center h-16 icon_style">
 
-        <button onClick={() => navigate("/userDashboard")} className="flex flex-col items-center text-gray-600 hover:text-blue-500">
+        <button onClick={() => navigate("/userDashboard")} className="flex flex-col items-center  hover:text-white-500">
           <Home className="h-6 w-6" />
           <span className="text-xs">Home</span>
         </button>
 
-        <button onClick={() => navigate("/search")} className="flex flex-col items-center text-gray-600 hover:text-blue-500">
+        <button onClick={() => navigate("/search")} className="flex flex-col items-center  hover:text-white-500">
           <Search className="h-6 w-6" />
           <span className="text-xs">Search</span>
         </button>
 
-        <button onClick={() => navigate("/alerts")} className="flex flex-col items-center text-gray-600 hover:text-blue-500">
+        <button onClick={() => navigate("/alerts")} className="flex flex-col items-center  hover:text-white-500">
           <Bell className="h-6 w-6" />
           <span className="text-xs">Alerts</span>
         </button>
@@ -75,7 +75,7 @@ const UserMenu = () => {
         <div className="relative" ref={profileRef}>
           <button
             onClick={() => setShowProfile(!showProfile)}
-            className="flex flex-col items-center text-gray-600 hover:text-blue-500"
+            className="flex flex-col items-center  hover:text-blue-500"
           >
             <div className="h-6 w-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
               {user?.FullName?.split(" ").map((n) => n[0]).join("")}

@@ -10,33 +10,69 @@ const UserDashboard = () => {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [turnament, setTurnament] = useState([]);
 
+
+  // Time left calculation (countdown)
+  const getTimeLeft = (endDate) => {
+    const now = new Date();
+    const end = new Date(endDate);
+
+    const diff = end - now; // milliseconds
+    if (diff <= 0) return "Ended";
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+    if (days > 0) return `${days}d ${hours}h left`;
+    if (hours > 0) return `${hours}h ${minutes}m left`;
+    return `${minutes}m left`;
+  };
+
+
   const fatchtournament = async () => {
     const token = localStorage.getItem("token");
     const res = await GetTurnament(token);
 
     if (res?.status) {
-      const mappedData = res.data.map(item => ({
-        id: item._id,
-        name: item.name,
-        company: item.stocks?.[0]?.stock_name || "N/A", 
-        companyColor: "#2563eb",
-        partner: item.stocks?.[1]?.stock_name || "N/A",   // second stock
-        partnerColor: "#dc2626",
-        timeLeft: `${new Date(item.startdate).toLocaleDateString()} - ${new Date(item.enddate).toLocaleDateString()}`,
-        status: item.status,  // matches "upcoming" / "ongoing"
-        participants: 0,
-        prizePool: "₹0",
-        entryFee: "Free",
-        spots: "N/A",
-      }));
+      const now = new Date();
+
+      const mappedData = res.data.map(item => {
+        const start = new Date(item.startdate);
+        const end = new Date(item.enddate);
+
+        let status = "upcoming";
+        if (start > now) {
+          status = "upcoming";
+        } else if (start <= now && end >= now) {
+          status = "ongoing";
+        } else if (end < now) {
+          status = "completed";
+        }
+
+        return {
+          id: item._id,
+          name: item.name,
+          company: item.stocks?.[0]?.stock_name || "N/A",
+          companyColor: "#2563eb",
+          partner: item.stocks?.[1]?.stock_name || "N/A",
+          partnerColor: "#dc2626",
+          start: start,
+          end: end,
+          timeRange: `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`,
+          status,
+          participants: 0,
+          prizePool: "₹0",
+          entryFee: "Free",
+          spots: "N/A",
+        };
+
+      });
 
       setTurnament(mappedData);
     } else {
       toast.error(res?.message || "Failed to fetch tournaments");
     }
   };
-
-
 
   useEffect(() => {
     fatchtournament();
@@ -83,9 +119,9 @@ const UserDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 Anuj333 ">
 
-      <div className="relative px-4 pt-4">
+      <div className="relative px-4 pt-4 Anuj333">
         <div className="relative overflow-hidden rounded-2xl shadow-xl">
 
           <div
@@ -136,7 +172,7 @@ const UserDashboard = () => {
         </div>
       </div>
 
-      <div className="flex justify-around bg-white mt-4 mx-4 rounded-xl shadow-sm overflow-hidden">
+      <div className="flex justify-around bg-white mt-4 mx-4 rounded-xl shadow-sm overflow-hidden TAb_style">
         {[
           { key: "ongoing", label: "Live Contests", icon: Trophy },
           { key: "upcoming", label: "Upcoming", icon: Clock },
@@ -146,8 +182,8 @@ const UserDashboard = () => {
             key={key}
             onClick={() => setActiveTab(key)}
             className={`flex-1 py-4 px-2 font-medium text-sm transition-all duration-200 ${activeTab === key
-              ? "text-blue-600 bg-blue-50 border-b-2 border-blue-600"
-              : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+              ? " border-b-2 border-blue-600"
+              : ""
               }`}
           >
             <div className="flex flex-col items-center space-y-1">
@@ -163,22 +199,22 @@ const UserDashboard = () => {
           filteredContests.map((contest) => (
             <div
               key={contest.id}
-              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 card_style"
             >
 
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center space-x-3">
                   {getCompanyIcon(contest.company, contest.companyColor)}
                   <div>
-                    <p className="font-semibold text-gray-800">{contest.company}</p>
-                    <p className="text-xs text-gray-500">Primary Stock</p>
+                    <p className="font-semibold ">{contest.company}</p>
+                    <p className="text-xs">Primary Stock</p>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-3">
                   <div className="text-right">
-                    <p className="font-semibold text-gray-800">{contest.partner}</p>
-                    <p className="text-xs text-gray-500">Partner</p>
+                    <p className="font-semibold ">{contest.partner}</p>
+                    <p className="text-xs ">Partner</p>
                   </div>
                   {getCompanyIcon(contest.partner, contest.partnerColor)}
                 </div>
@@ -186,23 +222,29 @@ const UserDashboard = () => {
               </div>
 
 
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <div className="text-center p-2 bg-gray-50 rounded-lg">
-                  <p className="text-lg font-bold text-green-600">{contest.prizePool}</p>
-                  <p className="text-xs text-gray-500">Prize Pool</p>
+              <div className="grid grid-cols-3 gap-3 mb-4 ">
+                <div className="text-center p-2  rounded-lg border">
+                  <p className="text-lg font-bold  ">{contest.prizePool}</p>
+                  <p className="text-xs ">Prize Pool</p>
                 </div>
-                <div className="text-center p-2 bg-gray-50 rounded-lg">
-                  <p className="text-lg font-bold text-blue-600">{contest.entryFee}</p>
-                  <p className="text-xs text-gray-500">Entry Fee</p>
+
+                {/* Center Time Left */}
+                <div className="text-center p-2 rounded-lg border">
+                  <p className="text-lg font-bold ">
+                    {getTimeLeft(contest.end)}
+                  </p>
+                  <p className="text-xs ">Time Left</p>
                 </div>
-                <div className="text-center p-2 bg-gray-50 rounded-lg">
-                  <p className="text-lg font-bold text-purple-600 flex items-center justify-center">
+
+                <div className="text-center p-2  rounded-lg border">
+                  <p className="text-lg font-bold  flex items-center justify-center">
                     <Users className="w-4 h-4 mr-1" />
                     {contest.participants}
                   </p>
-                  <p className="text-xs text-gray-500">Participants</p>
+                  <p className="text-xs ">Participants</p>
                 </div>
               </div>
+
 
 
               <div className="flex justify-between items-center">

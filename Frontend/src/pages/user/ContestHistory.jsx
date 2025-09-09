@@ -62,15 +62,15 @@ function HistoryPage() {
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
 
   return (
-    <div className="bg-gray-50 min-h-screen flex flex-col">
+    <div className="bg-gray-50 min-h-screen flex flex-col hitstory_style">
       {/* Balance Card */}
-      <div className="max-w-4xl w-full mx-auto mt-6 bg-white shadow rounded-xl p-6 text-center">
+      <div className="max-w-4xl w-full mx-auto mt-6  shadow rounded-xl p-6 text-center Card-style">
         <div className="flex justify-center mb-2">
           <div className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center text-xl">
             ₹
           </div>
         </div>
-        <h2 className="text-lg font-semibold text-gray-600">Total Balance :</h2>
+        <h2 className="text-lg font-semibold ">Total Balance :</h2>
         <p className="text-2xl font-bold text-green-600">
           ₹{dummyBalance.totalBalance}
         </p>
@@ -78,12 +78,12 @@ function HistoryPage() {
         <div className="grid grid-cols-2 gap-4 mt-6">
           <div className="p-4 border rounded-lg text-center">
             <p className="text-orange-600 font-medium">Unutilized</p>
-            <p className="text-gray-600 text-sm">The Money You Add</p>
+            <p className=" text-sm">The Money You Add</p>
             <p className="font-bold text-orange-500">₹{dummyBalance.unutilized}</p>
           </div>
           <div className="p-4 border rounded-lg text-center">
             <p className="text-green-600 font-medium">P&L</p>
-            <p className="text-gray-600 text-sm">The Money You Win</p>
+            <p className=" text-sm">The Money You Win</p>
             <p className="font-bold text-green-500">₹{dummyBalance.pnl}</p>
           </div>
         </div>
@@ -126,7 +126,7 @@ function HistoryPage() {
             </div>
           ))
         ) : (
-          <p className="text-center text-gray-500">No trade history</p>
+          <p className="text-center ">No trade history</p>
         )}
       </div>
     </div>

@@ -152,7 +152,7 @@ function Tournament() {
                     <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
                     <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border bg-white peer-checked:translate-x-full transition-transform"></div>
                 </label>
-                
+
             ),
             width: "120px",
         },
@@ -209,13 +209,34 @@ function Tournament() {
         setLoading(true);
         const token = localStorage.getItem("token");
         const res = await GetTournament(token);
+
         if (res?.status) {
-            setTournament(res.data || []);
+            const now = new Date();
+
+            const updatedData = res.data.map((t) => {
+                const start = new Date(t.startdate);
+                const end = new Date(t.enddate);
+
+                let newStatus = t.status;
+
+                if (start > now) {
+                    newStatus = "upcoming";
+                } else if (start <= now && end >= now) {
+                    newStatus = "live";
+                } else if (end < now) {
+                    newStatus = "completed"; 
+                }
+
+                return { ...t, status: newStatus };
+            });
+
+            setTournament(updatedData);
         } else {
             toast.error(res?.message || "Failed to fetch");
         }
         setLoading(false);
     };
+
 
     useEffect(() => {
         fatchTournament();

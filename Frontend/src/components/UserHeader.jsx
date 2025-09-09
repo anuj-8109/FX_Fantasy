@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Sun, Moon, Bell, Wallet } from "lucide-react";
 
 const UserHeader = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState("theme-trading-light");
 
 
   const toggleTheme = () => {
