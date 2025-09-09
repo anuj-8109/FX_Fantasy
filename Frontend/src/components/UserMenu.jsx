@@ -48,7 +48,7 @@ const UserMenu = () => {
         timer: 2000,
         showConfirmButton: false,
       });
-      navigate("/userlogin");
+      navigate("/");
     }
   };
 

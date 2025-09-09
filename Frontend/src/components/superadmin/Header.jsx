@@ -43,9 +43,9 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
     // localStorage.removeItem("user");
     // localStorage.removeItem("isLoggedIn");
     if (roleId === "1") {
-      navigate("/");      
+      navigate("/SuperAdminLogin");      
     } else {
-      navigate("/userlogin");  
+      navigate("/");  
     }
   };
 
@@ -87,7 +87,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
           htmlContainer: "text-gray-600",
         },
       });
-      navigate("/");
+      navigate("/SuperAdminLogin");
     }
 
   };

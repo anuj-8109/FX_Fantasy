@@ -11,6 +11,8 @@ const UserProfile = () => {
     const [formData, setFormData] = useState({ fullName: "" });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [name,setname] = useState("Anuj")
+    
 
     const token = localStorage.getItem("token");
     const id = localStorage.getItem("userId");
@@ -123,7 +125,7 @@ const UserProfile = () => {
 
                                         <div className="border rounded-lg p-3">
                                             <p className="text-xs">Username</p>
-                                            <p>{userDetails?.UserName || "Not specified"}</p>
+                                            <p>{name|| "Not specified"}</p>
                                         </div>
 
                                         <div className="border rounded-lg p-3">

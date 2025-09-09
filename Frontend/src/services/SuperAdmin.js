@@ -1297,5 +1297,5 @@ export async function PassWordChange(token, data) {
 
 const logout = () => {
   localStorage.clear();
-  window.location.href = "/";
+  window.location.href = "/SuperAdminLogin";
 };

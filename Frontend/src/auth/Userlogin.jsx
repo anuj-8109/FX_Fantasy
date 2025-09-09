@@ -4,9 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { UserLoginApi, LoginWithOtpApi } from "../services/Auth";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
+import { FaFacebookF, FaGoogle } from "react-icons/fa";
 
 const UserLogin = () => {
-  
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     UserName: "",
@@ -18,6 +19,7 @@ const UserLogin = () => {
   const [checked, setChecked] = useState(false);
   const [timer, setTimer] = useState(30);
   const inputRefs = useRef([]);
+  const [showOtherOptions, setShowOtherOptions] = useState(false);
 
   const validationSchema = Yup.object({
     UserName: Yup.string().required("Phone number is required"),
@@ -93,7 +95,7 @@ const UserLogin = () => {
 
     setIsLoading(true);
     try {
-      const response = await UserLoginApi({ PhoneNo: formData.UserName  });
+      const response = await UserLoginApi({ PhoneNo: formData.UserName });
       if (response.status === true) {
 
 
@@ -117,25 +119,25 @@ const UserLogin = () => {
   };
 
   const handleVerifyOtp = async (e) => {
-    
+
     e.preventDefault();
     if (!(await validateForm())) return;
 
     setIsLoading(true);
     try {
-      
+
       const response = await LoginWithOtpApi({
         PhoneNo: formData.UserName,
         otp: formData.otp,
       });
-       localStorage.setItem("token", response?.data?.tokenjwt);
+      localStorage.setItem("token", response?.data?.tokenjwt);
 
       console.log("OTP Verify Response:", response);
 
       if (response.status === true && response.data) {
         const user = response.data;
 
-      
+
         const token = user.jwtToken;
 
         if (!token) {
@@ -144,7 +146,7 @@ const UserLogin = () => {
           return;
         }
 
-     
+
         const roleId = 3;
 
         localStorage.setItem("token", token);
@@ -159,7 +161,7 @@ const UserLogin = () => {
         });
 
         setTimeout(() => {
-          navigate("/userDashboard"); 
+          navigate("/setname");
         }, 1000);
       } else {
         Swal.fire("Error", response?.message?.message || "Invalid OTP");
@@ -227,8 +229,8 @@ const UserLogin = () => {
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   ref={(el) => (inputRefs.current[index] = el)}
                   className={`w-12 h-12 text-center text-xl font-bold border rounded ${formData.otp[index]
-                      ? "bg-orange-500 text-white"
-                      : "bg-white-100"
+                    ? "bg-orange-500 text-white"
+                    : "bg-white-100"
                     }`}
                 />
               ))}
@@ -253,7 +255,7 @@ const UserLogin = () => {
           </div>
         )}
 
-        {/* Checkbox */}
+
         {!otpSent && (
           <div className="flex items-center justify-start mb-4">
             <input
@@ -269,7 +271,7 @@ const UserLogin = () => {
           </div>
         )}
 
-        {/* Button */}
+
         <button
           onClick={otpSent ? handleVerifyOtp : handleSendOtp}
           disabled={isLoading}
@@ -293,10 +295,27 @@ const UserLogin = () => {
                 Have an Invite Code?
               </a>{" "}
               |{" "}
-              <a href="#" className="text-blue-600 hover:underline">
+              <button
+                type="button"
+                onClick={() => setShowOtherOptions(!showOtherOptions)}
+                className="text-blue-600 hover:underline"
+              >
                 Other login options
-              </a>
+              </button>
             </div>
+
+
+            {showOtherOptions && (
+              <div className="mt-4 flex items-center justify-center gap-4">
+                <button className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full hover:bg-blue-700">
+                  <FaFacebookF size={20} />
+                </button>
+                <button className="flex items-center justify-center w-12 h-12 bg-red-500 text-white rounded-full hover:bg-red-600">
+                  <FaGoogle size={20} />
+                </button>
+              </div>
+            )}
+
           </>
         )}
       </div>

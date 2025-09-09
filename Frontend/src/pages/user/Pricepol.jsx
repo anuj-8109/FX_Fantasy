@@ -231,9 +231,9 @@ function Pricepol() {
                     >
                       <div className="flex justify-between items-start mb-4">
                         <div>
-                          <h2 className="font-bold text-orange-700 text-lg">{contest.name}</h2>
+                          <h2 className="font-bold text-orange-700 text-lg">{contest?.name}</h2>
                           <p className="text-sm text-gray-600 mt-1">
-                            Tournament: <span className="text-indigo-600">{contest.tournament_id.name}</span>
+                            Tournament: <span className="text-indigo-600">{contest?.tournament_id?.name}</span>
                           </p>
                         </div>
                         <button
