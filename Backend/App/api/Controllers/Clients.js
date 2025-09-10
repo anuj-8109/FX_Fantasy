@@ -13,6 +13,7 @@ const Adminnotification_Modal = db.Adminnotification;
 const Smstemplate_Modal = db.Smstemplate;
 const Ticket_Modal = db.Ticket;
 const Ticketmessage_Modal = db.Ticketmessage;
+const Wallet_Modal = db.Wallet;
 
 const { sendSMS } = require('../../Utils/smsHelper');
 const upload = require('../../Utils/multerHelper');
@@ -840,6 +841,90 @@ async  updateClientProfile(req, res) {
     });
 
   } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
+
+async  addMoneyInWallet(req, res) {
+  try {
+    const { client_id, amount, remark } = req.body;
+
+    if (!client_id || !amount) {
+      return res.status(400).json({
+        status: false,
+        message: "client_id and amount are required",
+      });
+    }
+
+    // Transaction create in wallet history
+    const walletEntry = new Wallet_Modal({
+      client_id,
+      amount,
+      type: "credit",
+      remark: remark || "Money added",
+    });
+    await walletEntry.save();
+
+    // Update client balance
+    await Clients_Modal.findByIdAndUpdate(
+      client_id,
+      { $inc: { wamount: amount } }, // increment balance
+      { new: true }
+    );
+
+    return res.status(200).json({
+      status: true,
+      message: "Money added to wallet successfully",
+      data: walletEntry,
+    });
+  } catch (error) {
+    console.error("Error adding money in wallet:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
+async getWalletHistory(req, res) {
+  try {
+    const { client_id, page = 1 } = req.body;
+    const limit = 10;
+
+    if (!client_id) {
+      return res.status(400).json({
+        status: false,
+        message: "client_id is required",
+      });
+    }
+
+    const pageNum = parseInt(page) || 1;
+    const skip = (pageNum - 1) * limit;
+
+    const history = await Wallet_Modal.find({ client_id })
+      .populate("client_id", "name email wallet_balance")
+      .sort({ created_at: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Wallet_Modal.countDocuments({ client_id });
+
+    return res.status(200).json({
+      status: true,
+      message: "Wallet history fetched successfully",
+      page: pageNum,
+      limit,
+      total,
+      data: history,
+    });
+  } catch (error) {
+    console.error("Error fetching wallet history:", error);
     return res.status(500).json({
       status: false,
       message: "Server error",
