@@ -562,7 +562,7 @@ const limit = 10;
     // Fetch trades
     const trades = await Contesttrade_Modal.find(filter)
       .populate("contest_id", "name startdate enddate") // contest detail
-      .populate("client_id", "name email") // client detail
+      .populate("client_id", "FullName Email PhoneNo") // client detail
       .sort({ trade_time: -1 }) // latest first
       .skip(skip)
       .limit(limitNum);
