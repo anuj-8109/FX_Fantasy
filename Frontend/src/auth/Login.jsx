@@ -93,7 +93,7 @@ const Login = () => {
             navigate("/Client/Clientdashboard");
           }
           else {
-            navigate("/SuperAdminLogin");
+            navigate("/superadminlogin");
           }
         });
       } else {
@@ -153,7 +153,7 @@ const Login = () => {
               ))}
             </div>
 
-      
+
             <div className="relative z-10 flex flex-col justify-center items-start p-8 text-white">
               <div className="w-12 h-12 bg-white rounded-full mb-8 flex items-center justify-center">
                 <div className="w-6 h-6 bg-red-600 rounded-full"></div>
@@ -242,11 +242,13 @@ const Login = () => {
                   <div className="text-right mt-2">
                     <button
                       type="button"
+                      onClick={() => navigate("/forgetpassword")} 
                       className="text-sm text-gray-500 hover:text-gray-700"
                     >
                       Forgot your password?
                     </button>
                   </div>
+
                 </div>
 
                 <button

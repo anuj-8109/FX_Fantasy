@@ -290,12 +290,12 @@ const Coupons = () => {
           </button>
         </div> */}
 
-        <div className="shadow-lg rounded-xl p-4 ">
+        <div className="shadow-lg  rounded-xl p-4 ">
           <Datatable columns={columns} data={coupons} title="Coupons List" onRefresh={fetchCoupons} />
         </div>
 
         {open && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 ">
             <div className="w-full max-w-2xl max-h-[85vh] mt-10 overflow-y-auto rounded-2xl shadow-2xl p-6 Add-client-style hide-scrollbar">
               <h2 className="text-lg font-semibold mb-4 border-b pb-2">
                 {selectedCoupon ? "✏️ Edit Coupon" : "➕ Add Coupon"}

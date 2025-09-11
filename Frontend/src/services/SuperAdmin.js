@@ -145,9 +145,9 @@ export async function UpdateProfile(token, data) {
   }
 }
 
-export async function ForgotPassword(token, email) {
+export async function ForgotPassword(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}user/forgot-password`, email, {
+    const response = await axios.post(`${config.base_url}user/forgot-password`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -1371,6 +1371,8 @@ export async function ticketstatus(token, data) {
 }
 
 
+// Forgetpassword
+
 
 
 
@@ -1379,5 +1381,5 @@ export async function ticketstatus(token, data) {
 
 const logout = () => {
   localStorage.clear();
-  window.location.href = "/SuperAdminLogin";
+  window.location.href = "/superadminlogin";
 }; 

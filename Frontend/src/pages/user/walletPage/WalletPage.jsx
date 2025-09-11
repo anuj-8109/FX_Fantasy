@@ -1,18 +1,20 @@
 import React, { useState } from "react";
-import { PlusCircle, ArrowUp, Clock, Gift, Lock } from "lucide-react";
+import { PlusCircle, ArrowUp, Clock } from "lucide-react";
 import Swal from "sweetalert2";
 
 const WalletPage = () => {
-  const tabs = [
-    { id: "add", title: "Add Money", icon: <PlusCircle size={20} /> },
-    { id: "withdraw", title: "Withdraw", icon: <ArrowUp size={20} /> },
-    { id: "history", title: "Transaction History", icon: <Clock size={20} /> },
-    { id: "offers", title: "Offers & Rewards", icon: <Gift size={20} /> },
-    { id: "security", title: "Security Settings", icon: <Lock size={20} /> },
-  ];
+  const [activeSection, setActiveSection] = useState(""); 
+  const [historyView, setHistoryView] = useState("all"); 
 
-  const [activeTab, setActiveTab] = useState("add");
+  const [addHistory] = useState([
+    { id: 1, amount: 500, date: "2025-09-10 12:30 PM" },
+    { id: 2, amount: 1000, date: "2025-09-09 03:20 PM" },
+  ]);
 
+  const [withdrawHistory] = useState([
+    { id: 1, amount: 200, date: "2025-09-11 09:10 AM" },
+    { id: 2, amount: 300, date: "2025-09-08 05:45 PM" },
+  ]);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -24,7 +26,6 @@ const WalletPage = () => {
     });
   };
 
-
   const handlePayment = async () => {
     const res = await loadRazorpayScript();
     if (!res) {
@@ -33,8 +34,8 @@ const WalletPage = () => {
     }
 
     const options = {
-      key: "rzp_test_22mEHcDzJbcUmz", 
-      amount: 50000, 
+      key: "rzp_test_22mEHcDzJbcUmz",
+      amount: 50000,
       currency: "INR",
       name: "Dream Trading",
       description: "Add Money Payment",
@@ -55,95 +56,137 @@ const WalletPage = () => {
     paymentObject.open();
   };
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case "add":
-        return (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Add Money</h2>
-            <p className="mb-4">Choose a payment method to add funds to your wallet.</p>
-            <div className="space-y-3">
-              <button 
-                onClick={handlePayment}
-                className="w-full p-3 bg-orange-500 text-white rounded hover:bg-orange-600 transition"
-              >
-                Click To Add Money
-              </button>
-              {/* <button 
-                onClick={handlePayment}
-                className="w-full p-3 bg-orange-500 text-white rounded hover:bg-orange-600 transition"
-              >
-                Debit / Credit Card
-              </button>
-              <button className="w-full p-3 bg-orange-500 text-white rounded hover:bg-orange-600 transition">
-                Wallet Transfer
-              </button> */}
-            </div>
-          </div>
-        );
-      case "withdraw":
-        return (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Withdraw</h2>
-            <p className="mb-4">Enter your bank details to withdraw funds.</p>
-            <form className="space-y-4">
-              <input type="text" placeholder="Account Number" className="w-full p-3 border rounded" />
-              <input type="text" placeholder="IFSC Code" className="w-full p-3 border rounded" />
-              <input type="text" placeholder="Amount" className="w-full p-3 border rounded" />
-              <button type="submit" className="w-full p-3 bg-orange-500 text-white rounded hover:bg-orange-600 transition">
-                Submit
-              </button>
-            </form>
-          </div>
-        );
-      case "history":
-        return (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Transaction History</h2>
-            <p>No transactions yet.</p>
-          </div>
-        );
-      case "offers":
-        return (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Offers & Rewards</h2>
-            <p>Check out our latest offers and reward schemes!</p>
-          </div>
-        );
-      case "security":
-        return (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Security Settings</h2>
-            <p>Update your password or enable 2FA for more security.</p>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
-    <div className="p-6 max-w-2xl mx-auto mt-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold text-orange-500 mb-6">Wallet</h1>
+    <div className="p-6 max-w-3xl mx-auto mt-6 bg-white rounded-lg shadow-md space-y-6">
+      <h1 className="text-2xl font-bold text-orange-500">Wallet</h1>
 
-      <div className="flex border-b border-orange-200 mb-6">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 -mb-px border-b-2 ${
-              activeTab === tab.id
-                ? "border-orange-500 text-orange-600"
-                : "border-transparent hover:text-orange-500"
-            } transition`}
-          >
-            {tab.icon}
-            {tab.title}
-          </button>
-        ))}
+      {/* Add Money Section */}
+      <div className="border p-4 rounded shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <PlusCircle size={24} className="text-orange-600" />
+          <h2 className="text-lg font-semibold text-orange-600">Add Money</h2>
+        </div>
+        <button
+          onClick={() =>
+            setActiveSection(activeSection === "add" ? "" : "add")
+          }
+          className="px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition"
+        >
+          {activeSection === "add" ? "Close" : "Open"}
+        </button>
+
+        {activeSection === "add" && (
+          <div className="mt-3">
+            <button
+              onClick={handlePayment}
+              className="px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition"
+            >
+              Proceed to Pay
+            </button>
+          </div>
+        )}
       </div>
 
-      <div>{renderContent()}</div>
+      {/* Withdraw Section */}
+      <div className="border p-4 rounded shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <ArrowUp size={24} className="text-orange-600" />
+          <h2 className="text-lg font-semibold text-orange-600">Withdraw</h2>
+        </div>
+        <button
+          onClick={() =>
+            setActiveSection(activeSection === "withdraw" ? "" : "withdraw")
+          }
+          className="px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition"
+        >
+          {activeSection === "withdraw" ? "Close" : "Open"}
+        </button>
+
+        {activeSection === "withdraw" && (
+          <form className="mt-3 space-y-3">
+            <input
+              type="text"
+              placeholder="Account Number"
+              className="w-full p-2 text-sm border rounded"
+            />
+            <input
+              type="text"
+              placeholder="IFSC Code"
+              className="w-full p-2 text-sm border rounded"
+            />
+            <input
+              type="text"
+              placeholder="Amount"
+              className="w-full p-2 text-sm border rounded"
+            />
+            <button
+              type="submit"
+              className="w-full p-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition"
+            >
+              Submit
+            </button>
+          </form>
+        )}
+      </div>
+
+      {/* Transaction History Section */}
+      <div className="border p-4 rounded shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <Clock size={24} className="text-orange-600" />
+          <h2 className="text-lg font-semibold text-orange-600">Transaction History</h2>
+        </div>
+
+        {/* Dropdown Buttons */}
+        <div className="flex gap-2 mb-4">
+          {["all", "add", "withdraw"].map((type) => (
+            <button
+              key={type}
+              onClick={() => setHistoryView(type)}
+              className={`px-3 py-1 text-sm rounded ${
+                historyView === type
+                  ? "bg-orange-500 text-white"
+                  : "bg-orange-100 text-orange-600 hover:bg-orange-200"
+              }`}
+            >
+              {type === "all"
+                ? "All"
+                : type === "add"
+                ? "Add"
+                : "Withdraw"}
+            </button>
+          ))}
+        </div>
+
+        {/* History List */}
+        <div className="max-h-60 overflow-y-auto space-y-3">
+          {(historyView === "all"
+            ? [...addHistory, ...withdrawHistory].sort(
+                (a, b) => new Date(b.date) - new Date(a.date)
+              )
+            : historyView === "add"
+            ? addHistory
+            : withdrawHistory
+          ).map((item) => (
+            <div
+              key={item.id + historyView}
+              className="p-3 border rounded hover:bg-orange-50 transition"
+            >
+              <p className="text-sm">
+                Amount: ₹{item.amount}{" "}
+                <span className="text-xs text-gray-500">({item.date})</span>
+              </p>
+            </div>
+          ))}
+          {(historyView === "all"
+            ? [...addHistory, ...withdrawHistory]
+            : historyView === "add"
+            ? addHistory
+            : withdrawHistory
+          ).length === 0 && (
+            <p className="text-gray-500 text-sm">No transactions found.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

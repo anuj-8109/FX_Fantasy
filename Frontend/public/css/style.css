@@ -260,3 +260,8 @@ aside {
 
 }
 
+.theme-trading-light{
+    .Add-client-style{
+        background-color: white;
+    }
+}
