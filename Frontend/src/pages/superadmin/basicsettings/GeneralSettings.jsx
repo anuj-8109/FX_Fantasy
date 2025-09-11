@@ -125,7 +125,7 @@ const GeneralSettings = () => {
     <Content
       Page_title="General Settings"
       button_title="back"
-       route="/superadmin/superadmindashboard"
+       route="/superadmin/dashboard"
       button_status={true}
     >
       <div className="max-w-4xl mx-auto Content_Style">

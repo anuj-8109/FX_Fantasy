@@ -56,7 +56,7 @@ const UserMenu = () => {
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md Footer_style">
       <div className="flex justify-around items-center h-16 icon_style">
 
-        <button onClick={() => navigate("/userDashboard")} className="flex flex-col items-center  hover:text-white-500">
+        <button onClick={() => navigate("/dashboard")} className="flex flex-col items-center  hover:text-white-500">
           <Home className="h-6 w-6" />
           <span className="text-xs">Home</span>
         </button>

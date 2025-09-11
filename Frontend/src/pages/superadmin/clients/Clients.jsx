@@ -242,7 +242,7 @@ const Client = () => {
 
   return (
     <Content Page_title="Client Management" button_title="back" button_status={true}
-      route={"/superadmin/superadmindashboard"} extra_button="Add Client"
+      route={"/superadmin/dashboard"} extra_button="Add Client"
       extra_button_action={handleOpen} >
       <div className="p-2 ">
         <div className="shadow-lg rounded-xl p-4">

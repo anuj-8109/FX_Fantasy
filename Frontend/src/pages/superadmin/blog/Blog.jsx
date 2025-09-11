@@ -239,7 +239,7 @@ const Blog = () => {
       Page_title="All Blogs"
       button_title="back"
       button_status={true}
-      route="/superadmin/superadmindashboard"
+      route="/superadmin/dashboard"
        extra_button="+ Add Blog" extra_button_action={handleOpen}
     >
       <div className="p-2 ">

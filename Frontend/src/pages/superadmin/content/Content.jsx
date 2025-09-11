@@ -198,7 +198,7 @@ const Contents = () => {
       Page_title="All Contents"
       button_title="back"
       button_status={true}
-      route="/superadmin/superadmindashboard"
+      route="/superadmin/dashboard"
       extra_button="+ Add Content" extra_button_action={handleOpen}
     >
       <div className="p-2 ">

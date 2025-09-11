@@ -97,7 +97,7 @@ const EmailTemplates = () => {
     <Content
       Page_title="Email Templates"
       button_title="back"
-      route="/superadmin/superadmindashboard"
+      route="/superadmin/dashboard"
       button_status={true}
     >
       <div className="p-6 min-h-screen">

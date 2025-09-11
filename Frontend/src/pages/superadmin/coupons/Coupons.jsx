@@ -269,7 +269,7 @@ const Coupons = () => {
       Page_title="Coupon Management"
       button_title="back"
       button_status={true}
-      route="/superadmin/superadmindashboard"
+      route="/superadmin/dashboard"
        extra_button="+ Add Coupon" extra_button_action={handleOpen}
     >
       <div className="p-2 ">

@@ -45,7 +45,7 @@ const SetToPlay = () => {
                     onClick={() => {
                         handleSave();
                         if (token) {
-                            navigate("/userDashboard");
+                            navigate("/dashboard");
                         }
                     }}
                     className="w-40 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition"
