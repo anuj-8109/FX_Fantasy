@@ -9,7 +9,7 @@ import Pricepol from "../pages/user/Pricepol";
 import HistoryPage from "../pages/user/ContestHistory";
 import UserProfile from "../pages/user/profile/UserProfile";
 
-
+import HelpDesk from "../pages/user/helpdesk/HelpDesk";
 
 const UserRoutes = () => {
   return (
@@ -21,7 +21,7 @@ const UserRoutes = () => {
         <Route path="pricepol" element={<Pricepol />} />
         <Route path="history" element={<HistoryPage />} />
         <Route path="profile" element={<UserProfile />} />
-    
+          <Route path="helpdesk" element={<HelpDesk />} />
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
       
         {/* <Route path="analytics" element={<Analytics />} />
