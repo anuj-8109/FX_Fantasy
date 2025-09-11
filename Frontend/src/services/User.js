@@ -1,6 +1,7 @@
 
 import axios from "axios";
 import * as config from "../utils/config";
+import { LucideTicketsPlane, Ticket } from "lucide-react";
 
 // tournament service
 
@@ -124,5 +125,62 @@ export async function GetUserDetails(token, id) {
   } catch (error) {
     console.error("API error", error?.response || error);
     return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+// for Ticket Status 
+
+// get Ticket
+
+export async function GetTicket(token, clientId) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/client/gettickets`,
+      { clientId: clientId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+
+
+
+// Add Ticket
+
+export async function addTicket(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}api/client/addticket`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+   return response?.data
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+// Ticketdetails
+
+export async function getticketDetail(token, ticketId){
+  try {
+    const response = await axios.get(`${config.base_url}api/client/ticketdetail/${ticketId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    return response?.data;
+  } catch (error) {
+     return error?.response?.data || { status: false, message: "Unknown error" };
   }
 }

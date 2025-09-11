@@ -26,7 +26,7 @@ const SuperAdminLayout = () => {
 
       <div className="w-full max-w-4xl">
 
-        <header className="fixed top-0  left-1/2 -translate-x-1/2 w-full max-w-4xl h-16 z-50 shadow bg-white">
+        <header className="fixed top-0  left-1/2 -translate-x-1/2 w-full max-w-4xl h-12 z-50 shadow bg-white">
           <UserHeader collapsed={collapsed} setCollapsed={setCollapsed} />
         </header>
 
