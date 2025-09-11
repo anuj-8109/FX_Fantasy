@@ -187,9 +187,82 @@ aside {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+
 }
 
 .Usertheme .wrapper {
     width: 80vw;
     margin: 0px auto;
+}
+
+/* 
+.theme-trading-pro .Anuj333 {
+    background: #0F172A;
+} */
+
+/* .theme-trading-pro .Usertheme {
+    background: linear-gradient(180deg, #F3F4F6, #FFFFFF);
+} */
+
+/* .theme-trading-pro header {
+    background-color: #0F172A;
+} */
+
+.theme-trading-pro {
+
+    .Anuj333 {
+        background: #0F172A;
+    }
+
+    header {
+        background-color: #172341;
+        color: #F9FAFB;
+    }
+
+    .TAb_style {
+        background-color: #172341;
+        color: #F9FAFB;
+    }
+
+    .card_style {
+        background-color: #172341;
+        color: #F9FAFB;
+    }
+
+    .Footer_style {
+        background-color: #172341;
+        color: #F9FAFB;
+    }
+
+    .icon_style {
+        color: white;
+    }
+
+    .PricePool_style {
+        background-color: #172341;
+        color: #F9FAFB;
+    }
+
+    .Card-style {
+        background-color: #172341;
+        color: #F9FAFB;
+    }
+
+    .hitstory_style {
+        background-color: #172341;
+        color: #F9FAFB;
+    }
+
+    .Usertheme {
+        background-color: #172341;
+        color: #F9FAFB;
+    }
+
+}
+
+.theme-trading-light {
+    .Footer_style {
+        background-color: #3b82f6;
+        color: #F9FAFB;
+    }
 }

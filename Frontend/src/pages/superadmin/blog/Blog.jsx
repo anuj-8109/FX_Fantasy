@@ -239,6 +239,7 @@ const Blog = () => {
       Page_title="All Blogs"
       button_title="back"
       button_status={true}
+      route="/superadmin/superadmindashboard"
        extra_button="+ Add Blog" extra_button_action={handleOpen}
     >
       <div className="p-2 ">
@@ -258,7 +259,7 @@ const Blog = () => {
         </div> */}
 
         <div className="shadow-lg rounded-xl p-4 bg-#1E293B">
-          <Datatable columns={columns} data={blogs} title="Blogs List" />
+          <Datatable columns={columns} data={blogs} title="Blogs List" onRefresh={fetchBlogs} />
         </div>
 
         {open && (

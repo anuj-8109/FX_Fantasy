@@ -61,7 +61,6 @@ if (ticket && ticket.status === 0) {
             });
     
         } catch (error) {
-            // console.log("Server error:", error);
             return res.status(500).json({ status: false, message: "Server error", data: [] });
         }
     }
@@ -215,7 +214,6 @@ if (ticket && ticket.status === 0) {
           });
       
         } catch (error) {
-        //  console.error("getTicketDetailById error:", error);
           return res.status(500).json({
             status: false,
             message: "Server Error",
@@ -247,7 +245,6 @@ if (ticket && ticket.status === 0) {
                 message: "Ticket deleted successfully"
             });
         } catch (error) {
-            // console.log("Error deleting Bank:", error);
             return res.status(500).json({
                 status: false,
                 message: "Server error",
@@ -304,7 +301,6 @@ if(parsedStatus===2) {
             });
       
         } catch (error) {
-            // console.log("Error updating status:", error);
             return res.json({
                 status: false,
                 message: "Server error",

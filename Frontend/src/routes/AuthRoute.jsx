@@ -5,14 +5,16 @@ import AuthLayout from "../layouts/AuthLayout";
 import Login from "../auth/Login";
 import Register from "../auth/Register";
 import UserLogin from "../auth/Userlogin";
+import SetToPlay from "../pages/user/SetName";
 
 const AuthRoute = () => {
   return (
     <>
       <Route element={<AuthLayout />}>
-        <Route path="/" element={<Login />} />
+        <Route path="/SuperAdminLogin" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/userlogin" element={<UserLogin/>}/>
+        <Route path="/" element={<UserLogin/>}/>
+        <Route path="/setname" element={<SetToPlay/>}/>
       </Route>
       
     </>

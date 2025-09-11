@@ -22,7 +22,7 @@ const SuperAdminLayout = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex flex-col min-h-screen items-center">
+    <div className="flex flex-col min-h-screen items-center Anuj333">
 
       <div className="w-full max-w-4xl">
 

@@ -198,6 +198,7 @@ const Contents = () => {
       Page_title="All Contents"
       button_title="back"
       button_status={true}
+      route="/superadmin/superadmindashboard"
       extra_button="+ Add Content" extra_button_action={handleOpen}
     >
       <div className="p-2 ">
@@ -215,7 +216,7 @@ const Contents = () => {
           </button>
         </div> */}
         <div className="shadow-lg rounded-xl p-4 bg-#1E293B">
-          <Datatable columns={columns} data={contents} title="Contents List" />
+          <Datatable columns={columns} data={contents} title="Contents List" onRefresh={fetchContent} />
         </div>
 
         {open && (

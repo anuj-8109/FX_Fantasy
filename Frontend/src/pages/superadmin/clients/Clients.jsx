@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import Content from "../../../components/superadmin/Content";
 
+
 const Client = () => {
   const [clients, setClients] = useState([]);
   const [open, setOpen] = useState(false);
@@ -245,7 +246,7 @@ const Client = () => {
       extra_button_action={handleOpen} >
       <div className="p-2 ">
         <div className="shadow-lg rounded-xl p-4">
-          <Datatable columns={columns} data={clients} title="Client List" />
+          <Datatable columns={columns} data={clients} title="Client List" onRefresh={fetchClients} />
         </div>
 
         {open && (

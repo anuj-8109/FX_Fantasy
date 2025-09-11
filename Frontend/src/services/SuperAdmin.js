@@ -1254,7 +1254,7 @@ export async function UpdateTournamentStatus(data, token) {
   }
 }
 
-export async function UpdateTournamentStatusActive(data,token ) {
+export async function UpdateTournamentStatusActive(data, token) {
   try {
     const response = await axios.post(`${config.base_url}tournament/change-status-active`, data, {
       headers: {
@@ -1268,6 +1268,27 @@ export async function UpdateTournamentStatusActive(data,token ) {
 }
 
 
+// ChangePassword
+export async function PassWordChange(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}user/change-password`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    console.error("Password change API error", error?.response || error);
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+
 
 
 
@@ -1276,5 +1297,5 @@ export async function UpdateTournamentStatusActive(data,token ) {
 
 const logout = () => {
   localStorage.clear();
-  window.location.href = "/";
-};
+  window.location.href = "/SuperAdminLogin";
+}; 

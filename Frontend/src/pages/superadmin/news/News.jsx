@@ -234,6 +234,7 @@ const News = () => {
     <Content
       Page_title="All News"
       button_title="back"
+      route="/superadmin/superadmindashboard"
       button_status={true}
       extra_button="+ Add News" extra_button_action={handleOpen}
     >
@@ -254,7 +255,7 @@ const News = () => {
         </div> */}
 
         <div className="shadow-lg rounded-xl p-4 ">
-          <Datatable columns={columns} data={news} title="News List" />
+          <Datatable columns={columns} data={news} title="News List" onRefresh={fetchNews} />
         </div>
 
         {open && (

@@ -269,6 +269,7 @@ const Coupons = () => {
       Page_title="Coupon Management"
       button_title="back"
       button_status={true}
+      route="/superadmin/superadmindashboard"
        extra_button="+ Add Coupon" extra_button_action={handleOpen}
     >
       <div className="p-2 ">
@@ -288,7 +289,7 @@ const Coupons = () => {
         </div> */}
 
         <div className="shadow-lg rounded-xl p-4 ">
-          <Datatable columns={columns} data={coupons} title="Coupons List" />
+          <Datatable columns={columns} data={coupons} title="Coupons List" onRefresh={fetchCoupons} />
         </div>
 
         {open && (

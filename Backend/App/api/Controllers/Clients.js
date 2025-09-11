@@ -642,13 +642,10 @@ async LoginWithOTP(req, res) {
       }
     }
 
-    // --- Generate OTP ---
     const otp = Math.floor(100000 + Math.random() * 900000);
       otpStore.set(PhoneNo, { otp, expires: Date.now() + 5 * 60 * 1000 });
 
-    // TODO: SMS bhejna hai to yaha sendSMS(PhoneNo, otp) call karo
-    console.log(`OTP for ${PhoneNo}: ${otp}`);
-    // --- Send OTP if SMS Provider is active ---
+  
     if (String(settings.smsprovider) === '1') {
       const smstemplate = await Smstemplate_Modal.findOne({ sms_type: "otp" });
 
@@ -672,7 +669,6 @@ async LoginWithOTP(req, res) {
     });
 
   } catch (error) {
-    console.error("LoginWithOTP Error:", error);
     return res.status(500).json({ status: false, message: "Server error. Please try again later." });
   }
 }
@@ -692,7 +688,7 @@ async otpSubmitWithPhone(req, res) {
 
 
   const record = otpStore.get(PhoneNo);
-  console.log('record', record);
+  
   if (!record) {
     return res.status(400).json({ status: false, message: "OTP not found" });
   }
@@ -761,7 +757,6 @@ async otpSubmitWithPhone(req, res) {
       },
     });
   } catch (error) {
-    console.error("OTP Submit Error:", error);
     return res.status(500).json({
       status: false,
       message: "Server error",
@@ -845,7 +840,6 @@ async  updateClientProfile(req, res) {
     });
 
   } catch (error) {
-    console.error("Profile Update Error:", error);
     return res.status(500).json({
       status: false,
       message: "Server error",

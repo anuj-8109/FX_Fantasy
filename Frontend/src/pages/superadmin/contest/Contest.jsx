@@ -26,7 +26,7 @@ const Contest = () => {
   const [viewOpen, setViewOpen] = useState(false);
   const [viewContest, setViewContest] = useState(null);
 
-  
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [entryFee, setEntryFee] = useState("");
@@ -250,7 +250,7 @@ const Contest = () => {
         <label className="relative inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
-            checked={row.status === "live" }
+            checked={row.status === "live"}
             onChange={() => handleStatusChange(row)}
             className="sr-only peer"
           />
@@ -296,13 +296,13 @@ const Contest = () => {
 
 
   return (
-    <Content Page_title="Contest Management" button_title="back" button_status={true} 
-    extra_button="Add Contest" extra_button_action={"/superadmin/add-contest"}
+    <Content Page_title="Contest Management" button_title="back" button_status={true}
+      extra_button="Add Contest" extra_button_action={"/superadmin/add-contest"} route="/superadmin/superadmindashboard"
     >
       <div className="p-2 ">
 
         <div className="shadow-lg rounded-xl p-4">
-          <Datatable columns={columns} data={contests} title="Contest List" />
+          <Datatable columns={columns} data={contests} title="Contest List" onRefresh={fetchContests} />
         </div>
 
 

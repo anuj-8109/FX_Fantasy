@@ -37,13 +37,10 @@ else if(name=="smartping")
 }
 
   const url = `${urls}?${config}`;
-  console.log('SMS URL:', url);
   try {
     const response = await axios.get(url);
-  console.log('SMS Response:', response.data);
     return response.data;
   } catch (error) {
-   console.log('SMS Send Error:', error.response?.data || error.message);
     return error.message;
   }
 

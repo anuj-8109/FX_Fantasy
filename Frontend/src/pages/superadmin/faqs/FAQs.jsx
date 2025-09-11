@@ -243,7 +243,7 @@ const FAQs = () => {
 
   return (
     <Content Page_title="FAQ Management" button_status={true} button_title="back"
-     extra_button="+ Add FAQ" extra_button_action={handleOpen}
+     extra_button="+ Add FAQ" extra_button_action={handleOpen} route="/superadmin/superadmindashboard"
     >
       <div className="p-2 ">
 
@@ -262,7 +262,7 @@ const FAQs = () => {
         </div> */}
 
         <div className="shadow-lg rounded-xl p-4 ">
-          <Datatable columns={columns} data={faqs} title="FAQs List" progressPending={loading} />
+          <Datatable columns={columns} data={faqs} title="FAQs List" progressPending={loading} onRefresh={fetchFAQs} />
         </div>
 
         {/* Add/Edit Modal */}

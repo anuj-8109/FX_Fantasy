@@ -220,13 +220,14 @@ const Banner = () => {
       Page_title="Banner Management"
       button_title="back"
       button_status={true}
+      route="/superadmin/superadmindashboard"
       extra_button="+ Add Banner" extra_button_action={handleOpen}
     >
       <div className="p-2 ">
        
 
         <div className="shadow-lg rounded-xl p-4 bg-#1E293B">
-          <Datatable columns={columns} data={banners} title="Banners List" />
+          <Datatable columns={columns} data={banners} title="Banners List" onRefresh={fetchBanners} />
         </div>
 
         {open && (
