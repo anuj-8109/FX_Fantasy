@@ -240,7 +240,7 @@ const Blog = () => {
       button_title="back"
       button_status={true}
       route="/superadmin/superadmindashboard"
-       extra_button="+ Add Blog" extra_button_action={handleOpen}
+       extra_button="+ Add Blog"  extra_button_action={() => handleOpen(null)}
     >
       <div className="p-2 ">
 

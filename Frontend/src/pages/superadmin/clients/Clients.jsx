@@ -190,11 +190,11 @@ const Client = () => {
   // datatable columns
   const columns = [
     { name: "S.No", selector: (row, i) => i + 1, width: "80px" },
-    { name: "Name", selector: (row) => row.FullName, sortable: true },
-    { name: "Email", selector: (row) => row.Email },
-    { name: "Phone", selector: (row) => row.PhoneNo },
-    { name: "City", selector: (row) => row.city },
-    { name: "State", selector: (row) => row.state },
+    { name: "Name", selector: (row) => row.FullName||"N/A", sortable: true },
+    { name: "Email", selector: (row) => row.Email||"N/A" },
+    { name: "Phone", selector: (row) => row.PhoneNo ||"N/A"},
+    { name: "City", selector: (row) => row.city||"N/A" },
+    { name: "State", selector: (row) => row.state||"N/A" },
     {
       name: "Status",
       cell: (row) => (
@@ -243,7 +243,7 @@ const Client = () => {
   return (
     <Content Page_title="Client Management" button_title="back" button_status={true}
       route={"/superadmin/superadmindashboard"} extra_button="Add Client"
-      extra_button_action={handleOpen} >
+       extra_button_action={() => handleOpen(null)} >
       <div className="p-2 ">
         <div className="shadow-lg rounded-xl p-4">
           <Datatable columns={columns} data={clients} title="Client List" onRefresh={fetchClients} />
@@ -358,13 +358,13 @@ const Client = () => {
               </h2>
 
               <div className="space-y-3">
-                <p><strong>Name:</strong> {viewClient?.FullName}</p>
-                <p><strong>Email:</strong> {viewClient?.Email}</p>
-                <p><strong>Phone:</strong> {viewClient?.PhoneNo}</p>
-                <p><strong>City:</strong> {viewClient?.city}</p>
-                <p><strong>State:</strong> {viewClient?.state}</p>
-                <p><strong>DOB:</strong> {viewClient?.dob}</p>
-                <p><strong>Status:</strong> {viewClient?.status}</p>
+                <p><strong>Name:</strong> {viewClient?.FullName||"N/A"}</p>
+                <p><strong>Email:</strong> {viewClient?.Email||"N/A"}</p>
+                <p><strong>Phone:</strong> {viewClient?.PhoneNo||"N/A"}</p>
+                <p><strong>City:</strong> {viewClient?.city||"N/A"}</p>
+                <p><strong>State:</strong> {viewClient?.state||"N/A"}</p>
+                <p><strong>DOB:</strong> {viewClient?.dob||"N/A"}</p>
+                <p><strong>Status:</strong> {viewClient?.status||"N/A"}</p>
               </div>
 
               <div className="mt-6 flex justify-end">
