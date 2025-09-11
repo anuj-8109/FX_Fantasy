@@ -32,7 +32,8 @@ import Client from "../pages/superadmin/clients/Clients";
 import AddContest from "../pages/superadmin/contest/AddContest";
 import Tournament from "../pages/superadmin/tournament/Tournament";
 import AddTournament from "../pages/superadmin/tournament/AddTournament";
-
+import HelpDesk from "../pages/superadmin/helpdesk/HelpDesk"
+import Chatreply from "../pages/superadmin/helpdesk/Chatreply"
 const SuperAdminRoutes = () => {
   return (
     <>
@@ -65,9 +66,11 @@ const SuperAdminRoutes = () => {
         <Route path="coupons" element={<Coupons />} />
         <Route path="contest" element={<Contest />} />
         <Route path="add-contest" element={<AddContest />} />
-      <Route path="clients" element={<Client />} />
-      <Route path="tournament" element={<Tournament />} />
-      <Route path="add-tournament" element={<AddTournament />} />
+        <Route path="clients" element={<Client />} />
+        <Route path="tournament" element={<Tournament />} />
+        <Route path="add-tournament" element={<AddTournament />} />
+        <Route path="help" element={<HelpDesk />} />
+        <Route path="chatreply/:ticketId" element={<Chatreply />} />
       </Route>
     </>
   );

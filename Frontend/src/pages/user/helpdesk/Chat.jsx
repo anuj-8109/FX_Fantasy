@@ -9,13 +9,14 @@ function Chat() {
     const [newMessage, setNewMessage] = useState("");
     const messagesEndRef = useRef(null);
 
-    // Get token from localStorage
+
+
     useEffect(() => {
         const storedToken = localStorage.getItem("token");
         setToken(storedToken || "");
     }, []);
 
-    // Fetch ticket whenever token or ticketId changes
+
     useEffect(() => {
         if (token && ticketId) fetchTicket();
     }, [token, ticketId]);
@@ -26,12 +27,12 @@ function Chat() {
         else alert("Error fetching ticket details: " + result.message);
     };
 
-    // Scroll to bottom whenever messages change
+
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [ticketDetail]);
 
-    // Handle sending message
+
     const handleSendMessage = async () => {
         if (!newMessage.trim()) return;
 
@@ -39,7 +40,7 @@ function Chat() {
             ticket_id: ticketId,
             client_id: ticketDetail.ticket.client_id,
             message: newMessage,
-            // omit attachment if null
+
         };
 
 
@@ -54,20 +55,16 @@ function Chat() {
             ...prev,
             messages: [...prev.messages, optimisticMessage],
         }));
-
-        // setNewMessage("");
-console.log("data",data)
+        setNewMessage("");
         const res = await TicketReply(token, data);
-console.log("data",data)
-console.log("res",res)
         if (!res.status) {
-            // alert("Failed to send message: " + res.message);
+
             setTicketDetail(prev => ({
                 ...prev,
                 messages: prev.messages.filter(msg => msg._id !== optimisticMessage._id),
             }));
         } else {
-            fetchTicket(); // refresh messages
+            fetchTicket();
         }
     };
 
@@ -75,6 +72,16 @@ console.log("res",res)
     if (!ticketDetail) return <div className="p-6">Loading ticket details...</div>;
 
     const ticket = ticketDetail.ticket;
+    const isDisabled = ticket?.status === 0 || ticket?.status === 2;
+    const getStatusLabel = (status) => {
+    switch (status) {
+        case 0: return "Pending";
+        case 1: return "Open";
+        case 2: return "Closed";
+        default: return "Unknown";
+    }
+};
+
 
     return (
         <div className="p-6 flex flex-col h-[80vh]">
@@ -83,7 +90,8 @@ console.log("res",res)
             <div className="border rounded p-4 mb-4 bg-white shadow-sm">
                 <h2 className="font-semibold">Subject: {ticket.subject}</h2>
                 <p>Message: {ticket.message}</p>
-                <p>Status: {ticket.status === 0 ? "Open" : ticket.status === 1 ? "Closed" : "Pending"}</p>
+               <p>Status: {getStatusLabel(ticket.status)}</p>
+
                 {ticket.attachment && (
                     <p>
                         Attachment:{" "}
@@ -94,7 +102,7 @@ console.log("res",res)
                 )}
             </div>
 
-            {/* Chat messages area */}
+
             <div className="flex-1 overflow-y-auto mb-4 border rounded p-3 bg-gray-50">
                 {ticketDetail.messages.length === 0 ? (
                     <p className="text-gray-500">No messages found.</p>
@@ -102,8 +110,7 @@ console.log("res",res)
                     ticketDetail.messages.map((msg) => (
                         <div
                             key={msg._id}
-                            className={`border p-3 rounded mb-3 ${msg.adminname ? "bg-blue-50 self-start" : "bg-green-50 self-end"
-                                }`}
+                            className={`border p-3 rounded mb-3 ${msg.adminname ? "bg-blue-50 self-start" : "bg-green-50 self-end"}`}
                         >
                             <p>
                                 <strong>{msg.adminname || "You"}:</strong> {msg.message}
@@ -119,7 +126,7 @@ console.log("res",res)
                 <div ref={messagesEndRef} />
             </div>
 
-
+            {/* Input box and send button */}
             <div className="flex gap-2">
                 <input
                     type="text"
@@ -127,17 +134,20 @@ console.log("res",res)
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type your message..."
                     className="flex-1 border rounded p-2"
-                    onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                    disabled={isDisabled}
+                    onKeyDown={(e) => e.key === "Enter" && !isDisabled && handleSendMessage()}
                 />
                 <button
                     onClick={handleSendMessage}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    className={`px-4 py-2 rounded ${isDisabled ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 text-white"}`}
+                    disabled={isDisabled}
                 >
                     Send
                 </button>
             </div>
         </div>
     );
+
 }
 
 export default Chat;

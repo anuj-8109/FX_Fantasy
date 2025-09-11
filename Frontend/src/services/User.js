@@ -199,7 +199,6 @@ export async function TicketReply(token, data) {
     //     },
     //   }
     // );
-
    const formData = new FormData();
     formData.append("ticket_id", data.ticket_id);
     formData.append("client_id", data.client_id);
@@ -207,7 +206,6 @@ export async function TicketReply(token, data) {
     // if (file) {
     //   formData.append("attachment", data.attachment);
     // }
-
 
       const response = await axios.post(
        `${config.base_url}api/client/ticketreply`,
@@ -219,16 +217,6 @@ export async function TicketReply(token, data) {
           },
         }
       );
-
-
-
-
-
-
-
-
-
-
 
     console.log("response", response)
     return response?.data;

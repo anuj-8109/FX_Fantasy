@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Ticket, X, Eye } from "lucide-react";
 import { GetTicket, addTicket, getticketDetail } from "../../../services/User";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function HelpDesk() {
-     const navigate = useNavigate();
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tickets, setTickets] = useState([]);
   const [token, setToken] = useState("");
@@ -51,7 +52,7 @@ function HelpDesk() {
       setTickets((prev) => [result.data, ...prev]);
       closeModal();
     } else {
-      alert("Error adding ticket: " + result.message);
+      toast.success("Already Ticket Exits: ");
     }
   };
 
@@ -64,9 +65,18 @@ function HelpDesk() {
       setSelectedTicket(result.data);
       setIsDetailModalOpen(true);
     } else {
-      alert("Error fetching ticket details: " + result.message);
+      toast.success("Error fetching ticket details: " + result.message);
     }
   };
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 0: return "Pending";
+      case 1: return "Open";
+      case 2: return "Closed";
+      default: return "Unknown";
+    }
+  };
+
 
   return (
     <div className="flex bg-gray-100 min-h-screen">
@@ -115,10 +125,11 @@ function HelpDesk() {
                     <p className="text-gray-600 mt-1">Message: {ticket.message}</p>
                     <p className="text-sm text-gray-500 mt-1">Ticket #: {ticket.ticketnumber}</p>
                     <p className="text-sm text-gray-500 mt-1">
-                      Status: {ticket.status === 0 ? "Open" : ticket.status === 1 ? "Closed" : "Pending"}
+                      Status: {getStatusLabel(ticket.status)}
                     </p>
+
                   </div>
-                 <button
+                  <button
                     onClick={() => navigate(`/chat/${ticket._id}`)}
                     className="text-blue-500 hover:text-blue-700"
                   >
@@ -186,7 +197,7 @@ function HelpDesk() {
       )}
 
 
-     
+
     </div>
   );
 }

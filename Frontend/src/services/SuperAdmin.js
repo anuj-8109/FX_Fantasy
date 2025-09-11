@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as config from "../utils/config";
+import { GetTicket, TicketReply } from "./User";
 
 //User API Starts Here
 
@@ -1284,6 +1285,87 @@ export async function PassWordChange(token, data) {
     return response?.data;
   } catch (error) {
     console.error("Password change API error", error?.response || error);
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+// Tickes
+
+// GetTicket
+export async function GetTicketsuper(token, clientId) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}ticket/listwithfilter`,
+      { clientId: clientId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+
+// getdetailsticket
+export async function getticketDetailAdmin(token, ticketId) {
+  try {
+    const response = await axios.get(`${config.base_url}ticket/detail/${ticketId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+// TicketReply
+
+export async function TicketReplyadmin(token, data) {
+  try {
+    const formData = new FormData();
+    formData.append("ticket_id", data.ticket_id);
+    formData.append("message", data.message);
+    formData.append("adminname", data.adminname);
+
+
+    const response = await axios.post(
+      `${config.base_url}ticket/reply`,
+      formData,
+      {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response?.data;
+
+  } catch (error) {
+    console.log(error.response?.data);
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+// ticketStatus
+
+export async function ticketstatus(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}ticket/change-status`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data;
+  } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
   }
 }
