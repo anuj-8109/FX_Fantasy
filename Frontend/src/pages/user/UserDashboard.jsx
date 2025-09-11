@@ -199,9 +199,11 @@ const UserDashboard = () => {
           filteredContests.map((contest) => (
             <div
               key={contest.id}
-              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 card_style"
+              onClick={() =>
+                navigate("/pricepol", { state: { _id: contest.id || contest._id } })
+              }
+              className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer card_style"
             >
-
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center space-x-3">
                   {getCompanyIcon(contest.company, contest.companyColor)}
@@ -218,34 +220,27 @@ const UserDashboard = () => {
                   </div>
                   {getCompanyIcon(contest.partner, contest.partnerColor)}
                 </div>
-
               </div>
 
-
-              <div className="grid grid-cols-3 gap-3 mb-4 ">
-                <div className="text-center p-2  rounded-lg border">
-                  <p className="text-lg font-bold  ">{contest.prizePool}</p>
-                  <p className="text-xs ">Prize Pool</p>
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                <div className="text-center p-1 rounded-lg border">
+                  <p className="text-md font-bold">{contest.prizePool}</p>
+                  <p className="text-xs">Prize Pool</p>
                 </div>
 
-                {/* Center Time Left */}
                 <div className="text-center p-2 rounded-lg border">
-                  <p className="text-lg font-bold ">
-                    {getTimeLeft(contest.end)}
-                  </p>
-                  <p className="text-xs ">Time Left</p>
+                  <p className="text-md font-bold">{getTimeLeft(contest.end)}</p>
+                  <p className="text-xs">Time Left</p>
                 </div>
 
-                <div className="text-center p-2  rounded-lg border">
-                  <p className="text-lg font-bold  flex items-center justify-center">
+                <div className="text-center p-2 rounded-lg border">
+                  <p className="text-md font-bold flex items-center justify-center">
                     <Users className="w-4 h-4 mr-1" />
                     {contest.participants}
                   </p>
-                  <p className="text-xs ">Participants</p>
+                  <p className="text-xs">Participants</p>
                 </div>
               </div>
-
-
 
               <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-2">
@@ -256,25 +251,23 @@ const UserDashboard = () => {
                   <p className="text-sm font-medium text-gray-700">{contest.spots}</p>
                 </div>
               </div>
-
-
-              <button
-                onClick={() =>
-                  navigate("/pricepol", { state: { _id: contest.id || contest._id } })
-                }
-                className="w-full mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center justify-center space-x-2"
-              >
-                <TrendingUp className="w-4 h-4" />
-                <span>
-                  {activeTab === "mycontests"
-                    ? "View Contest"
-                    : activeTab === "ongoing"
-                      ? "Join Now"
-                      : "Register"}
-                </span>
-              </button>
-
+{/* 
+              <div className="flex justify-center">
+                <button
+                  className="w-[20vw] mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center justify-center space-x-2 pointer-events-none"
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  <span>
+                    {activeTab === "mycontests"
+                      ? "View Contest"
+                      : activeTab === "ongoing"
+                        ? "Join Now"
+                        : "Register"}
+                  </span>
+                </button>
+              </div> */}
             </div>
+
           ))
         ) : (
           <div className="text-center py-12">
