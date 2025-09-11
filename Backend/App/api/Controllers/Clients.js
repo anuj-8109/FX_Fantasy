@@ -908,7 +908,7 @@ async getWalletHistory(req, res) {
     const skip = (pageNum - 1) * limit;
 
     const history = await Wallet_Modal.find({ client_id })
-      .populate("client_id", "name email wallet_balance")
+      .populate("client_id", "FullName Email PhoneNo wamount")
       .sort({ created_at: -1 })
       .skip(skip)
       .limit(limit);
