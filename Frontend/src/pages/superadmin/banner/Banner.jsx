@@ -221,7 +221,7 @@ const Banner = () => {
       button_title="back"
       button_status={true}
       route="/superadmin/dashboard"
-      extra_button="+ Add Banner" extra_button_action={handleOpen}
+      extra_button="+ Add Banner" extra_button_action={() => handleOpen(null)}
     >
       <div className="p-2 ">
        
