@@ -10,20 +10,23 @@ import HistoryPage from "../pages/user/ContestHistory";
 import UserProfile from "../pages/user/profile/UserProfile";
 
 import HelpDesk from "../pages/user/helpdesk/HelpDesk";
+import Chat from "../pages/user/helpdesk/Chat";
 
 const UserRoutes = () => {
   return (
     <>
-    
+
       <Route path="/" element={<UserLayout />}>
-      
+
         <Route path="userDashboard" element={<UserDashboard />} />
         <Route path="pricepol" element={<Pricepol />} />
         <Route path="history" element={<HistoryPage />} />
         <Route path="profile" element={<UserProfile />} />
-          <Route path="helpdesk" element={<HelpDesk />} />
+        <Route path="helpdesk" element={<HelpDesk />} />
+       <Route path="chat/:ticketId" element={<Chat />} />
+
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
-      
+
         {/* <Route path="analytics" element={<Analytics />} />
         <Route path="games" element={<Games />} />
         <Route path="security" element={<Security />} />
@@ -51,7 +54,7 @@ const UserRoutes = () => {
         <Route path="add-contest" element={<AddContest />} />
       <Route path="clients" element={<Client />} /> */}
       </Route>
-   
+
     </>
   );
 };

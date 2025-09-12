@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Ticket, X, Eye } from "lucide-react";
 import { GetTicket, addTicket, getticketDetail } from "../../../services/User";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function HelpDesk() {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tickets, setTickets] = useState([]);
   const [token, setToken] = useState("");
@@ -49,7 +52,7 @@ function HelpDesk() {
       setTickets((prev) => [result.data, ...prev]);
       closeModal();
     } else {
-      alert("Error adding ticket: " + result.message);
+      toast.success("Already Ticket Exits: ");
     }
   };
 
@@ -62,9 +65,18 @@ function HelpDesk() {
       setSelectedTicket(result.data);
       setIsDetailModalOpen(true);
     } else {
-      alert("Error fetching ticket details: " + result.message);
+      toast.success("Error fetching ticket details: " + result.message);
     }
   };
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 0: return "Pending";
+      case 1: return "Open";
+      case 2: return "Closed";
+      default: return "Unknown";
+    }
+  };
+
 
   return (
     <div className="flex bg-gray-100 min-h-screen">
@@ -113,11 +125,12 @@ function HelpDesk() {
                     <p className="text-gray-600 mt-1">Message: {ticket.message}</p>
                     <p className="text-sm text-gray-500 mt-1">Ticket #: {ticket.ticketnumber}</p>
                     <p className="text-sm text-gray-500 mt-1">
-                      Status: {ticket.status === 0 ? "Open" : ticket.status === 1 ? "Closed" : "Pending"}
+                      Status: {getStatusLabel(ticket.status)}
                     </p>
+
                   </div>
                   <button
-                    onClick={() => viewTicketDetail(ticket._id)}
+                    onClick={() => navigate(`/chat/${ticket._id}`)}
                     className="text-blue-500 hover:text-blue-700"
                   >
                     <Eye size={20} />
@@ -183,61 +196,8 @@ function HelpDesk() {
         </div>
       )}
 
-      {/* Ticket Details Modal */}
-      {isDetailModalOpen && selectedTicket && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg relative max-h-[80vh] overflow-y-auto">
-            <button
-              onClick={() => setIsDetailModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-            >
-              <X size={20} />
-            </button>
-            <h2 className="text-xl font-semibold mb-4">Ticket Details</h2>
-            <div className="space-y-2">
-              <p>
-                <strong>Subject:</strong> {selectedTicket.ticket.subject}
-              </p>
-              <p>
-                <strong>Message:</strong> {selectedTicket.ticket.message}
-              </p>
-              <p>
-                <strong>Ticket #:</strong> {selectedTicket.ticket.ticketnumber}
-              </p>
-              <p>
-                <strong>Status:</strong>{" "}
-                {selectedTicket.ticket.status === 0
-                  ? "Open"
-                  : selectedTicket.ticket.status === 1
-                  ? "Closed"
-                  : "Pending"}
-              </p>
-              {selectedTicket.ticket.attachment && (
-                <p>
-                  <strong>Attachment:</strong>{" "}
-                  <a href={selectedTicket.ticket.attachment} target="_blank" className="text-blue-500 hover:underline">
-                    View
-                  </a>
-                </p>
-              )}
-              <hr className="my-2" />
-              <h3 className="font-semibold">Messages:</h3>
-              {selectedTicket.messages.map((msg) => (
-                <div key={msg._id} className="border p-2 rounded mb-2">
-                  <p className="text-sm">
-                    <strong>{msg.adminname || "You"}:</strong> {msg.message}
-                  </p>
-                  {msg.attachment && (
-                    <a href={msg.attachment} target="_blank" className="text-blue-500 hover:underline text-sm">
-                      Attachment
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+
+
     </div>
   );
 }

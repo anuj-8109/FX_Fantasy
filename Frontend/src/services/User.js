@@ -163,7 +163,7 @@ export async function addTicket(token, data) {
         'Content-Type': 'application/json',
       },
     })
-   return response?.data
+    return response?.data
   } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
   }
@@ -171,7 +171,7 @@ export async function addTicket(token, data) {
 
 // Ticketdetails
 
-export async function getticketDetail(token, ticketId){
+export async function getticketDetail(token, ticketId) {
   try {
     const response = await axios.get(`${config.base_url}api/client/ticketdetail/${ticketId}`, {
       headers: {
@@ -181,6 +181,48 @@ export async function getticketDetail(token, ticketId){
     });
     return response?.data;
   } catch (error) {
-     return error?.response?.data || { status: false, message: "Unknown error" };
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+// TicketReply
+export async function TicketReply(token, data) {
+  console.log("data", data)
+  try {
+    // const response = await axios.post(
+    //   `${config.base_url}api/client/ticketreply`,
+    //   data,
+    //   {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //       "Content-Type": "application/json",
+    //     },
+    //   }
+    // );
+   const formData = new FormData();
+    formData.append("ticket_id", data.ticket_id);
+    formData.append("client_id", data.client_id);
+    formData.append("message", data.message);
+    // if (file) {
+    //   formData.append("attachment", data.attachment);
+    // }
+
+      const response = await axios.post(
+       `${config.base_url}api/client/ticketreply`,
+        formData,
+        {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+    console.log("response", response)
+    return response?.data;
+
+  } catch (error) {
+    console.log(error.response?.data);
+    return error?.response?.data || { status: false, message: "Unknown error" };
   }
 }

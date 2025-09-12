@@ -76,6 +76,11 @@ const menuItems = [
     icon: <Newspaper />,
   },
   {
+    title: "HelpDesk",
+    url: "/superadmin/help",
+    icon: <Newspaper />,
+  },
+  {
     title: "FAQs",
     url: "/superadmin/faqs",
     icon: <BadgeHelp />,
