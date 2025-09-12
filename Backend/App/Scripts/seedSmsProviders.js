@@ -25,9 +25,9 @@ async function seedSmsProviders() {
         username: "",
         password: "",
         sender: "",
-        url: "http://sms.bulksmsserviceproviders.com/api/send_http.php",
+        url: "http://smsjust.com/sms/user/urlsms.php",
         entity_id: "",
-        route: "B",
+        route: "",
         status: 0,
       },
       {
