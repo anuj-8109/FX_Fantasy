@@ -122,7 +122,7 @@ class Clients {
         });
       }
 
-
+/*
       const titles = 'Important Update';
       const message = `${client.FullName} ,has successfully deleted the account.`;
       const resultnm = new Adminnotification_Modal({
@@ -141,7 +141,7 @@ class Clients {
         message: message,
         type: 'delete client',
       });
-
+*/
 
       return res.json({
         status: true,
@@ -470,7 +470,7 @@ class Clients {
 
 
 
-
+/*
       const adminnotificationTitle = "Important Update";
       const adminnotificationBody = `${client.FullName} replied on ticket #${ticket.ticketnumber}`;
       const newNotification = new Adminnotification_Modal({
@@ -491,7 +491,7 @@ class Clients {
         type: 'help request',
       });
 
-
+*/
 
       return res.json({
         status: true,
