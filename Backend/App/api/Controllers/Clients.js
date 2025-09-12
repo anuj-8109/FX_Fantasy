@@ -157,8 +157,6 @@ class Clients {
     }
   }
 
-
-
   async requestPayout(req, res) {
     try {
       const { clientId, amount } = req.body;
@@ -199,9 +197,7 @@ class Clients {
         amount: amount,
       });
 
-
       await payoutRequest.save();
-
 
       return res.status(201).json({
         status: true,
@@ -301,7 +297,6 @@ class Clients {
       const limit = 10;
       const skip = (parseInt(page) - 1) * limit;
 
-
       if (!clientId) {
         return res.json({
           status: false,
@@ -396,7 +391,6 @@ class Clients {
         return message;
       });
 
-
       return res.json({
         status: true,
         data: {
@@ -422,10 +416,6 @@ class Clients {
           if (err) {
             return reject(err);
           }
-
-        
-
-
           resolve();
         });
       });
@@ -453,8 +443,6 @@ class Clients {
         return res.json({ status: false, message: 'Ticket not found' });
       }
 
-
-
       const attachment = req.files['attachment'] ? req.files['attachment'][0].filename : null;
 
       // Create a new News record
@@ -467,7 +455,6 @@ class Clients {
 
       // Save the result to the database
       await result.save();
-
 
 
 /*
@@ -529,8 +516,6 @@ class Clients {
         return res.json({ status: false, message: 'Client not found or inactive.' });
       }
 
-
-
       const existingOpenTicket = await Ticket_Modal.findOne({
         client_id,
         status: { $in: [0, 1] },  // Match if status is 0 OR 1
@@ -566,7 +551,6 @@ class Clients {
       });
 
       await newTicket.save();
-
 
       return res.json({
         status: true,
@@ -674,8 +658,6 @@ async LoginWithOTP(req, res) {
   }
 }
 
-
-
 async otpSubmitWithPhone(req, res) {
   try {
     const { otp, PhoneNo, devicetoken = "" } = req.body;
@@ -686,7 +668,6 @@ async otpSubmitWithPhone(req, res) {
         message: "Please enter OTP",
       });
     }
-
 
   const record = otpStore.get(PhoneNo);
   
@@ -702,7 +683,6 @@ async otpSubmitWithPhone(req, res) {
   if (record.otp != otp) {
     return res.status(400).json({ status: false, message: "Invalid OTP" });
   }
-
 
     if (!PhoneNo) {
       return res.status(400).json({
@@ -723,7 +703,6 @@ async otpSubmitWithPhone(req, res) {
       });
     }
 
-
     client.devicetoken = devicetoken;
 
     let isNewSignup = false;
@@ -735,7 +714,6 @@ async otpSubmitWithPhone(req, res) {
     }
 
     await client.save();
-
 
     const tokenjwt = jwt.sign(
     { id: client._id},
@@ -781,7 +759,6 @@ async  updateClientProfile(req, res) {
     } else if (!/^\S+@\S+\.\S+$/.test(Email)) {
       return res.status(400).json({ status: false, message: "Please enter a valid email" });
     }
-
 
     if (!state) {
       return res.status(400).json({ status: false, message: "Please select state" });
