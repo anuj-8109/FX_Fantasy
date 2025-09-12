@@ -665,8 +665,8 @@ async LoginWithOTP(req, res) {
       PhoneNo,
       type: isNewUser ? "register" : "login",  // <-- Added explicit type
       message: isNewUser 
-        ? "OTP sent successfully (new user registered)" 
-        : "OTP sent successfully (login)"
+        ? "OTP sent successfully" 
+        : "OTP sent successfully"
     });
 
   } catch (error) {
