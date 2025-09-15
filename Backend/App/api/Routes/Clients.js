@@ -1,7 +1,7 @@
 const router = require("express").Router()
 const auth = require('../../Middleware/authClient');
 
-const {detailClient,deleteClient,requestPayout,payoutList,referEarn,getTickets,detailTicket,rePly,addTicket,LoginWithOTP,otpSubmitWithPhone,updateClientProfile,Logout} = require('../Controllers/Clients')
+const {detailClient,deleteClient,requestPayout,payoutList,referEarn,getTickets,detailTicket,rePly,addTicket,LoginWithOTP,otpSubmitWithPhone,updateClientProfile,Logout,addMoneyInWallet,getWalletHistory} = require('../Controllers/Clients')
 
 
 router.post("/api/client/login-with-otp", LoginWithOTP);
@@ -17,5 +17,9 @@ router.post('/api/client/gettickets', auth, getTickets);
 router.get('/api/client/ticketdetail/:ticketid', auth, detailTicket);
 router.post('/api/client/ticketreply', auth, rePly);
 router.post('/api/client/addticket', auth, addTicket);
+router.post('/api/client/addmoneyinwallet', auth, addMoneyInWallet);
+router.post('/api/client/getwallethistory', auth, getWalletHistory);
+
+
 
 module.exports = router;
