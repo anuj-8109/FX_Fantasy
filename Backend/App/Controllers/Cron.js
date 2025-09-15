@@ -175,29 +175,38 @@ const DeleteTokenAliceToken = async (req, res) => {
     const now = new Date();
 
     // 1️⃣ upcoming → live
-    await Tournament_Model.updateMany(
+    const makeLive = await Tournament_Model.updateMany(
       {
+        activestatus: true,
+        del: false,
         startdate: { $lte: now },
         enddate: { $gt: now },
         status: "upcoming"
       },
-      { $set: { status: "live" } }
+      { $set: { status: "live", updated_at: now } }
     );
 
     // 2️⃣ live → completed
-    await Tournament_Model.updateMany(
+    const makeCompleted = await Tournament_Model.updateMany(
       {
+        activestatus: true,
+        del: false,
         enddate: { $lte: now },
         status: "live"
       },
-      { $set: { status: "completed" } }
+      { $set: { status: "completed", updated_at: now } }
     );
 
     return res.status(200).json({
       status: true,
       message: "Tournament status updated successfully",
-      time: now
+      time: now,
+      updated: {
+        madeLive: makeLive.modifiedCount || 0,
+        completed: makeCompleted.modifiedCount || 0
+      }
     });
+
   } catch (error) {
     console.error("TournamentStatusChange Error:", error);
     return res.status(500).json({
