@@ -219,7 +219,7 @@ async function TournamentStatusChange(req, res) {
 
 async function getLivePrice(symbol) {
   try {
-    // symbol ke saath .BSE add karo (testing ke liye BSE hi chalega)
+    
     const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}.BSE&apikey=3B7SZFS9ANX227CY`;
     
     const response = await axios.get(url);
