@@ -199,7 +199,7 @@ export async function TicketReply(token, data) {
     //     },
     //   }
     // );
-   const formData = new FormData();
+    const formData = new FormData();
     formData.append("ticket_id", data.ticket_id);
     formData.append("client_id", data.client_id);
     formData.append("message", data.message);
@@ -207,22 +207,39 @@ export async function TicketReply(token, data) {
     //   formData.append("attachment", data.attachment);
     // }
 
-      const response = await axios.post(
-       `${config.base_url}api/client/ticketreply`,
-        formData,
-        {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+    const response = await axios.post(
+      `${config.base_url}api/client/ticketreply`,
+      formData,
+      {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
     console.log("response", response)
     return response?.data;
 
   } catch (error) {
     console.log(error.response?.data);
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+
+// AddMoney in walllet 
+
+export async function addMoneyInWallet(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}api/client/addmoneyinwallet`, data, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+
+      },
+    });
+    return response?.data;
+  } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
   }
 }

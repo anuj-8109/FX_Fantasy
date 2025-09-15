@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { PlusCircle, ArrowUp, Clock } from "lucide-react";
 import Swal from "sweetalert2";
+import { addMoneyInWallet } from "../../../services/User"; 
 
 const WalletPage = () => {
-  const [historyView, setHistoryView] = useState("all"); // all | add | withdraw | buysell
+  const [historyView, setHistoryView] = useState("all"); 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const addHistory = [
@@ -20,6 +21,8 @@ const WalletPage = () => {
     { id: 1, amount: 1500, date: "2025-09-07 02:00 PM" },
     { id: 2, amount: 800, date: "2025-09-06 11:30 AM" },
   ];
+
+
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -61,6 +64,8 @@ const WalletPage = () => {
     paymentObject.open();
   };
 
+
+
   const handleAddMoney = async () => {
     const { value: amount } = await Swal.fire({
       title: "Enter Amount",
@@ -78,9 +83,52 @@ const WalletPage = () => {
     });
 
     if (amount) {
-      handlePayment(amount);
+      const res = await loadRazorpayScript();
+      if (!res) {
+        Swal.fire("Razorpay SDK failed to load.");
+        return;
+      }
+
+      const options = {
+        key: "rzp_test_22mEHcDzJbcUmz",
+        amount: amount * 100,
+        currency: "INR",
+        name: "Dream Trading",
+        description: "Add Money Payment",
+        handler: async function (response) {
+          Swal.fire("Payment successful! ID: " + response.razorpay_payment_id);
+
+        
+          const token = localStorage.getItem("token"); 
+          const data = {
+            client_id: "68c28a592059c3c6846682b4", 
+            amount: parseInt(amount),
+            remark: "Add Money via Razorpay",
+            payment_id: response.razorpay_payment_id 
+          };
+
+          const result = await addMoneyInWallet(token, data);
+          if (result.status) {
+            Swal.fire("Wallet updated!", result.message || "Money added successfully.");
+          } else {
+            Swal.fire("Error", result.message || "Failed to add money.", "error");
+          }
+        },
+        prefill: {
+          name: "Test User",
+          email: "test@example.com",
+          contact: "",
+        },
+        theme: {
+          color: "#F97316",
+        },
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
     }
   };
+
 
   const handleWithdraw = async () => {
     const { value: formValues } = await Swal.fire({
