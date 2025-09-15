@@ -174,7 +174,6 @@ const DeleteTokenAliceToken = async (req, res) => {
 async function TournamentStatusChange(req, res) {
   try {
     const now = new Date();
-console.log("now",now);
     // 1️⃣ upcoming → live
     const makeLive = await Tournament_Model.updateMany(
       {
@@ -342,7 +341,7 @@ async function updateContestRanks(req, res) {
       message: "✅ Contest rankings updated successfully"
     });
   } catch (error) {
-    
+
     return res.status(500).json({
       status: false,
       message: error.message
