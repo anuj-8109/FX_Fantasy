@@ -1,6 +1,7 @@
 const db = require("../Models");
 const axios = require('axios');
 var dateTime = require('node-datetime');
+const Tournament_Model = db.Tournament;
 
 
 const Stock_Modal = db.Stock;
@@ -169,5 +170,43 @@ const DeleteTokenAliceToken = async (req, res) => {
   
   }
 
+  async function TournamentStatusChange(req, res) {
+  try {
+    const now = new Date();
 
-  module.exports = { AddBulkStockCron,DeleteTokenAliceToken };
+    // 1️⃣ upcoming → live
+    await Tournament_Model.updateMany(
+      {
+        startdate: { $lte: now },
+        enddate: { $gt: now },
+        status: "upcoming"
+      },
+      { $set: { status: "live" } }
+    );
+
+    // 2️⃣ live → completed
+    await Tournament_Model.updateMany(
+      {
+        enddate: { $lte: now },
+        status: "live"
+      },
+      { $set: { status: "completed" } }
+    );
+
+    return res.status(200).json({
+      status: true,
+      message: "Tournament status updated successfully",
+      time: now
+    });
+  } catch (error) {
+    console.error("TournamentStatusChange Error:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+}
+
+
+  module.exports = { AddBulkStockCron,DeleteTokenAliceToken,TournamentStatusChange };
