@@ -243,3 +243,18 @@ export async function addMoneyInWallet(token, data) {
     return error?.response?.data || { status: false, message: "Unknown error" };
   }
 }
+
+// WalletHistory
+
+export async function WalletHistory(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}api/client/getwallethistory`, data, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+
+      },
+    })
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}

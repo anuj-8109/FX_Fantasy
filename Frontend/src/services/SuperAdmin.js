@@ -1379,5 +1379,5 @@ export async function ticketstatus(token, data) {
 
 const logout = () => {
   localStorage.clear();
-  window.location.href = "/SuperAdminLogin";
+  window.location.href = "/superadminlogin";
 }; 

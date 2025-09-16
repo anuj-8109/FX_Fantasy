@@ -1,29 +1,15 @@
-import React, { useState } from "react";
-import { PlusCircle, ArrowUp, Clock } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Clock } from "lucide-react";
 import Swal from "sweetalert2";
-import { addMoneyInWallet } from "../../../services/User"; 
+import { addMoneyInWallet, WalletHistory } from "../../../services/User";
 
 const WalletPage = () => {
-  const [historyView, setHistoryView] = useState("all"); 
+  const [historyView, setHistoryView] = useState("all");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [historyData, setHistoryData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const addHistory = [
-    { id: 1, amount: 500, date: "2025-09-10 12:30 PM" },
-    { id: 2, amount: 1000, date: "2025-09-09 03:20 PM" },
-  ];
-
-  const withdrawHistory = [
-    { id: 1, amount: 200, date: "2025-09-11 09:10 AM" },
-    { id: 2, amount: 300, date: "2025-09-08 05:45 PM" },
-  ];
-
-  const buySellHistory = [
-    { id: 1, amount: 1500, date: "2025-09-07 02:00 PM" },
-    { id: 2, amount: 800, date: "2025-09-06 11:30 AM" },
-  ];
-
-
-
+  // Load Razorpay Script
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
       const script = document.createElement("script");
@@ -34,6 +20,7 @@ const WalletPage = () => {
     });
   };
 
+  // Payment Handler
   const handlePayment = async (amount) => {
     const res = await loadRazorpayScript();
     if (!res) {
@@ -64,8 +51,7 @@ const WalletPage = () => {
     paymentObject.open();
   };
 
-
-
+  // Add Money
   const handleAddMoney = async () => {
     const { value: amount } = await Swal.fire({
       title: "Enter Amount",
@@ -98,18 +84,18 @@ const WalletPage = () => {
         handler: async function (response) {
           Swal.fire("Payment successful! ID: " + response.razorpay_payment_id);
 
-        
-          const token = localStorage.getItem("token"); 
+          const token = localStorage.getItem("token");
           const data = {
-            client_id: "68c28a592059c3c6846682b4", 
+            client_id: "68c28a592059c3c6846682b4",
             amount: parseInt(amount),
             remark: "Add Money via Razorpay",
-            payment_id: response.razorpay_payment_id 
+            payment_id: response.razorpay_payment_id,
           };
 
           const result = await addMoneyInWallet(token, data);
           if (result.status) {
             Swal.fire("Wallet updated!", result.message || "Money added successfully.");
+            fetchWalletHistory(); // refresh history
           } else {
             Swal.fire("Error", result.message || "Failed to add money.", "error");
           }
@@ -129,7 +115,7 @@ const WalletPage = () => {
     }
   };
 
-
+  // Withdraw
   const handleWithdraw = async () => {
     const { value: formValues } = await Swal.fire({
       title: "Enter Withdrawal Details",
@@ -162,17 +148,43 @@ const WalletPage = () => {
     }
   };
 
-  const getDisplayedHistory = () => {
-    let data = [];
-    if (historyView === "all") {
-      data = [...addHistory, ...withdrawHistory, ...buySellHistory];
-    } else if (historyView === "add") {
-      data = addHistory;
-    } else if (historyView === "withdraw") {
-      data = withdrawHistory;
-    } else if (historyView === "buysell") {
-      data = buySellHistory;
+  // Fetch Wallet History
+  const fetchWalletHistory = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const data = {
+        client_id: "68c28a592059c3c6846682b4", // TODO: replace with dynamic client id
+      };
+      const result = await WalletHistory(token, data);
+      if (result?.status) {
+        setHistoryData(result.data || []);
+      } else {
+        Swal.fire("Error", result.message || "Failed to fetch history", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", "Something went wrong while fetching history", "error");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchWalletHistory();
+  }, []);
+
+  // Filter history by view
+  const getDisplayedHistory = () => {
+    let data = [...historyData];
+
+    if (historyView === "add") {
+      data = data.filter((item) => item.type === "add");
+    } else if (historyView === "withdraw") {
+      data = data.filter((item) => item.type === "withdraw");
+    } else if (historyView === "buysell") {
+      data = data.filter((item) => item.type === "buysell");
+    }
+
     return data.sort((a, b) => new Date(b.date) - new Date(a.date));
   };
 
@@ -180,6 +192,7 @@ const WalletPage = () => {
     <div className="p-6 max-w-4xl mx-auto mt-2 bg-white rounded-lg shadow-md space-y-6">
       <h1 className="text-2xl font-bold text-orange-500">Transaction History</h1>
 
+      {/* Action Buttons */}
       <div className="flex flex-wrap gap-4">
         <button
           onClick={handleAddMoney}
@@ -195,7 +208,7 @@ const WalletPage = () => {
           Withdraw
         </button>
 
-        {/* Transaction Dropdown */}
+        {/* Dropdown */}
         <div className="relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -227,27 +240,35 @@ const WalletPage = () => {
         </div>
       </div>
 
-      {/* Transaction History */}
+      {/* History List */}
       <div className="border p-4 rounded shadow-sm">
         <div className="flex items-center gap-2 mb-4">
           <Clock size={24} className="text-orange-600" />
           <h2 className="text-lg font-semibold text-orange-600">Transaction History</h2>
         </div>
 
-        <div className="max-h-64 overflow-y-auto space-y-2">
-          {getDisplayedHistory().map((item, idx) => (
-            <div
-              key={item.id + idx}
-              className="p-3 border rounded hover:bg-orange-50 transition flex justify-between"
-            >
-              <span>₹{item.amount}</span>
-              <span className="text-sm text-gray-500">{item.date}</span>
-            </div>
-          ))}
-          {getDisplayedHistory().length === 0 && (
-            <p className="text-gray-500">No transactions found.</p>
-          )}
-        </div>
+        {loading ? (
+          <p className="text-gray-500">Loading...</p>
+        ) : (
+          <div className="max-h-64 overflow-y-auto space-y-2">
+            {getDisplayedHistory().map((item, idx) => (
+              <div
+                key={item.id || idx}
+                className="p-3 border rounded hover:bg-orange-50 transition flex justify-between"
+              >
+                <span>
+                  {item.type === "withdraw" ? "-" : "+"} ₹{item.amount}
+                </span>
+                <span className="text-sm text-gray-500">
+                  {new Date(item.date).toLocaleString()}
+                </span>
+              </div>
+            ))}
+            {getDisplayedHistory().length === 0 && (
+              <p className="text-gray-500">No transactions found.</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -93,7 +93,7 @@ const Login = () => {
             navigate("/Client/Clientdashboard");
           }
           else {
-            navigate("/SuperAdminLogin");
+            navigate("/superadminlogin");
           }
         });
       } else {

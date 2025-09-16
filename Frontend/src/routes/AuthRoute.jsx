@@ -11,7 +11,7 @@ const AuthRoute = () => {
   return (
     <>
       <Route element={<AuthLayout />}>
-        <Route path="/SuperAdminLogin" element={<Login />} />
+        <Route path="/superadminlogin" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<UserLogin/>}/>
         <Route path="/setname" element={<SetToPlay/>}/>
