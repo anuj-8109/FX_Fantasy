@@ -199,82 +199,66 @@ const UserDashboard = () => {
           filteredContests.map((contest) => (
             <div
               key={contest.id}
-              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 card_style"
+              onClick={() =>
+                navigate("/pricepol", { state: { _id: contest.id || contest._id } })
+              }
+              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-300 hover:-translate-y-1 card_style cursor-pointer"
             >
-
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center space-x-3">
+              {/* Top section */}
+              <div className="flex justify-between items-center mb-3">
+                <div className="flex items-center space-x-2">
                   {getCompanyIcon(contest.company, contest.companyColor)}
                   <div>
-                    <p className="font-semibold ">{contest.company}</p>
-                    <p className="text-xs">Primary Stock</p>
+                    <p className="font-semibold text-sm">{contest.company}</p>
+                    <p className="text-[11px] text-gray-500">Primary Stock</p>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
                   <div className="text-right">
-                    <p className="font-semibold ">{contest.partner}</p>
-                    <p className="text-xs ">Partner</p>
+                    <p className="font-semibold text-sm">{contest.partner}</p>
+                    <p className="text-[11px] text-gray-500">Partner</p>
                   </div>
                   {getCompanyIcon(contest.partner, contest.partnerColor)}
                 </div>
-
               </div>
 
-
-              <div className="grid grid-cols-3 gap-3 mb-4 ">
-                <div className="text-center p-2  rounded-lg border">
-                  <p className="text-lg font-bold  ">{contest.prizePool}</p>
-                  <p className="text-xs ">Prize Pool</p>
+              {/* Middle stats */}
+              <div className="grid grid-cols-3 gap-2 mb-3">
+                <div className="text-center p-2 rounded-md border">
+                  <p className="text-base font-bold">{contest.prizePool}</p>
+                  <p className="text-[11px] text-gray-500">Prize Pool</p>
                 </div>
 
-                {/* Center Time Left */}
-                <div className="text-center p-2 rounded-lg border">
-                  <p className="text-lg font-bold ">
-                    {getTimeLeft(contest.end)}
-                  </p>
-                  <p className="text-xs ">Time Left</p>
+                <div className="text-center p-2 rounded-md border">
+                  <p className="text-base font-bold">{getTimeLeft(contest.end)}</p>
+                  <p className="text-[11px] text-gray-500">Time Left</p>
                 </div>
 
-                <div className="text-center p-2  rounded-lg border">
-                  <p className="text-lg font-bold  flex items-center justify-center">
+                <div className="text-center p-2 rounded-md border">
+                  <p className="text-base font-bold flex items-center justify-center">
                     <Users className="w-4 h-4 mr-1" />
                     {contest.participants}
                   </p>
-                  <p className="text-xs ">Participants</p>
+                  <p className="text-[11px] text-gray-500">Participants</p>
                 </div>
               </div>
 
-
-
+              {/* Bottom section */}
               <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1">
                   <Clock className="w-4 h-4 text-red-500" />
-                  <span className="text-red-600 font-semibold">{contest.timeLeft}</span>
+                  <span className="text-red-600 font-medium text-xs">
+                    {contest.timeLeft}
+                  </span>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-gray-700">{contest.spots}</p>
+                  <p className="text-xs font-medium text-gray-700">{contest.spots}</p>
                 </div>
               </div>
-
-
-              <button
-                onClick={() =>
-                  navigate("/pricepol", { state: { _id: contest.id || contest._id } })
-                }
-                className="w-full mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center justify-center space-x-2"
-              >
-                <TrendingUp className="w-4 h-4" />
-                <span>
-                  {activeTab === "mycontests"
-                    ? "View Contest"
-                    : activeTab === "ongoing"
-                      ? "Join Now"
-                      : "Register"}
-                </span>
-              </button>
-
             </div>
+
+
           ))
         ) : (
           <div className="text-center py-12">

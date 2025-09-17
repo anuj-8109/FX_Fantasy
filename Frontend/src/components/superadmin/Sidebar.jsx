@@ -25,7 +25,7 @@ import {
 const menuItems = [
   {
     title: "Dashboard",
-    url: "/superadmin/superadmindashboard",
+    url: "/superadmin/dashboard",
     icon: <Home />,
   },
   {
@@ -47,7 +47,7 @@ const menuItems = [
   },
     {
     title: "Tournament",
-    url: "/superadmin/Tournament",
+    url: "/superadmin/tournament",
     icon: <Award />,
   },
   {

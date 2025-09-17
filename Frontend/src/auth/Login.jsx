@@ -84,7 +84,7 @@ const Login = () => {
 
         setTimeout(() => {
           if (roleId === 1) {
-            navigate("/superadmin/superadmindashboard");
+            navigate("/superadmin/dashboard");
           }
           else if (roleId === 2) {
             navigate("/Staff/Staffdashboard");
@@ -93,7 +93,7 @@ const Login = () => {
             navigate("/Client/Clientdashboard");
           }
           else {
-            navigate("/SuperAdminLogin");
+            navigate("/superadminlogin");
           }
         });
       } else {

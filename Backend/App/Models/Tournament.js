@@ -47,6 +47,11 @@ const TournamentSchema = new Schema({
   timestamps: { createdAt: "created_at", updatedAt: "updated_at" }
 });
 
+
+TournamentSchema.index({ startdate: 1 });
+TournamentSchema.index({ enddate: 1 });
+TournamentSchema.index({ activestatus: 1, del: 1 });
+
 const Tournament = model("Tournament", TournamentSchema);
 
 module.exports = Tournament;

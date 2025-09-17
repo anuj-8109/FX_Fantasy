@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sun, Moon, Bell, Wallet } from "lucide-react";
 
 const UserHeader = () => {
-  const [isDarkMode, setIsDarkMode] = useState("theme-trading-light");
-
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const navigate = useNavigate();
 
   const toggleTheme = () => {
     setIsDarkMode((prev) => {
@@ -20,9 +21,7 @@ const UserHeader = () => {
 
   return (
     <header className="bg-orange-500 text-white flex items-center justify-between px-4 py-2 shadow-md">
-      
       <div className="flex items-center space-x-2">
-        
         <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
           <img
             src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
@@ -30,13 +29,10 @@ const UserHeader = () => {
             className="w-8 h-8 rounded-full"
           />
         </div>
-        {/* Title */}
         <h1 className="text-lg font-semibold">Dream Trading</h1>
       </div>
 
-     
       <div className="flex items-center space-x-3">
-        
         <button
           onClick={toggleTheme}
           className="bg-white p-2 rounded-full text-orange-500 hover:bg-gray-100"
@@ -45,13 +41,14 @@ const UserHeader = () => {
           {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
         </button>
 
-        
-        <button className="bg-white px-3 py-2 rounded-full flex items-center text-orange-500 font-medium hover:bg-gray-100">
+        <button
+          onClick={() => navigate("/wallet")}
+          className="bg-white px-3 py-2 rounded-full flex items-center text-orange-500 font-medium hover:bg-gray-100"
+        >
           <Wallet size={18} className="mr-1" />
           ₹20,140
         </button>
 
-        
         <button className="bg-white p-2 rounded-full text-orange-500 hover:bg-gray-100 relative">
           <Bell size={20} />
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">

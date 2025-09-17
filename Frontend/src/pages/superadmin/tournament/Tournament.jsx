@@ -247,7 +247,7 @@ function Tournament() {
             Page_title="Tournament"
             button_title="back"
             button_status={true}
-            route="/superadmin/superadmindashboard"
+            route="/superadmin/dashboard"
             extra_button="Add Tournament"
             extra_button_action="/superadmin/add-tournament"
         >

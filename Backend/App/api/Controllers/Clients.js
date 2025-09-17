@@ -13,6 +13,7 @@ const Adminnotification_Modal = db.Adminnotification;
 const Smstemplate_Modal = db.Smstemplate;
 const Ticket_Modal = db.Ticket;
 const Ticketmessage_Modal = db.Ticketmessage;
+const Wallet_Modal = db.Wallet;
 
 const { sendSMS } = require('../../Utils/smsHelper');
 const upload = require('../../Utils/multerHelper');
@@ -121,7 +122,7 @@ class Clients {
         });
       }
 
-
+/*
       const titles = 'Important Update';
       const message = `${client.FullName} ,has successfully deleted the account.`;
       const resultnm = new Adminnotification_Modal({
@@ -140,7 +141,7 @@ class Clients {
         message: message,
         type: 'delete client',
       });
-
+*/
 
       return res.json({
         status: true,
@@ -155,8 +156,6 @@ class Clients {
       });
     }
   }
-
-
 
   async requestPayout(req, res) {
     try {
@@ -198,9 +197,7 @@ class Clients {
         amount: amount,
       });
 
-
       await payoutRequest.save();
-
 
       return res.status(201).json({
         status: true,
@@ -300,7 +297,6 @@ class Clients {
       const limit = 10;
       const skip = (parseInt(page) - 1) * limit;
 
-
       if (!clientId) {
         return res.json({
           status: false,
@@ -395,7 +391,6 @@ class Clients {
         return message;
       });
 
-
       return res.json({
         status: true,
         data: {
@@ -421,10 +416,6 @@ class Clients {
           if (err) {
             return reject(err);
           }
-
-
-
-
           resolve();
         });
       });
@@ -452,8 +443,6 @@ class Clients {
         return res.json({ status: false, message: 'Ticket not found' });
       }
 
-
-
       const attachment = req.files['attachment'] ? req.files['attachment'][0].filename : null;
 
       // Create a new News record
@@ -468,8 +457,7 @@ class Clients {
       await result.save();
 
 
-
-
+/*
       const adminnotificationTitle = "Important Update";
       const adminnotificationBody = `${client.FullName} replied on ticket #${ticket.ticketnumber}`;
       const newNotification = new Adminnotification_Modal({
@@ -490,7 +478,7 @@ class Clients {
         type: 'help request',
       });
 
-
+*/
 
       return res.json({
         status: true,
@@ -528,8 +516,6 @@ class Clients {
         return res.json({ status: false, message: 'Client not found or inactive.' });
       }
 
-
-
       const existingOpenTicket = await Ticket_Modal.findOne({
         client_id,
         status: { $in: [0, 1] },  // Match if status is 0 OR 1
@@ -566,7 +552,6 @@ class Clients {
 
       await newTicket.save();
 
-
       return res.json({
         status: true,
         message: "Ticket added successfully",
@@ -583,273 +568,347 @@ class Clients {
   }
 
 
-  async LoginWithOTP(req, res) {
-    try {
-      const { PhoneNo, token = "" } = req.body;
+async LoginWithOTP(req, res) {
+  try {
+    const { PhoneNo, token = "" } = req.body;
 
-      // --- Input Validation ---
-      if (!PhoneNo) {
-        return res.status(400).json({ status: false, message: "Please enter phone number" });
-      }
-      if (!/^\d{10}$/.test(PhoneNo)) {
-        return res.status(400).json({ status: false, message: "Please enter a valid 10-digit phone number" });
-      }
+    // --- Input Validation ---
+    if (!PhoneNo) {
+      return res.status(400).json({ status: false, message: "Please enter phone number" });
+    }
+    if (!/^\d{10}$/.test(PhoneNo)) {
+      return res.status(400).json({ status: false, message: "Please enter a valid 10-digit phone number" });
+    }
 
-      // --- Load Settings ---
-      const settings = await BasicSetting_Modal.findOne();
-      if (!settings) {
-        return res.status(500).json({ status: false, message: "Basic settings not found" });
-      }
+    // --- Load Settings ---
+    const settings = await BasicSetting_Modal.findOne();
+    if (!settings) {
+      return res.status(500).json({ status: false, message: "Basic settings not found" });
+    }
 
-      // --- Check if client exists ---
-      let client = await Clients_Modal.findOne({ PhoneNo, del: 0 });
-      let isNewUser = false;
+    // --- Check if client exists ---
+    let client = await Clients_Modal.findOne({ PhoneNo, del: 0 });
+    let isNewUser = false;
 
-      if (!client) {
-        // --- Validate referral token if provided ---
-        if (token) {
-          const refUser = await Clients_Modal.findOne({ refer_token: token, del: 0, ActiveStatus: 1 });
-          if (!refUser) {
-            return res.status(400).json({ status: false, message: "Referral code doesn't exist" });
-          }
-        }
-
-        // --- Generate unique refer token ---
-        const referTokenPrefix = PhoneNo.substring(0, 4).toUpperCase();
-        const refer_token_suffix = Math.floor(1000 + Math.random() * 9000).toString();
-        const refer_token = referTokenPrefix + refer_token_suffix;
-
-        // --- Create new client (Registration) ---
-        client = new Clients_Modal({
-          PhoneNo,
-          refer_token,
-          refer_status: token ? (settings.refer_status || 0) : 0,
-          del: 0,
-          ActiveStatus: 0,
-          createdAt: new Date()
-        });
-        await client.save();
-        isNewUser = true;
-
-        // --- Save referral entry if token valid ---
-        if (token) {
-          await new Refer_Modal({
-            token: token,
-            user_id: client._id,
-            senderearn: settings.sender_earn || 0,
-            receiverearn: settings.receiver_earn || 0
-          }).save();
+    if (!client) {
+      // --- Validate referral token if provided ---
+      if (token) {
+        const refUser = await Clients_Modal.findOne({ refer_token: token, del: 0, ActiveStatus: 1 });
+        if (!refUser) {
+          return res.status(400).json({ status: false, message: "Referral code doesn't exist" });
         }
       }
 
-      const otp = Math.floor(100000 + Math.random() * 900000);
-         console.log("otpStore", otp)
+      // --- Generate unique refer token ---
+      const referTokenPrefix = PhoneNo.substring(0, 4).toUpperCase();
+      const refer_token_suffix = Math.floor(1000 + Math.random() * 9000).toString();
+      const refer_token = referTokenPrefix + refer_token_suffix;
+
+      // --- Create new client (Registration) ---
+      client = new Clients_Modal({
+        PhoneNo,
+        refer_token,
+        refer_status: token ? (settings.refer_status || 0) : 0,
+        del: 0,
+        ActiveStatus: 0,
+        createdAt: new Date()
+      });
+      await client.save();
+      isNewUser = true;
+
+      // --- Save referral entry if token valid ---
+      if (token) {
+        await new Refer_Modal({
+          token: token,
+          user_id: client._id,
+          senderearn: settings.sender_earn || 0,
+          receiverearn: settings.receiver_earn || 0
+        }).save();
+      }
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000);
       otpStore.set(PhoneNo, { otp, expires: Date.now() + 5 * 60 * 1000 });
 
+  
+    if (String(settings.smsprovider) === '1') {
+      const smstemplate = await Smstemplate_Modal.findOne({ sms_type: "otp" });
 
-      if (String(settings.smsprovider) === '1') {
-        const smstemplate = await Smstemplate_Modal.findOne({ sms_type: "otp" });
-
-        if (!smstemplate?.sms_body || !smstemplate?.templateid) {
-          return res.status(400).json({ status: false, message: "SMS template not configured" });
-        }
-
-        const message = smstemplate.sms_body.replace(/{#var#}/g, otp);
-        await sendSMS(PhoneNo, message, smstemplate.templateid);
+      if (!smstemplate?.sms_body || !smstemplate?.templateid) {
+        return res.status(400).json({ status: false, message: "SMS template not configured" });
       }
 
-      // --- Response ---
-      return res.json({
-        status: true,
-        // otp, // remove in production
-        PhoneNo,
-        type: isNewUser ? "register" : "login",  // <-- Added explicit type
-        message: isNewUser
-          ? "OTP sent successfully (new user registered)"
-          : "OTP sent successfully (login)"
-      });
-
-    } catch (error) {
-      return res.status(500).json({ status: false, message: "Server error. Please try again later." });
+      const message = smstemplate.sms_body.replace(/{#var#}/g, otp);
+      await sendSMS(PhoneNo, message, smstemplate.templateid);
     }
+
+    // --- Response ---
+    return res.json({
+      status: true,
+     // otp, // remove in production
+      PhoneNo,
+      type: isNewUser ? "register" : "login",  // <-- Added explicit type
+      message: isNewUser 
+        ? "OTP sent successfully" 
+        : "OTP sent successfully"
+    });
+
+  } catch (error) {
+    return res.status(500).json({ status: false, message: "Server error. Please try again later." });
   }
+}
 
+async otpSubmitWithPhone(req, res) {
+  try {
+    const { otp, PhoneNo, devicetoken = "" } = req.body;
 
-
-  async otpSubmitWithPhone(req, res) {
-    try {
-      const { otp, PhoneNo, devicetoken = "" } = req.body;
-
-      if (!otp) {
-        return res.status(400).json({
-          status: false,
-          message: "Please enter OTP",
-        });
-      }
-
-
-      const record = otpStore.get(PhoneNo);
-    
-
-      if (!record) {
-        return res.status(400).json({ status: false, message: "OTP not found" });
-      }
-
-      if (record.expiry < Date.now()) {
-        otpStore.delete(PhoneNo);
-        return res.status(400).json({ status: false, message: "OTP expired" });
-      }
-
-      if (record.otp != otp) {
-        return res.status(400).json({ status: false, message: "Invalid OTP" });
-      }
-
-
-      if (!PhoneNo) {
-        return res.status(400).json({
-          status: false,
-          message: "Phone number is required",
-        });
-      }
-
-      const client = await Clients_Modal.findOne({
-        PhoneNo,
-        del: 0,
-      });
-
-      if (!client) {
-        return res.status(400).json({
-          status: false,
-          message: "Client not found",
-        });
-      }
-
-
-      client.devicetoken = devicetoken;
-
-      let isNewSignup = false;
-
-      // ✅ First-time activation
-      if (client.ActiveStatus !== 1) {
-        client.ActiveStatus = 1;
-        isNewSignup = true;
-      }
-
-      await client.save();
-
-
-      const tokenjwt = jwt.sign(
-        { id: client._id },
-        process.env.JWT_SECRET_CLIENT,
-        { expiresIn: "7d" }
-      );
-
-      otpStore.delete(PhoneNo);
-     
-      return res.json({
-        status: true,
-        
-        message: isNewSignup ? "Registration successful." : "OTP verified. Login successful.",
-        data: {
-          FullName: client.FullName,
-          Email: client.Email,
-          PhoneNo: client.PhoneNo,
-          id: client.id,
-          jwtToken: tokenjwt,
-          createdAt: client.createdAt,
-        },
-      });
-    } catch (error) {
-      return res.status(500).json({
+    if (!otp) {
+      return res.status(400).json({
         status: false,
-        message: "Server error",
-        error: error.message,
+        message: "Please enter OTP",
       });
     }
+
+  const record = otpStore.get(PhoneNo);
+  
+  if (!record) {
+    return res.status(400).json({ status: false, message: "OTP not found" });
   }
 
+  if (record.expiry < Date.now()) {
+    otpStore.delete(PhoneNo);
+    return res.status(400).json({ status: false, message: "OTP expired" });
+  }
 
-  async updateClientProfile(req, res) {
-    try {
-      const { id, FullName, Email, state, city, dob } = req.body;
+  if (record.otp != otp) {
+    return res.status(400).json({ status: false, message: "Invalid OTP" });
+  }
 
-      // 🔒 Validation
-      if (!FullName) {
-        return res.status(400).json({ status: false, message: "Please enter full name" });
-      }
-
-      if (!Email) {
-        return res.status(400).json({ status: false, message: "Please enter email" });
-      } else if (!/^\S+@\S+\.\S+$/.test(Email)) {
-        return res.status(400).json({ status: false, message: "Please enter a valid email" });
-      }
-
-
-      if (!state) {
-        return res.status(400).json({ status: false, message: "Please select state" });
-      }
-
-      if (!city) {
-        return res.status(400).json({ status: false, message: "Please select city" });
-      }
-
-      if (!dob) {
-        return res.status(400).json({ status: false, message: "Please enter DOB" });
-      }
-      // 🔎 Find client
-      const client = await Clients_Modal.findOne({
-        _id: id,
-        del: 0,
-        ActiveStatus: 1
-      });
-
-      if (!client) {
-        return res.status(404).json({ status: false, message: "Client not found or inactive" });
-      }
-
-      // ✅ Check for duplicate email (other clients only)
-      const existingEmailClient = await Clients_Modal.findOne({
-        Email,
-        _id: { $ne: id },
-        del: 0
-      });
-
-      if (existingEmailClient) {
-        return res.status(400).json({
-          status: false,
-          message: "This email is already in use by another account"
-        });
-      }
-
-      // ✅ Update fields
-      client.FullName = FullName;
-      client.Email = Email;
-      client.state = state;
-      client.city = city;
-      client.dob = dob;
-
-      await client.save();
-
-      return res.json({
-        status: true,
-        message: "Profile updated successfully",
-        data: {
-          id: client._id,
-          FullName: client.FullName,
-          Email: client.Email,
-          state: client.state,
-          city: client.city,
-        },
-      });
-
-    } catch (error) {
-      return res.status(500).json({
+    if (!PhoneNo) {
+      return res.status(400).json({
         status: false,
-        message: "Server error",
-        error: error.message,
+        message: "Phone number is required",
       });
     }
+
+    const client = await Clients_Modal.findOne({
+      PhoneNo,
+      del: 0,
+    });
+
+    if (!client) {
+      return res.status(400).json({
+        status: false,
+        message: "Client not found",
+      });
+    }
+
+    client.devicetoken = devicetoken;
+
+    let isNewSignup = false;
+
+    // ✅ First-time activation
+    if (client.ActiveStatus !== 1) {
+      client.ActiveStatus = 1;
+      isNewSignup = true;
+    }
+
+    await client.save();
+
+    const tokenjwt = jwt.sign(
+    { id: client._id},
+    process.env.JWT_SECRET_CLIENT,
+    { expiresIn: "7d" }
+  );
+  
+   otpStore.delete(PhoneNo); 
+ 
+    return res.json({
+      status: true,
+      message: isNewSignup ? "Registration successful." : "OTP verified. Login successful.",
+      data: {
+        FullName: client.FullName,
+        Email: client.Email,
+        PhoneNo: client.PhoneNo,
+        id: client.id,
+        jwtToken: tokenjwt, 
+        createdAt: client.createdAt,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
   }
+}
+
+
+async  updateClientProfile(req, res) {
+  try {
+    const { id, FullName, Email, state, city, dob } = req.body;
+
+    // 🔒 Validation
+    if (!FullName) {
+      return res.status(400).json({ status: false, message: "Please enter full name" });
+    }
+
+    if (!Email) {
+      return res.status(400).json({ status: false, message: "Please enter email" });
+    } else if (!/^\S+@\S+\.\S+$/.test(Email)) {
+      return res.status(400).json({ status: false, message: "Please enter a valid email" });
+    }
+
+    if (!state) {
+      return res.status(400).json({ status: false, message: "Please select state" });
+    }
+
+    if (!city) {
+      return res.status(400).json({ status: false, message: "Please select city" });
+    }
+
+    if (!dob) {
+      return res.status(400).json({ status: false, message: "Please enter DOB" });
+    }
+    // 🔎 Find client
+    const client = await Clients_Modal.findOne({
+      _id: id,
+      del: 0,
+      ActiveStatus: 1
+    });
+
+    if (!client) {
+      return res.status(404).json({ status: false, message: "Client not found or inactive" });
+    }
+
+    // ✅ Check for duplicate email (other clients only)
+    const existingEmailClient = await Clients_Modal.findOne({
+      Email,
+      _id: { $ne: id },
+      del: 0
+    });
+
+    if (existingEmailClient) {
+      return res.status(400).json({
+        status: false,
+        message: "This email is already in use by another account"
+      });
+    }
+
+    // ✅ Update fields
+    client.FullName = FullName;
+    client.Email = Email;
+    client.state = state;
+    client.city = city;
+    client.dob = dob;
+
+    await client.save();
+
+    return res.json({
+      status: true,
+      message: "Profile updated successfully",
+      data: {
+        id: client._id,
+        FullName: client.FullName,
+        Email: client.Email,
+        state: client.state,
+        city: client.city,
+      },
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
+
+async  addMoneyInWallet(req, res) {
+  try {
+    const { client_id, amount, remark } = req.body;
+
+    if (!client_id || !amount) {
+      return res.status(400).json({
+        status: false,
+        message: "client_id and amount are required",
+      });
+    }
+
+    // Transaction create in wallet history
+    const walletEntry = new Wallet_Modal({
+      client_id,
+      amount,
+      type: "credit",
+      remark: remark || "Money added",
+    });
+    await walletEntry.save();
+
+    // Update client balance
+    await Clients_Modal.findByIdAndUpdate(
+      client_id,
+      { $inc: { wamount: amount } }, // increment balance
+      { new: true }
+    );
+
+    return res.status(200).json({
+      status: true,
+      message: "Money added to wallet successfully",
+      data: walletEntry,
+    });
+  } catch (error) {
+    console.error("Error adding money in wallet:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
+async getWalletHistory(req, res) {
+  try {
+    const { client_id, page = 1 } = req.body;
+    const limit = 10;
+
+    if (!client_id) {
+      return res.status(400).json({
+        status: false,
+        message: "client_id is required",
+      });
+    }
+
+    const pageNum = parseInt(page) || 1;
+    const skip = (pageNum - 1) * limit;
+
+    const history = await Wallet_Modal.find({ client_id })
+      .populate("client_id", "FullName Email PhoneNo wamount")
+      .sort({ created_at: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Wallet_Modal.countDocuments({ client_id });
+
+    return res.status(200).json({
+      status: true,
+      message: "Wallet history fetched successfully",
+      page: pageNum,
+      limit,
+      total,
+      data: history,
+    });
+  } catch (error) {
+    console.error("Error fetching wallet history:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
 
 
 

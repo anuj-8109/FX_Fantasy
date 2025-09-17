@@ -1,7 +1,7 @@
 import React from "react";
 import { Route } from "react-router-dom";
 
-import UserDashboard from "../pages/user/UserDashboard";
+import Userdashboard from "../pages/user/UserDashboard";
 import UserLayout from "../layouts/UserLayout";
 import Pricepol from "../pages/user/Pricepol";
 // import SuperAdminHeader from "../components/superadmin/Header";
@@ -11,6 +11,7 @@ import UserProfile from "../pages/user/profile/UserProfile";
 
 import HelpDesk from "../pages/user/helpdesk/HelpDesk";
 import Chat from "../pages/user/helpdesk/Chat";
+import WalletPage from "../pages/user/walletPage/WalletPage";
 
 const UserRoutes = () => {
   return (
@@ -18,12 +19,13 @@ const UserRoutes = () => {
 
       <Route path="/" element={<UserLayout />}>
 
-        <Route path="userDashboard" element={<UserDashboard />} />
+        <Route path="dashboard" element={<Userdashboard />} />
         <Route path="pricepol" element={<Pricepol />} />
         <Route path="history" element={<HistoryPage />} />
         <Route path="profile" element={<UserProfile />} />
         <Route path="helpdesk" element={<HelpDesk />} />
        <Route path="chat/:ticketId" element={<Chat />} />
+       <Route path="wallet" element={<WalletPage />} />
 
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
 

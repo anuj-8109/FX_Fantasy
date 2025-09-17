@@ -13,7 +13,6 @@ import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import Content from "../../../components/superadmin/Content";
 
-
 const Client = () => {
   const [clients, setClients] = useState([]);
   const [open, setOpen] = useState(false);
@@ -190,11 +189,11 @@ const Client = () => {
   // datatable columns
   const columns = [
     { name: "S.No", selector: (row, i) => i + 1, width: "80px" },
-    { name: "Name", selector: (row) => row.FullName||"N/A", sortable: true },
-    { name: "Email", selector: (row) => row.Email||"N/A" },
-    { name: "Phone", selector: (row) => row.PhoneNo ||"N/A"},
-    { name: "City", selector: (row) => row.city||"N/A" },
-    { name: "State", selector: (row) => row.state||"N/A" },
+    { name: "Name", selector: (row) => row.FullName || "N/A", sortable: true },
+    { name: "Email", selector: (row) => row.Email || "N/A" },
+    { name: "Phone", selector: (row) => row.PhoneNo || "N/A" },
+    { name: "City", selector: (row) => row.city || "N/A" },
+    { name: "State", selector: (row) => row.state || "N/A" },
     {
       name: "Status",
       cell: (row) => (
@@ -241,12 +240,21 @@ const Client = () => {
   ];
 
   return (
-    <Content Page_title="Client Management" button_title="back" button_status={true}
-      route={"/superadmin/superadmindashboard"} extra_button="Add Client"
-       extra_button_action={() => handleOpen(null)} >
+    <Content
+      Page_title="Client Management"
+      button_title="back"
+      button_status={true}
+      extra_button_action={() => handleOpen(null)}
+    >
+      route={"/superadmin/dashboard"} extra_button="Add Client"
       <div className="p-2 ">
         <div className="shadow-lg rounded-xl p-4">
-          <Datatable columns={columns} data={clients} title="Client List" onRefresh={fetchClients} />
+          <Datatable
+            columns={columns}
+            data={clients}
+            title="Client List"
+            onRefresh={fetchClients}
+          />
         </div>
 
         {open && (
@@ -256,7 +264,10 @@ const Client = () => {
                 {selectedClient ? "✏️ Edit Client" : "➕ Add Client"}
               </h2>
 
-              <form onSubmit={handleSave} className="grid grid-cols-2 gap-4 mt-4">
+              <form
+                onSubmit={handleSave}
+                className="grid grid-cols-2 gap-4 mt-4"
+              >
                 <div className="">
                   <label className="text-sm">Full Name</label>
                   <input
@@ -338,8 +349,6 @@ const Client = () => {
           </div>
         )}
 
-
-
         {/* View Client */}
         {viewOpen && viewClient && (
           <div className="fixed inset-0 flex items-center justify-center z-50  bg-opacity-40 ">
@@ -358,13 +367,27 @@ const Client = () => {
               </h2>
 
               <div className="space-y-3">
-                <p><strong>Name:</strong> {viewClient?.FullName||"N/A"}</p>
-                <p><strong>Email:</strong> {viewClient?.Email||"N/A"}</p>
-                <p><strong>Phone:</strong> {viewClient?.PhoneNo||"N/A"}</p>
-                <p><strong>City:</strong> {viewClient?.city||"N/A"}</p>
-                <p><strong>State:</strong> {viewClient?.state||"N/A"}</p>
-                <p><strong>DOB:</strong> {viewClient?.dob||"N/A"}</p>
-                <p><strong>Status:</strong> {viewClient?.status||"N/A"}</p>
+                <p>
+                  <strong>Name:</strong> {viewClient?.FullName || "N/A"}
+                </p>
+                <p>
+                  <strong>Email:</strong> {viewClient?.Email || "N/A"}
+                </p>
+                <p>
+                  <strong>Phone:</strong> {viewClient?.PhoneNo || "N/A"}
+                </p>
+                <p>
+                  <strong>City:</strong> {viewClient?.city || "N/A"}
+                </p>
+                <p>
+                  <strong>State:</strong> {viewClient?.state || "N/A"}
+                </p>
+                <p>
+                  <strong>DOB:</strong> {viewClient?.dob || "N/A"}
+                </p>
+                <p>
+                  <strong>Status:</strong> {viewClient?.status || "N/A"}
+                </p>
               </div>
 
               <div className="mt-6 flex justify-end">

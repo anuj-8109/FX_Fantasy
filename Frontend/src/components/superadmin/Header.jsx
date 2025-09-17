@@ -43,7 +43,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
     // localStorage.removeItem("user");
     // localStorage.removeItem("isLoggedIn");
     if (roleId === "1") {
-      navigate("/SuperAdminLogin");      
+      navigate("/superadminlogin");      
     } else {
       navigate("/");  
     }
@@ -87,7 +87,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
           htmlContainer: "text-gray-600",
         },
       });
-      navigate("/SuperAdminLogin");
+      navigate("/superadminlogin");
     }
 
   };
@@ -110,7 +110,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
         <div className="flex items-center gap-3">
           <div
             className="cursor-pointer flex items-center gap-3"
-            onClick={() => navigate("/superadmin/superadmindashboard")}
+            onClick={() => navigate("/superadmin/dashboard")}
           >
             <img src="/images/logo.png" alt="FX Fantasy" className="h-20 w-24" />
           </div>

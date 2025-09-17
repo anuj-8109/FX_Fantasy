@@ -220,8 +220,9 @@ const Banner = () => {
       Page_title="Banner Management"
       button_title="back"
       button_status={true}
-      route="/superadmin/superadmindashboard"
       extra_button="+ Add Banner"  extra_button_action={() => handleOpen(null)}
+      route="/superadmin/dashboard"
+
     >
       <div className="p-2 ">
        

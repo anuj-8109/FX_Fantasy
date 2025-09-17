@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
+
 const SetToPlay = () => {
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
@@ -45,7 +46,7 @@ const SetToPlay = () => {
                     onClick={() => {
                         handleSave();
                         if (token) {
-                            navigate("/userDashboard");
+                            navigate("/dashboard");
                         }
                     }}
                     className="w-40 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition"

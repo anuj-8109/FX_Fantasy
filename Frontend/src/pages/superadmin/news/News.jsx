@@ -234,7 +234,7 @@ const News = () => {
     <Content
       Page_title="All News"
       button_title="back"
-      route="/superadmin/superadmindashboard"
+      route="/superadmin/dashboard"
       button_status={true}
       extra_button="+ Add News"  extra_button_action={() => handleOpen(null)}
     >
