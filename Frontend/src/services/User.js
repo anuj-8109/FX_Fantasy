@@ -253,7 +253,40 @@ export async function WalletHistory(token, data) {
         "Authorization": `Bearer ${token}`,
 
       },
+
     })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+
+// withdrolmonwy
+
+export async function withdrolmoney(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}api/client/requestpayout`, data, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+// withdrolmoneyList
+
+export async function withdrolHistory(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}api/client/payoutlist`, data, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    })
+    return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
   }
