@@ -250,7 +250,7 @@ const Client = () => {
         </div>
 
         {open && (
-          <div className="fixed mt-5 inset-0 flex items-center justify-center z-50 bg-opacity-40">
+          <div className="fixed mt-5 inset-0 flex items-center justify-center z-50 bg-opacity-40 client-style">
             <div className=" w-lg max-h-[80vh] overflow-y-auto Add-client-style shadow-2xl p-6 hide-scrollbar">
               <h2 className="text-lg font-semibold border-b pb-2">
                 {selectedClient ? "✏️ Edit Client" : "➕ Add Client"}
