@@ -96,9 +96,10 @@ const User = () => {
           submitButton={{
             label: loading ? "Adding..." : "Add User",
             className:
-              "col-span-4 mt-4 py-2 rounded-lg   font-semibold shadow-lg  transition disabled:opacity-50 ",
+              "col-span-6 mt-4 py-2 rounded-lg font-semibold shadow-lg transition disabled:opacity-50 w-1/3 mx-auto block",
             disabled: loading,
           }}
+
         />
       </div>
     </Content>
