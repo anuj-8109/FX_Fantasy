@@ -236,7 +236,7 @@ const News = () => {
       button_title="Back"
       route="/superadmin/dashboard"
       button_status={true}
-      extra_button="+ Add News" extra_button_action={handleOpen}
+      extra_button="+ Add News"  extra_button_action={() => handleOpen(null)}
     >
       <div className="p-2 ">
 

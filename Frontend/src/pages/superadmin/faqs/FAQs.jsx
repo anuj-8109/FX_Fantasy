@@ -29,7 +29,6 @@ const FAQs = () => {
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
 
-
   const fetchFAQs = async () => {
     try {
       setLoading(true);
@@ -50,7 +49,6 @@ const FAQs = () => {
     fetchFAQs();
   }, []);
 
-
   const handleOpen = (faq = null) => {
     setSelectedFAQ(faq);
     setQuestion(faq?.title || "");
@@ -65,7 +63,6 @@ const FAQs = () => {
     setQuestion("");
     setAnswer("");
   };
-
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -116,7 +113,6 @@ const FAQs = () => {
     }
   };
 
-
   const handleStatusChange = async (faq) => {
     const actionText = faq.status ? "Deactivate" : "Activate";
 
@@ -145,7 +141,6 @@ const FAQs = () => {
       toast.error("Error updating status");
     }
   };
-
 
   const handleDelete = async (faq) => {
     const confirm = await Swal.fire({
@@ -242,11 +237,15 @@ const FAQs = () => {
   ];
 
   return (
-    <Content Page_title="FAQ Management" button_status={true} button_title="Back"
-     extra_button="+ Add FAQ" extra_button_action={handleOpen} route="/superadmin/dashboard"
+    <Content
+      Page_title="FAQ Management"
+      button_status={true}
+      button_title="back"
+      extra_button="+ Add FAQ"
+      extra_button_action={() => handleOpen(null)}
+      route="/superadmin/dashboard"
     >
       <div className="p-2 ">
-
         {/* <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <FileQuestion />
@@ -262,7 +261,13 @@ const FAQs = () => {
         </div> */}
 
         <div className="shadow-lg rounded-xl p-4 ">
-          <Datatable columns={columns} data={faqs} title="FAQs List" progressPending={loading} onRefresh={fetchFAQs} />
+          <Datatable
+            columns={columns}
+            data={faqs}
+            title="FAQs List"
+            progressPending={loading}
+            onRefresh={fetchFAQs}
+          />
         </div>
 
         {/* Add/Edit Modal */}
@@ -273,7 +278,6 @@ const FAQs = () => {
                 {selectedFAQ ? "✏️ Edit FAQ" : "➕ Add FAQ"}
               </h2>
               <form onSubmit={handleSave} className="space-y-4">
-
                 {/* Title Input */}
                 <div>
                   <label className="text-sm">Title</label>
@@ -284,7 +288,6 @@ const FAQs = () => {
                     className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   />
                 </div>
-
 
                 <div>
                   <label className="text-sm ">Description</label>
@@ -297,7 +300,6 @@ const FAQs = () => {
                     }}
                   />
                 </div>
-
 
                 <div className="flex justify-end gap-3">
                   <button
@@ -349,7 +351,6 @@ const FAQs = () => {
                     dangerouslySetInnerHTML={{ __html: viewFAQ.description }}
                   />
                 </div>
-
               </div>
 
               <div className="mt-6 flex justify-end">

@@ -198,8 +198,8 @@ const Contents = () => {
       Page_title="All Contents"
       button_title="Back"
       button_status={true}
+      extra_button="+ Add Content"  extra_button_action={() => handleOpen(null)}
       route="/superadmin/dashboard"
-      extra_button="+ Add Content" extra_button_action={handleOpen}
     >
       <div className="p-2 ">
         {/* <div className="flex items-center justify-between mb-6">

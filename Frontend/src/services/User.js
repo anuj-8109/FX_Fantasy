@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import * as config from "../utils/config";
 import { LucideTicketsPlane, Ticket } from "lucide-react";
@@ -21,7 +20,6 @@ export async function GetTurnament(token) {
   }
 }
 
-
 // Get contest by turnament
 export async function GetContestByTurnament(tournamentId, token) {
   try {
@@ -39,9 +37,15 @@ export async function GetContestByTurnament(tournamentId, token) {
   }
 }
 
-
 // join contest
-export async function JoinContest(contestId, clientId, price, discount, total, token) {
+export async function JoinContest(
+  contestId,
+  clientId,
+  price,
+  discount,
+  total,
+  token
+) {
   try {
     const response = await axios.post(
       `${config.base_url}api/list/joincontest`,
@@ -50,7 +54,7 @@ export async function JoinContest(contestId, clientId, price, discount, total, t
         client_id: clientId,
         price,
         discount,
-        total
+        total,
       },
       {
         headers: {
@@ -91,16 +95,12 @@ export async function GetMyContests(token, clientId) {
 export async function GetContestHistory(token, data) {
   try {
     const url = `${config.base_url}api/list/gettradehistory`;
-    const response = await axios.post(
-      url,
-      data,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await axios.post(url, data, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     return response?.data;
   } catch (error) {
@@ -108,7 +108,6 @@ export async function GetContestHistory(token, data) {
     return error?.response?.data || { status: false, message: "Unknown error" };
   }
 }
-
 
 // get user details
 export async function GetUserDetails(token, id) {
@@ -128,7 +127,7 @@ export async function GetUserDetails(token, id) {
   }
 }
 
-// for Ticket Status 
+// for Ticket Status
 
 // get Ticket
 
@@ -140,7 +139,7 @@ export async function GetTicket(token, clientId) {
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }
     );
@@ -150,20 +149,21 @@ export async function GetTicket(token, clientId) {
   }
 }
 
-
-
-
 // Add Ticket
 
 export async function addTicket(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}api/client/addticket`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    })
-    return response?.data
+    const response = await axios.post(
+      `${config.base_url}api/client/addticket`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
   }
@@ -173,12 +173,15 @@ export async function addTicket(token, data) {
 
 export async function getticketDetail(token, ticketId) {
   try {
-    const response = await axios.get(`${config.base_url}api/client/ticketdetail/${ticketId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await axios.get(
+      `${config.base_url}api/client/ticketdetail/${ticketId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
@@ -187,7 +190,7 @@ export async function getticketDetail(token, ticketId) {
 
 // TicketReply
 export async function TicketReply(token, data) {
-  console.log("data", data)
+  console.log("data", data);
   try {
     // const response = await axios.post(
     //   `${config.base_url}api/client/ticketreply`,
@@ -212,32 +215,33 @@ export async function TicketReply(token, data) {
       formData,
       {
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       }
     );
 
-    console.log("response", response)
+    console.log("response", response);
     return response?.data;
-
   } catch (error) {
     console.log(error.response?.data);
     return error?.response?.data || { status: false, message: "Unknown error" };
   }
 }
 
-
-// AddMoney in walllet 
+// AddMoney in walllet
 
 export async function addMoneyInWallet(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}api/client/addmoneyinwallet`, data, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}api/client/addmoneyinwallet`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
@@ -248,29 +252,34 @@ export async function addMoneyInWallet(token, data) {
 
 export async function WalletHistory(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}api/client/getwallethistory`, data, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-
-      },
-
-    })
+    const response = await axios.post(
+      `${config.base_url}api/client/getwallethistory`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
   }
 }
 
-
 // withdrolmonwy
 
-export async function withdrolmoney(token, data ) {
+export async function withdrolmoney(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}api/client/requestpayout`, data, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-      },
-    })
+    const response = await axios.post(
+      `${config.base_url}api/client/requestpayout`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
@@ -281,13 +290,32 @@ export async function withdrolmoney(token, data ) {
 
 export async function withdrolHistory(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}api/client/payoutlist`, data, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-      },
-    })
+    const response = await axios.post(
+      `${config.base_url}api/client/payoutlist`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+//Get Active Banners
+
+export async function GetBanners(token) {
+  try {
+    const response = await axios.get(`${config.base_url}api/list/banner`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
   }
 }
