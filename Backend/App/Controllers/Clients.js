@@ -8,6 +8,7 @@ const axios = require('axios');
 const Clients_Modal = db.Clients;
 const Mailtemplate_Modal = db.Mailtemplate;
 const BasicSetting_Modal = db.BasicSetting;
+const Payout_Modal = db.Payout;
 
 
 class Clients {
@@ -544,6 +545,114 @@ class Clients {
     }
   }
 
+
+  async processPayoutRequest(req, res) {
+      try {
+        const { payoutRequestId, status, remark } = req.body;
+  
+        // Validate input
+        if (!payoutRequestId || !['1', '2'].includes(status)) {
+          return res.json({ status: false, message: 'Invalid payout request ID or status.' });
+        }
+  
+        // Fetch the payout request record
+        const payoutRequest = await Payout_Modal.findById(payoutRequestId);
+  
+        if (!payoutRequest) {
+          return resolve.json({ status: false, message: 'Payout request not found.' });
+        }
+  
+        // Fetch the client record
+        const client = await Clients_Modal.findOne({ _id: payoutRequest.clientid, del: 0, ActiveStatus: 1 });
+  
+        if (!client) {
+          return res.json({ status: false, message: 'Client not found or inactive.' });
+        }
+       
+  
+        if (status === '1') {
+          // Approve the payout request
+          payoutRequest.status = '1';
+  
+        } else if (status === '2') {
+          // Logic to reject the payout request
+          payoutRequest.status = '2';
+          payoutRequest.remark = remark;
+          client.wamount += payoutRequest.amount; // Refund amount back to client's wamount
+          await client.save();
+
+  
+        }
+  
+        await payoutRequest.save();
+        
+        return res.json({
+          status: true,
+          message: 'Payout request updated successfully.',
+          data: payoutRequest,
+        });
+  
+      } catch (error) {
+        // console.error('Error processing payout request:', error);
+        return res.json({ status: false, message: 'Server error while processing payout request.' });
+      }
+    }
+  
+    async payoutList(req, res) {
+  
+      try {
+        // const { } = req.body; // Not needed unless you plan to use body data
+  
+        const result = await Payout_Modal.aggregate([
+          {
+            $lookup: {
+              from: "clients", // The collection to join
+              let: { clientId: { $toObjectId: "$clientid" } }, // Convert clientid to ObjectId for matching
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$_id", "$$clientId"] }, // Match _id with clientId
+                    ActiveStatus: 1, // Ensure client is active
+                    del: 0 // Ensure client is not deleted
+                  }
+                },
+                {
+                  $project: { FullName: 1, Email: 1, PhoneNo: 1, wamount: 1 } // Get only required fields
+                }
+              ],
+              as: "client_details" // The resulting array of matched documents from clients
+            }
+          },
+          {
+            $unwind: { path: "$client_details", preserveNullAndEmptyArrays: false } // Exclude documents where client_details is empty or null
+          },
+          {
+            $project: {
+              _id: 1,
+              clientid: 1,
+              amount: 1,
+              status: 1,
+              del: 1,
+              created_at: 1,
+              updated_at: 1,
+              client_details: 1 // Include client details
+            }
+          }
+        ]);
+  
+        // Log the result for debugging
+  
+        return res.json({
+          status: true,
+          message: "get",
+          data: result
+        });
+  
+      } catch (error) {
+        return res.json({ status: false, message: "Server error", data: [] });
+      }
+    }
+  
 
 
 }

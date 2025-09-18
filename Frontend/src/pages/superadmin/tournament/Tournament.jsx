@@ -22,7 +22,7 @@ function Tournament() {
         entry_fee: "",
         total_spots: "",
         max_entry_per_user: 1,
-        prize_pool: "",
+        // prize_pool: "",
         contest_code: "",
         startdate: "",
         enddate: "",
@@ -38,7 +38,7 @@ function Tournament() {
             entry_fee: data?.entry_fee || "",
             total_spots: data?.total_spots || "",
             max_entry_per_user: data?.max_entry_per_user || 1,
-            prize_pool: data?.prize_pool || "",
+            // prize_pool: data?.prize_pool || "",
             contest_code: data?.contest_code || "",
             startdate: data ? new Date(data.startdate).toISOString().slice(0, 16) : "",
             enddate: data ? new Date(data.enddate).toISOString().slice(0, 16) : "",
@@ -133,29 +133,29 @@ function Tournament() {
     const columns = [
         { name: "Sr No.", selector: (row, i) => i + 1, width: "80px" },
         { name: "Name", selector: (row) => row.name, sortable: true },
-        { name: "Description", selector: (row) => row.description },
+        // { name: "Description", selector: (row) => row.description },
         // { name: "Type", selector: (row) => row.contest_type },
         // { name: "Entry Fee", selector: (row) => `₹${row.entry_fee}` },
         // { name: "Total Spots", selector: (row) => row.total_spots },
         // { name: "Max Entry/User", selector: (row) => row.max_entry_per_user },
-        { name: "Prize Pool", selector: (row) => `₹${row.prize_pool}` },
-        {
-            name: "Status",
-            cell: (row) => (
-                <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                        type="checkbox"
-                        checked={row.status === "live"}
-                        onChange={() => handleStatusChange(row)}
-                        className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
-                    <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border bg-white peer-checked:translate-x-full transition-transform"></div>
-                </label>
+        // { name: "Prize Pool", selector: (row) => `₹${row.prize_pool}` },
+        // {
+        //     name: "Status",
+        //     cell: (row) => (
+        //         <label className="relative inline-flex items-center cursor-pointer">
+        //             <input
+        //                 type="checkbox"
+        //                 checked={row.status === "live"}
+        //                 onChange={() => handleStatusChange(row)}
+        //                 className="sr-only peer"
+        //             />
+        //             <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
+        //             <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border bg-white peer-checked:translate-x-full transition-transform"></div>
+        //         </label>
 
-            ),
-            width: "120px",
-        },
+        //     ),
+        //     width: "120px",
+        // },
         { name: "Status", selector: (row) => row.status },
         {
             name: "Start Date",

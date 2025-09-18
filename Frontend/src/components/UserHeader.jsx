@@ -1,10 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sun, Moon, Bell, Wallet } from "lucide-react";
+import { GetUserDetails } from "../services/User"; // <- API function import
 
 const UserHeader = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(0);
   const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
+
+  useEffect(() => {
+    const fetchWallet = async () => {
+      try {
+        const res = await GetUserDetails(token, userId);
+        if (res?.status) {
+          const balance = res.data?.wamount || 0;
+          setWalletBalance(balance);
+          localStorage.setItem("walletBalance", balance); // localStorage update
+        }
+      } catch (err) {
+        console.error("Wallet fetch error", err);
+      }
+    };
+
+    fetchWallet();
+
+    // हर 10 सेकंड में balance refresh
+    const interval = setInterval(fetchWallet, 10000);
+    return () => clearInterval(interval);
+  }, [token, userId]);
 
   const toggleTheme = () => {
     setIsDarkMode((prev) => {
@@ -46,7 +72,7 @@ const UserHeader = () => {
           className="bg-white px-3 py-2 rounded-full flex items-center text-orange-500 font-medium hover:bg-gray-100"
         >
           <Wallet size={18} className="mr-1" />
-          ₹20,140
+          ₹{walletBalance.toLocaleString("en-IN")}
         </button>
 
         <button className="bg-white p-2 rounded-full text-orange-500 hover:bg-gray-100 relative">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Clock } from "lucide-react";
+import { Clock, Plus, Minus, TrendingUp, Calendar, Filter, Wallet } from "lucide-react";
 import Swal from "sweetalert2";
 import {
   addMoneyInWallet,
@@ -9,13 +9,15 @@ import {
 } from "../../../services/User";
 
 const WalletPage = () => {
-  const [historyView, setHistoryView] = useState("all");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [historyData, setHistoryData] = useState([]);
+  const [activeTab, setActiveTab] = useState("all");
+  const [addMoneyHistory, setAddMoneyHistory] = useState([]);
+  const [withdrawHistory, setWithdrawHistory] = useState([]);
+  const [buySellHistory, setBuySellHistory] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
 
   // Load Razorpay
   const loadRazorpayScript = () => {
@@ -28,12 +30,12 @@ const WalletPage = () => {
     });
   };
 
-  // Add Money
+  // Add Money Function
   const handleAddMoney = async () => {
     const { value: amount } = await Swal.fire({
-      title: "Enter Amount",
+      title: "Add Money to Wallet",
       input: "number",
-      inputLabel: "Amount to Add",
+      inputLabel: "Amount to Add (₹)",
       inputPlaceholder: "Enter amount",
       showCancelButton: true,
       confirmButtonText: "Add Money",
@@ -42,13 +44,16 @@ const WalletPage = () => {
         if (!value || value <= 0) {
           return "Please enter a valid amount!";
         }
+        if (value < 10) {
+          return "Minimum amount is ₹10";
+        }
       },
     });
 
     if (amount) {
       const res = await loadRazorpayScript();
       if (!res) {
-        Swal.fire("Razorpay SDK failed to load.");
+        Swal.fire("Error!", "Razorpay SDK failed to load.", "error");
         return;
       }
 
@@ -57,12 +62,9 @@ const WalletPage = () => {
         amount: amount * 100,
         currency: "INR",
         name: "Dream Trading",
-        description: "Add Money Payment",
+        description: "Add Money to Wallet",
         handler: async function (response) {
-          Swal.fire("Payment successful! ID: " + response.razorpay_payment_id);
 
-          const token = localStorage.getItem("token");
-          const userId = localStorage.getItem("userId");
 
           const data = {
             client_id: userId,
@@ -73,17 +75,21 @@ const WalletPage = () => {
             date: new Date().toISOString(),
           };
 
-          const result = await addMoneyInWallet(token, data);
-          if (result.status) {
-            Swal.fire("Wallet updated!", result.message || "Money added successfully.");
-            fetchWalletHistory();
-          } else {
-            Swal.fire("Error", result.message || "Failed to add money.", "error");
+          try {
+            const result = await addMoneyInWallet(token, data);
+            if (result.status) {
+              Swal.fire("Success!", result.message || "Money added successfully.", "success");
+              fetchAddMoneyHistory();
+            } else {
+              Swal.fire("Error", result.message || "Failed to add money.", "error");
+            }
+          } catch (error) {
+            Swal.fire("Error", "Something went wrong!", "error");
           }
         },
         prefill: {
-          name: "Test User",
-          email: "test@example.com",
+          name: "User",
+          email: "user@example.com",
           contact: "",
         },
         theme: {
@@ -96,17 +102,17 @@ const WalletPage = () => {
     }
   };
 
-  // Withdraw
+  // Withdraw Function
   const handleWithdraw = async () => {
     const { value: formValues } = await Swal.fire({
-      title: "Enter Withdrawal Details",
+      title: "Withdraw Money",
       html:
-        `<input id="swal-account" class="swal2-input" placeholder="Account Number">` +
-        `<input id="swal-ifsc" class="swal2-input" placeholder="IFSC Code">` +
-        `<input id="swal-amount" type="number" class="swal2-input" placeholder="Amount">`,
+        `<input id="swal-account" class="swal2-input" placeholder="Account Number" style="margin-bottom: 10px;">` +
+        `<input id="swal-ifsc" class="swal2-input" placeholder="IFSC Code" style="margin-bottom: 10px;">` +
+        `<input id="swal-amount" type="number" class="swal2-input" placeholder="Amount (₹)" style="margin-bottom: 10px;">`,
       focusConfirm: false,
       showCancelButton: true,
-      confirmButtonText: "Withdraw",
+      confirmButtonText: "Submit Withdrawal",
       cancelButtonText: "Cancel",
       preConfirm: () => {
         const account = document.getElementById("swal-account").value;
@@ -116,200 +122,390 @@ const WalletPage = () => {
           Swal.showValidationMessage("Please fill all fields with valid data");
           return null;
         }
+        if (amount < 100) {
+          Swal.showValidationMessage("Minimum withdrawal amount is ₹100");
+          return null;
+        }
         return { account, ifsc, amount };
       },
     });
 
     if (formValues) {
-      const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
-
       const data = {
-        client_id: userId,
+        clientId: userId,
         amount: parseInt(formValues.amount),
         remark: `Withdraw to A/C ${formValues.account}, IFSC ${formValues.ifsc}`,
         type: "withdraw",
         date: new Date().toISOString(),
       };
 
-      const result = await withdrolmoney(token, data);
-      if (result.status) {
-        Swal.fire("Withdraw Requested", result.message || "Withdrawal request submitted.");
-        fetchWalletHistory();
-      } else {
-        Swal.fire("Error", result.message || "Failed to request withdrawal.", "error");
+      try {
+        const result = await withdrolmoney(token, data);
+        if (result.status) {
+          Swal.fire("Success!", result.message || "Withdrawal request submitted successfully.", "success");
+          fetchWithdrawHistory();
+        } else {
+          Swal.fire("Error", result.message || "Failed to request withdrawal.", "error");
+        }
+      } catch (error) {
+        Swal.fire("Error", "Something went wrong!", "error");
       }
     }
   };
 
-  // Fetch Wallet History
-  const fetchWalletHistory = async () => {
+  // Fetch Add Money History
+  const fetchAddMoneyHistory = async () => {
     try {
-      setLoading(true);
+
+
+      console.log("Fetching add money history...", { token: !!token, userId });
+
+      const data = { client_id: userId };
+      const walletRes = await WalletHistory(token, data);
+
+      console.log("Add money API response:", walletRes);
+
+      if (walletRes?.status) {
+        const allData = walletRes.data || [];
+        console.log("All wallet data:", allData);
+
+        // Filter for "credit" type transactions (Add Money)
+        const addTransactions = allData.filter(
+          item => item.type?.toLowerCase() === "credit"
+        );
+
+        console.log("Filtered add transactions:", addTransactions);
+        setAddMoneyHistory(addTransactions);
+      } else {
+        console.log("Add money API failed:", walletRes);
+        setAddMoneyHistory([]);
+      }
+    } catch (error) {
+      console.error("Error fetching add money history:", error);
+      setAddMoneyHistory([]);
+    }
+  };
+
+  // Fetch Withdraw History
+  const fetchWithdrawHistory = async () => {
+    try {
+
+      const data = { id: userId };
+      const withdrawRes = await withdrolHistory(token, data);
+      console.log("Withdraw :", withdrawRes);
+
+      if (withdrawRes?.status) {
+        const withdrawData = withdrawRes.data || [];
+        console.log("Withdraw data:", withdrawData);
+        setWithdrawHistory(withdrawData);
+      } else {
+        console.log("Withdraw API failed:", withdrawRes);
+        setWithdrawHistory([]);
+      }
+    } catch (error) {
+      console.error("Error fetching withdraw history:", error);
+      setWithdrawHistory([]);
+    }
+  };
+
+  // Fetch Buy/Sell History (from wallet history)
+  const fetchBuySellHistory = async () => {
+    try {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
+
+      console.log("Fetching buy/sell history...", { token: !!token, userId });
+
       const data = { client_id: userId };
+      const walletRes = await WalletHistory(token, data);
 
-      const [walletRes, withdrawRes] = await Promise.all([
-        WalletHistory(token, data),
-        withdrolHistory(token, data),
-      ]);
+      console.log("Buy/Sell API response:", walletRes);
 
-      let combined = [];
       if (walletRes?.status) {
-        combined = [...combined, ...(walletRes.data || [])];
-      }
-      if (withdrawRes?.status) {
-        combined = [...combined, ...(withdrawRes.data || [])];
-      }
+        const allData = walletRes.data || [];
 
-      setHistoryData(combined);
-    } catch (err) {
-      Swal.fire("Error", "Something went wrong while fetching history", "error");
+        // Filter for "debit" type transactions (Buy/Sell or other deductions)
+        const buySellTransactions = allData.filter(
+          item => item.type?.toLowerCase() === "debit" &&
+            item.remark &&
+            (item.remark.toLowerCase().includes("buy") ||
+              item.remark.toLowerCase().includes("sell") ||
+              item.remark.toLowerCase().includes("trade"))
+        );
+
+        console.log("Filtered buy/sell transactions:", buySellTransactions);
+        setBuySellHistory(buySellTransactions);
+      } else {
+        console.log("Buy/Sell API failed:", walletRes);
+        setBuySellHistory([]);
+      }
+    } catch (error) {
+      console.error("Error fetching buy/sell history:", error);
+      setBuySellHistory([]);
+    }
+  };
+
+  // Fetch All Histories
+  const fetchAllHistories = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([
+        fetchAddMoneyHistory(),
+        fetchWithdrawHistory(),
+        fetchBuySellHistory()
+      ]);
+    } catch (error) {
+      console.error("Error fetching all histories:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchWalletHistory();
+    fetchAllHistories();
   }, []);
 
-  // Filter
-  const getDisplayedHistory = () => {
-    let data = [...historyData];
-
-    if (historyView === "add") {
-      data = data.filter((item) => item.type?.toLowerCase() === "add");
-    } else if (historyView === "withdraw") {
-      data = data.filter((item) => item.type?.toLowerCase() === "withdraw");
-    } else if (historyView === "buysell") {
-      data = data.filter((item) => item.type?.toLowerCase() === "buysell");
-    }
-
-    if (startDate) {
-      data = data.filter((item) => new Date(item.date) >= new Date(startDate));
-    }
-    if (endDate) {
-      data = data.filter((item) => new Date(item.date) <= new Date(endDate));
-    }
-
-    return data.sort((a, b) => new Date(b.date) - new Date(a.date));
+  // Get Combined History for "All" tab
+  const getAllHistory = () => {
+    const combined = [
+      ...addMoneyHistory,
+      ...withdrawHistory,
+      ...buySellHistory
+    ];
+    return combined.sort((a, b) => new Date(b.date) - new Date(a.date));
   };
 
-  return (
-    <div className="p-6 max-w-4xl mx-auto mt-2 bg-white rounded-lg shadow-md space-y-6">
-      <h1 className="text-2xl font-bold text-orange-500">Wallet Transactions</h1>
+  // Filter by Date
+  const filterByDate = (data) => {
+    let filtered = [...data];
 
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-4">
-        <button
-          onClick={handleAddMoney}
-          className="px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition"
-        >
-          Add Money
-        </button>
+    if (startDate) {
+      filtered = filtered.filter((item) => {
+        const itemDate = item.created_at || item.date;
+        return itemDate && new Date(itemDate) >= new Date(startDate);
+      });
+    }
+    if (endDate) {
+      filtered = filtered.filter((item) => {
+        const itemDate = item.created_at || item.date;
+        return itemDate && new Date(itemDate) <= new Date(endDate);
+      });
+    }
 
-        <button
-          onClick={handleWithdraw}
-          className="px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition"
-        >
-          Withdraw
-        </button>
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.created_at || a.date);
+      const dateB = new Date(b.created_at || b.date);
+      return dateB - dateA;
+    });
+  };
 
-        {/* Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition"
-          >
-            Transaction ▾
-          </button>
-          {dropdownOpen && (
-            <div className="absolute mt-2 w-48 bg-white border border-gray-200 rounded shadow-md z-10">
-              {[
-                { key: "all", label: "All History" },
-                { key: "add", label: "Add Money History" },
-                { key: "withdraw", label: "Withdraw History" },
-                { key: "buysell", label: "Buy/Sell History" },
-              ].map((item) => (
-                <div
-                  key={item.key}
-                  onClick={() => {
-                    setHistoryView(item.key);
-                    setDropdownOpen(false);
-                  }}
-                  className="px-4 py-2 text-sm hover:bg-orange-100 cursor-pointer"
-                >
-                  {item.label}
-                </div>
-              ))}
+  // Get Current Display Data
+  const getCurrentData = () => {
+    let data = [];
+    switch (activeTab) {
+      case "add":
+        data = addMoneyHistory;
+        break;
+      case "withdraw":
+        data = withdrawHistory;
+        break;
+      case "buysell":
+        data = buySellHistory;
+        break;
+      default:
+        data = getAllHistory();
+    }
+
+    console.log("Current tab:", activeTab, "Data:", data);
+    const filteredData = filterByDate(data);
+    console.log("Filtered data:", filteredData);
+
+    return filteredData;
+  };
+
+  // Transaction Item Component
+  const TransactionItem = ({ item }) => {
+
+    const isPositive = item.type === "credit" || item.type === "add";
+    const isNegative = item.type === "debit" || item.type === "withdraw";
+    const itemDate = item.created_at || item.date;
+
+    return (
+      <div className="p-4 border border-gray-200 rounded-lg hover:bg-orange-50 transition-colors duration-200">
+        <div className="flex justify-between items-start">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-full ${isPositive ? 'bg-green-100 text-green-600' :
+              isNegative ? 'bg-red-100 text-red-600' :
+                'bg-blue-100 text-blue-600'
+              }`}>
+              {(item.type === "credit" || item.type === "add") && <Plus size={16} />}
+              {(item.type === "debit" || item.type === "withdraw") && <Minus size={16} />}
+              {item.type === "buysell" && <TrendingUp size={16} />}
             </div>
-          )}
+            <div>
+              <div className="flex items-center gap-2">
+                <span className={`font-semibold text-lg ${isPositive ? 'text-green-600' :
+                  isNegative ? 'text-red-600' :
+                    'text-gray-700'
+                  }`}>
+                  {isPositive ? "+" : isNegative ? "-" : ""}₹{Math.abs(item.amount)}
+                </span>
+                {item.status && (
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${item.status === true || item.status === "completed" ? "bg-green-100 text-green-700" :
+                    item.status === "pending" ? "bg-yellow-100 text-yellow-700" :
+                      "bg-gray-100 text-gray-700"
+                    }`}>
+                    {item.status === true ? "Completed" : item.status}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-gray-600 mt-1">{item.remark || "No remark"}</p>
+              {item.payment_id && (
+                <p className="text-xs text-gray-500 mt-1">Payment ID: {item.payment_id}</p>
+              )}
+              {item._id && (
+                <p className="text-xs text-gray-400 mt-1">Transaction ID: {item._id}</p>
+              )}
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-gray-500">
+              {itemDate ? new Date(itemDate).toLocaleDateString('en-IN') : 'N/A'}
+            </p>
+            <p className="text-xs text-gray-400">
+              {itemDate ? new Date(itemDate).toLocaleTimeString('en-IN') : 'N/A'}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const tabs = [
+    { key: "all", label: "All Transactions", icon: Wallet },
+    { key: "add", label: "Add Money", icon: Plus },
+    { key: "withdraw", label: "Withdrawals", icon: Minus },
+    { key: "buysell", label: "Buy/Sell", icon: TrendingUp },
+  ];
+
+  return (
+    <div className="p-6 max-w-6xl mx-auto mt-4 bg-white rounded-lg shadow-lg">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-orange-500 flex items-center gap-2">
+          <Wallet size={32} />
+          Wallet Management
+        </h1>
+        <div className="flex gap-3">
+          <button
+            onClick={handleAddMoney}
+            className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-2 font-medium"
+          >
+            <Plus size={18} />
+            Add Money
+          </button>
+          <button
+            onClick={handleWithdraw}
+            className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 flex items-center gap-2 font-medium"
+          >
+            <Minus size={18} />
+            Withdraw
+          </button>
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`px-4 py-3 font-medium rounded-lg transition-colors duration-200 flex items-center gap-2
+          ${activeTab === tab.key
+                  ? "bg-orange-500 text-white" 
+                  : "bg-orange-500 text-gray-600 " 
+                }`}
+            >
+              <Icon size={18} />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+
       {/* Date Filters */}
-      <div className="flex gap-4 items-center">
+      <div className="flex flex-wrap gap-4 items-center mb-6 p-4 bg-gray-50 rounded-lg">
+        <div className="flex items-center gap-2">
+          <Calendar size={18} className="text-gray-500" />
+          <span className="text-sm font-medium text-gray-700">Filter by Date:</span>
+        </div>
         <input
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="border px-3 py-1 rounded"
+          className="border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+          placeholder="Start Date"
         />
-        <span>to</span>
+        <span className="text-gray-500">to</span>
         <input
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          className="border px-3 py-1 rounded"
+          className="border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+          placeholder="End Date"
         />
+        {(startDate || endDate) && (
+          <button
+            onClick={() => {
+              setStartDate("");
+              setEndDate("");
+            }}
+            className="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+          >
+            Clear Filters
+          </button>
+        )}
       </div>
 
-      {/* History List */}
-      <div className="border p-4 rounded shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
+
+
+      {/* Transaction History */}
+      <div className="bg-gray-50 rounded-lg p-6">
+        <div className="flex items-center gap-3 mb-4">
           <Clock size={24} className="text-orange-600" />
-          <h2 className="text-lg font-semibold text-orange-600">Transaction History</h2>
+          <h2 className="text-xl font-semibold text-orange-600">
+            {tabs.find(t => t.key === activeTab)?.label} History
+          </h2>
         </div>
 
         {loading ? (
-          <p className="text-gray-500">Loading...</p>
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+          </div>
         ) : (
-          <div className="max-h-64 overflow-y-auto space-y-2">
-            {getDisplayedHistory().map((item, idx) => (
-              <div
-                key={item.id || idx}
-                className="p-3 border rounded hover:bg-orange-50 transition"
-              >
-                <div className="flex justify-between items-center">
-                  <span
-                    className={`font-medium ${item.type === "withdraw" ? "text-red-600" : "text-green-600"
-                      }`}
-                  >
-                    {item.type === "withdraw" ? "-" : "+"} ₹{item.amount}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    {new Date(item.date).toLocaleString()}
-                  </span>
-                </div>
-
-                {/* Remark */}
-                <p className="text-xs text-gray-600 mt-1">{item.remark || "No remark"}</p>
-
-                {/* Payment ID agar hai toh */}
-                {item.payment_id && (
-                  <p className="text-xs text-gray-500">Payment ID: {item.payment_id}</p>
-                )}
-              </div>
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            {getCurrentData().map((item, idx) => (
+              <TransactionItem key={item.id || idx} item={item} />
             ))}
 
-            {/* Agar empty hai toh */}
-            {getDisplayedHistory().length === 0 && (
-              <p className="text-gray-500 text-center py-4">No transactions found.</p>
+            {getCurrentData().length === 0 && (
+              <div className="text-center py-8">
+                <div className="text-gray-400 mb-2">
+                  <Clock size={48} className="mx-auto" />
+                </div>
+                <p className="text-gray-500 text-lg">No transactions found</p>
+                <p className="text-gray-400 text-sm mt-1">
+                  {activeTab === "all"
+                    ? "Start by adding money or making transactions"
+                    : `No ${tabs.find(t => t.key === activeTab)?.label.toLowerCase()} history available`
+                  }
+                </p>
+              </div>
             )}
           </div>
-
         )}
       </div>
     </div>

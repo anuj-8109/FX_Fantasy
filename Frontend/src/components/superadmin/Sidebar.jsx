@@ -45,7 +45,7 @@ const menuItems = [
     url: "/superadmin/clients",
     icon: <User />,
   },
-    {
+  {
     title: "Tournament",
     url: "/superadmin/tournament",
     icon: <Award />,
@@ -73,6 +73,11 @@ const menuItems = [
   {
     title: "News",
     url: "/superadmin/news",
+    icon: <Newspaper />,
+  },
+  {
+    title: "Withdrawal ",
+    url: "/superadmin/withdrawal",
     icon: <Newspaper />,
   },
   {
@@ -121,7 +126,7 @@ const menuItems = [
 const SuperAdminSidebar = ({ collapsed }) => {
   const location = useLocation();
 
-  
+
   const [openMenus, setOpenMenus] = useState(() => {
     const initial = {};
     menuItems.forEach((item) => {
@@ -163,8 +168,8 @@ const SuperAdminSidebar = ({ collapsed }) => {
                   <div
                     onClick={() => toggleMenu(item.title)}
                     className={`flex items-center justify-between px-3 py-2 rounded-lg transition-colors cursor-pointer ${isChildActive
-                        ? "bg-blue-400 "
-                        : "hover:bg-blue-400"
+                      ? "bg-blue-400 "
+                      : "hover:bg-blue-400"
                       }`}
                     title={collapsed ? item.title : ""}
                   >

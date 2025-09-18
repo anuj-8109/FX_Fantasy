@@ -2,7 +2,9 @@ const db = require("../Models");
 const axios = require('axios');
 var dateTime = require('node-datetime');
 const Tournament_Model = db.Tournament;
-
+const Contestjoin_Modal = db.Contestjoin;
+const Contesttrade_Modal = db.Contesttrade;
+const Contest_Model = db.Contest;
 
 const Stock_Modal = db.Stock;
 
@@ -169,11 +171,9 @@ const DeleteTokenAliceToken = async (req, res) => {
     }
   
   }
-
-  async function TournamentStatusChange(req, res) {
+async function TournamentStatusChange(req, res) {
   try {
     const now = new Date();
-
     // 1️⃣ upcoming → live
     const makeLive = await Tournament_Model.updateMany(
       {
@@ -199,7 +199,7 @@ const DeleteTokenAliceToken = async (req, res) => {
 
     return res.status(200).json({
       status: true,
-      message: "Tournament status updated successfully",
+      message: "✅ Tournament status updated successfully",
       time: now,
       updated: {
         madeLive: makeLive.modifiedCount || 0,
@@ -211,11 +211,144 @@ const DeleteTokenAliceToken = async (req, res) => {
     console.error("TournamentStatusChange Error:", error);
     return res.status(500).json({
       status: false,
-      message: "Internal Server Error",
+      message: "❌ Internal Server Error",
       error: error.message
     });
   }
 }
 
+async function getLivePrice(symbol) {
+  try {
+    
+    const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}.BSE&apikey=3B7SZFS9ANX227CY`;
+    
+    const response = await axios.get(url);
 
-  module.exports = { AddBulkStockCron,DeleteTokenAliceToken,TournamentStatusChange };
+    if (
+      response.data &&
+      response.data["Global Quote"] &&
+      response.data["Global Quote"]["05. price"]
+    ) {
+      const price = parseFloat(response.data["Global Quote"]["05. price"]);
+      return price; // ✅ live price return
+    } else {
+      console.error("No price data found:", response.data);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching live price:", error.message);
+    return null; // fallback
+  }
+}
+async function updateContestRanks(req, res) {
+  try {
+    // 1️⃣ Get all live tournaments
+    const tournaments = await Tournament_Model.find({
+      status: "live",
+      activestatus: true,
+      del: false
+    });
+
+    for (const tournament of tournaments) {
+      // 2️⃣ Get contests under each tournament
+      const contests = await Contest_Model.find({
+        tournament_id: tournament._id,
+        activestatus: true,
+        del: false
+      });
+
+      for (const contest of contests) {
+        // 3️⃣ Get all joined users
+        const joins = await Contestjoin_Modal.find({ contest_id: contest._id });
+
+        for (const join of joins) {
+          let totalPoints = 0;
+
+          // 4️⃣ Get all trades of this user in this contest
+          const trades = await Contesttrade_Modal.find({
+            contest_id: contest._id,
+            client_id: join.client_id
+          });
+
+          // Group trades by stock
+          const stockGroups = {};
+          for (const trade of trades) {
+            if (!stockGroups[trade.stock_symbol]) {
+              stockGroups[trade.stock_symbol] = {
+                buyQty: 0,
+                buyValue: 0,
+                sellQty: 0,
+                realizedPL: 0
+              };
+            }
+
+            if (trade.trade_type.toUpperCase() === "BUY") {
+              stockGroups[trade.stock_symbol].buyQty += trade.quantity;
+              stockGroups[trade.stock_symbol].buyValue += trade.price * trade.quantity;
+            } else if (trade.trade_type.toUpperCase() === "SELL") {
+              // Calculate realized P&L directly on sell
+              const avgBuyPrice =
+                stockGroups[trade.stock_symbol].buyValue /
+                  stockGroups[trade.stock_symbol].buyQty || 0;
+
+              const pl = (trade.price - avgBuyPrice) * trade.quantity;
+
+              stockGroups[trade.stock_symbol].sellQty += trade.quantity;
+              stockGroups[trade.stock_symbol].realizedPL += pl;
+
+              stockGroups[trade.stock_symbol].buyQty -= trade.quantity;
+              stockGroups[trade.stock_symbol].buyValue -= avgBuyPrice * trade.quantity;
+            }
+          }
+
+          // 5️⃣ Calculate total points
+          for (const symbol of Object.keys(stockGroups)) {
+            const { buyQty, buyValue, realizedPL } = stockGroups[symbol];
+
+            // Add realized P&L
+            totalPoints += realizedPL;
+
+            // If open position left → calculate unrealized P&L
+            if (buyQty > 0) {
+              const avgBuyPrice = buyValue / buyQty;
+              const livePrice = await getLivePrice(symbol); // 🔥 API से live price
+              if (livePrice) {
+                const unrealizedPL = (livePrice - avgBuyPrice) * buyQty;
+                totalPoints += unrealizedPL;
+              }
+            }
+          }
+
+          // Save user points
+          join.points = totalPoints;
+          await join.save();
+        }
+
+        // 6️⃣ Update ranking inside contest
+        const allParticipants = await Contestjoin_Modal.find({
+          contest_id: contest._id
+        }).sort({ points: -1 });
+
+        for (let i = 0; i < allParticipants.length; i++) {
+          allParticipants[i].rank = i + 1;
+          await allParticipants[i].save();
+        }
+      }
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: "✅ Contest rankings updated successfully"
+    });
+  } catch (error) {
+
+    return res.status(500).json({
+      status: false,
+      message: error.message
+    });
+  }
+}
+
+
+
+  module.exports = { AddBulkStockCron,DeleteTokenAliceToken,TournamentStatusChange,updateContestRanks };

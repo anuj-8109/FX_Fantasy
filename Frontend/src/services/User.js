@@ -264,7 +264,7 @@ export async function WalletHistory(token, data) {
 
 // withdrolmonwy
 
-export async function withdrolmoney(token, data) {
+export async function withdrolmoney(token, data ) {
   try {
     const response = await axios.post(`${config.base_url}api/client/requestpayout`, data, {
       headers: {
