@@ -1,15 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Clock, Trophy, Users, Target, TrendingUp } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Trophy,
+  Users,
+  Target,
+  TrendingUp,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { GetTurnament } from "../../services/User";
+import { GetBanners, GetTurnament } from "../../services/User";
 import toast from "react-hot-toast";
 
 const UserDashboard = () => {
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("ongoing");
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [turnament, setTurnament] = useState([]);
-
+  const [banner, setBanner] = useState([]);
 
   // Time left calculation (countdown)
   const getTimeLeft = (endDate) => {
@@ -28,15 +37,13 @@ const UserDashboard = () => {
     return `${minutes}m left`;
   };
 
-
   const fatchtournament = async () => {
-    const token = localStorage.getItem("token");
     const res = await GetTurnament(token);
 
     if (res?.status) {
       const now = new Date();
 
-      const mappedData = res.data.map(item => {
+      const mappedData = res.data.map((item) => {
         const start = new Date(item.startdate);
         const end = new Date(item.enddate);
 
@@ -65,7 +72,6 @@ const UserDashboard = () => {
           entryFee: "Free",
           spots: "N/A",
         };
-
       });
 
       setTurnament(mappedData);
@@ -74,39 +80,50 @@ const UserDashboard = () => {
     }
   };
 
+  const fetchBanner = async () => {
+    try {
+      const response = await GetBanners(token);
+      setBanner(response?.data);
+    } catch (error) {
+      toast.error(response?.message || "Failed to fetch banners");
+    }
+  };
+
   useEffect(() => {
     fatchtournament();
+    fetchBanner();
   }, []);
 
+  // const banners = [
+  //   {
+  //     url: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=300&fit=crop",
+  //     title: "Stock Trading Contest",
+  //     subtitle: "Win big with smart investments",
+  //   },
+  //   {
+  //     url: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&h=300&fit=crop",
+  //     title: "Market Analysis Challenge",
+  //     subtitle: "Test your market skills",
+  //   },
+  //   {
+  //     url: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&h=300&fit=crop",
+  //     title: "Investment Competition",
+  //     subtitle: "Compete with top traders",
+  //   },
+  // ];
 
-  const banners = [
-    {
-      url: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=300&fit=crop",
-      title: "Stock Trading Contest",
-      subtitle: "Win big with smart investments",
-    },
-    {
-      url: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&h=300&fit=crop",
-      title: "Market Analysis Challenge",
-      subtitle: "Test your market skills",
-    },
-    {
-      url: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&h=300&fit=crop",
-      title: "Investment Competition",
-      subtitle: "Compete with top traders",
-    },
-  ];
-
-
-  const filteredContests = turnament.filter((item) => item.status === activeTab);
-
+  const filteredContests = turnament?.filter(
+    (item) => item.status === activeTab
+  );
 
   const nextBanner = () => {
     setCurrentBannerIndex((prev) => (prev + 1) % banners.length);
   };
 
   const prevBanner = () => {
-    setCurrentBannerIndex((prev) => (prev - 1 + banners.length) % banners.length);
+    setCurrentBannerIndex(
+      (prev) => (prev - 1 + banners.length) % banners.length
+    );
   };
 
   const getCompanyIcon = (company, color) => (
@@ -120,26 +137,24 @@ const UserDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 Anuj333 ">
-
       <div className="relative px-4 pt-4 Anuj333">
         <div className="relative overflow-hidden rounded-2xl shadow-xl">
-
           <div
             className="flex transition-transform duration-500 ease-out"
             style={{ transform: `translateX(-${currentBannerIndex * 100}%)` }}
           >
-            {banners.map((banner, idx) => (
+            {banner?.map((banner, idx) => (
               <div key={idx} className="w-full flex-shrink-0 relative">
                 <div className="h-48 bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center relative overflow-hidden">
                   <img
-                    src={banner.url}
-                    alt={banner.title}
+                    src={banner.image}
+                    // alt={banner.title}
                     className="absolute inset-0 w-full h-full object-cover opacity-30"
                   />
-                  <div className="relative z-10 text-center text-white px-4">
+                  {/* <div className="relative z-10 text-center text-white px-4">
                     <h2 className="text-2xl font-bold mb-2">{banner.title}</h2>
                     <p className="text-lg opacity-90">{banner.subtitle}</p>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             ))}
@@ -160,12 +175,13 @@ const UserDashboard = () => {
           </button>
 
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
-            {banners.map((_, idx) => (
+            {banner?.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentBannerIndex(idx)}
-                className={`w-2 h-2 rounded-full transition-colors ${currentBannerIndex === idx ? "bg-white" : "bg-white/50"
-                  }`}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  currentBannerIndex === idx ? "bg-white" : "bg-white/50"
+                }`}
               />
             ))}
           </div>
@@ -177,14 +193,13 @@ const UserDashboard = () => {
           { key: "ongoing", label: "Live Contests", icon: Trophy },
           { key: "upcoming", label: "Upcoming", icon: Clock },
           { key: "mycontests", label: "My Contests", icon: Target },
-        ].map(({ key, label, icon: Icon }) => (
+        ]?.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`flex-1 py-4 px-2 font-medium text-sm transition-all duration-200 ${activeTab === key
-              ? " border-b-2 border-blue-600"
-              : ""
-              }`}
+            className={`flex-1 py-4 px-2 font-medium text-sm transition-all duration-200 ${
+              activeTab === key ? " border-b-2 border-blue-600" : ""
+            }`}
           >
             <div className="flex flex-col items-center space-y-1">
               <Icon className="w-4 h-4" />
@@ -200,7 +215,9 @@ const UserDashboard = () => {
             <div
               key={contest.id}
               onClick={() =>
-                navigate("/pricepol", { state: { _id: contest.id || contest._id } })
+                navigate("/pricepol", {
+                  state: { _id: contest.id || contest._id },
+                })
               }
               className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-300 hover:-translate-y-1 card_style cursor-pointer"
             >
@@ -231,7 +248,9 @@ const UserDashboard = () => {
                 </div>
 
                 <div className="text-center p-2 rounded-md border">
-                  <p className="text-base font-bold">{getTimeLeft(contest.end)}</p>
+                  <p className="text-base font-bold">
+                    {getTimeLeft(contest.end)}
+                  </p>
                   <p className="text-[11px] text-gray-500">Time Left</p>
                 </div>
 
@@ -253,20 +272,24 @@ const UserDashboard = () => {
                   </span>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-medium text-gray-700">{contest.spots}</p>
+                  <p className="text-xs font-medium text-gray-700">
+                    {contest.spots}
+                  </p>
                 </div>
               </div>
             </div>
-
-
           ))
         ) : (
           <div className="text-center py-12">
             <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
               <Trophy className="w-8 h-8 text-gray-400" />
             </div>
-            <p className="text-gray-500 text-lg font-medium mb-2">No contests available</p>
-            <p className="text-gray-400 text-sm">Check back soon for new contests!</p>
+            <p className="text-gray-500 text-lg font-medium mb-2">
+              No contests available
+            </p>
+            <p className="text-gray-400 text-sm">
+              Check back soon for new contests!
+            </p>
           </div>
         )}
       </div>
