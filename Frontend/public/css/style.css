@@ -269,3 +269,7 @@ aside {
     background: white;
     color: #000;
 }
+
+aside .w-16 .anuj{
+  margin-left: 0 !important;
+}

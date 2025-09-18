@@ -201,16 +201,14 @@ const SuperAdminSidebar = ({ collapsed }) => {
                 )}
 
                 {/* Submenu */}
-                {item.children && openMenus[item.title] && !collapsed && (
-                  <div className="ml-8 mt-1 space-y-1">
+                {item.children && openMenus[item.title] && (
+                  <div className={`${collapsed ? "ml-0" : "ml-8"} mt-1 space-y-1 anuj`}>
                     {item.children.map((child) => (
                       <NavLink
                         key={child.title}
                         to={child.url}
                         className={({ isActive }) =>
-                          `flex items-center gap-2 text-sm px-3 py-1 rounded-md transition-colors duration-200 ${isActive
-                            ? "bg-blue-400 text-blue-100"
-                            : "text-white-400 "
+                          `flex items-center gap-5 text-sm px-3 py-1 rounded-md transition-colors duration-200 ${isActive ? "bg-blue-400 text-blue-100" : "text-white-400"
                           }`
                         }
                       >
@@ -220,6 +218,7 @@ const SuperAdminSidebar = ({ collapsed }) => {
                     ))}
                   </div>
                 )}
+
               </div>
             );
           })}
