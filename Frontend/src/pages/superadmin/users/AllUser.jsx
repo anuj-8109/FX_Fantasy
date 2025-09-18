@@ -4,7 +4,7 @@ import { User } from "lucide-react";
 import { GetAllUser, StatusChange } from "../../../services/SuperAdmin";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { Edit, Trash2 } from "lucide-react";
 import { DeleteUser, EditUser } from "../../../services/SuperAdmin"
 import toast from "react-hot-toast";
 
@@ -150,11 +150,8 @@ const AllUsers = () => {
             }
             className="sr-only peer"
           />
-          <div className="w-10 h-5 bg-gray-300 rounded-full peer-checked:bg-blue-600 
-                  peer-focus:ring-2 peer-focus:ring-blue-300 transition-colors duration-300"></div>
-
-          <div className="absolute left-0.5  w-4 h-4 bg-white rounded-full border border-gray-300 
-                  shadow-sm peer-checked:translate-x-5 transition-transform duration-300"></div>
+          <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
+          <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border bg-white peer-checked:translate-x-full transition-transform"></div>
         </label>
 
       ),
@@ -166,16 +163,16 @@ const AllUsers = () => {
       sortable: true,
       cell: (row) => (
         <div className="flex gap-3">
-
-          <FaEdit
-            className=" cursor-pointer"
-            onClick={() => navigate(`/superadmin/EditUsers/${row._id}`, { state: { userId: row._id } })
+          <Edit
+            className="cursor-pointer text-blue-600"
+            onClick={() =>
+              navigate(`/superadmin/EditUsers/${row._id}`, {
+                state: { userId: row._id },
+              })
             }
           />
-
-          {/* Delete Icon */}
-          <FaTrash
-            className=" cursor-pointer"
+          <Trash2
+            className="cursor-pointer text-red-600"
             onClick={() => handleDelete(row)}
           />
         </div>
