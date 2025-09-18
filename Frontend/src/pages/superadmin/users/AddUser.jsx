@@ -86,7 +86,7 @@ const User = () => {
   };
 
   return (
-    <Content Page_title="Add User" button_status={true} button_title="back" route={"/superadmin/alluser"} >
+    <Content Page_title="Add User" button_status={true} button_title="Back" route={"/superadmin/alluser"} >
       <div className="Form-style">
         <ReusableForm
           initialValues={initialValues}

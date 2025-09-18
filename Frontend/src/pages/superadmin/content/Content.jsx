@@ -196,7 +196,7 @@ const Contents = () => {
   return (
     <Content
       Page_title="All Contents"
-      button_title="back"
+      button_title="Back"
       button_status={true}
       route="/superadmin/dashboard"
       extra_button="+ Add Content" extra_button_action={handleOpen}

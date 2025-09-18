@@ -218,7 +218,7 @@ const Banner = () => {
   return (
     <Content
       Page_title="Banner Management"
-      button_title="back"
+      button_title="Back"
       button_status={true}
       route="/superadmin/dashboard"
       extra_button="+ Add Banner" extra_button_action={handleOpen}

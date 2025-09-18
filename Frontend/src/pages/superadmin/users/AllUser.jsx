@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { Edit, Trash2 } from "lucide-react";
 import { DeleteUser, EditUser } from "../../../services/SuperAdmin"
 import toast from "react-hot-toast";
+import Content from "../../../components/superadmin/Content";
 
 const AllUsers = () => {
   const navigate = useNavigate();
@@ -181,8 +182,11 @@ const AllUsers = () => {
   ];
 
   return (
+     <Content Page_title="All Users" button_status={true} button_title="Back" route="/superadmin/dashboard"
+     extra_button="Add User"
+      extra_button_action="/superadmin/addUser">
     <div className="p-8 min-h-screen AllUsers_Style">
-      <div className="flex items-center justify-between mb-6 border  rounded-xl shadow-sm p-2">
+      {/* <div className="flex items-center justify-between mb-6 border  rounded-xl shadow-sm p-2">
         <div className="flex items-center gap-2">
           <User className="" />
           <h1 className="text-xl font-bold ">All Users</h1>
@@ -194,7 +198,9 @@ const AllUsers = () => {
         >
           Add User +
         </button>
-      </div>
+      </div> */}
+
+
 
 
 
@@ -202,6 +208,7 @@ const AllUsers = () => {
         <Datatable columns={columns} data={allusers} title="Users List" />
       </div>
     </div>
+    </Content>
   );
 };
 

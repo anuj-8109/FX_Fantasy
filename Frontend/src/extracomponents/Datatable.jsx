@@ -56,81 +56,7 @@ const Datatable = ({
     window.URL.revokeObjectURL(url);
   };
 
-  // const customDataTableStyles = {
-  //   table: {
-  //     style: {
-  //       backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-  //       color: theme === 'dark' ? '#f9fafb' : '#111827',
-  //     },
-  //   },
-  //   headRow: {
-  //     style: {
-  //       backgroundColor: theme === 'dark' ? '#374151' : '#f8fafc',
-  //       borderBottomColor: theme === 'dark' ? '#4b5563' : '#e2e8f0',
-  //       borderBottomWidth: '2px',
-  //       minHeight: '56px',
-  //     },
-  //   },
-  //   headCells: {
-  //     style: {
-  //       fontSize: '14px',
-  //       fontWeight: '600',
-  //       color: theme === 'dark' ? '#f3f4f6' : '#374151',
-  //       paddingLeft: '16px',
-  //       paddingRight: '16px',
-  //     },
-  //   },
-  //   rows: {
-  //     style: {
-  //       backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-  //       color: theme === 'dark' ? '#f9fafb' : '#374151',
-  //       fontSize: '14px',
-  //       minHeight: '48px',
-  //       '&:hover': {
-  //         backgroundColor: theme === 'dark' ? '#374151' : '#f1f5f9',
-  //         cursor: 'pointer',
-  //       },
-  //       borderBottomColor: theme === 'dark' ? '#374151' : '#f1f5f9',
-  //     },
-  //   },
-  //   cells: {
-  //     style: {
-  //       paddingLeft: '16px',
-  //       paddingRight: '16px',
-  //     },
-  //   },
-  //   pagination: {
-  //     style: {
-  //       backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-  //       borderTopColor: theme === 'dark' ? '#374151' : '#e5e7eb',
-  //       color: theme === 'dark' ? '#f3f4f6' : '#374151',
-  //       minHeight: '56px',
-  //     },
-  //     pageButtonsStyle: {
-  //       borderRadius: '6px',
-  //       height: '32px',
-  //       width: '32px',
-  //       padding: '4px',
-  //       margin: '2px',
-  //       color: theme === 'dark' ? '#9ca3af' : '#6b7280',
-  //       fill: theme === 'dark' ? '#9ca3af' : '#6b7280',
-  //       backgroundColor: 'transparent',
-  //       '&:disabled': {
-  //         cursor: 'unset',
-  //         color: theme === 'dark' ? '#4b5563' : '#d1d5db',
-  //         fill: theme === 'dark' ? '#4b5563' : '#d1d5db',
-  //       },
-  //       '&:hover:not(:disabled)': {
-  //         backgroundColor: theme === 'dark' ? '#374151' : '#f3f4f6',
-  //       },
-  //       '&:focus': {
-  //         outline: 'none',
-  //       },
-  //     },
-  //   },
-  //   ...customStyles
-  // };
-
+  
   const paginationComponentOptions = {
     rowsPerPageText: 'Rows per page:',
     rangeSeparatorText: 'of',
@@ -204,7 +130,7 @@ const Datatable = ({
           highlightOnHover
           striped={false}
           fixedHeader
-          fixedHeaderScrollHeight="500px"
+          fixedHeaderScrollHeight="1000px"
           responsive
           onRefresh={() => setRefreshKey(prev => prev + 1)}
           paginationComponentOptions={paginationComponentOptions}

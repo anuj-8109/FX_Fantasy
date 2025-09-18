@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Sun, Moon, Bell, ChevronLeft, ChevronRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
+
 
 
 const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
@@ -9,6 +10,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user"));
 
   const notifRef = useRef();
@@ -36,16 +38,16 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
     });
   };
 
-    const handleLogout = () => {
+  const handleLogout = () => {
     const roleId = localStorage.getItem("roleId");
     localStorage.removeItem("token");
     localStorage.removeItem("roleId");
     // localStorage.removeItem("user");
     // localStorage.removeItem("isLoggedIn");
     if (roleId === "1") {
-      navigate("/superadminlogin");      
+      navigate("/superadminlogin");
     } else {
-      navigate("/");  
+      navigate("/");
     }
   };
 
@@ -58,8 +60,8 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
       showCancelButton: true,
       confirmButtonText: "Yes, Logout",
       cancelButtonText: "Cancel",
-      confirmButtonColor: "#2563eb", 
-      cancelButtonColor: "#6b7280", 
+      confirmButtonColor: "#2563eb",
+      cancelButtonColor: "#6b7280",
       reverseButtons: true,
       customClass: {
         popup: "custom-swal-popup",
@@ -72,7 +74,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
       },
     });
 
-  
+
     if (confirm.isConfirmed) {
       localStorage.clear();
       await Swal.fire({
@@ -102,8 +104,12 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    setShowProfile(false);
+  }, [location.pathname]);
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b shadow-sm backdrop-blur-lg transition-colors Main-Header ">
+    <header className="sticky top-0 z-50 w-full shadow-sm backdrop-blur-lg transition-colors Main-Header ">
 
       <div className="max-w-8xl mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo + Sidebar Toggle */}
@@ -185,27 +191,20 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
 
             {showProfile && (
               <div className="absolute right-0 mt-2 w-56 shadow-lg rounded-lg border z-50 profile_dropdown">
-                <div className="p-3 border-b  text-sm">
+                <div className="p-3 border-b text-sm">
                   <p className="font-medium">{user?.FullName}</p>
-                  <p className="text-xs text-white-500">{user?.Email}</p>
+                  <p className="text-xs text-gray-500">{user?.Email}</p>
                 </div>
 
                 <button
                   onClick={() => navigate("/superadmin/myprofile")}
-                  className="block w-full text-left px-4 py-2 text-sm "
+                  className="block w-full text-left px-4 py-2 text-sm"
                 >
                   Profile Management
                 </button>
 
-                {/* <button
-                  onClick={() => navigate("/superadmin/changepassword")}
-                  className="block w-full text-left px-4 py-2 text-sm "
-                >
-                  Reset Password
-                </button> */}
-
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm text-white-600 "
+                  className="block w-full text-left px-4 py-2 text-sm text-red-600"
                   onClick={handleLogout}
                 >
                   Log Out

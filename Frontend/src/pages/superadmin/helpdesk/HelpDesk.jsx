@@ -3,6 +3,7 @@ import { Ticket, X, Eye } from "lucide-react";
 import { GetTicketsuper } from "../../../services/SuperAdmin";
 import { useNavigate } from "react-router-dom";
 import Datatable from "../../../extracomponents/Datatable";
+import Content from "../../../components/superadmin/Content";
 
 function HelpDesk() {
   const navigate = useNavigate();
@@ -99,6 +100,14 @@ function HelpDesk() {
   ];
 
   return (
+     <Content
+      Page_title="Help Desk"
+      button_title="Back"
+      button_status={true}
+      route="/superadmin/dashboard"
+
+      // extra_button="+ Add Content" extra_button_action={handleOpen}
+    >
     <div className="flex bg-gray-100 min-h-screen">
       <div className="flex-1 p-6">
         {/* <div className="flex justify-between items-center mb-6">
@@ -121,12 +130,14 @@ function HelpDesk() {
             highlightOnHover
             pointerOnHover
             noHeader
+            onRefresh={fetchTickets}
           />
         </div>
       </div>
 
 
     </div>
+    </Content>
   );
 }
 

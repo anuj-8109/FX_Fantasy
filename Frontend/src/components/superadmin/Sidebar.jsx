@@ -151,7 +151,7 @@ const SuperAdminSidebar = ({ collapsed }) => {
       className={`${collapsed ? "w-16" : "w-64"}
         fixed top-16 left-0 h-[calc(100vh-64px)] 
         overflow-y-auto hide-scrollbar 
-        transition-all z-40 `}
+        transition-all z-40`}
     >
       <div className="flex flex-col h-full mt-4 p-1">
         <nav className="flex-1 space-y-2">

@@ -93,7 +93,7 @@ const MyProfile = () => {
     <Content
       className="border-none p-6"
       Page_title="Profile Management"
-      button_title="back"
+      button_title="Back"
       button_status={true}
     >
       <div className="min-h-screen p-6">
@@ -177,6 +177,7 @@ const MyProfile = () => {
                     <div className="border rounded-lg p-3">
                       <p className="text-xs">Full Name</p>
                       {isEditing ? (
+                      
                         <input
                           type="text"
                           value={formData.fullName}

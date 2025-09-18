@@ -1370,7 +1370,19 @@ export async function ticketstatus(token, data) {
   }
 }
 
-
+// withdrawalPayoutrequest
+export async function withdrawalPayoutrequest(token , data){
+  try {
+    const response = await axios.post(`${config.base_url}client/process-payout-request`,data,{
+      headers:{
+        Authorization : `Bearer ${token}`
+      }
+    })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || {status: false, message : "Unkmown error"}
+  }
+}
 
 
 
