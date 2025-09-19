@@ -20,6 +20,9 @@ import {
   User,
   ChevronRight,
   ChevronDown,
+  Banknote ,
+  LifeBuoy,
+  Trophy 
 } from "lucide-react";
 
 const menuItems = [
@@ -48,7 +51,7 @@ const menuItems = [
   {
     title: "Tournament",
     url: "/superadmin/tournament",
-    icon: <Award />,
+    icon: <Trophy />,
   },
   {
     title: "Contest",
@@ -78,12 +81,12 @@ const menuItems = [
   {
     title: "Withdrawal ",
     url: "/superadmin/withdrawal",
-    icon: <Newspaper />,
+    icon: <Banknote />,
   },
   {
     title: "HelpDesk",
     url: "/superadmin/help",
-    icon: <Newspaper />,
+    icon: <LifeBuoy />,
   },
   {
     title: "FAQs",
@@ -153,7 +156,7 @@ const SuperAdminSidebar = ({ collapsed }) => {
         overflow-y-auto hide-scrollbar 
         transition-all z-40`}
     >
-      <div className="flex flex-col h-full mt-4 p-1">
+      <div className="flex flex-col h-full mt-2  p-1">
         <nav className="flex-1 space-y-2">
           {menuItems.map((item) => {
             const isChildActive =

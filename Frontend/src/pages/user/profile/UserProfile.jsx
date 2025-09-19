@@ -11,7 +11,7 @@ const UserProfile = () => {
     const [formData, setFormData] = useState({ fullName: "" });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
-    const [name,setname] = useState("Anuj")
+    const [name , setname] = useState("Anuj")
     
 
     const token = localStorage.getItem("token");

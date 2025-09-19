@@ -350,14 +350,14 @@ const WalletPage = () => {
                   }`}>
                   {isPositive ? "+" : isNegative ? "-" : ""}₹{Math.abs(item.amount)}
                 </span>
-                {item.status && (
+                {/* {item.status && (
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${item.status === true || item.status === "completed" ? "bg-green-100 text-green-700" :
                     item.status === "pending" ? "bg-yellow-100 text-yellow-700" :
                       "bg-gray-100 text-gray-700"
                     }`}>
                     {item.status === true ? "Completed" : item.status}
                   </span>
-                )}
+                )} */}
               </div>
               <p className="text-sm text-gray-600 mt-1">{item.remark || "No remark"}</p>
               {item.payment_id && (

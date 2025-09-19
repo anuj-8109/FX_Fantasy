@@ -11,6 +11,7 @@ const MyProfile = () => {
   const [formData, setFormData] = useState({ fullName: "" });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const roleId = Number(localStorage.getItem("roleId"));
 
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -95,6 +96,7 @@ const MyProfile = () => {
       Page_title="Profile Management"
       button_title="Back"
       button_status={true}
+      route={"/superadmin/dashboard"}
     >
       <div className="min-h-screen p-6">
         <div className="max-w-4xl mx-auto grid lg:grid-cols-5 gap-8">
@@ -168,7 +170,12 @@ const MyProfile = () => {
                         onClick={() =>
                           isEditing ? handleSaveProfile() : setIsEditing(true)
                         }
-                        className="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                        disabled={roleId === 1}  
+                        className={`px-4 py-2 text-sm rounded-lg text-white 
+                          ${roleId === 1
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-blue-600 hover:bg-blue-700"}`
+                        }
                       >
                         {isEditing ? "Save" : "Edit"}
                       </button>
@@ -177,7 +184,7 @@ const MyProfile = () => {
                     <div className="border rounded-lg p-3">
                       <p className="text-xs">Full Name</p>
                       {isEditing ? (
-                      
+
                         <input
                           type="text"
                           value={formData.fullName}

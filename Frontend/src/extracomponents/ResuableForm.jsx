@@ -298,7 +298,7 @@ const ReusableForm = ({
             <button
               type="submit"
               disabled={loading || isSubmitting || submitButtonProps.disabled}
-              className={`w-full px-4 py-3 mt-4 font-semibold rounded-lg shadow-md  transition disabled:opacity-50 disabled:cursor-not-allowed ${submitButtonProps.className || ""}`}
+              className={` px-4 py-3 mt-4 bg-blue-500 font-semibold rounded-lg shadow-md  transition disabled:opacity-50 disabled:cursor-not-allowed ${submitButtonProps.className || ""}`}
               {...submitButtonProps}
             >
               {loading || isSubmitting

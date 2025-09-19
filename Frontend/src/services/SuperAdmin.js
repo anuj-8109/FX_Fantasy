@@ -62,7 +62,7 @@ export async function StatusChange(token, status, id) {
 
 export async function UpdatePermissions(token, data) {
   try {
-    const response = await axios.put(`${config.base_url}user/update-permissions`, data, {
+    const response = await axios.post(`${config.base_url}user/update-permissions`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -1371,16 +1371,31 @@ export async function ticketstatus(token, data) {
 }
 
 // withdrawalPayoutrequest
-export async function withdrawalPayoutrequest(token , data){
+export async function withdrawalPayoutrequest(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}client/process-payout-request`,data,{
-      headers:{
-        Authorization : `Bearer ${token}`
+
+    const response = await axios.post(`${config.base_url}client/process-payout-request`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
     })
     return response?.data;
   } catch (error) {
-    return error?.response?.data || {status: false, message : "Unkmown error"}
+    return error?.response?.data || { status: false, message: "Unkmown error" }
+  }
+}
+
+export async function payoutlist(token, params) {
+  try {
+    const response = await axios.get(`${config.base_url}client/payoutlist`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: params, 
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Unknown error" };
   }
 }
 

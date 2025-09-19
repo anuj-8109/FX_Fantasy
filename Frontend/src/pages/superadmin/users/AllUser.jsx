@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/Datatable";
 import { User } from "lucide-react";
-import { GetAllUser, StatusChange } from "../../../services/SuperAdmin";
+import { GetAllUser, StatusChange, UpdatePermissions } from "../../../services/SuperAdmin";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { Edit, Trash2 } from "lucide-react";
@@ -18,11 +18,13 @@ const AllUsers = () => {
   const fetchAllUsers = async () => {
     try {
       const response = await GetAllUser(token);
+      console.log("Current User Data:", response?.currentUser); // check what backend sends
       setAllUsers(response?.data);
     } catch (error) {
-      console.log(`Error in fetching All Users`);
+      console.log(`Error in fetching All Users`, error);
     }
   };
+
   const addUser = () => {
     navigate("/superadmin/addUser");
   };
@@ -109,6 +111,54 @@ const AllUsers = () => {
     }
   };
 
+  const handlePermissionUpdate = async (row) => {
+    // Convert stored string into array
+    let currentPermissions = [];
+    try {
+      currentPermissions = row.permissions?.[0]
+        ? JSON.parse(row.permissions[0])
+        : [];
+    } catch (err) {
+      currentPermissions = [];
+    }
+
+    const { value: selectedPermissions } = await Swal.fire({
+      title: `Manage Permissions for ${row.FullName}`,
+      input: "checkbox",
+      inputOptions: {
+        add_user: "Add User",
+        edit_user: "Edit User",
+        delete_user: "Delete User",
+      },
+      inputValue: currentPermissions,
+      confirmButtonText: "Update",
+      showCancelButton: true,
+    });
+
+    if (!selectedPermissions || selectedPermissions.length === 0) {
+      toast.error("Please select at least one permission.");
+      return;
+    }
+
+    try {
+      const response = await UpdatePermissions(token, {
+        id: row._id,
+        permissions: selectedPermissions, // ✅ send array
+      });
+
+      if (response?.status) {
+        toast.success("Permissions updated successfully!");
+        fetchAllUsers(); // refresh table
+      } else {
+        toast.error(response?.message || "Failed to update permissions");
+      }
+    } catch (err) {
+      toast.error("Server error while updating permissions");
+    }
+  };
+
+
+
   useEffect(() => {
     fetchAllUsers();
   }, []);
@@ -140,24 +190,56 @@ const AllUsers = () => {
       sortable: true,
     },
     {
-      name: "Active Status",
+      name: "Active Status & Permissions",
       cell: (row) => (
-        <label className="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            checked={row.ActiveStatus === 1}
-            onChange={(e) =>
-              handleStatusChange(e.target.checked ? "1" : "0", row?._id)
-            }
-            className="sr-only peer"
-          />
-          <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
-          <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border bg-white peer-checked:translate-x-full transition-transform"></div>
-        </label>
+        <div className="flex items-center gap-3">
+          {/* ✅ Toggle for active/inactive */}
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={row.ActiveStatus === 1}
+              onChange={(e) =>
+                handleStatusChange(e.target.checked ? "1" : "0", row?._id)
+              }
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
+            <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border bg-white peer-checked:translate-x-full transition-transform"></div>
+          </label>
 
+          {/* ✅ Gear icon for permissions */}
+          <button
+            onClick={() => handlePermissionUpdate(row)}
+            className="text-purple-600 hover:text-purple-800"
+            title="Manage Permissions"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.065c1.51-.923 3.268.835 2.345 2.345a1.724 1.724 0 001.065 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.065 2.573c.923 1.51-.835 3.268-2.345 2.345a1.724 1.724 0 00-2.573 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.065c-1.51.923-3.268-.835-2.345-2.345a1.724 1.724 0 00-1.065-2.573c-1.756-.426-1.756-2.924 0-3.35.923-.573 1.065-1.724 1.065-2.573-.923-1.51.835-3.268 2.345-2.345.923.573 2.147.085 2.573-1.065z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+          </button>
+        </div>
       ),
       sortable: true,
     },
+
+
+
     {
       name: "Action",
       selector: (row) => row?.PhoneNo,
@@ -182,11 +264,11 @@ const AllUsers = () => {
   ];
 
   return (
-     <Content Page_title="All Users" button_status={true} button_title="Back" route="/superadmin/dashboard"
-     extra_button="Add User"
+    <Content Page_title="All Users" button_status={true} button_title="Back" route="/superadmin/dashboard"
+      extra_button="Add User"
       extra_button_action="/superadmin/addUser">
-    <div className="p-8 min-h-screen AllUsers_Style">
-      {/* <div className="flex items-center justify-between mb-6 border  rounded-xl shadow-sm p-2">
+      <div className="p-8 min-h-screen AllUsers_Style">
+        {/* <div className="flex items-center justify-between mb-6 border  rounded-xl shadow-sm p-2">
         <div className="flex items-center gap-2">
           <User className="" />
           <h1 className="text-xl font-bold ">All Users</h1>
@@ -204,10 +286,10 @@ const AllUsers = () => {
 
 
 
-      <div className=" border shadow-lg rounded-xl  ">
-        <Datatable columns={columns} data={allusers} title="Users List" />
+        <div className=" border shadow-lg rounded-xl  ">
+          <Datatable columns={columns} data={allusers} title="Users List" />
+        </div>
       </div>
-    </div>
     </Content>
   );
 };
