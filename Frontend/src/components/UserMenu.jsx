@@ -8,9 +8,9 @@ const UserMenu = () => {
   const [showProfile, setShowProfile] = useState(false);
   const profileRef = useRef();
 
-  const user = JSON.parse(localStorage.getItem("user")); // Get logged-in user
+  const user = JSON.parse(localStorage.getItem("user"));
 
-  // Close dropdown on outside click
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -71,7 +71,7 @@ const UserMenu = () => {
           <span className="text-xs">Alerts</span>
         </button>
 
-        {/* Profile Dropdown */}
+
         <div className="relative" ref={profileRef}>
           <button
             onClick={() => setShowProfile(!showProfile)}
@@ -91,17 +91,52 @@ const UserMenu = () => {
               </div>
 
               <button
-                onClick={() => navigate("/profile")}
+                onClick={() => {
+                  navigate("/profile");
+                  setShowProfile(false);
+                }}
+
                 className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
               >
                 Profile Management
               </button>
 
               <button
-                onClick={() => navigate("/helpdesk")}
+                onClick={() =>{
+                   navigate("/helpdesk")
+                   setShowProfile(false)
+                  }}
                 className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
               >
                 Help Desk
+              </button>
+
+              <button
+                onClick={() =>{
+                   navigate("/coupon")
+                   setShowProfile(false)
+                  }}
+                className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+              >
+                Coupons
+              </button>
+
+              <button
+                onClick={() => {navigate("/faq")
+                  setShowProfile(false)
+                }}
+                className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+              >
+                FAQ
+              </button>
+
+              <button
+                onClick={() => {navigate("/blog")
+                  setShowProfile(false)
+                }}
+                className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+              >
+                Blog
               </button>
 
               <button

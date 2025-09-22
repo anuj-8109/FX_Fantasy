@@ -319,3 +319,46 @@ export async function GetBanners(token) {
     return error?.response?.data;
   }
 }
+
+
+// get Coupons
+export async function GetCoupons(token) {
+  try {
+    const response = await axios.get(`${config.base_url}api/list/coupon`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+// get FAQ
+export async function Getfaq(token) {
+  try {
+    const response = await axios.get(`${config.base_url}api/list/faq`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response?.data;
+  } catch (error) {
+    return response?.data;
+  }
+}
+
+//getBlog 
+export async function GetBlog(token){
+  try {
+    const response = await axios.get(`${config.base_url}api/list/blogspagination`,{
+       headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response?.data;
+  } catch (error) {
+     return response?.data;
+  }
+}

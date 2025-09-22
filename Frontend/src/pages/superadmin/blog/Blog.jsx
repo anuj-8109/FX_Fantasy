@@ -13,6 +13,7 @@ import Swal from "sweetalert2";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import Content from "../../../components/superadmin/Content";
+import * as config from "../../../utils/config";
 
 const Blog = () => {
   const [blogs, setBlogs] = useState([]);
@@ -43,6 +44,8 @@ const Blog = () => {
   useEffect(() => {
     fetchBlogs();
   }, []);
+
+  console.log("config.image_url",config.image_url)
 
   const handleOpen = (blog = null) => {
     setSelectedBlog(blog);
@@ -163,15 +166,20 @@ const Blog = () => {
       width: "80px",
     },
     {
-      name: "Image",
-      cell: (row) => (
-        <img
-          src={row.image}
-          alt={row.title}
-          className="w-16 h-16 object-cover"
-        />
-      ),
-    },
+  name: "Image",
+  cell: (row) => (
+    row?.image ? (
+      <img
+        src={`${config?.image_url}uploads/blogs/${row.image}`}
+        alt={row.title}
+        className="w-16 h-16 object-cover rounded"
+      />
+    ) : (
+      <span className="text-gray-400 italic">No Image</span>
+    )
+  ),
+},
+
     {
       name: "Title",
       selector: (row) => row?.title,

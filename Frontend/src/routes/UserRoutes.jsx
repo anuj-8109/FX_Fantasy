@@ -12,6 +12,9 @@ import UserProfile from "../pages/user/profile/UserProfile";
 import HelpDesk from "../pages/user/helpdesk/HelpDesk";
 import Chat from "../pages/user/helpdesk/Chat";
 import WalletPage from "../pages/user/walletPage/WalletPage";
+import Coupons from "../pages/user/coupons/Coupons";
+import FAQ from "../pages/user/faq/FAQ";
+import Blog from "../pages/user/blog/Blog";
 
 const UserRoutes = () => {
   return (
@@ -24,8 +27,11 @@ const UserRoutes = () => {
         <Route path="history" element={<HistoryPage />} />
         <Route path="profile" element={<UserProfile />} />
         <Route path="helpdesk" element={<HelpDesk />} />
-       <Route path="chat/:ticketId" element={<Chat />} />
-       <Route path="wallet" element={<WalletPage />} />
+        <Route path="chat/:ticketId" element={<Chat />} />
+        <Route path="wallet" element={<WalletPage />} />
+        <Route path="coupon" element={<Coupons />} />
+        <Route path="faq" element={<FAQ/>}/>
+        <Route path="blog" element={<Blog/>}/>
 
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
 

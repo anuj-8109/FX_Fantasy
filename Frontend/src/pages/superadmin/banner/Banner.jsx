@@ -11,6 +11,8 @@ import {
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import Content from "../../../components/superadmin/Content";
+import * as config from "../../../utils/config";
+
 
 const Banner = () => {
   const [banners, setBanners] = useState([]);
@@ -158,17 +160,16 @@ const Banner = () => {
     },
     {
       name: "Image",
-      cell: (row) =>
-        row?.image ? (
-          <img
-            src={`/uploads/banner/${row.image}`}
-            alt="banner"
-            className="w-20 h-12 object-cover rounded"
-          />
-        ) : (
-          "No Image"
-        ),
+      cell: (row) => (
+        <img
+          src={`${config?.image_url}uploads/banner/${row?.image}`}
+          alt="banner"
+          className="w-20 h-12 object-cover rounded"
+
+        />
+      ),
     },
+
     {
       name: "Hyperlink",
       selector: (row) => row.hyperlink || "-",
@@ -220,12 +221,12 @@ const Banner = () => {
       Page_title="Banner Management"
       button_title="Back"
       button_status={true}
-      extra_button="+ Add Banner"  extra_button_action={() => handleOpen(null)}
+      extra_button="+ Add Banner" extra_button_action={() => handleOpen(null)}
       route="/superadmin/dashboard"
 
     >
       <div className="p-2 ">
-       
+
 
         <div className="shadow-lg rounded-xl p-4 bg-#1E293B">
           <Datatable columns={columns} data={banners} title="Banners List" onRefresh={fetchBanners} />
