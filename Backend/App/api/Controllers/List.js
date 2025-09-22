@@ -289,7 +289,7 @@ async getUpcomingTournaments(req, res) {
 
         const matchConditions = { 
             del: false,
-            status: "upcoming" 
+         //   status: "upcoming" 
         };
 
         if (search && search.trim() !== "") {
