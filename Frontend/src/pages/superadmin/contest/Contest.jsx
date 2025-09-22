@@ -205,17 +205,17 @@ const Contest = () => {
       width: "150px",
     },
 
-    {
-      name: "Stocks",
-      cell: (row) => (
-        <div className="text-xs">
-          {row.stocks?.map((s, idx) => (
-            <div key={idx}>{s.stock_name}</div>
-          ))}
-        </div>
-      ),
-      width: "120px",
-    },
+    // {
+    //   name: "Stocks",
+    //   cell: (row) => (
+    //     <div className="text-xs">
+    //       {row.stocks?.map((s, idx) => (
+    //         <div key={idx}>{s.stock_name}</div>
+    //       ))}
+    //     </div>
+    //   ),
+    //   width: "120px",
+    // },
 
     {
       name: "Guaranteed",

@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Home, Search, Bell, User } from "lucide-react";
 import Swal from "sweetalert2";
 
 const UserMenu = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+
   const [showProfile, setShowProfile] = useState(false);
   const profileRef = useRef();
 
@@ -102,27 +105,28 @@ const UserMenu = () => {
               </button>
 
               <button
-                onClick={() =>{
-                   navigate("/helpdesk")
-                   setShowProfile(false)
-                  }}
+                onClick={() => {
+                  navigate("/helpdesk")
+                  setShowProfile(false)
+                }}
                 className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
               >
                 Help Desk
               </button>
 
               <button
-                onClick={() =>{
-                   navigate("/coupon")
-                   setShowProfile(false)
-                  }}
+                onClick={() => {
+                  navigate("/coupon")
+                  setShowProfile(false)
+                }}
                 className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
               >
                 Coupons
               </button>
 
               <button
-                onClick={() => {navigate("/faq")
+                onClick={() => {
+                  navigate("/faq")
                   setShowProfile(false)
                 }}
                 className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
@@ -131,13 +135,27 @@ const UserMenu = () => {
               </button>
 
               <button
-                onClick={() => {navigate("/blog")
+                onClick={() => {
+                  navigate("/blog")
                   setShowProfile(false)
                 }}
                 className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
               >
                 Blog
               </button>
+
+              <button
+                onClick={() => {
+                  navigate("/content", { state: { id: id } }); // id ko state me bhejo
+                  setShowProfile(false);
+                }}
+                className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+              >
+                Content
+              </button>
+
+
+
 
               <button
                 onClick={handleLogout}

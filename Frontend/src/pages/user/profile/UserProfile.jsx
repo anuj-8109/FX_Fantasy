@@ -11,8 +11,8 @@ const UserProfile = () => {
     const [formData, setFormData] = useState({ fullName: "" });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
-    const [name , setname] = useState("Anuj")
-    
+    const [name, setName] = useState(localStorage.getItem("playerName") || "");
+
 
     const token = localStorage.getItem("token");
     const id = localStorage.getItem("userId");
@@ -21,7 +21,7 @@ const UserProfile = () => {
     useEffect(() => {
         const fetchUserDetails = async () => {
             try {
-                const response = await GetUserDetails(token, id); 
+                const response = await GetUserDetails(token, id);
                 setUserDetails(response?.data);
                 setFormData({ fullName: response?.data?.FullName || "" });
             } catch (error) {
@@ -31,6 +31,14 @@ const UserProfile = () => {
 
         fetchUserDetails();
     }, [token, id]);
+
+    useEffect(() => {
+        if (userDetails?.FullName) {
+            setName(userDetails.FullName);
+            localStorage.setItem("playerName", userDetails.FullName);
+        }
+    }, [userDetails]);
+
 
 
     const handleInputChange = (field, value) => {
@@ -121,11 +129,11 @@ const UserProfile = () => {
                                             </button>
                                         </div>
 
-                                     
+
 
                                         <div className="border rounded-lg p-3">
                                             <p className="text-xs">Username</p>
-                                            <p>{name|| "Not specified"}</p>
+                                            <p>{name || "Not specified"}</p>
                                         </div>
 
                                         <div className="border rounded-lg p-3">
@@ -133,7 +141,7 @@ const UserProfile = () => {
                                             <p>{userDetails?.PhoneNo || "Not provided"}</p>
                                         </div>
 
-                                      
+
                                     </div>
                                 )}
 

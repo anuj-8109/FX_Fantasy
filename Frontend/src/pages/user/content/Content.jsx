@@ -1,0 +1,68 @@
+
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+import { getContent } from "../../../services/User";
+
+function Content() {
+  const { id } = useParams(); 
+
+  const [content, setContent] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem("token");
+
+  const fatchContent = async () => {
+    try {
+      setLoading(true);
+      const res = await getContent(token, id);
+      console.log("res",res) 
+      if (res?.status === true) {
+        setContent(res?.data || null);
+      } else {
+        toast.error(res?.message || "Failed to load content");
+      }
+    } catch (error) {
+      toast.error("Something went wrong!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      fatchContent();
+    }
+  }, [id]);
+
+  return (
+    <div className="max-w-3xl mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-6">Content</h2>
+
+      {loading && <p>Loading...</p>}
+
+      {!loading && content && (
+        <div
+          key={content._id}
+          className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition duration-300"
+        >
+          <div className="p-4">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              {content.title}
+            </h3>
+
+            <p className="text-sm text-gray-500 mb-3">
+              {new Date(content.created_at).toLocaleDateString()}
+            </p>
+
+            <div
+              className="text-gray-700 text-sm leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: content.description }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default Content;

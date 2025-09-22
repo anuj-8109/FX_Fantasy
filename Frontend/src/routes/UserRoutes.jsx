@@ -15,6 +15,7 @@ import WalletPage from "../pages/user/walletPage/WalletPage";
 import Coupons from "../pages/user/coupons/Coupons";
 import FAQ from "../pages/user/faq/FAQ";
 import Blog from "../pages/user/blog/Blog";
+import Content from "../pages/user/content/Content";
 
 const UserRoutes = () => {
   return (
@@ -30,8 +31,10 @@ const UserRoutes = () => {
         <Route path="chat/:ticketId" element={<Chat />} />
         <Route path="wallet" element={<WalletPage />} />
         <Route path="coupon" element={<Coupons />} />
-        <Route path="faq" element={<FAQ/>}/>
-        <Route path="blog" element={<Blog/>}/>
+        <Route path="faq" element={<FAQ />} />
+        <Route path="blog" element={<Blog />} />
+        <Route path="content/:id" element={<Content />} />
+
 
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
 

@@ -21,7 +21,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
     const [description, setDescription] = useState("");
     const [contestType, setContestType] = useState("Mega");
     const [entryFee, setEntryFee] = useState("");
-    const [useAmount, setUseAmount] = useState(""); // Added missing useamount field
+    const [useAmount, setUseAmount] = useState(""); 
     const [totalSpots, setTotalSpots] = useState("");
     const [maxEntryPerUser, setMaxEntryPerUser] = useState(1);
     const [prizePool, setPrizePool] = useState("");
@@ -40,7 +40,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
         const add_by = localStorage.getItem("add_by");
         const token = localStorage.getItem("token");
 
-        console.log("Auth Check:", { add_by, token }); // Debug log
+        console.log("Auth Check:", { add_by, token });
 
         if (!add_by) {
             console.error("add_by not found in localStorage");

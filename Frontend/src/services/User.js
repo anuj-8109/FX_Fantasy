@@ -362,3 +362,23 @@ export async function GetBlog(token){
      return response?.data;
   }
 }
+
+// getContent
+
+
+export async function getContent(token, id) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}api/list/content/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    console.error("getContent error:", error); 
+    return error?.response?.data;
+  }
+}
