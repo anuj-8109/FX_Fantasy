@@ -179,11 +179,10 @@ class List {
       const result = await Coupon_Modal.find({
         del: false,
         status: true,
-        showstatus: 1,
+     //   showstatus: 1,
         startdate: { $lte: endOfToday },
         enddate: { $gte: startOfToday }
       });
-
       const protocol = req.protocol; // Will be 'http' or 'https'
       const baseUrl = `https://${req.headers.host}`;
 
