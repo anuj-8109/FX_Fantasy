@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { getContent } from "../../../services/User";
 
 function Content() {
-  const { id } = useParams(); 
+   
+  
 
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -14,8 +15,8 @@ function Content() {
   const fatchContent = async () => {
     try {
       setLoading(true);
-      const res = await getContent(token, id);
-      console.log("res",res) 
+      const data = {id:"66dbec0a9f7a0365f1f4527d"}
+      const res = await getContent(token,data); 
       if (res?.status === true) {
         setContent(res?.data || null);
       } else {
@@ -29,10 +30,10 @@ function Content() {
   };
 
   useEffect(() => {
-    if (id) {
+   
       fatchContent();
-    }
-  }, [id]);
+    
+  }, []);
 
   return (
     <div className="max-w-3xl mx-auto p-4">

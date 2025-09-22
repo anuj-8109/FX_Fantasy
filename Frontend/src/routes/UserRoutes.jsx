@@ -33,7 +33,7 @@ const UserRoutes = () => {
         <Route path="coupon" element={<Coupons />} />
         <Route path="faq" element={<FAQ />} />
         <Route path="blog" element={<Blog />} />
-        <Route path="content/:id" element={<Content />} />
+        <Route path="content" element={<Content />} />
 
 
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}

@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 
 const UserMenu = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+ 
 
   const [showProfile, setShowProfile] = useState(false);
   const profileRef = useRef();
@@ -146,7 +146,7 @@ const UserMenu = () => {
 
               <button
                 onClick={() => {
-                  navigate("/content", { state: { id: id } }); // id ko state me bhejo
+                  navigate("/content"); 
                   setShowProfile(false);
                 }}
                 className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"

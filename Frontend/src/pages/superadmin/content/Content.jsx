@@ -13,12 +13,8 @@ import Swal from "sweetalert2";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import Content from "../../../components/superadmin/Content";
-import { useLocation } from "react-router-dom";
 
 const Contents = () => {
-  const location = useLocation();
-  const id = location.state?._id;
-  console.log("id",id)
   const [contents, setContents] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedContent, setSelectedContent] = useState(null);

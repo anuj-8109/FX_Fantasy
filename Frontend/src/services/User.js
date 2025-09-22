@@ -323,6 +323,7 @@ export async function GetBanners(token) {
 
 // get Coupons
 export async function GetCoupons(token) {
+
   try {
     const response = await axios.get(`${config.base_url}api/list/coupon`, {
       headers: {
@@ -350,26 +351,26 @@ export async function Getfaq(token) {
 }
 
 //getBlog 
-export async function GetBlog(token){
+export async function GetBlog(token) {
   try {
-    const response = await axios.get(`${config.base_url}api/list/blogspagination`,{
-       headers: {
+    const response = await axios.get(`${config.base_url}api/list/blogspagination`, {
+      headers: {
         Authorization: `Bearer ${token}`,
       },
     })
     return response?.data;
   } catch (error) {
-     return response?.data;
+    return response?.data;
   }
 }
 
 // getContent
 
 
-export async function getContent(token, id) {
+export async function getContent(token, data) {
   try {
     const response = await axios.get(
-      `${config.base_url}api/list/content/${id}`,
+      `${config.base_url}api/list/content/${data?.id}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -378,7 +379,20 @@ export async function getContent(token, id) {
     );
     return response?.data;
   } catch (error) {
-    console.error("getContent error:", error); 
+    console.error("getContent error:", error);
     return error?.response?.data;
+  }
+}
+
+
+// BuySell trade
+export async function BuySelltrade(token, payload) {
+  try {
+    const response = await axios.post(`${config.base_url}api/list/buyselltrade`, payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
   }
 }

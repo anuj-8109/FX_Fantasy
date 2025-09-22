@@ -1391,11 +1391,26 @@ export async function payoutlist(token, params) {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      params: params, 
+      params: params,
     });
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+//Stock List
+
+export async function stocklist(token) {
+  try {
+    const response = await axios.get(`${config.base_url}contest/stocklist`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
   }
 }
 
