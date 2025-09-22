@@ -20,6 +20,8 @@ const UserDashboard = () => {
   const [turnament, setTurnament] = useState([]);
   const [banner, setBanner] = useState([]);
 
+
+
   // Time left calculation (countdown)
   const getTimeLeft = (endDate) => {
     const now = new Date();
@@ -37,48 +39,51 @@ const UserDashboard = () => {
     return `${minutes}m left`;
   };
 
+
   const fatchtournament = async () => {
-    const res = await GetTurnament(token);
+    try {
+      const res = await GetTurnament(token);
+      if (res?.status && Array.isArray(res.data)) {
+        const now = new Date();
 
-    if (res?.status) {
-      const now = new Date();
+        const mappedData = res.data.map((item) => {
+          const start = new Date(item.startdate);
+          const end = new Date(item.enddate);
 
-      const mappedData = res.data.map((item) => {
-        const start = new Date(item.startdate);
-        const end = new Date(item.enddate);
+          let status;
+          if (now < start) status = "upcoming";
+          else if (now >= start && now <= end) status = "ongoing";
+          else status = "completed";
 
-        let status = "upcoming";
-        if (start > now) {
-          status = "upcoming";
-        } else if (start <= now && end >= now) {
-          status = "ongoing";
-        } else if (end < now) {
-          status = "completed";
-        }
+          return {
+            id: item._id,
+            name: item.name,
+            company: item.stocks?.[0]?.stock_name || "N/A",
+            companyColor: "#2563eb",
+            partner: item.stocks?.[1]?.stock_name || "N/A",
+            partnerColor: "#dc2626",
+            start,
+            end,
+            timeRange: `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`,
+            status, // important!
+            participants: item.participants || 0,
+            prizePool: item.prizePool || "₹0",
+            entryFee: item.entryFee || "Free",
+            spots: item.spots || "N/A",
+          };
+        });
 
-        return {
-          id: item._id,
-          name: item.name,
-          company: item.stocks?.[0]?.stock_name || "N/A",
-          companyColor: "#2563eb",
-          partner: item.stocks?.[1]?.stock_name || "N/A",
-          partnerColor: "#dc2626",
-          start: start,
-          end: end,
-          timeRange: `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`,
-          status,
-          participants: 0,
-          prizePool: "₹0",
-          entryFee: "Free",
-          spots: "N/A",
-        };
-      });
-
-      setTurnament(mappedData);
-    } else {
-      toast.error(res?.message || "Failed to fetch tournaments");
+        setTurnament(mappedData);
+      } else {
+        toast.error(res?.message || "Failed to fetch tournaments");
+      }
+    } catch (err) {
+      toast.error("Error fetching tournaments");
+      console.error(err);
     }
   };
+
+
 
   const fetchBanner = async () => {
     try {
@@ -94,27 +99,12 @@ const UserDashboard = () => {
     fetchBanner();
   }, []);
 
-  // const banners = [
-  //   {
-  //     url: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=300&fit=crop",
-  //     title: "Stock Trading Contest",
-  //     subtitle: "Win big with smart investments",
-  //   },
-  //   {
-  //     url: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&h=300&fit=crop",
-  //     title: "Market Analysis Challenge",
-  //     subtitle: "Test your market skills",
-  //   },
-  //   {
-  //     url: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&h=300&fit=crop",
-  //     title: "Investment Competition",
-  //     subtitle: "Compete with top traders",
-  //   },
-  // ];
 
-  const filteredContests = turnament?.filter(
-    (item) => item.status === activeTab
-  );
+  const filteredContests = turnament.filter((item) => {
+    if (activeTab === "mycontests") return false; // handle my contests separately
+    return item.status === activeTab;
+  });
+
 
   const nextBanner = () => {
     setCurrentBannerIndex((prev) => (prev + 1) % banners.length);
@@ -179,9 +169,8 @@ const UserDashboard = () => {
               <button
                 key={idx}
                 onClick={() => setCurrentBannerIndex(idx)}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  currentBannerIndex === idx ? "bg-white" : "bg-white/50"
-                }`}
+                className={`w-2 h-2 rounded-full transition-colors ${currentBannerIndex === idx ? "bg-white" : "bg-white/50"
+                  }`}
               />
             ))}
           </div>
@@ -197,9 +186,8 @@ const UserDashboard = () => {
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`flex-1 py-4 px-2 font-medium text-sm transition-all duration-200 ${
-              activeTab === key ? " border-b-2 border-blue-600" : ""
-            }`}
+            className={`flex-1 py-4 px-2 font-medium text-sm transition-all duration-200 ${activeTab === key ? " border-b-2 border-blue-600" : ""
+              }`}
           >
             <div className="flex flex-col items-center space-y-1">
               <Icon className="w-4 h-4" />
