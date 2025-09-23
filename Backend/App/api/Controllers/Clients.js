@@ -630,7 +630,7 @@ async LoginWithOTP(req, res) {
     const otp = Math.floor(100000 + Math.random() * 900000);
       otpStore.set(PhoneNo, { otp, expires: Date.now() + 5 * 60 * 1000 });
 
-  
+  console.log("OTP",otp)
     if (String(settings.smsprovider) === '1') {
       const smstemplate = await Smstemplate_Modal.findOne({ sms_type: "otp" });
 

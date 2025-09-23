@@ -119,25 +119,20 @@ const UserLogin = () => {
   };
 
   const handleVerifyOtp = async (e) => {
-
     e.preventDefault();
     if (!(await validateForm())) return;
 
     setIsLoading(true);
     try {
-
       const response = await LoginWithOtpApi({
         PhoneNo: formData.UserName,
         otp: formData.otp,
       });
-      localStorage.setItem("token", response?.data?.tokenjwt);
 
       console.log("OTP Verify Response:", response);
 
       if (response.status === true && response.data) {
         const user = response.data;
-
-
         const token = user.jwtToken;
 
         if (!token) {
@@ -146,9 +141,9 @@ const UserLogin = () => {
           return;
         }
 
-
         const roleId = 3;
 
+        // Save user info to localStorage
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("roleId", roleId);
@@ -160,9 +155,12 @@ const UserLogin = () => {
           position: "top-right",
         });
 
-        setTimeout(() => {
-          navigate("/setname");
-        }, 1000);
+        // Redirect based on whether name is already set
+        if (user.FullName && user.FullName.trim() !== "") {
+          navigate("/dashboard"); // Skip setname
+        } else {
+          navigate("/setname"); // Go to setname if no name
+        }
       } else {
         Swal.fire("Error", response?.message?.message || "Invalid OTP");
       }
