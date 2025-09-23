@@ -827,6 +827,54 @@ async  updateClientProfile(req, res) {
 }
 
 
+
+
+async  updateClientName(req, res) {
+  try {
+    const { id, FullName } = req.body;
+
+    // 🔒 Validation
+    if (!FullName) {
+      return res.status(400).json({ status: false, message: "Please enter full name" });
+    }
+
+    // 🔎 Find client
+    const client = await Clients_Modal.findOne({
+      _id: id,
+      del: 0,
+      ActiveStatus: 1
+    });
+
+    if (!client) {
+      return res.status(404).json({ status: false, message: "Client not found or inactive" });
+    }
+
+    // ✅ Check for duplicate email (other clients only)
+
+    // ✅ Update fields
+    client.FullName = FullName;
+   
+
+    await client.save();
+
+    return res.json({
+      status: true,
+      message: "Profile updated successfully",
+      data: {
+        id: client._id,
+        FullName: client.FullName,
+      },
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
 async  addMoneyInWallet(req, res) {
   try {
     const { client_id, amount, remark } = req.body;
