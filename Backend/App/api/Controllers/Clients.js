@@ -642,6 +642,8 @@ async LoginWithOTP(req, res) {
       await sendSMS(PhoneNo, message, smstemplate.templateid);
     }
 
+    console.log('otp', otp);
+
     // --- Response ---
     return res.json({
       status: true,
