@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Clock, Plus, Minus, TrendingUp, Calendar, Filter, Wallet,ChevronDown  } from "lucide-react";
+import { Clock, Plus, Minus, TrendingUp, Calendar, Filter, Wallet, ChevronDown } from "lucide-react";
 import Swal from "sweetalert2";
 import {
   addMoneyInWallet,
@@ -7,6 +7,7 @@ import {
   withdrolmoney,
   withdrolHistory,
 } from "../../../services/User";
+import BackButton from "../../../pages/user/Backbutton";
 
 const WalletPage = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -394,27 +395,35 @@ const WalletPage = () => {
     <div className="p-4 max-w-6xl mx-auto  bg-white rounded-2xl shadow-xl">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="text-2xl font-extrabold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent flex items-center gap-2">
-          <Wallet size={16} />
-          Wallet Management
-        </h1>
-        <div className="flex gap-3">
+        {/* Left: Back button + Heading */}
+        <div className="flex items-center ">
+         <BackButton showText={false} />
+          <h1 className="text-2xl font-extrabold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent flex items-center gap-2">
+            <Wallet size={20} />
+            Wallet Management
+          </h1>
+        </div>
+
+        {/* Right: Action Buttons */}
+        <div className="flex flex-wrap gap-3">
           <button
             onClick={handleAddMoney}
-            className="px-2 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2 font-medium"
+            className="px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2 font-medium"
           >
             <Plus size={18} />
             Add Money
           </button>
           <button
             onClick={handleWithdraw}
-            className="px-2 py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2 font-medium"
+            className="px-3 py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2 font-medium"
           >
             <Minus size={18} />
             Withdraw
           </button>
         </div>
       </div>
+
+
 
       {/* Tabs */}
       {/* Dropdown for Tabs */}

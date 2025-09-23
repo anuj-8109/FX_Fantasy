@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { GetCoupons } from "../../../services/User";
 import toast from "react-hot-toast";
-
+import BackButton from "../../../pages/user/Backbutton";
 function Coupons() {
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -9,7 +9,7 @@ function Coupons() {
   const fetchCoupons = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token"); 
+      const token = localStorage.getItem("token");
       const res = await GetCoupons(token);
 
       if (res?.status === true) {
@@ -30,7 +30,15 @@ function Coupons() {
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Coupons</h2>
+      <div className="flex justify-between items-center mb-4">
+        {/* Left: Back button */}
+               <h2 className="text-2xl font-bold">Coupons</h2>
+
+        {/* Right: Heading */}
+
+         <BackButton />
+      </div>
+
 
       {loading && <p>Loading...</p>}
 

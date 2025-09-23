@@ -396,3 +396,20 @@ export async function BuySelltrade(token, payload) {
     return error?.response?.data || { status: false, message: "Network error" };
   }
 }
+
+
+// UpdateClient profile
+export async function UpdateClient(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/client/updateclientprofile`,
+      data,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    return error?.response?.data || { success: false, message: "Network error" };
+  }
+}

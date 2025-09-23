@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Content from "../../../components/superadmin/Content";
 import ChangePassword from "../../superadmin/profile/ChangePassword";
 import { GetUserDetails } from "../../../services/User";
+import BackButton from "../../../pages/user/Backbutton";
 
 const UserProfile = () => {
     const [userDetails, setUserDetails] = useState(null);
@@ -59,7 +60,10 @@ const UserProfile = () => {
     return (
         <>
             <div className=" p-6">
-                <div className="max-w-4xl mx-auto grid lg:grid-cols-5 gap-8">
+                
+        <BackButton />
+       
+                <div className="max-w-4xl mx-auto grid lg:grid-cols-5 gap-8 mt-4">
 
                     {/* Left Section: Profile Image */}
                     <div className="lg:col-span-2">

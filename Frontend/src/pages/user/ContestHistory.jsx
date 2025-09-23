@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom"; // <-- added useNavigate
 import { GetContestHistory, BuySelltrade } from "../../services/User";
+import BackButton from "../../pages/user/Backbutton";
 
 function HistoryPage() {
-
+  const navigate = useNavigate(); // <-- initialize navigate
   const location = useLocation();
   const contestId = location?.state?.contestId;
 
-  console.log("contestId",contestId)
+  console.log("contestId", contestId);
 
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -75,7 +76,7 @@ function HistoryPage() {
       if (res?.status) {
         alert("Trade successful!");
         setHistory((prev) => [res.data, ...prev]);
-        setQuantityMap((prev) => ({ ...prev, [tradeId]: "" })); 
+        setQuantityMap((prev) => ({ ...prev, [tradeId]: "" }));
       } else {
         alert(res?.message || "Trade failed");
       }
@@ -97,7 +98,7 @@ function HistoryPage() {
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col hitstory_style">
-      {/* Balance Card */}
+       <BackButton />
       <div className="max-w-4xl w-full mx-auto mt-6 shadow rounded-xl p-6 text-center Card-style">
         <div className="flex justify-center mb-2">
           <div className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center text-xl">₹</div>

@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Getfaq } from "../../../services/User";
 import toast from "react-hot-toast";
+import BackButton from "../../../pages/user/Backbutton";
 
 function FAQ() {
   const [faq, setFaq] = useState([]);
   const [loading, setLoading] = useState(false);
-   console.log("faq",faq)
+  console.log("faq", faq)
   const token = localStorage.getItem("token");
 
   const fetchFaq = async () => {
     try {
       setLoading(true);
       const res = await Getfaq(token);
-        console.log("res", res)
+      console.log("res", res)
       if (res?.status === true) {
         setFaq(res?.data || []);
       } else {
@@ -31,7 +32,15 @@ function FAQ() {
 
   return (
     <div>
-      <h2>FAQ</h2>
+      <div className="flex justify-between items-center mb-4">
+        {/* Left: Back button */}
+        <h2 className="text-2xl font-bold">FAQ</h2>
+
+        {/* Right: Heading */}
+        <BackButton />
+
+      </div>
+
 
       {loading && <p>Loading...</p>}
 

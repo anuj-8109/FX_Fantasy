@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { GetBlog } from "../../../services/User";
 import toast from "react-hot-toast";
+import BackButton from "../../../pages/user/Backbutton";
 
 function Blog() {
   const [blog, setBlog] = useState([]);
@@ -31,9 +32,15 @@ function Blog() {
 
   return (
     <div className="max-w-4xl max-h-4xl mx-auto px-4 py-4">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-        Latest Blogs
-      </h2>
+      <div className="flex justify-between items-center mb-6">
+        {/* Left: Back button */}
+        <h2 className="text-3xl font-bold text-gray-800">Latest Blogs</h2>
+
+
+        {/* Right: Heading */}
+        <BackButton />
+      </div>
+
 
       {loading && <p className="text-center text-gray-500">Loading...</p>}
 

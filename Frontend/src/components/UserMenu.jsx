@@ -69,7 +69,7 @@ const UserMenu = () => {
           <span className="text-xs">Search</span>
         </button>
 
-        <button onClick={() => navigate("/alerts")} className="flex flex-col items-center  hover:text-white-500">
+        <button onClick={() => navigate("/alert")} className="flex flex-col items-center  hover:text-white-500">
           <Bell className="h-6 w-6" />
           <span className="text-xs">Alerts</span>
         </button>

@@ -3,7 +3,7 @@ import { Ticket, X, Eye } from "lucide-react";
 import { GetTicket, addTicket, getticketDetail } from "../../../services/User";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-
+import BackButton from "../../../pages/user/Backbutton";
 function HelpDesk() {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -80,18 +80,26 @@ function HelpDesk() {
 
   return (
     <div className="flex bg-gray-100 min-h-screen">
+
       <div className="flex-1 p-6">
         <div className="flex justify-between items-center mb-6">
+          {/* Left: Heading */}
           <h1 className="text-xl font-semibold flex items-center gap-2">
             <Ticket size={24} /> Help Desk
           </h1>
-          <button
-            onClick={openModal}
-            className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 flex items-center gap-1"
-          >
-            <span>+</span> New Request
-          </button>
+
+          {/* Right: Back button + New Request */}
+          <div className="flex items-center gap-3">
+            <BackButton />
+            <button
+              onClick={openModal}
+              className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 flex items-center gap-1"
+            >
+              <span>+</span> New Request
+            </button>
+          </div>
         </div>
+
 
         <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 min-h-[60vh]">
           {tickets.length === 0 ? (

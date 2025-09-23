@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { GetContestByTurnament, JoinContest, GetMyContests } from "../../services/User";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import BackButton from "../../pages/user/Backbutton";
 
 function Pricepol() {
   const navigate = useNavigate();
@@ -15,7 +15,6 @@ function Pricepol() {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("contests");
   const token = localStorage.getItem("token");
-
 
   useEffect(() => {
     if (!tournamentId || !token) {
@@ -43,51 +42,28 @@ function Pricepol() {
     fetchContests();
   }, [tournamentId, token]);
 
-
   const handleJoinNow = async (contest) => {
     try {
       const token = localStorage.getItem("token");
       const clientId = localStorage.getItem("userId");
 
-      if (!token) {
-        toast.error("Please login to join the contest");
-        return;
-      }
-
-      if (!clientId) {
-        toast.error("Client ID missing!");
-        return;
-      }
+      if (!token) return toast.error("Please login to join the contest");
+      if (!clientId) return toast.error("Client ID missing!");
 
       const entryFee = parseFloat(contest.entry_fee) || 0;
       const discount = parseFloat(contest.discount) || 0;
       const total = entryFee - discount;
-
-      if (isNaN(total) || total < 0) {
-        toast.error("Invalid contest data");
-        return;
-      }
-
+      if (isNaN(total) || total < 0) return toast.error("Invalid contest data");
 
       const res = await JoinContest(contest._id, clientId, entryFee, discount, total, token);
-
       if (res?.status) {
         toast.success(`Joined ${contest.name} successfully 🎉`);
-
-
-        const joinedContest = {
-          ...contest,
-          ...res.data
-        };
-
-
+        const joinedContest = { ...contest, ...res.data };
         setMyContests((prev) => {
           const exists = prev.find((c) => c._id === joinedContest._id);
           if (exists) return prev;
           return [...prev, joinedContest];
         });
-
-
         setActiveTab("myContests");
       } else {
         toast.error(res?.message || "Failed to join contest");
@@ -101,21 +77,14 @@ function Pricepol() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const clientId = localStorage.getItem("userId");
-
-    if (!token || !clientId) {
-      setError("Missing token or client ID");
-      return;
-    }
+    if (!token || !clientId) return setError("Missing token or client ID");
 
     const fetchMyContests = async () => {
       setLoading(true);
       try {
         const data = await GetMyContests(token, clientId);
-        if (data.status && data.data.length > 0) {
-          setMyContests(data.data);
-        } else {
-          setMyContests([]);
-        }
+        if (data.status && data.data.length > 0) setMyContests(data.data);
+        else setMyContests([]);
       } catch (err) {
         console.error(err);
         setError("Error fetching my contests");
@@ -128,25 +97,32 @@ function Pricepol() {
   }, []);
 
   return (
-    <div className="p-4 bg-gray-50 min-h-screen PricePool_style">
-      <h1 className="text-2xl font-bold mb-6 text-center text-orange-600">
-        Tournament Contests
-      </h1>
+    <div className="p-2 sm:p-4 md:p-6 lg:p-8 bg-gray-50 min-h-screen">
+
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <BackButton />
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-orange-600 flex-1">
+          Tournament Contests
+        </h1>
+        {/* Empty div to balance the BackButton on the left */}
+        <div className="w-12"></div>
+      </div>
 
 
-      <div className="flex justify-center mb-6  ">
-        <div className="bg-white rounded-full shadow-md flex space-x-2 p-2 Card-style">
+      {/* Tabs */}
+      <div className="flex justify-center mb-4 sm:mb-6">
+        <div className="bg-white rounded-full shadow-md flex flex-wrap justify-center gap-2 p-1 sm:p-2">
           {[
-            { key: "contests", label: "Contests" },
             { key: "myContests", label: "My Contests" },
+            { key: "contests", label: "Contests" },
             { key: "myTeam", label: "My Team" },
           ].map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-6 py-2 rounded-full font-medium text-sm transition-all ${activeTab === tab.key
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 shadow"
-                : " "
+              className={`px-4 sm:px-6 py-1 sm:py-2 rounded-full font-medium text-xs sm:text-sm md:text-base transition-all ${activeTab === tab.key
+                ? "bg-gradient-to-r from-orange-500 to-orange-600 shadow text-white"
+                : "bg-gray-100 text-gray-700"
                 }`}
             >
               {tab.label}
@@ -155,130 +131,154 @@ function Pricepol() {
         </div>
       </div>
 
-
+      {/* Loading/Error */}
       {loading && <p className="text-center text-blue-500">Loading contests...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
+      {/* Contests */}
       {!loading && !error && tournament && (
-        <div className="max-w-4xl mx-auto space-y-6 Card-style">
+        <div className="max-w-full md:max-w-4xl mx-auto space-y-4 sm:space-y-6">
 
+          {/* All Contests */}
           {activeTab === "contests" &&
             contests.map((contest) => {
-              const progress =
-                (contest.filled_spots / contest.total_spots) * 100 || 0;
+              const progress = (contest.filled_spots / contest.total_spots) * 100 || 0;
 
               return (
                 <div
                   key={contest._id}
-                  className="bg-white shadow-md rounded-xl p-4 border border-gray-200  Card-style"
+                  className="bg-white shadow-md rounded-2xl p-3 sm:p-5 border border-gray-100 hover:shadow-xl transition-all duration-300 w-full"
                 >
-
-                  <div className="flex justify-between items-center">
+                  {/* Top Section */}
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
                     <div>
-                      <p className=" text-sm">Prize Pool</p>
-                      <p className="text-xl font-bold text-indigo-600">
+                      <p className="text-xs sm:text-sm text-gray-500">Prize Pool</p>
+                      <p className="text-lg sm:text-2xl font-bold text-indigo-600">
                         ₹{contest.prize_pool}
                       </p>
                     </div>
-                    <div>
-                      <p className=" text-sm">Entry</p>
-                      <button
-                        onClick={() => handleJoinNow(contest)}
-                        className=" font-semibold px-4 py-2 rounded-lg shadow"
-                      >
-                        ₹{contest.entry_fee}
-                      </button>
-                    </div>
+                    <span className="text-xs sm:text-sm text-green-600 font-medium mt-2 sm:mt-0">
+                      ✔ Guaranteed
+                    </span>
                   </div>
 
-
-                  <div className="mt-4">
-                    <div className="w-full bg-gray-100 rounded-full h-2">
+                  {/* Progress Bar */}
+                  <div>
+                    <div className="w-full bg-gray-100 rounded-full h-2 sm:h-3">
                       <div
-                        className="h-2 rounded-full transition-all"
+                        className="h-2 sm:h-3 rounded-full bg-indigo-500 transition-all"
                         style={{ width: `${progress}%` }}
-                      ></div>
+                      />
                     </div>
-                    <div className="flex justify-between text-sm  mt-2">
-                      <span>
-                        {contest.total_spots - contest.filled_spots} spots left
-                      </span>
+                    <div className="flex justify-between text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">
+                      <span>{contest.total_spots - contest.filled_spots} spots left</span>
                       <span>{contest.total_spots} spots</span>
                     </div>
                   </div>
 
-
-                  <div className="flex justify-between items-center text-sm mt-4">
-                    <span>🏆 Winners: {contest.winners || 1}</span>
-                    <span className="text-green-600 font-medium">
-                      ✔ Guaranteed
+                  {/* Bottom Section */}
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3 sm:mt-5 gap-2 sm:gap-0">
+                    <span className="text-sm sm:text-base text-gray-600">
+                      🏆 Winners: {contest.winners || 1}
                     </span>
+
+                    <div className="flex items-center gap-2 mt-2 sm:mt-0">
+                      <p className="text-sm sm:text-base font-medium text-gray-600">
+                        ₹{contest.entry_fee}
+                      </p>
+                      <button
+                        onClick={() => handleJoinNow(contest)}
+                        className="px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transition"
+                      >
+                        Join Now
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
             })}
 
-
+          {/* My Contests */}
           {activeTab === "myContests" && (
-            <div className="space-y-4">
+            <div className="space-y-4 sm:space-y-6">
               {myContests.length > 0 ? (
                 myContests.map((contestWrapper) => {
                   const contest = contestWrapper.contest_id;
                   return (
                     <div
                       key={contestWrapper._id}
-                      className="Card-style shadow-md rounded-xl p-6 border border-yellow-200 hover:shadow-lg transition-shadow duration-200"
+                      className="bg-white shadow-md rounded-2xl border border-gray-200 hover:shadow-xl transition-all duration-300 w-full"
                     >
-                      <div className="flex justify-between items-start mb-4">
+                      {/* Header */}
+                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 md:p-6 border-b border-gray-100 gap-2 md:gap-0">
                         <div>
-                          <h2 className="font-bold  text-lg">{contest?.name}</h2>
-                          <p className="text-sm mt-1">
-                            Tournament: <span className="text-indigo-600">{contest?.tournament_id?.name}</span>
+                          <h2 className="font-bold text-lg sm:text-xl md:text-2xl text-gray-800">{contest?.name}</h2>
+                          <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                            Tournament:{" "}
+                            <span className="text-indigo-600 font-medium">
+                              {contest?.tournament_id?.name}
+                            </span>
                           </p>
                         </div>
-                        <button
-                          // onClick={() => handleViewHistory(contestWrapper._id)}
-                          onClick={() => {navigate("/history", { state: { contestId: contestWrapper?.contest_id?._id } })}}
-                          className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium"
-                        >
-                          View History
-                        </button>
+                        <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
+                          <button
+                            onClick={() =>
+                              navigate("/history", { state: { contestId: contestWrapper?.contest_id?._id } })
+                            }
+                            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md"
+                          >
+                            View History
+                          </button>
+                          <button
+                            onClick={() =>
+                              navigate("/buysell", { state: { contestId: contestWrapper?.contest_id?._id } })
+                            }
+                            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md"
+                          >
+                            Live
+                          </button>
+                        </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 text-sm ">
-                        <div>
-                          <p className="font-medium">Prize Pool</p>
-                          <p>₹{contest.prize_pool}</p>
+                      {/* Details Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 p-4 md:p-6 text-xs sm:text-sm md:text-base">
+                        <div className="bg-gray-50 rounded-lg p-2 md:p-3">
+                          <p className="text-gray-500 text-xs sm:text-sm">Prize Pool</p>
+                          <p className="font-semibold text-gray-800">₹{contest.prize_pool}</p>
                         </div>
-                        <div>
-                          <p className="font-medium">Entry Fee</p>
-                          <p>₹{contest.entry_fee}</p>
+                        <div className="bg-gray-50 rounded-lg p-2 md:p-3">
+                          <p className="text-gray-500 text-xs sm:text-sm">Entry Fee</p>
+                          <p className="font-semibold text-gray-800">₹{contest.entry_fee}</p>
                         </div>
-                        <div>
-                          <p className="font-medium">Joined At</p>
-                          <p>{new Date(contestWrapper.joined_at).toLocaleString()}</p>
+                        <div className="bg-gray-50 rounded-lg p-2 md:p-3">
+                          <p className="text-gray-500 text-xs sm:text-sm">Joined At</p>
+                          <p className="font-semibold text-gray-800">
+                            {new Date(contestWrapper.joined_at).toLocaleString()}
+                          </p>
                         </div>
-                        <div>
-                          <p className="font-medium">Status</p>
-                          <p className=" font-semibold">Joined</p>
+                        <div className="bg-gray-50 rounded-lg p-2 md:p-3">
+                          <p className="text-gray-500 text-xs sm:text-sm">Status</p>
+                          <span className="inline-block px-2 py-1 rounded-full text-xs sm:text-sm font-medium bg-green-100 text-green-700">
+                            Joined
+                          </span>
                         </div>
                       </div>
                     </div>
                   );
                 })
               ) : (
-                <div className="text-center py-10 ">
-                  📌 You haven’t joined any contests yet.
+                <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
+                  <p className="text-gray-600 text-sm sm:text-base md:text-lg">
+                    📌 You haven’t joined any contests yet.
+                  </p>
                 </div>
               )}
             </div>
           )}
 
-
-
-
+          {/* My Team */}
           {activeTab === "myTeam" && (
-            <p className="text-center text-gray-600">
+            <p className="text-center text-gray-600 text-sm sm:text-base md:text-lg mt-6">
               👥 Your created teams will appear here.
             </p>
           )}

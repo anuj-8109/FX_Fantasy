@@ -16,6 +16,10 @@ import Coupons from "../pages/user/coupons/Coupons";
 import FAQ from "../pages/user/faq/FAQ";
 import Blog from "../pages/user/blog/Blog";
 import Content from "../pages/user/content/Content";
+import Buysell from "../pages/user/buysell";
+import BackButton from "../pages/user/Backbutton";
+import Alert from "../pages/user/alert/Alert";
+import Search from "../pages/user/search/Search";
 
 const UserRoutes = () => {
   return (
@@ -34,6 +38,10 @@ const UserRoutes = () => {
         <Route path="faq" element={<FAQ />} />
         <Route path="blog" element={<Blog />} />
         <Route path="content" element={<Content />} />
+        <Route path="buysell" element={<Buysell/>}/>
+        <Route path="back" element={<BackButton/>}/>
+        <Route path="alert" element={<Alert/>}/>
+        <Route path="search" element={<Search/>}/>
 
 
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
