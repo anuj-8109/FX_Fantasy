@@ -383,6 +383,20 @@ async  joinContest(req, res) {
       return res.status(400).json({ status: false, message: "Invalid discount" });
     }
 
+
+ if (client.wamount < total) {
+      return res.status(400).json({
+        status: false,
+        message: "Insufficient wallet balance"
+      });
+    }
+
+    // ✅ Deduct from wallet
+    client.wamount -= total;
+    await client.save();
+
+
+
     // Save new join entry
     const joinEntry = new Contestjoin_Modal({
       contest_id,
