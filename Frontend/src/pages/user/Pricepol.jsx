@@ -238,7 +238,7 @@ function Pricepol() {
                         </div>
                         <button
                           // onClick={() => handleViewHistory(contestWrapper._id)}
-                          onClick={() => {navigate("/history", { state: { contestId: contestWrapper._id } })}}
+                          onClick={() => {navigate("/history", { state: { contestId: contestWrapper?.contest_id?._id } })}}
                           className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium"
                         >
                           View History

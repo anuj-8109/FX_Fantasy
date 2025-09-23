@@ -3,9 +3,11 @@ import { useParams, useLocation } from "react-router-dom";
 import { GetContestHistory, BuySelltrade } from "../../services/User";
 
 function HistoryPage() {
-  const { contestId: paramContestId } = useParams();
+
   const location = useLocation();
-  const contestId = location?.state?.contestId || paramContestId;
+  const contestId = location?.state?.contestId;
+
+  console.log("contestId",contestId)
 
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -73,7 +75,7 @@ function HistoryPage() {
       if (res?.status) {
         alert("Trade successful!");
         setHistory((prev) => [res.data, ...prev]);
-        setQuantityMap((prev) => ({ ...prev, [tradeId]: "" })); // Reset quantity after trade
+        setQuantityMap((prev) => ({ ...prev, [tradeId]: "" })); 
       } else {
         alert(res?.message || "Trade failed");
       }

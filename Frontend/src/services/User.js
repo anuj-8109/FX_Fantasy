@@ -92,22 +92,22 @@ export async function GetMyContests(token, clientId) {
 }
 
 // History
-export async function GetContestHistory(token, data) {
+export async function GetContestHistory(token, { client_id, contest_id, page }) {
   try {
-    const url = `${config.base_url}api/list/gettradehistory`;
-    const response = await axios.post(url, data, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
+    const response = await axios.post(
+      `${config.base_url}api/list/gettradehistory`,
+      { client_id, contest_id, page }, // body
+      {
+        headers: { Authorization: `Bearer ${token}` }, // config
+      }
+    );
     return response?.data;
   } catch (error) {
-    console.error("API error", error?.response || error);
+    console.error("API error", error?.response?.data || error);
     return error?.response?.data || { status: false, message: "Unknown error" };
   }
 }
+
 
 // get user details
 export async function GetUserDetails(token, id) {
