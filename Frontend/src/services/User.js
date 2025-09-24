@@ -413,3 +413,24 @@ export async function updateclientname(token, data) {
     return error?.response?.data || { success: false, message: "Network error" };
   }
 }
+
+//updateclientimage 
+
+// services/User.js
+export async function updateClientImage(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/client/updateclientimage`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network Error" };
+  }
+}

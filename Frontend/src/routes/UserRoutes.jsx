@@ -20,6 +20,7 @@ import Buysell from "../pages/user/buysell";
 import BackButton from "../pages/user/Backbutton";
 import Alert from "../pages/user/alert/Alert";
 import Search from "../pages/user/search/Search";
+import ContestTracking from "../pages/user/contestTracking/ContestTracking"
 
 const UserRoutes = () => {
   return (
@@ -42,6 +43,7 @@ const UserRoutes = () => {
         <Route path="back" element={<BackButton/>}/>
         <Route path="alert" element={<Alert/>}/>
         <Route path="search" element={<Search/>}/>
+        <Route path="contesttracking" element={<ContestTracking/>}/>
 
 
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
