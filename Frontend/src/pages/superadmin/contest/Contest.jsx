@@ -296,8 +296,8 @@ const Contest = () => {
 
 
   return (
-    <Content Page_title="Contest Management" button_title="Back" button_status={true}
-      extra_button="Add Contest" extra_button_action={"/superadmin/add-contest"} route="/superadmin/dashboard"
+    <Content Page_title="Contest Management" button_title="Back" button_status={true} route="/superadmin/dashboard"
+      // extra_button="Add Contest" extra_button_action={"/superadmin/add-contest"} 
     >
       <div className="p-2 ">
 

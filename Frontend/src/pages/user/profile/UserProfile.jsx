@@ -5,7 +5,7 @@ import ChangePassword from "../../superadmin/profile/ChangePassword";
 import { GetUserDetails, updateClientImage } from "../../../services/User";
 import BackButton from "../../../pages/user/Backbutton";
 import toast from "react-hot-toast";
-
+import { image_url } from "../../../utils/config"; 
 const UserProfile = () => {
     const [userDetails, setUserDetails] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -59,7 +59,6 @@ const UserProfile = () => {
         }
     };
 
-    // save image API
     const handleUploadImage = async () => {
         if (!uploadFile) {
             toast.error("Please select an image first.");
@@ -67,13 +66,22 @@ const UserProfile = () => {
         }
         try {
             const formData = new FormData();
-            formData.append("profileImage", uploadFile);
-            formData.append("id", id);
+            formData.append("id", id);             // must match req.body.id
+            formData.append("image", uploadFile);  // must match multer field name "image"
 
             const res = await updateClientImage(token, formData);
             if (res?.status === true) {
                 toast.success("Profile photo updated!");
                 setIsModalOpen(false);
+
+                // ✅ Update state with backend image
+                setUserDetails((prev) => ({
+                    ...prev,
+                    image: res.data.image
+                }));
+
+                // ✅ Set preview also from backend
+                setSelectedImage(`${process.env.REACT_APP_API_URL}/uploads/clients/${res.data.image}`);
             } else {
                 toast.error(res?.message || "Failed to update image");
             }
@@ -82,6 +90,8 @@ const UserProfile = () => {
             toast.error("Error uploading image");
         }
     };
+
+
 
     return (
         <>
@@ -95,18 +105,24 @@ const UserProfile = () => {
                             <div className="w-32 h-32 border rounded-full flex items-center justify-center text-4xl font-bold mx-auto mb-4 overflow-hidden">
                                 {selectedImage ? (
                                     <img src={selectedImage} alt="Profile" className="w-full h-full object-cover" />
+                                ) : userDetails?.image ? (
+                                    <img
+                                        src={`${image_url}uploads/clients/${userDetails.image}`}
+                                        alt="Profile"
+                                        className="w-full h-full object-cover"
+                                    />
                                 ) : (
                                     userDetails?.FullName?.charAt(0) || "U"
                                 )}
                             </div>
 
+
                             <div className="flex items-center gap-4 mt-5">
                                 <button
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium border ${
-                                        userDetails?.ActiveStatus === 1
-                                            ? "bg-green-500 text-white border-green-600"
-                                            : "bg-red-100 text-red-600 border-red-300"
-                                    }`}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium border ${userDetails?.ActiveStatus === 1
+                                        ? "bg-green-500 text-white border-green-600"
+                                        : "bg-red-100 text-red-600 border-red-300"
+                                        }`}
                                 >
                                     {userDetails?.ActiveStatus === 1 ? "Active" : "DeActive"}
                                 </button>
@@ -127,21 +143,19 @@ const UserProfile = () => {
                             <div className="flex border-b">
                                 <button
                                     onClick={() => setActiveTab("profile")}
-                                    className={`flex-1 p-3 text-sm font-medium ${
-                                        activeTab === "profile"
-                                            ? "border-b-2 border-blue-600 text-blue-600"
-                                            : "text-gray-500"
-                                    }`}
+                                    className={`flex-1 p-3 text-sm font-medium ${activeTab === "profile"
+                                        ? "border-b-2 border-blue-600 text-blue-600"
+                                        : "text-gray-500"
+                                        }`}
                                 >
                                     Profile Info
                                 </button>
                                 <button
                                     onClick={() => setActiveTab("management")}
-                                    className={`flex-1 p-3 text-sm font-medium ${
-                                        activeTab === "management"
-                                            ? "border-b-2 border-blue-600 text-blue-600"
-                                            : "text-gray-500"
-                                    }`}
+                                    className={`flex-1 p-3 text-sm font-medium ${activeTab === "management"
+                                        ? "border-b-2 border-blue-600 text-blue-600"
+                                        : "text-gray-500"
+                                        }`}
                                 >
                                     Profile Management
                                 </button>

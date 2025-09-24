@@ -417,11 +417,11 @@ export async function updateclientname(token, data) {
 //updateclientimage 
 
 // services/User.js
-export async function updateClientImage(token, data) {
+export async function updateClientImage(token, formData) {
   try {
     const response = await axios.post(
       `${config.base_url}api/client/updateclientimage`,
-      data,
+      formData,
       {
         headers: {
           Authorization: `Bearer ${token}`,
