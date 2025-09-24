@@ -1415,6 +1415,22 @@ export async function stocklist(token) {
 }
 
 
+export async function getContestsByTournamentId(token, tournament_id) {
+  if (!tournament_id) return { status: false, message: "Tournament ID missing" };
+
+  try {
+    const response = await axios.get(
+      `${config.base_url}contest/getcontestsbytournamentid/${tournament_id}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+
+
 
 
 // Contest API Ends Here

@@ -35,6 +35,7 @@ import AddTournament from "../pages/superadmin/tournament/AddTournament";
 import HelpDesk from "../pages/superadmin/helpdesk/HelpDesk"
 import Chatreply from "../pages/superadmin/helpdesk/Chatreply"
 import Withdrawal from "../pages/superadmin/withdrawal/Withdrawal"
+import Viewtournamentcontest from "../pages/superadmin/contest/Viewtournamentcontest";
 const SuperAdminRoutes = () => {
 
   return (
@@ -74,6 +75,7 @@ const SuperAdminRoutes = () => {
         <Route path="help" element={<HelpDesk />} />
         <Route path="chatreply/:ticketId" element={<Chatreply />} />
         <Route path="withdrawal" element={<Withdrawal />} />
+        <Route path="tournamentcontest" element={<Viewtournamentcontest/>}/>
       </Route>
     </>
   );

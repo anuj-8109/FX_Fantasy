@@ -183,6 +183,23 @@ function Tournament() {
             ),
         },
         {
+            name: "View",
+            cell: (row) => (
+                <button
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                    onClick={() =>
+                        navigate("/superadmin/tournamentcontest", {
+                            state: { tournament_id: row._id },
+                        })
+                    }
+                >
+                    View Contest
+                </button>
+            ),
+            width: "140px",
+        },
+
+        {
             name: "Contest",
             cell: (row) => (
                 <div>
@@ -224,7 +241,7 @@ function Tournament() {
                 } else if (start <= now && end >= now) {
                     newStatus = "live";
                 } else if (end < now) {
-                    newStatus = "completed"; 
+                    newStatus = "completed";
                 }
 
                 return { ...t, status: newStatus };
