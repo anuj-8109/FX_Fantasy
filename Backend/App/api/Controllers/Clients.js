@@ -881,6 +881,20 @@ async  updateClientName(req, res) {
 
 async updateClientImage(req, res) {
   try {
+// 📂 File Upload Process
+    await new Promise((resolve, reject) => {
+      upload("clients").fields([{ name: "image", maxCount: 1 }])(req, res, (err) => {
+        if (err) return reject(err);
+
+        if (!req.files || !req.files["image"]) {
+          return res.status(400).json({ status: false, message: "No file uploaded." });
+        }
+
+        resolve();
+      });
+    });
+
+
     const { id } = req.body;
 
     // 🔒 Validation
@@ -899,18 +913,7 @@ async updateClientImage(req, res) {
       return res.status(404).json({ status: false, message: "Client not found or inactive" });
     }
 
-    // 📂 File Upload Process
-    await new Promise((resolve, reject) => {
-      upload("clients").fields([{ name: "image", maxCount: 1 }])(req, res, (err) => {
-        if (err) return reject(err);
-
-        if (!req.files || !req.files["image"]) {
-          return res.status(400).json({ status: false, message: "No file uploaded." });
-        }
-
-        resolve();
-      });
-    });
+    
 
     // ✅ Update image field
     if (req.files && req.files["image"]) {
