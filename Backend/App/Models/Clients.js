@@ -93,6 +93,11 @@ const clientsModel = new Schema({
         type: String,
         trim: true,
         default: null
+    },
+     image: {
+        type: String,
+        trim: true,
+        default: null
     }
 
 

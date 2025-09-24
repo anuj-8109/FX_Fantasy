@@ -877,6 +877,66 @@ async  updateClientName(req, res) {
   }
 }
 
+async updateClientImage(req, res) {
+  try {
+    const { id } = req.body;
+
+    // 🔒 Validation
+    if (!id) {
+      return res.status(400).json({ status: false, message: "Client id is required" });
+    }
+
+    // 🔎 Find client
+    const client = await Clients_Modal.findOne({
+      _id: id,
+      del: 0,
+      ActiveStatus: 1
+    });
+
+    if (!client) {
+      return res.status(404).json({ status: false, message: "Client not found or inactive" });
+    }
+
+    // 📂 File Upload Process
+    await new Promise((resolve, reject) => {
+      upload("clients").fields([{ name: "image", maxCount: 1 }])(req, res, (err) => {
+        if (err) return reject(err);
+
+        if (!req.files || !req.files["image"]) {
+          return res.status(400).json({ status: false, message: "No file uploaded." });
+        }
+
+        resolve();
+      });
+    });
+
+    // ✅ Update image field
+    if (req.files && req.files["image"]) {
+      client.image = req.files["image"][0].filename; // ya req.files["image"][0].path
+    }
+
+    await client.save();
+
+    return res.json({
+      status: true,
+      message: "Profile image updated successfully",
+      data: {
+        id: client._id,
+        image: client.image,
+      },
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
+
+
 async  addMoneyInWallet(req, res) {
   try {
     const { client_id, amount, remark } = req.body;

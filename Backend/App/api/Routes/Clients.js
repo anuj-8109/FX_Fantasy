@@ -1,13 +1,14 @@
 const router = require("express").Router()
 const auth = require('../../Middleware/authClient');
 
-const {detailClient,deleteClient,requestPayout,payoutList,referEarn,getTickets,detailTicket,rePly,addTicket,LoginWithOTP,otpSubmitWithPhone,updateClientProfile,Logout,addMoneyInWallet,getWalletHistory,updateClientName} = require('../Controllers/Clients')
+const {detailClient,deleteClient,requestPayout,payoutList,referEarn,getTickets,detailTicket,rePly,addTicket,LoginWithOTP,otpSubmitWithPhone,updateClientProfile,Logout,addMoneyInWallet,getWalletHistory,updateClientName,updateClientImage} = require('../Controllers/Clients')
 
 
 router.post("/api/client/login-with-otp", LoginWithOTP);
 router.post("/api/client/otpsubmitwithphone", otpSubmitWithPhone);
 router.post("/api/client/updateclientprofile", auth, updateClientProfile);
 router.post("/api/client/updateclientname", auth, updateClientName);
+router.post("/api/client/updateclientimage", auth, updateClientImage);
 router.get('/api/client/detail/:id', auth, detailClient);
 router.get('/api/client/logout/:id', auth, Logout); 
 router.get('/api/client/deleteclient/:id', auth, deleteClient);
