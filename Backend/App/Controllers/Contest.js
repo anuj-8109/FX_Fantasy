@@ -356,6 +356,39 @@ class ContestController {
       return res.json({ status: false, message: "Server error", data: [] });
     }
   }
+  
+async getContestsByTournamentId(req, res) {
+    try {
+        const { tournament_id } = req.params;
+
+        const contests = await Contest_Model.find({ 
+            del: false, 
+            tournament_id: tournament_id 
+        })
+        .populate("tournament_id")  // tournament का पूरा object ले आएगा
+        .sort({ created_at: -1 });
+
+        if (!contests || contests.length === 0) {
+            return res.status(404).json({
+                status: false,
+                message: "No contests found for this tournament"
+            });
+        }
+
+        return res.status(200).json({
+            status: true,
+            message: "Tournament contests retrieved successfully",
+            contests: contests  // हर contest में tournament_id field पूरा object होगा
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            status: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+}
 
 }
 
