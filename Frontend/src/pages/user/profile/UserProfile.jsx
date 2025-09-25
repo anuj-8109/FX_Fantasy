@@ -199,7 +199,8 @@ const UserProfile = () => {
                                         <div className="border rounded-lg p-4">
                                             <p className="font-medium mb-2">KYC Verification</p>
                                             <p className="text-sm text-gray-600">KYC is mandatory for withdrawals.</p>
-                                            <button className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+                                            <button onClick={()=>navigate("/kycdetail")}  
+                                            className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
                                                 Complete KYC
                                             </button>
                                         </div>

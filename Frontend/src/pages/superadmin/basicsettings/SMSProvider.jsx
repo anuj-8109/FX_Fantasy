@@ -124,7 +124,7 @@ const SMSProviders = () => {
   return (
     <Content
       Page_title="SMS Providers"
-      button_title="back"
+      button_title="Back"
       route="/superadmin/dashboard"
       button_status={true}
     >
@@ -133,29 +133,29 @@ const SMSProviders = () => {
           {providers?.map((provider) => (
             <div
               key={provider._id}
-              className="border rounded-2xl shadow-md p-5 flex flex-col bg-white"
+              className="border rounded-2xl shadow-md p-5 flex flex-col sms-style"
             >
               <div className="flex items-center justify-between mb-4">
-                <label className="flex items-center gap-2 text-sm font-medium">
+                <label className="flex items-center gap-2 text-sm font-medium ">
                   <input
                     type="checkbox"
                     checked={provider.status === 1}
                     onChange={() => handleStatusChange(provider)}
-                    className="h-4 w-4"
+                    className="h-4 w-4 "
                   />
                   Active Status
                 </label>
                 <button
                   onClick={() => handleEdit(provider)}
-                  className="p-2 rounded-full hover:bg-gray-100 transition"
+                  className="p-2 rounded-full  transition"
                   title="Edit Provider"
                 >
                   <Edit size={18} />
                 </button>
               </div>
 
-              <div className="border-b mb-3"></div>
-              <div className="space-y-2 text-sm flex-1">
+             
+              <div className="space-y-2 text-sm flex-1 ">
                 {[
                   { label: "Name", value: provider.name },
                   { label: "Username", value: provider.username },
@@ -174,7 +174,7 @@ const SMSProviders = () => {
                       type="text"
                       value={field.value || "-"}
                       readOnly
-                      className="w-full mt-1 border rounded-md px-2 py-1 text-gray-700 bg-gray-50 text-sm"
+                      className="w-full mt-1 border rounded-md px-2 py-1 text-gray-700 sms-style text-sm"
                     />
                   </div>
                 ))}
@@ -185,90 +185,90 @@ const SMSProviders = () => {
 
         {open && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6 animate-fadeIn max-h-[90vh] overflow-y-auto">
-              <h2 className="text-xl font-semibold mb-6 border-b pb-3 text-gray-800">
+            <div className="w-full mt-12 max-w-lg rounded-2xl sms-style shadow-2xl p-6 animate-fadeIn max-h-[80vh] overflow-y-auto">
+              <h2 className="text-xl font-semibold mb-6 border-b pb-3 ">
                 ✏️ Edit SMS Provider
               </h2>
 
-              <form onSubmit={handleSave}>
-                <div className="space-y-4">
+              <form onSubmit={handleSave} >
+                <div className="space-y-4 ">
                   <div>
-                    <label className="text-gray-600 text-sm">Name</label>
+                    <label className="text-gray-600 text-sm sms-style">Name</label>
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 sms-style"
                     />
                   </div>
 
                   <div>
-                    <label className="text-gray-600 text-sm">Username</label>
+                    <label className="sms-style text-sm">Username</label>
                     <input
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 sms-style "
                     />
                   </div>
 
                   <div>
-                    <label className="text-gray-600 text-sm">Password</label>
+                    <label className=" text-sm">Password</label>
                     <input
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 sms-style "
                     />
                   </div>
 
                   <div>
-                    <label className="text-gray-600 text-sm">API Key</label>
+                    <label className=" text-sm">API Key</label>
                     <input
                       type="text"
                       value={apikey}
                       onChange={(e) => setApikey(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 sms-style "
                     />
                   </div>
 
                   <div>
-                    <label className="text-gray-600 text-sm">Sender</label>
+                    <label className=" text-sm">Sender</label>
                     <input
                       type="text"
                       value={sender}
                       onChange={(e) => setSender(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 sms-style "
                     />
                   </div>
 
                   <div>
-                    <label className="text-gray-600 text-sm">Route</label>
+                    <label className=" text-sm">Route</label>
                     <input
                       type="text"
                       value={route}
                       onChange={(e) => setRoute(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 sms-style "
                     />
                   </div>
 
                   <div>
-                    <label className="text-gray-600 text-sm">Entity ID</label>
+                    <label className=" text-sm">Entity ID</label>
                     <input
                       type="text"
                       value={entityId}
                       onChange={(e) => setEntityId(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 sms-style "
                     />
                   </div>
 
                   <div>
-                    <label className="text-gray-600 text-sm">URL</label>
+                    <label className=" text-sm">URL</label>
                     <input
                       type="text"
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 sms-style "
                     />
                   </div>
                 </div>
@@ -277,7 +277,7 @@ const SMSProviders = () => {
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="px-4 py-2 rounded-md border bg-gray-100 hover:bg-gray-200"
+                    className="px-4 py-2 rounded-md border  "
                   >
                     Cancel
                   </button>

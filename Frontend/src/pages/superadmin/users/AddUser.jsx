@@ -23,7 +23,8 @@ const User = () => {
   const validationSchema = Yup.object({
     FullName: Yup.string()
       .required("Full Name is required")
-      .min(3, "Full Name must be at least 3 characters"),
+      .min(3, "Full Name must be at least 3 characters")
+     .matches(/^[A-Za-z0-9\s]+$/, "Full Name must contain only alphabets and numbers"),
     Email: Yup.string()
       .email("Invalid email format")
       .required("Email is required"),
@@ -44,6 +45,7 @@ const User = () => {
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Confirm Password is required"),
   });
+
 
   const fields = [
     { name: "FullName", label: "Full Name*", type: "text", className: "w-full", autoComplete: "off" },

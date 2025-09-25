@@ -111,7 +111,7 @@ const GeneralSettings = () => {
     return (
       <Content
         Page_title="General Settings"
-        button_title="back"
+        button_title="Back"
         button_status={true}
       >
         <div className="text-center py-12">
@@ -124,16 +124,16 @@ const GeneralSettings = () => {
   return (
     <Content
       Page_title="General Settings"
-      button_title="back"
+      button_title="Back"
       route="/superadmin/dashboard"
       button_status={true}
     >
-      <div className="max-w-4xl mx-auto Content_Style">
+      <div className="max-w-6xl mx-auto ">
         <form onSubmit={handleSubmit}>
-          <div className="p-6 border rounded-lg shadow-sm">
+          <div className="p-4  rounded-lg shadow-sm">
             <div className="grid gap-4">
               <div>
-                <label className="block text-sm font-medium   mb-2">
+                <label className="block text-sm font-medium  mb-2">
                   Website Title:
                 </label>
 
@@ -314,9 +314,9 @@ const GeneralSettings = () => {
                 />
               </div>
             </div>
-          </div>
+          
 
-          <div className="text-center mt-8">
+          <div className="text-center mt-4 ">
             <button
               type="submit"
               disabled={updateLoading}
@@ -328,8 +328,10 @@ const GeneralSettings = () => {
               {updateLoading ? "Updating..." : "Update Settings"}
             </button>
           </div>
+          </div>
         </form>
       </div>
+      
     </Content>
   );
 };

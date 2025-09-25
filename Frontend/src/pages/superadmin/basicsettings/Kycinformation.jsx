@@ -81,7 +81,7 @@ const KycInformation = () => {
 
   return (
     <Content Page_title="KYC" button_title="Back" route="/superadmin/dashboard" button_status={true}>
-      <div className="p-4 bg-white rounded shadow-md max-w-6xl mx-auto">
+      <div className="p-4 sms-style  rounded shadow-md max-w-6xl mx-auto">
         <h2 className="text-lg font-bold mb-4">KYC Information</h2>
 
         <div className="mb-4">
@@ -91,7 +91,7 @@ const KycInformation = () => {
             name="digio_client_id"
             value={formData.digio_client_id}
             onChange={handleChange}
-            className="border p-2 w-full"
+            className="border p-2 w-full sms-style "
           />
         </div>
 
@@ -102,7 +102,7 @@ const KycInformation = () => {
             name="digio_client_secret"
             value={formData.digio_client_secret}
             onChange={handleChange}
-            className="border p-2 w-full"
+            className="border p-2 w-full sms-style "
           />
         </div>
 
@@ -113,7 +113,7 @@ const KycInformation = () => {
             name="digio_template_name"
             value={formData.digio_template_name}
             onChange={handleChange}
-            className="border p-2 w-full"
+            className="border p-2 w-full sms-style "
           />
         </div>
 

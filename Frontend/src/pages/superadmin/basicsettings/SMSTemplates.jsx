@@ -92,24 +92,24 @@ const SMSTemplates = () => {
   return (
     <Content
       Page_title="SMS Templates"
-      button_title="back"
+      button_title="Back"
       route="/superadmin/dashboard"
       button_status={true}
     >
       <div className="p-6 min-h-screen">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
           {templates?.map((template) => (
             <div
               key={template._id}
-              className="border rounded-2xl shadow-md p-5 flex flex-col bg-white"
+              className="border rounded-2xl shadow-md p-5 flex flex-col sms-style "
             >
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-sm font-medium ">
                   SMS Template
                 </span>
                 <button
                   onClick={() => handleEdit(template)}
-                  className="p-2 rounded-full hover:bg-gray-100 transition"
+                  className="p-2 rounded-full transition"
                   title="Edit Template"
                 >
                   <Edit size={18} />
@@ -117,21 +117,21 @@ const SMSTemplates = () => {
               </div>
 
               <div className="border-b mb-3"></div>
-              <div className="space-y-2 text-sm flex-1">
+              <div className="space-y-2 text-sm flex-1 ">
                 {[
                   { label: "SMS Type", value: template.sms_type },
                   { label: "Template ID", value: template.templateid },
                   { label: "SMS Body", value: template.sms_body },
                 ].map((field, i) => (
                   <div key={i}>
-                    <label className="text-gray-500 text-xs">
+                    <label className=" text-xs">
                       {field.label}
                     </label>
                     <input
                       type="text"
                       value={field.value || "-"}
                       readOnly
-                      className="w-full mt-1 border rounded-md px-2 py-1 text-gray-700 bg-gray-50 text-sm"
+                      className="w-full mt-1 border rounded-md px-2 py-1 sms-style  text-sm"
                     />
                   </div>
                 ))}
@@ -142,30 +142,30 @@ const SMSTemplates = () => {
 
         {open && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6 animate-fadeIn">
-              <h2 className="text-xl font-semibold mb-6 border-b pb-3 text-gray-800">
+            <div className="w-full max-w-lg rounded-2xl sms-style  shadow-2xl p-6 animate-fadeIn">
+              <h2 className="text-xl font-semibold mb-6 border-b pb-3 ">
                 ✏️ Edit SMS Template
               </h2>
 
               <form onSubmit={handleSave}>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-gray-600 text-sm">Template ID</label>
+                    <label className=" text-sm">Template ID</label>
                     <input
                       type="text"
                       value={templateid}
                       onChange={(e) => setTemplateId(e.target.value)}
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 sms-style "
                     />
                   </div>
 
                   <div>
-                    <label className="text-gray-600 text-sm">SMS Body</label>
+                    <label className=" text-sm">SMS Body</label>
                     <textarea
                       value={smsBody}
                       onChange={(e) => setSmsBody(e.target.value)}
                       rows="4"
-                      className="w-full border rounded-md px-3 py-2 mt-1"
+                      className="w-full border rounded-md px-3 py-2 mt-1 sms-style "
                     />
                   </div>
                 </div>
@@ -174,7 +174,7 @@ const SMSTemplates = () => {
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="px-4 py-2 rounded-md border bg-gray-100 hover:bg-gray-200"
+                    className="px-4 py-2 rounded-md border "
                   >
                     Cancel
                   </button>

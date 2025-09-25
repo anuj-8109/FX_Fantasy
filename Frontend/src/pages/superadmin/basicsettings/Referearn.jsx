@@ -99,7 +99,7 @@ const Referearn = () => {
 
   return (
     <Content Page_title="Refer & Earn" button_title="Back" route="/superadmin/dashboard" button_status={true}>
-      <div className="max-w-6xl mx-auto mt-10 p-5 border rounded shadow">
+      <div className="max-w-6xl mx-auto  p-5 border rounded shadow sms-style">
         <form onSubmit={handleUpdate} className="space-y-4">
           <div>
             <label className="block font-medium">Title</label>
@@ -108,7 +108,7 @@ const Referearn = () => {
               name="refer_title"
               value={formData.refer_title}
               onChange={handleChange}
-              className="w-full border p-2 rounded"
+              className="w-full border p-2 rounded sms-style "
             />
           </div>
 
@@ -120,7 +120,7 @@ const Referearn = () => {
                 name="sender_earn"
                 value={formData.sender_earn}
                 onChange={handleChange}
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded sms-style "
               />
             </div>
             <div className="flex-1">
@@ -130,7 +130,7 @@ const Referearn = () => {
                 name="receiver_earn"
                 value={formData.receiver_earn}
                 onChange={handleChange}
-                className="w-full border p-2 rounded"
+                className="w-full border p-2 rounded sms-style "
               />
             </div>
           </div>
@@ -141,7 +141,7 @@ const Referearn = () => {
               name="refer_description"
               value={formData.refer_description}
               onChange={handleChange}
-              className="w-full border p-2 rounded"
+              className="w-full border p-2 rounded sms-style "
               rows={4}
             />
           </div>
@@ -152,14 +152,14 @@ const Referearn = () => {
               name="refersendmsg"
               value={formData.refersendmsg}
               onChange={handleChange}
-              className="w-full border p-2 rounded"
+              className="w-full border p-2 rounded sms-style "
               rows={3}
             />
           </div>
 
           <div>
-            <label className="block font-medium">Image</label>
-            <input type="file" name="image" onChange={handleChange} />
+            <label className="block font-medium ">Image</label>
+            <input type="file" name="image" onChange={handleChange}  />
           </div>
 
           <div>
@@ -168,7 +168,7 @@ const Referearn = () => {
               name="refer_status"
               value={formData.refer_status}
               onChange={handleChange}
-              className="w-full border p-2 rounded"
+              className="w-full border p-2 rounded sms-style "
             >
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>

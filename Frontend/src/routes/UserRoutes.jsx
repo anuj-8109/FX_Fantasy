@@ -21,6 +21,7 @@ import BackButton from "../pages/user/Backbutton";
 import Alert from "../pages/user/alert/Alert";
 import Search from "../pages/user/search/Search";
 import ContestTracking from "../pages/user/contestTracking/ContestTracking"
+import Kycdetails from "../pages/user/kyc/Kycdetails";
 
 const UserRoutes = () => {
   return (
@@ -44,6 +45,7 @@ const UserRoutes = () => {
         <Route path="alert" element={<Alert/>}/>
         <Route path="search" element={<Search/>}/>
         <Route path="contesttracking" element={<ContestTracking/>}/>
+        <Route path="kycdetail" element={<Kycdetails/>}/>
 
 
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
