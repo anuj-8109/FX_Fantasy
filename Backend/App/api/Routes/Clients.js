@@ -1,7 +1,7 @@
 const router = require("express").Router()
 const auth = require('../../Middleware/authClient');
 
-const {detailClient,deleteClient,requestPayout,payoutList,referEarn,getTickets,detailTicket,rePly,addTicket,LoginWithOTP,otpSubmitWithPhone,updateClientProfile,Logout,addMoneyInWallet,getWalletHistory,updateClientName,updateClientImage,clientKycAndAgreement,uploadDocuments,downloadDocuments} = require('../Controllers/Clients')
+const {detailClient,deleteClient,requestPayout,payoutList,referEarn,getTickets,detailTicket,rePly,addTicket,LoginWithOTP,otpSubmitWithPhone,updateClientProfile,Logout,addMoneyInWallet,getWalletHistory,updateClientName,updateClientImage,clientKycAndAgreement,uploadDocuments,downloadDocuments,updateClientManualkyc} = require('../Controllers/Clients')
 
 
 router.post("/api/client/login-with-otp", LoginWithOTP);
@@ -24,6 +24,8 @@ router.post('/api/client/getwallethistory', auth, getWalletHistory);
 router.post('/api/client/clientkycandagreement', auth, clientKycAndAgreement);
 router.get('/api/client/uploaddocuments', auth, uploadDocuments);
 router.get('/api/client/downloaddocuments', auth, downloadDocuments);
+router.post("/api/client/manualkyc", auth, updateClientManualkyc);
+
 
 
 module.exports = router;

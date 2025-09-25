@@ -1431,7 +1431,76 @@ async getWalletHistory(req, res) {
   
       }
     }
-  
+  async updateClientManualkyc(req, res) {
+  try {
+    // 📂 File Upload Process
+    await new Promise((resolve, reject) => {
+      upload("clients").fields([
+        { name: "adhaarphotofront", maxCount: 1 },
+        { name: "adhaarphotoback", maxCount: 1 },
+        { name: "pancard", maxCount: 1 }
+      ])(req, res, (err) => {
+        if (err) return reject(err);
+        if (!req.files) {
+          return res.status(400).json({ status: false, message: "No files uploaded." });
+        }
+        resolve();
+      });
+    });
+
+    const { id } = req.body;
+
+    // 🔒 Validation
+    if (!id) {
+      return res.status(400).json({ status: false, message: "Client id is required" });
+    }
+
+    // 🔎 Find client
+    const client = await Clients_Modal.findOne({
+      _id: id,
+      del: 0,
+      ActiveStatus: 1
+    });
+
+    if (!client) {
+      return res.status(404).json({ status: false, message: "Client not found or inactive" });
+    }
+
+    // ✅ Update documents if uploaded
+    if (req.files["adhaarphotofront"]) {
+      client.adhaarphotofront = req.files["adhaarphotofront"][0].filename;
+    }
+    if (req.files["adhaarphotoback"]) {
+      client.adhaarphotoback = req.files["adhaarphotoback"][0].filename;
+    }
+    if (req.files["pancard"]) {
+      client.pancard = req.files["pancard"][0].filename;
+    }
+
+    client.kyc_type = 1; // Manual KYC
+
+    await client.save();
+
+    return res.json({
+      status: true,
+      message: "Client documents updated successfully",
+      data: {
+        id: client._id,
+        adhaarphotofront: client.adhaarphotofront,
+        adhaarphotoback: client.adhaarphotoback,
+        pancard: client.pancard,
+      },
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
 
 }
 
