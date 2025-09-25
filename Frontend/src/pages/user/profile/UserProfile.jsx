@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Content from "../../../components/superadmin/Content";
-import ChangePassword from "../../superadmin/profile/ChangePassword";
-import { GetUserDetails, updateClientImage } from "../../../services/User";
 import BackButton from "../../../pages/user/Backbutton";
+import { GetUserDetails, updateClientImage, getBankdetalis } from "../../../services/User";
 import toast from "react-hot-toast";
 import * as config from "../../../utils/config";
+
 const UserProfile = () => {
     const [userDetails, setUserDetails] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
     const [activeTab, setActiveTab] = useState("profile");
-    const [formData, setFormData] = useState({ fullName: "" });
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
-    const [uploadFile, setUploadFile] = useState(null); // actual file for API
+    const [uploadFile, setUploadFile] = useState(null);
     const [name, setName] = useState(localStorage.getItem("playerName") || "");
+    const [bankdetail, setBankDetail] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const token = localStorage.getItem("token");
     const id = localStorage.getItem("userId");
@@ -25,7 +23,7 @@ const UserProfile = () => {
             try {
                 const response = await GetUserDetails(token, id);
                 setUserDetails(response?.data);
-                setFormData({ fullName: response?.data?.FullName || "" });
+                setName(response?.data?.FullName || "");
             } catch (error) {
                 console.error("Error fetching user details:", error);
             }
@@ -34,27 +32,21 @@ const UserProfile = () => {
     }, [token, id]);
 
     useEffect(() => {
-        if (userDetails?.FullName) {
-            setName(userDetails.FullName);
-            localStorage.setItem("playerName", userDetails.FullName);
-        }
-    }, [userDetails]);
+        const fetchBankDetails = async () => {
+            try {
+                const res = await getBankdetalis(token);
+                if (res?.status) setBankDetail(res.data || []);
+            } catch (error) {
+                toast.error("Failed to fetch bank details");
+            }
+        };
+        fetchBankDetails();
+    }, [token]);
 
-    const handleInputChange = (field, value) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-    };
-
-    const handleSave = () => {
-        console.log("Saving profile data:", formData);
-        setIsEditing(false);
-        // TODO: Add API call to update profile
-    };
-
-    // when file chosen
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setUploadFile(file); // keep original file for API
+            setUploadFile(file);
             setSelectedImage(URL.createObjectURL(file));
         }
     };
@@ -66,163 +58,152 @@ const UserProfile = () => {
         }
         try {
             const formData = new FormData();
-            formData.append("id", id);             // must match req.body.id
-            formData.append("image", uploadFile);  // must match multer field name "image"
-
+            formData.append("id", id);
+            formData.append("image", uploadFile);
             const res = await updateClientImage(token, formData);
             if (res?.status === true) {
                 toast.success("Profile photo updated!");
                 setIsModalOpen(false);
-
-                // ✅ Update state with backend image
-                setUserDetails((prev) => ({
-                    ...prev,
-                    image: res.data.image
-                }));
-
-                // ✅ Set preview also from backend
+                setUserDetails((prev) => ({ ...prev, image: res.data.image }));
                 setSelectedImage(`${config.image_url}uploads/clients/${res.data.image}`);
             } else {
                 toast.error(res?.message || "Failed to update image");
             }
         } catch (error) {
-            console.error("Image upload error:", error);
             toast.error("Error uploading image");
         }
     };
 
-
-
     return (
-        <>
-            <div className="p-6">
-                <BackButton />
+        <div className="p-6 max-w-6xl mx-auto">
+            <BackButton />
 
-                <div className="max-w-5xl mx-auto grid lg:grid-cols-5 gap-8 mt-4">
-                    {/* Left Section: Profile Image */}
-                    <div className="lg:col-span-2">
-                        <div className="border rounded-xl p-6 text-center shadow-sm">
-                            <div className="w-32 h-32 border rounded-full flex items-center justify-center text-4xl font-bold mx-auto mb-4 overflow-hidden">
-                                {selectedImage ? (
-                                    <img src={selectedImage} alt="Profile" className="w-full h-full object-cover" />
-                                )  : (
-                                    userDetails?.FullName?.charAt(0) || "U"
-                                )}
-                            </div>
-
-
-                            <div className="flex items-center gap-4 mt-5">
-                                <button
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium border ${userDetails?.ActiveStatus === 1
-                                        ? "bg-green-500 text-white border-green-600"
-                                        : "bg-red-100 text-red-600 border-red-300"
-                                        }`}
-                                >
-                                    {userDetails?.ActiveStatus === 1 ? "Active" : "DeActive"}
-                                </button>
-
-                                <button
-                                    onClick={() => setIsModalOpen(true)}
-                                    className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-700 hover:bg-blue-700 transition"
-                                >
-                                    Change Profile
-                                </button>
-                            </div>
-                        </div>
+            {/* Top Section: Profile Card */}
+            <div className="grid lg:grid-cols-5 gap-8 mt-4">
+                <div className="lg:col-span-2 bg-white shadow rounded-xl p-6 text-center">
+                    <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden border border-gray-200 flex items-center justify-center text-4xl font-bold bg-gray-100">
+                        {selectedImage ? (
+                            <img src={selectedImage} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                            userDetails?.FullName?.charAt(0) || "U"
+                        )}
                     </div>
 
-                    {/* Right Section: Tabs */}
-                    <div className="lg:col-span-3">
-                        <div className="border rounded-xl shadow-sm">
-                            <div className="flex border-b">
-                                <button
-                                    onClick={() => setActiveTab("profile")}
-                                    className={`flex-1 p-3 text-sm font-medium ${activeTab === "profile"
-                                        ? "border-b-2 border-blue-600 text-blue-600"
-                                        : "text-gray-500"
-                                        }`}
-                                >
-                                    Profile Info
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab("management")}
-                                    className={`flex-1 p-3 text-sm font-medium ${activeTab === "management"
-                                        ? "border-b-2 border-blue-600 text-blue-600"
-                                        : "text-gray-500"
-                                        }`}
-                                >
-                                    Profile Management
-                                </button>
+                    <h2 className="text-xl font-semibold mb-2">{userDetails?.FullName || "User"}</h2>
+                    <p className="text-sm text-gray-500">{userDetails?.Email || "Email not provided"}</p>
+
+                    <div className="flex justify-center gap-4 mt-4">
+                        <span className={`px-4 py-2 rounded-lg text-sm font-medium ${userDetails?.ActiveStatus === 1
+                            ? "bg-green-500 text-white"
+                            : "bg-red-100 text-red-600"
+                            }`}>
+                            {userDetails?.ActiveStatus === 1 ? "Active" : "DeActive"}
+                        </span>
+
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+                        >
+                            Change Photo
+                        </button>
+                    </div>
+                </div>
+
+                {/* Tabs Section */}
+                <div className="lg:col-span-3 bg-white shadow rounded-xl overflow-hidden">
+                    <div className="flex border-b">
+                        <button
+                            onClick={() => setActiveTab("profile")}
+                            className={`flex-1 p-3 text-sm font-medium ${activeTab === "profile"
+                                ? "border-b-2 border-blue-600 text-blue-600"
+                                : "text-gray-500"
+                                }`}
+                        >
+                            Profile Info
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("management")}
+                            className={`flex-1 p-3 text-sm font-medium ${activeTab === "management"
+                                ? "border-b-2 border-blue-600 text-blue-600"
+                                : "text-gray-500"
+                                }`}
+                        >
+                            Profile Management
+                        </button>
+                    </div>
+
+                    <div className="p-4 space-y-4">
+                        {activeTab === "profile" && (
+                            <div className="space-y-4">
+                                <div className="border p-3 rounded-lg bg-gray-50">
+                                    <p className="text-xs text-gray-500">Username</p>
+                                    <p>{name}</p>
+                                </div>
+                                <div className="border p-3 rounded-lg bg-gray-50">
+                                    <p className="text-xs text-gray-500">Phone Number</p>
+                                    <p>{userDetails?.PhoneNo || "Not provided"}</p>
+                                </div>
                             </div>
+                        )}
 
-                            <div className="p-4">
-                                {/* Profile Info Tab */}
-                                {activeTab === "profile" && (
-                                    <div className="space-y-2">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <h3 className="text-lg font-semibold">Profile Information</h3>
-                                            {/* <button
-                                                onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-                                                className="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-                                            >
-                                                {isEditing ? "Save" : "Edit"}
-                                            </button> */}
-                                        </div>
+                        {activeTab === "management" && (
+                            <div className="space-y-4">
+                                <div className="border p-4 rounded-lg bg-gray-50">
+                                    <p className="font-medium mb-2">KYC Verification</p>
+                                    <p className="text-sm text-gray-600">Required for withdrawals.</p>
+                                    <button
+                                        onClick={() => navigate("/kycdetail")}
+                                        className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                                    >
+                                        Complete KYC
+                                    </button>
+                                </div>
 
-                                        <div className="border rounded-lg p-3">
-                                            <p className="text-xs">Username</p>
-                                            <p>{name || "Not specified"}</p>
-                                        </div>
-
-                                        <div className="border rounded-lg p-3">
-                                            <p className="text-xs">Phone Number</p>
-                                            <p>{userDetails?.PhoneNo || "Not provided"}</p>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Profile Management Tab */}
-                                {activeTab === "management" && (
-                                    <div className="space-y-4">
-                                        {/* <h3 className="text-lg font-semibold">Profile Management</h3> */}
-
-                                        {/* Edit Profile */}
-                                        {/* <div className="border rounded-lg p-4">
-                                            <p className="font-medium mb-2">Edit Profile Details</p>
-                                            <p className="text-sm text-gray-600">Update your name, email, and other details.</p>
-                                            <button className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-                                                Edit Now
-                                            </button>
-                                        </div> */}
-
-                                        {/* KYC Section */}
-                                        <div className="border rounded-lg p-4">
-                                            <p className="font-medium mb-2">KYC Verification</p>
-                                            <p className="text-sm text-gray-600">KYC is mandatory for withdrawals.</p>
-                                            <button onClick={()=>navigate("/kycdetail")}  
-                                            className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
-                                                Complete KYC
-                                            </button>
-                                        </div>
-
-                                        {/* Bank/UPI Section */}
-                                        <div className="border rounded-lg p-4">
-                                            <p className="font-medium mb-2">Bank / UPI Details</p>
-                                            <p className="text-sm text-gray-600">Required for payouts and withdrawals.</p>
-                                            <button onClick={()=>navigate("/bankdetail")}
-                                            className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">
-                                                Add Bank/UPI
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
+                                <div className="border p-4 rounded-lg bg-gray-50">
+                                    <p className="font-medium mb-2">Bank / UPI Details</p>
+                                    <p className="text-sm text-gray-600">Required for payouts.</p>
+                                    <button
+                                        onClick={() => navigate("/bankdetail")}
+                                        className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm"
+                                    >
+                                        Add Bank/UPI
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* Modal for Profile Photo */}
+            {/* Bank Details Section */}
+            <div className="mt-8">
+                <h2 className="text-2xl font-bold mb-4 text-gray-800">Bank Details</h2>
+                {bankdetail.length > 0 ? (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {bankdetail.map((bank) => (
+                            <div
+                                key={bank.id}
+                                className="border rounded-xl p-4 shadow hover:shadow-lg transition duration-300 bg-white"
+                            >
+                                <h3 className="text-lg font-semibold mb-2 text-gray-700">{bank.name}</h3>
+                                <p className="text-sm text-gray-600 mb-1">
+                                    <span className="font-medium">Account No:</span> {bank.accountno}
+                                </p>
+                                <p className="text-sm text-gray-600 mb-1">
+                                    <span className="font-medium">IFSC:</span> {bank.ifsc}
+                                </p>
+                                <p className="text-sm font-semibold text-gray-700">{bank.branch}</p>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-gray-500 text-center py-6 border rounded-lg bg-gray-50">
+                        No bank details available
+                    </p>
+                )}
+            </div>
+
+            {/* Profile Photo Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-xl shadow-lg w-96 p-6 relative">
@@ -262,7 +243,7 @@ const UserProfile = () => {
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 

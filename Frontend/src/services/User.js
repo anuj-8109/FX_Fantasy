@@ -438,15 +438,46 @@ export async function updateClientImage(token, formData) {
 
 // KYCVarifiaction
 
-export async function KYCVarifiaction(token ,formData){
+export async function KYCVarifiaction(token, formData) {
   try {
-    const response = await axios.post(`${config.base_url}api/client/manualkyc`,formData,{
-      headers:{
+    const response = await axios.post(`${config.base_url}api/client/manualkyc`, formData, {
+      headers: {
         Authorization: `Bearer ${token}`,
       }
     })
     return response?.data;
   } catch (error) {
-    return error?.response?.data || {status:false , message:"Network Error"}
+    return error?.response?.data || { status: false, message: "Network Error" }
+  }
+}
+
+//Bank details
+
+export async function addBank(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}api/client/addbankdetail`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" }
+  }
+}
+
+//getBank Account 
+
+export async function getBankdetalis(token, client_id) {
+  try {
+    const response = await axios.get(`${config.base_url}api/client/listbankdetails`, {
+      params: {client_id},
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network Error" }
   }
 }
