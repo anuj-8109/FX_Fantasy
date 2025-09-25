@@ -1569,7 +1569,7 @@ async  listBankDetails(req, res) {
     let filter = { del: false };
     if (client_id) filter.client_id = client_id; // Client wise filter
 
-    const banks = await Bank_Modal.find(filter).sort({ created_at: -1 });
+    const banks = await Bank_Modal.find(filter).sort({ created_at: -1,del: false });
 
     return res.status(200).json({
       status: true,
@@ -1581,6 +1581,35 @@ async  listBankDetails(req, res) {
     return res.status(500).json({ status: false, message: "Server error", error: error.message });
   }
 }
+
+async deleteBank(req, res) {
+  try {
+    const { id } = req.query;
+
+    if (!id) {
+      return res.status(400).json({ status: false, message: "Bank id is required" });
+    }
+
+    const bank = await Bank_Modal.findOne({ _id: id, del: false });
+
+    if (!bank) {
+      return res.status(404).json({ status: false, message: "Bank not found or already deleted" });
+    }
+
+    bank.del = true; // Soft delete
+    await bank.save();
+
+    return res.status(200).json({
+      status: true,
+      message: "Bank deleted successfully",
+      data: bank
+    });
+  } catch (error) {
+    console.error("Delete Bank Error:", error);
+    return res.status(500).json({ status: false, message: "Server error", error: error.message });
+  }
+}
+
 
 }
 
