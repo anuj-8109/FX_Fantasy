@@ -14,6 +14,10 @@ const Smstemplate_Modal = db.Smstemplate;
 const Ticket_Modal = db.Ticket;
 const Ticketmessage_Modal = db.Ticketmessage;
 const Wallet_Modal = db.Wallet;
+const Bank_Modal = db.Bank;
+
+
+
 
 const { sendSMS } = require('../../Utils/smsHelper');
 const upload = require('../../Utils/multerHelper');
@@ -1501,6 +1505,82 @@ async getWalletHistory(req, res) {
   }
 }
 
+
+async  addBankDetail(req, res) {
+  try {
+    const { name, branch, accountno, ifsc, client_id } = req.body;
+
+    // 🔒 Validation
+    if (!client_id) {
+      return res.status(400).json({
+        status: false,
+        message: "Client ID is required"
+      });
+    }
+
+const client = await Clients_Modal.findOne({
+      _id: client_id,
+      del: 0,
+      ActiveStatus: 1
+    });
+
+    if (!client) {
+      return res.status(404).json({ status: false, message: "Client not found or inactive" });
+    }
+
+    if (!accountno || !ifsc) {
+      return res.status(400).json({
+        status: false,
+        message: "Account number and IFSC are required"
+      });
+    }
+
+    // ✅ New bank entry
+    const newBank = new Bank_Modal({
+      name,
+      branch,
+      accountno,
+      ifsc,
+      client_id,
+    });
+
+    await newBank.save();
+
+    return res.status(201).json({
+      status: true,
+      message: "Bank detail added successfully",
+      data: newBank
+    });
+  } catch (error) {
+    console.error("Add Bank Error:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+}
+
+
+async  listBankDetails(req, res) {
+  try {
+    const { client_id } = req.query;
+
+    let filter = { del: false };
+    if (client_id) filter.client_id = client_id; // Client wise filter
+
+    const banks = await Bank_Modal.find(filter).sort({ created_at: -1 });
+
+    return res.status(200).json({
+      status: true,
+      message: "Bank details fetched successfully",
+      data: banks
+    });
+  } catch (error) {
+    console.error("List Bank Error:", error);
+    return res.status(500).json({ status: false, message: "Server error", error: error.message });
+  }
+}
 
 }
 
