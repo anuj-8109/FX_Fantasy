@@ -22,7 +22,10 @@ import {
   ChevronDown,
   Banknote ,
   LifeBuoy,
-  Trophy 
+  Trophy ,
+  Share2 ,
+  CreditCard , 
+
 } from "lucide-react";
 
 const menuItems = [
@@ -125,12 +128,12 @@ const menuItems = [
         {
         title: "KYC Information",
         url: "/superadmin/kycinformation",
-        icon: <MessageCircle />,
+        icon: <CreditCard />,
       },
         {
         title: "Refer&Earn",
         url: "/superadmin/referearn",
-        icon: <MessageCircle />,
+        icon:   <Share2  />,
       },
     ],
   },

@@ -22,6 +22,7 @@ import Alert from "../pages/user/alert/Alert";
 import Search from "../pages/user/search/Search";
 import ContestTracking from "../pages/user/contestTracking/ContestTracking"
 import Kycdetails from "../pages/user/kyc/Kycdetails";
+import Bankdetail from "../pages/user/bankdetail/Bankdetail";
 
 const UserRoutes = () => {
   return (
@@ -46,6 +47,7 @@ const UserRoutes = () => {
         <Route path="search" element={<Search/>}/>
         <Route path="contesttracking" element={<ContestTracking/>}/>
         <Route path="kycdetail" element={<Kycdetails/>}/>
+        <Route path="bankdetail" element={<Bankdetail/>}/>
 
 
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}

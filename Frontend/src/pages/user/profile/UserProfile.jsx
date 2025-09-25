@@ -161,12 +161,12 @@ const UserProfile = () => {
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between mb-2">
                                             <h3 className="text-lg font-semibold">Profile Information</h3>
-                                            <button
+                                            {/* <button
                                                 onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
                                                 className="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700"
                                             >
                                                 {isEditing ? "Save" : "Edit"}
-                                            </button>
+                                            </button> */}
                                         </div>
 
                                         <div className="border rounded-lg p-3">
@@ -184,16 +184,16 @@ const UserProfile = () => {
                                 {/* Profile Management Tab */}
                                 {activeTab === "management" && (
                                     <div className="space-y-4">
-                                        <h3 className="text-lg font-semibold">Profile Management</h3>
+                                        {/* <h3 className="text-lg font-semibold">Profile Management</h3> */}
 
                                         {/* Edit Profile */}
-                                        <div className="border rounded-lg p-4">
+                                        {/* <div className="border rounded-lg p-4">
                                             <p className="font-medium mb-2">Edit Profile Details</p>
                                             <p className="text-sm text-gray-600">Update your name, email, and other details.</p>
                                             <button className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
                                                 Edit Now
                                             </button>
-                                        </div>
+                                        </div> */}
 
                                         {/* KYC Section */}
                                         <div className="border rounded-lg p-4">
@@ -209,7 +209,8 @@ const UserProfile = () => {
                                         <div className="border rounded-lg p-4">
                                             <p className="font-medium mb-2">Bank / UPI Details</p>
                                             <p className="text-sm text-gray-600">Required for payouts and withdrawals.</p>
-                                            <button className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">
+                                            <button onClick={()=>navigate("/bankdetail")}
+                                            className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">
                                                 Add Bank/UPI
                                             </button>
                                         </div>

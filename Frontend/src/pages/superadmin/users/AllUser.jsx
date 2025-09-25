@@ -190,7 +190,7 @@ const AllUsers = () => {
       sortable: true,
     },
     {
-      name: "Active Status & Permissions",
+      name: "Status",
       cell: (row) => (
         <div className="flex items-center gap-3">
           {/* ✅ Toggle for active/inactive */}
