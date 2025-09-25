@@ -662,7 +662,7 @@ async  listBankDetails(req, res) {
     let filter = { del: false };
     if (client_id) filter.client_id = client_id; // Client wise filter
 
-    const banks = await Bank_Modal.find(filter).sort({ created_at: -1,del: false });
+    const banks = await Bank_Modal.find(filter).sort({ created_at: -1 });
 
     return res.status(200).json({
       status: true,
