@@ -5,7 +5,7 @@ import ChangePassword from "../../superadmin/profile/ChangePassword";
 import { GetUserDetails, updateClientImage } from "../../../services/User";
 import BackButton from "../../../pages/user/Backbutton";
 import toast from "react-hot-toast";
-import { image_url } from "../../../utils/config"; 
+import * as config from "../../../utils/config";
 const UserProfile = () => {
     const [userDetails, setUserDetails] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -81,7 +81,7 @@ const UserProfile = () => {
                 }));
 
                 // ✅ Set preview also from backend
-                setSelectedImage(`${process.env.REACT_APP_API_URL}/uploads/clients/${res.data.image}`);
+                setSelectedImage(`${config.image_url}uploads/clients/${res.data.image}`);
             } else {
                 toast.error(res?.message || "Failed to update image");
             }

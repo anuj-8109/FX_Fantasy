@@ -17,6 +17,7 @@ const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("ongoing");
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [turnament, setTurnament] = useState([]);
+  console.log("turnament",turnament)
   const [banners, setBanners] = useState([]);
   const [now, setNow] = useState(new Date());
 
@@ -182,7 +183,9 @@ const UserDashboard = () => {
             <div
               key={contest.id}
               onClick={() =>
-                navigate("/pricepol", { state: { _id: contest.id } })
+                navigate("/pricepol", { state: { _id: contest.id, stocks: contest.stocks || [] } }
+                  
+                )
               }
               className={`bg-white rounded-xl shadow-md hover:shadow-xl transition p-4 cursor-pointer border-l-4 ${contest.status === "ongoing"
                 ? "border-green-500"

@@ -125,7 +125,7 @@ const GeneralSettings = () => {
     <Content
       Page_title="General Settings"
       button_title="back"
-       route="/superadmin/dashboard"
+      route="/superadmin/dashboard"
       button_status={true}
     >
       <div className="max-w-4xl mx-auto Content_Style">
@@ -142,7 +142,8 @@ const GeneralSettings = () => {
                   name="website_title"
                   value={formData.website_title}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm  focus:outline-none focus:ring-2 focus:ring-blue-500 input-Add"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm  
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 input-Add"
                 />
               </div>
 
@@ -156,7 +157,7 @@ const GeneralSettings = () => {
                   value={formData.favicon}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 input-Add"
-                /> 
+                />
               </div>
 
               <div>
@@ -319,11 +320,10 @@ const GeneralSettings = () => {
             <button
               type="submit"
               disabled={updateLoading}
-              className={`px-8 py-3 rounded-md text-sm font-medium transition-colors duration-300  ${
-                updateLoading
+              className={`px-8 py-3 rounded-md text-sm font-medium transition-colors duration-300  ${updateLoading
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              } text-white`}
+                } text-white`}
             >
               {updateLoading ? "Updating..." : "Update Settings"}
             </button>

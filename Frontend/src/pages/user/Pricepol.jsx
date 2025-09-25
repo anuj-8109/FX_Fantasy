@@ -223,19 +223,26 @@ function Pricepol() {
                         <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
                           <button
                             onClick={() =>
-                              navigate("/history", { state: { contestId: contestWrapper?.contest_id?._id } })
-                            }
-                            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md"
-                          >
-                            View History
-                          </button>
-                          <button
-                            onClick={() =>
-                              navigate("/buysell", { state: { contestId: contestWrapper?.contest_id?._id } })
+                              navigate("/trade", {
+                                state: {
+                                  contestId: contestWrapper?.contest_id?._id,
+                                  stocks: contestWrapper?.contest_id?.tournament_id?.stocks || []  // <-- pass the stocks array
+                                }
+                              })
+
+
                             }
                             className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md"
                           >
                             Live
+                          </button>
+                          <button
+                            onClick={() =>
+                              navigate("/tradehistory", { state: { contestId: contestWrapper?.contest_id?._id } })
+                            }
+                            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md"
+                          >
+                            view History
                           </button>
                         </div>
                       </div>
@@ -283,8 +290,9 @@ function Pricepol() {
             </p>
           )}
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }
 

@@ -122,6 +122,16 @@ const menuItems = [
         url: "/superadmin/sms-templates",
         icon: <MessageCircle />,
       },
+        {
+        title: "KYC Information",
+        url: "/superadmin/kycinformation",
+        icon: <MessageCircle />,
+      },
+        {
+        title: "Refer&Earn",
+        url: "/superadmin/referearn",
+        icon: <MessageCircle />,
+      },
     ],
   },
 ];

@@ -36,6 +36,8 @@ import HelpDesk from "../pages/superadmin/helpdesk/HelpDesk"
 import Chatreply from "../pages/superadmin/helpdesk/Chatreply"
 import Withdrawal from "../pages/superadmin/withdrawal/Withdrawal"
 import Viewtournamentcontest from "../pages/superadmin/contest/Viewtournamentcontest";
+import Kycinformation from "../pages/superadmin/basicsettings/kycinformation";
+import Referearn from "../pages/superadmin/basicsettings/Referearn";
 const SuperAdminRoutes = () => {
 
   return (
@@ -76,6 +78,8 @@ const SuperAdminRoutes = () => {
         <Route path="chatreply/:ticketId" element={<Chatreply />} />
         <Route path="withdrawal" element={<Withdrawal />} />
         <Route path="tournamentcontest" element={<Viewtournamentcontest/>}/>
+        <Route path="kycinformation" element={<Kycinformation/>}/>
+        <Route path="referearn" element={<Referearn/>}/>
       </Route>
     </>
   );

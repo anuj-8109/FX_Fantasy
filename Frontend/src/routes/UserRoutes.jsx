@@ -30,7 +30,7 @@ const UserRoutes = () => {
 
         <Route path="dashboard" element={<Userdashboard />} />
         <Route path="pricepol" element={<Pricepol />} />
-        <Route path="history" element={<HistoryPage />} />
+        <Route path="trade" element={<HistoryPage />} />
         <Route path="profile" element={<UserProfile />} />
         <Route path="helpdesk" element={<HelpDesk />} />
         <Route path="chat/:ticketId" element={<Chat />} />
@@ -39,7 +39,7 @@ const UserRoutes = () => {
         <Route path="faq" element={<FAQ />} />
         <Route path="blog" element={<Blog />} />
         <Route path="content" element={<Content />} />
-        <Route path="buysell" element={<Buysell/>}/>
+        <Route path="tradehistory" element={<Buysell/>}/>
         <Route path="back" element={<BackButton/>}/>
         <Route path="alert" element={<Alert/>}/>
         <Route path="search" element={<Search/>}/>
