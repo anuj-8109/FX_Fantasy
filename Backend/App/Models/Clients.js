@@ -98,9 +98,27 @@ const clientsModel = new Schema({
         type: String,
         trim: true,
         default: null
-    }
-
-
+    },
+   kyc_type: {
+        type: Number, // changed to Number
+        enum: [1, 0],
+        default: 0
+    },
+   adhaarphotofront: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    adhaarphotoback: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    pancard: {
+        type: String,
+        trim: true,
+        default: null
+    },
 }, {
     timestamps: true
 });
