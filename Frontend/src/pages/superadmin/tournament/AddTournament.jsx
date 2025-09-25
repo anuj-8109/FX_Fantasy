@@ -86,7 +86,7 @@ function AddTournament() {
     setLoading(true);
 
     try {
-      
+
       if (stocks.some((s) => !s.stock_id)) {
         Swal.fire("Please select valid stocks from search results");
         setLoading(false);
@@ -155,7 +155,7 @@ function AddTournament() {
 
           {/* Stocks */}
           <div>
-            <h3 className="font-medium mb-2"> Stocks *</h3>
+            <h3 className="font-medium mb-2">Stocks *</h3>
             {stocks.map((s, idx) => (
               <div key={idx} className="mb-4 relative">
                 <div className="flex gap-2 items-center">
@@ -194,14 +194,18 @@ function AddTournament() {
                 )}
               </div>
             ))}
-            <button
-              type="button"
-              onClick={addStockRow}
-              className="text-blue-600 text-sm"
-            >
-              + Add Stock
-            </button>
+
+            {stocks.length < 2 && (  // limit to max 2 stocks
+              <button
+                type="button"
+                onClick={addStockRow}
+                className="text-blue-600 text-sm"
+              >
+                + Add Stock
+              </button>
+            )}
           </div>
+
 
           {/* Status */}
           <div>
@@ -212,8 +216,8 @@ function AddTournament() {
               className="w-full border rounded-md px-3 py-2 mt-1"
             >
               <option value="upcoming">Upcoming</option>
-              <option value="live">Live</option>
-              <option value="completed">Completed</option>
+              {/* <option value="live">Live</option>
+              <option value="completed">Completed</option> */}
             </select>
           </div>
 

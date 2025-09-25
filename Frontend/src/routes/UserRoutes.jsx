@@ -16,7 +16,7 @@ import Coupons from "../pages/user/coupons/Coupons";
 import FAQ from "../pages/user/faq/FAQ";
 import Blog from "../pages/user/blog/Blog";
 import Content from "../pages/user/content/Content";
-import Buysell from "../pages/user/buysell";
+import Tradehistory from "../pages/user/Buysell";
 import BackButton from "../pages/user/Backbutton";
 import Alert from "../pages/user/alert/Alert";
 import Search from "../pages/user/search/Search";
@@ -39,7 +39,7 @@ const UserRoutes = () => {
         <Route path="faq" element={<FAQ />} />
         <Route path="blog" element={<Blog />} />
         <Route path="content" element={<Content />} />
-        <Route path="tradehistory" element={<Buysell/>}/>
+        <Route path="tradehistory" element={<Tradehistory/>}/>
         <Route path="back" element={<BackButton/>}/>
         <Route path="alert" element={<Alert/>}/>
         <Route path="search" element={<Search/>}/>

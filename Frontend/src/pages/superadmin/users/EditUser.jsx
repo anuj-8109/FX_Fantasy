@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import ReusableForm from "../../../extracomponents/ResuableForm";
 import { EditUser, GetUserDetails } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
-
+import Content from "../../../components/superadmin/Content";
 const EditUsers = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -174,24 +174,10 @@ const EditUsers = () => {
     }
 
     return (
+     <Content Page_title="Edit User" button_status={true} button_title="Back" route={"/superadmin/alluser"} >
         <div className="min-h-screen bg-gray-50 p-4 md:p-8">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
-                <div className="mb-6">
-                    <button
-                        onClick={() => navigate("/superadmin/alluser")}
-                        className="flex items-center text-blue-600 hover:text-blue-800 font-medium mb-4 transition-colors"
-                    >
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                        Back to All Users
-                    </button>
-                    <h1 className="text-3xl font-bold text-gray-900">Edit User</h1>
-                    <p className="text-gray-600 mt-2">Update user information and settings</p>
-                </div>
-
-
                 <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
                     <ReusableForm
                         initialValues={initialValues}
@@ -226,6 +212,7 @@ const EditUsers = () => {
                 </div>
             </div>
         </div>
+        </Content>
     );
 };
 

@@ -47,9 +47,10 @@ const User = () => {
 
   const fields = [
     { name: "FullName", label: "Full Name*", type: "text", className: "w-full", autoComplete: "off" },
+    { name: "UserName", label: "Username*", type: "text", className: "w-full", autoComplete: "new-username" },
     { name: "Email", label: "Email*", type: "email", className: "w-full", autoComplete: "off" },
     { name: "PhoneNo", label: "Phone No*", type: "text", className: "w-full", autoComplete: "off" },
-    { name: "UserName", label: "Username*", type: "text", className: "w-full", autoComplete: "new-username" }, // important
+    // important
     { name: "password", label: "Password*", type: "password", className: "w-full", colClass: "col-span-2", autoComplete: "new-password" },
     { name: "confirmPassword", label: "Confirm Password*", type: "password", className: "w-full", autoComplete: "new-password" },
   ];

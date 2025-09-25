@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { GetContestHistory } from "../../services/User";
 import toast from "react-hot-toast";
+import BackButton from "../../pages/user/Backbutton";
 
 function TradeHistory() {
   const location = useLocation();
@@ -46,42 +47,54 @@ function TradeHistory() {
 
   return (
     <div className="max-w-4xl mx-auto mt-8 p-4 bg-white shadow-lg rounded-xl">
+      <BackButton />
       <h2 className="text-xl font-bold text-center mb-4">Trade History</h2>
 
       {loading ? (
         <p className="text-center text-gray-500">Loading...</p>
       ) : history.length > 0 ? (
         <div className="space-y-4">
-          {history.map((trade) => (
-            <div
-              key={trade._id}
-              className="flex justify-between items-center border p-3 rounded-lg"
-            >
-              {/* Stock symbol */}
-              <div className="font-semibold">{trade.stock_symbol}</div>
-
-              {/* Quantity & Price */}
-              <div className="text-sm text-gray-700">
-                Qty: {trade.quantity} | Price: ₹{trade.price}
-              </div>
-
-              {/* Trade Type */}
+          {history.map((trade) => {
+            const entryPrice = trade.price;
+            const exitPrice = trade.exit_price || 0; // You can compute or fetch actual exit price
+            const quantity = trade.quantity;
+            const avg = (entryPrice + exitPrice) / 2; // Example average
+            const LTP = trade.ltp || 1548; // Replace with actual LTP if available
+            return (
               <div
-                className={`text-sm font-bold ${
-                  trade.trade_type === "buy" ? "text-green-600" : "text-red-600"
-                }`}
+                key={trade._id}
+                className="p-4 border rounded-lg bg-gray-50"
               >
-                {trade.trade_type.toUpperCase()}
+                <div className="flex justify-between items-center mb-2">
+                  <div className="font-semibold">{trade.stock_symbol}</div>
+                  <div className="text-sm text-gray-700">
+                    Qty: {quantity} | Avg: {avg.toFixed(2)}
+                  </div>
+                  <div
+                    className={`text-sm font-bold ${
+                      trade.trade_type === "buy" ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {trade.trade_type.toUpperCase()}
+                  </div>
+                </div>
+                <div className="flex justify-between text-sm text-gray-600">
+                  <div>
+                    Entry price: <span className="text-red-500">{entryPrice}</span>
+                  </div>
+                  <div>
+                    Exit price: <span className="text-green-500">{exitPrice}</span>
+                  </div>
+                  <div>
+                    LTP: {LTP}
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {trade.trade_time ? new Date(trade.trade_time).toLocaleString() : "N/A"}
+                </div>
               </div>
-
-              {/* Trade Time */}
-              <div className="text-xs text-gray-500">
-                {trade.trade_time
-                  ? new Date(trade.trade_time).toLocaleString()
-                  : "N/A"}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <p className="text-center text-gray-500">

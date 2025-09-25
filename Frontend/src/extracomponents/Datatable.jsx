@@ -28,12 +28,12 @@ const Datatable = ({
 
 
   const handleRefresh = async () => {
-  if (onRefresh) {
-    setIsLoading(true);
-    await onRefresh();   
-    setIsLoading(false);
-  }
-};
+    if (onRefresh) {
+      setIsLoading(true);
+      await onRefresh();
+      setIsLoading(false);
+    }
+  };
 
 
   const handleExport = () => {
@@ -56,7 +56,7 @@ const Datatable = ({
     window.URL.revokeObjectURL(url);
   };
 
-  
+
   const paginationComponentOptions = {
     rowsPerPageText: 'Rows per page:',
     rangeSeparatorText: 'of',
@@ -66,31 +66,36 @@ const Datatable = ({
 
   return (
     <div className="w-full space-y-0 custom-datatable Search_btn">
-     
+
 
       <div className={`relative flex justify-between  px-1 py-2 border-b Search_btn `}>
-        <div className="relative max-w-md ">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ">
-            <Search className={`h-4 w-4 `} />
+        <div className="relative max-w-md">
+          {/* Search Icon */}
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-gray-400" />
           </div>
+
+          {/* Input */}
           <input
             type="text"
             placeholder="Search across all columns..."
-            className={`block w-full pl-10 Search_btn searchBd pr-4 py-2.5 rounded-lg text-sm transition-all duration-200  focus:outline-none border`}
+            className="block w-full pl-10 pr-10 py-2.5 rounded-lg text-sm transition-all duration-200 border focus:outline-none"
             value={filterText}
             onChange={(e) => setFilterText(e.target.value)}
           />
+
+          {/* Clear Button */}
           {filterText && (
             <button
               type="button"
               onClick={() => setFilterText("")}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center justify-center h-6 w-6 rounded-full border border-gray-400 bg-white hover:bg-gray-200"
             >
               <X className="h-4 w-4" />
             </button>
           )}
-
         </div>
+
         <div className="flex items-center gap-4  ">
           {showRefresh && (
             <button

@@ -282,7 +282,7 @@ const ReusableForm = ({
                 <ErrorMessage
                   name={field.name}
                   component="div"
-                  className=" text-xs mt-1 font-medium "
+                  className=" text-xs mt-1 font-medium text-red-500 "
                 />
 
                 {field.helpText && (

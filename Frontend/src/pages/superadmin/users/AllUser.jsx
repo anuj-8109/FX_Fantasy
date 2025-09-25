@@ -60,7 +60,7 @@ const AllUsers = () => {
   };
 
   const handleStatusChange = async (newStatus, userId) => {
-    const isEnabling = newStatus === 1;
+    const isEnabling = Number(newStatus) === 1;
 
     const confirm = await Swal.fire({
       title: isEnabling ? "Activate User?" : "Deactivate User?",

@@ -7,9 +7,9 @@ import { AddContest } from "../../../services/SuperAdmin";
 import Content from "../../../components/superadmin/Content";
 import { useLocation } from "react-router-dom";
 
-export default function AddContest1({ onSuccess, onCancel }) {  
+export default function AddContest1({ onSuccess, onCancel }) {
     const location = useLocation();
-    const tournamentId = location?.state?.tournament_id ;
+    const tournamentId = location?.state?.tournament_id;
     console.log("Received tournamentId:", tournamentId);
     const [authData, setAuthData] = useState({
         add_by: null,
@@ -21,11 +21,13 @@ export default function AddContest1({ onSuccess, onCancel }) {
     const [description, setDescription] = useState("");
     const [contestType, setContestType] = useState("Mega");
     const [entryFee, setEntryFee] = useState("");
-    const [useAmount, setUseAmount] = useState(""); 
+    const [useAmount, setUseAmount] = useState("");
     const [totalSpots, setTotalSpots] = useState("");
     const [maxEntryPerUser, setMaxEntryPerUser] = useState(1);
     const [prizePool, setPrizePool] = useState("");
-    const [prizeDistribution, setPrizeDistribution] = useState([{ rank: "", amount: "" }]);
+    const [prizeDistribution, setPrizeDistribution] = useState([
+        { startRank: "", endRank: "", amount: "" },
+    ]);
     const [stocks, setStocks] = useState([{ stock_name: "" }]);
     const [isGuaranteed, setIsGuaranteed] = useState(false);
     const [isPrivate, setIsPrivate] = useState(false);
@@ -34,8 +36,9 @@ export default function AddContest1({ onSuccess, onCancel }) {
     const [endDate, setEndDate] = useState("");
     const [status, setStatus] = useState("upcoming");
     const [loading, setLoading] = useState(false);
+    // const [contestType, setContestType] = useState("guaranteed"); // default
 
-    
+
     useEffect(() => {
         const add_by = localStorage.getItem("add_by");
         const token = localStorage.getItem("token");
@@ -66,16 +69,15 @@ export default function AddContest1({ onSuccess, onCancel }) {
     };
 
     const addPrizeRow = () => {
-        setPrizeDistribution([...prizeDistribution, { rank: "", amount: "" }]);
+        setPrizeDistribution([...prizeDistribution, { startRank: "", endRank: "", amount: "" }]);
     };
 
+    // remove row
     const removePrizeRow = (idx) => {
         if (prizeDistribution.length > 1) {
-            const updated = prizeDistribution.filter((_, i) => i !== idx);
-            setPrizeDistribution(updated);
+            setPrizeDistribution(prizeDistribution.filter((_, i) => i !== idx));
         }
     };
-
     const handleStockChange = (idx, field, value) => {
         const updated = [...stocks];
         updated[idx][field] = value;
@@ -93,7 +95,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
         }
     };
 
-    
+
     const validateForm = () => {
         const errors = [];
 
@@ -105,19 +107,24 @@ export default function AddContest1({ onSuccess, onCancel }) {
         if (prizePool === "" || prizePool < 0) errors.push("Valid prize pool is required");
         if (!startDate || !endDate) errors.push("Start and End date are required");
 
-        
+
         const start = new Date(startDate);
         const end = new Date(endDate);
         if (start >= end) errors.push("End date must be after start date");
 
-        const validPrizes = prizeDistribution.filter(p => p.rank && p.amount);
+        const validPrizes = prizeDistribution.filter(
+            (p) => p.startRank && p.endRank && p.amount
+        );
         if (validPrizes.length === 0) errors.push("At least one valid prize distribution is required");
 
 
-        const validStocks = stocks.filter(s => s.stock_name.trim());
-        if (validStocks.length === 0) errors.push("At least one stock is required");
 
-        
+
+
+        // const validStocks = stocks.filter(s => s.stock_name.trim());
+        // if (validStocks.length === 0) errors.push("At least one stock is required");
+
+
         if (!authData.isValid) {
             errors.push("Authentication required. Please login again.");
         }
@@ -128,10 +135,10 @@ export default function AddContest1({ onSuccess, onCancel }) {
     const handleSave = async (e) => {
         e.preventDefault();
 
-       
+
         const validationErrors = validateForm();
         if (validationErrors.length > 0) {
-            toast.error(validationErrors[0]); 
+            toast.error(validationErrors[0]);
             console.log("Validation errors:", validationErrors);
             return;
         }
@@ -147,8 +154,11 @@ export default function AddContest1({ onSuccess, onCancel }) {
 
         if (!confirm.isConfirmed) return;
 
-        
-        const cleanPrizeDistribution = prizeDistribution.filter(p => p.rank && p.amount);
+
+        const cleanPrizeDistribution = prizeDistribution.filter(
+            (p) => p.startRank && p.endRank && p.amount
+        );
+
         const cleanStocks = stocks.filter(s => s.stock_name.trim());
 
         const payload = {
@@ -157,7 +167,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
             description,
             contest_type: contestType,
             entry_fee: Number(entryFee),
-            useamount: Number(useAmount), 
+            useamount: Number(useAmount),
             total_spots: Number(totalSpots),
             max_entry_per_user: Number(maxEntryPerUser),
             prize_pool: Number(prizePool),
@@ -202,7 +212,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
         }
     };
 
-    
+
     if (!authData.isValid) {
         return (
             <Content Page_title="Add-content" button_title="Back" button_status={true} route="/superadmin/contest">
@@ -228,7 +238,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                 <h2 className="text-xl font-semibold mb-4 border-b pb-2">Add Contest</h2>
 
                 <form onSubmit={handleSave} className="space-y-6">
-                   
+
                     <div>
                         <label className="text-sm font-medium">Name *</label>
                         <input
@@ -240,7 +250,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                         />
                     </div>
 
-                    
+
                     <div>
                         <label className="text-sm font-medium input-Add">Description</label>
                         <CKEditor
@@ -252,7 +262,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                         />
                     </div>
 
-                    
+
                     <div>
                         <label className="text-sm font-medium  input-Add" >Contest Type *</label>
                         <select
@@ -263,11 +273,11 @@ export default function AddContest1({ onSuccess, onCancel }) {
                         >
                             <option value="Mega">Mega</option>
                             <option value="Head-to-Head">Head-to-Head</option>
-                            
+
                         </select>
                     </div>
 
-                  
+
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="text-sm font-medium">Entry Fee *</label>
@@ -315,7 +325,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                         </div>
                     </div>
 
-                    
+
                     <div>
                         <label className="text-sm font-medium">Prize Pool *</label>
                         <input
@@ -328,45 +338,69 @@ export default function AddContest1({ onSuccess, onCancel }) {
                         />
                     </div>
 
-                   
+
                     <div>
                         <h3 className="font-medium mb-2">🏆 Prize Distribution *</h3>
                         {prizeDistribution.map((p, idx) => (
                             <div key={idx} className="flex gap-2 mb-1 items-center">
+                                {/* Start Rank */}
                                 <input
                                     type="number"
-                                    placeholder="Rank"
+                                    placeholder="Start Rank"
                                     min="1"
-                                    value={p.rank}
-                                    onChange={(e) => handlePrizeChange(idx, "rank", e.target.value)}
-                                    className="w-1/3 border rounded-md px-2 py-1  input-Add"
+                                    value={p.startRank}
+                                    onChange={(e) => handlePrizeChange(idx, "startRank", e.target.value)}
+                                    className="w-1/4 border rounded-md px-2 py-1 input-Add"
                                 />
+
+                                <span className="text-gray-600">to</span>
+
+                                {/* End Rank */}
+                                <input
+                                    type="number"
+                                    placeholder="End Rank"
+                                    min={p.startRank || 1}
+                                    value={p.endRank}
+                                    onChange={(e) => handlePrizeChange(idx, "endRank", e.target.value)}
+                                    className="w-1/4 border rounded-md px-2 py-1 input-Add"
+                                />
+
+                                {/* Amount */}
                                 <input
                                     type="number"
                                     placeholder="Amount"
                                     min="0"
                                     value={p.amount}
                                     onChange={(e) => handlePrizeChange(idx, "amount", e.target.value)}
-                                    className="w-2/3 border rounded-md px-2 py-1  input-Add"
+                                    className="w-1/2 border rounded-md px-2 py-1 input-Add"
                                 />
+
+                                {/* Remove button */}
                                 {prizeDistribution.length > 1 && (
                                     <button
                                         type="button"
                                         onClick={() => removePrizeRow(idx)}
-                                        className="text-red-600 text-sm px-2  input-Add"
+                                        className="text-red-600 text-sm px-2 input-Add"
                                     >
                                         X
                                     </button>
                                 )}
                             </div>
                         ))}
-                        <button type="button" onClick={addPrizeRow} className="text-blue-600 text-sm   input-Add">
-                             Add Prize
+
+                        {/* Add Prize Button */}
+                        <button
+                            type="button"
+                            onClick={addPrizeRow}
+                            className="text-blue-600 text-sm input-Add"
+                        >
+                            Add Prize
                         </button>
                     </div>
 
-                   
-                    <div>
+
+
+                    {/* <div>
                         <h3 className="font-medium mb-2 input-Add">📈 Stocks *</h3>
                         {stocks.map((s, idx) => (
                             <div key={idx} className="flex gap-2 mb-1 items-center ">
@@ -391,31 +425,39 @@ export default function AddContest1({ onSuccess, onCancel }) {
                         <button type="button" onClick={addStockRow} className="text-blue-600 text-sm">
                              Add Stock
                         </button>
-                    </div>
+                    </div> */}
 
-                   
+
                     <div>
                         <h3 className="font-medium mb-2"> Settings</h3>
                         <div className="space-y-2">
-                            <label className="flex items-center gap-2 text-sm  input-Add">
+                            {/* Guaranteed Contest */}
+                            <label className="flex items-center gap-2 text-sm input-Add">
                                 <input
-                                    type="checkbox"
-                                    checked={isGuaranteed}
-                                    onChange={(e) => setIsGuaranteed(e.target.checked)}
-                                    className=" input-Add"
+                                    type="radio"
+                                    name="contestType" // same name for both
+                                    value="guaranteed"
+                                    checked={contestType === "guaranteed"}
+                                    onChange={(e) => setContestType(e.target.value)}
+                                    className="input-Add"
                                 />
                                 Guaranteed Contest
                             </label>
+
+                            {/* Flexible Contest */}
                             <label className="flex items-center gap-2 text-sm">
                                 <input
-                                    type="checkbox"
-                                    checked={isPrivate}
-                                    onChange={(e) => setIsPrivate(e.target.checked)}
-                                    className=" input-Add"
+                                    type="radio"
+                                    name="contestType" // same name for both
+                                    value="flexible"
+                                    checked={contestType === "flexible"}
+                                    onChange={(e) => setContestType(e.target.value)}
+                                    className="input-Add"
                                 />
-                                Private Contest
+                                Flexible Contest
                             </label>
                         </div>
+
                         <div className="mt-3">
                             <label className="text-sm font-medium">Status</label>
                             <select
@@ -424,14 +466,14 @@ export default function AddContest1({ onSuccess, onCancel }) {
                                 className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
                             >
                                 <option value="upcoming">Upcoming</option>
-                                <option value="live">Live</option>
-                                <option value="completed">Completed</option>
+                                {/* <option value="live">Live</option>
+                                <option value="completed">Completed</option> */}
                             </select>
                         </div>
                     </div>
 
-          
-                    <div>
+
+                    {/* <div>
                         <label className="text-sm font-medium ">Contest Code</label>
                         <input
                             type="text"
@@ -440,9 +482,9 @@ export default function AddContest1({ onSuccess, onCancel }) {
                             className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
                             placeholder="Optional unique code for the contest "
                         />
-                    </div>
+                    </div> */}
 
-                 
+
                     <div>
                         <h3 className="font-medium mb-2">📅 Schedule *</h3>
                         <div className="grid grid-cols-2 gap-4">
@@ -469,8 +511,8 @@ export default function AddContest1({ onSuccess, onCancel }) {
                         </div>
                     </div>
 
-                 
-              
+
+
                     <div className="flex justify-end gap-3 pt-4 border-t">
                         <button
                             type="button"

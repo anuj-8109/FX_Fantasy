@@ -105,13 +105,7 @@ const UserProfile = () => {
                             <div className="w-32 h-32 border rounded-full flex items-center justify-center text-4xl font-bold mx-auto mb-4 overflow-hidden">
                                 {selectedImage ? (
                                     <img src={selectedImage} alt="Profile" className="w-full h-full object-cover" />
-                                ) : userDetails?.image ? (
-                                    <img
-                                        src={`${image_url}uploads/clients/${userDetails.image}`}
-                                        alt="Profile"
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : (
+                                )  : (
                                     userDetails?.FullName?.charAt(0) || "U"
                                 )}
                             </div>

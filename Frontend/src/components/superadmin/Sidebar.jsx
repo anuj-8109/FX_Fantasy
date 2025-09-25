@@ -32,12 +32,12 @@ const menuItems = [
     icon: <Home />,
   },
   {
-    title: "User Management",
+    title: "Employee",
     icon: <Users />,
     children: [
-      { title: "All Users", url: "/superadmin/alluser", icon: <Users /> },
+      { title: "All Employee", url: "/superadmin/alluser", icon: <Users /> },
       {
-        title: "Active Users",
+        title: "Active Employee",
         url: "/superadmin/activeuser",
         icon: <UserCheck />,
       },
@@ -166,7 +166,7 @@ const SuperAdminSidebar = ({ collapsed }) => {
         overflow-y-auto hide-scrollbar 
         transition-all z-40`}
     >
-      <div className="flex flex-col h-full mt-2  p-1">
+      <div className="flex flex-col h-full mt-2  p-1 ">
         <nav className="flex-1 space-y-2">
           {menuItems.map((item) => {
             const isChildActive =

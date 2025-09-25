@@ -13,7 +13,7 @@ function Pricepol() {
   const [tournament, setTournament] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState("contests");
+  const [activeTab, setActiveTab] = useState("myContests");
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -113,8 +113,8 @@ function Pricepol() {
       <div className="flex justify-center mb-4 sm:mb-6">
         <div className="bg-white rounded-full shadow-md flex flex-wrap justify-center gap-2 p-1 sm:p-2">
           {[
-            { key: "myContests", label: "My Contests" },
             { key: "contests", label: "Contests" },
+            { key: "myContests", label: "My Contests" },
             { key: "myTeam", label: "My Team" },
           ].map((tab) => (
             <button
@@ -226,16 +226,17 @@ function Pricepol() {
                               navigate("/trade", {
                                 state: {
                                   contestId: contestWrapper?.contest_id?._id,
-                                  stocks: contestWrapper?.contest_id?.tournament_id?.stocks || []  // <-- pass the stocks array
+                                  stocks: contestWrapper?.contest_id?.tournament_id?.stocks || [],
+                                  useamount: contestWrapper?.contest_id?.useamount || 0   // <-- yaha set karo
                                 }
                               })
-
-
                             }
-                            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md"
+                            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 
+             hover:from-indigo-600 hover:to-indigo-700 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md"
                           >
                             Live
                           </button>
+
                           <button
                             onClick={() =>
                               navigate("/tradehistory", { state: { contestId: contestWrapper?.contest_id?._id } })

@@ -1,120 +1,166 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { BuySelltrade } from "../../services/User";
-import BackButton from "../../pages/user/Backbutton";
 
 function HistoryPage() {
   const location = useLocation();
   const contestId = location?.state?.contestId;
   const stocks = location?.state?.stocks || [];
-
-  console.log("contestId", contestId);
-  console.log("stocks", stocks);
+  const useamount = location?.state?.useamount || 0;
 
   const [buySellLoadingId, setBuySellLoadingId] = useState(null);
+  const [showQuantityBox, setShowQuantityBox] = useState(null); // { id: stockId, type: 'buy' | 'sell' }
   const [quantityMap, setQuantityMap] = useState({});
 
   const token = localStorage.getItem("token");
   const clientId =
     localStorage.getItem("userId") || localStorage.getItem("client_id");
 
-  const handleBuySell = async (stock_symbol, trade_type, stockId) => {
-    if (!token || !clientId || !contestId) {
-      alert("Missing required info. Please login and select a contest.");
-      return;
-    }
-
-    const quantity = quantityMap[stockId] || 1;
-
-    if (
-      !window.confirm(
-        `Are you sure you want to ${trade_type} ${quantity} ${stock_symbol}?`
-      )
-    )
-      return;
+  const handleBuySell = async (stock_symbol, trade_type, stockId, quantity) => {
+    if (!token || !clientId || !contestId) return alert("Missing info");
 
     setBuySellLoadingId(stockId);
-
     try {
       const payload = {
         contest_id: contestId,
         client_id: clientId,
         stock_symbol,
         trade_type,
-        quantity: quantity.toString(),
+        quantity: quantity || "1",
       };
-
       const res = await BuySelltrade(token, payload);
       if (res?.status) {
-        alert("Trade successful!");
-        setQuantityMap((prev) => ({ ...prev, [stockId]: "" }));
+        alert("✅ Trade successful!");
+        setShowQuantityBox(null);
+        setQuantityMap({ ...quantityMap, [stockId]: "" });
       } else {
-        alert(res?.message || "Trade failed");
+        alert(res?.message || "❌ Trade failed");
       }
     } catch (err) {
       console.error(err);
-      alert("Trade failed due to network/server error.");
+      alert("❌ Trade failed due to network error");
     } finally {
       setBuySellLoadingId(null);
     }
   };
 
-  const handleQuantityChange = (stockId, value) => {
-    if (!/^\d*$/.test(value)) return; // only allow numbers
-    setQuantityMap((prev) => ({ ...prev, [stockId]: value }));
-  };
-
   return (
-    <div className="bg-gray-50 min-h-screen flex flex-col hitstory_style">
-      <BackButton />
+    <div className="bg-gray-50 min-h-screen flex flex-col">
+      {/* Balance Section */}
+      <div className="max-w-6xl mx-auto w-full mt-6 px-4">
+        <div className="bg-white shadow-lg rounded-2xl p-6 text-center relative">
+          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
+            <div className="bg-black text-white mt-8 rounded-full w-10 h-10 flex items-center justify-center text-xl">
+              ₹
+            </div>
+          </div>
+          <h2 className="mt-6 text-lg font-semibold">
+            Total Balance :{" "}
+            <span className="text-green-600 font-bold">₹{useamount}</span>
+          </h2>
 
-      {/* Stocks List */}
-      <div className="max-w-4xl w-full mx-auto mt-6 space-y-4 px-4">
+          <div className="grid grid-cols-2 gap-6 mt-6">
+            <div className="border rounded-lg py-3">
+              <p className="text-orange-600 font-semibold">Unutilized</p>
+              <p className="text-gray-500 text-xs">The Money You Add</p>
+              <p className="text-lg font-bold text-orange-600">₹3140</p>
+            </div>
+            <div className="border rounded-lg py-3">
+              <p className="text-green-600 font-semibold">P&amp;L</p>
+              <p className="text-gray-500 text-xs">The Money You Win</p>
+              <p className="text-lg font-bold text-green-600">₹1420</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stock List */}
+      <div className="max-w-6xl mx-auto w-full px-4 mt-6 flex-1">
         {stocks.length > 0 ? (
           stocks.map((s) => (
             <div
               key={s._id}
-              className="bg-white shadow rounded-lg p-4 flex justify-between items-center"
+              className="bg-white shadow rounded-lg p-4 flex items-center justify-between mb-4 relative"
             >
-              <div className="w-1/3">
-                <p className="font-semibold">{s.stock_name}</p>
-                <p className="text-gray-600 text-sm">Qty: 0</p>
+              {/* Left - Stock Name */}
+              <p className="font-semibold">{s.stock_name}</p>
+
+              {/* Middle - Price + % */}
+              <div className="text-right">
+                <p className="font-medium text-gray-800">{s.last_price}</p>
+                <p
+                  className={`text-sm font-semibold ${
+                    s.price_change >= 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {s.price_change >= 0 ? `+${s.price_change}%` : `${s.price_change}%`}
+                </p>
               </div>
 
-              <div className="w-1/3 text-center">
-                <p className="text-gray-600 text-sm">Price: -</p>
-                <p className="text-xs text-gray-500">No trade yet</p>
-              </div>
+              {/* Right - Buttons */}
+              <div className="flex space-x-2 relative">
+                <button
+                  onClick={() => setShowQuantityBox({ id: s._id, type: "buy" })}
+                  className="px-4 py-1 rounded-lg bg-green-500 text-white text-sm hover:bg-green-600"
+                >
+                  BUY
+                </button>
+                <button
+                  onClick={() => setShowQuantityBox({ id: s._id, type: "sell" })}
+                  className="px-4 py-1 rounded-lg bg-red-500 text-white text-sm hover:bg-red-600"
+                >
+                  SELL
+                </button>
 
-              <div className="w-1/3 flex flex-col items-end space-y-2">
-                <input
-                  type="number"
-                  placeholder="Qty"
-                  value={quantityMap[s._id] || ""}
-                  onChange={(e) => handleQuantityChange(s._id, e.target.value)}
-                  className="border p-1 w-20 text-sm rounded-md"
-                />
-                <div className="flex space-x-2">
-                  <button
-                    disabled={buySellLoadingId === s._id}
-                    onClick={() => handleBuySell(s.stock_name, "buy", s._id)}
-                    className="px-3 py-1 bg-green-500 text-white rounded-md text-sm hover:bg-green-600 disabled:opacity-50"
-                  >
-                    {buySellLoadingId === s._id ? "Processing..." : "Buy"}
-                  </button>
-                  <button
-                    disabled={buySellLoadingId === s._id}
-                    onClick={() => handleBuySell(s.stock_name, "sell", s._id)}
-                    className="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 disabled:opacity-50"
-                  >
-                    {buySellLoadingId === s._id ? "Processing..." : "Sell"}
-                  </button>
-                </div>
+                {/* Quantity Input Box */}
+                {showQuantityBox?.id === s._id && (
+                  <div className="absolute top-full mt-2 right-0 bg-white shadow-lg rounded-lg p-4 w-64 z-10">
+                    <p className="font-semibold mb-2">
+                      Enter Quantity ({showQuantityBox.type.toUpperCase()})
+                    </p>
+                    <input
+                      type="number"
+                      min="1"
+                      className="w-full border rounded px-2 py-1 mb-3"
+                      value={quantityMap[s._id] || ""}
+                      onChange={(e) =>
+                        setQuantityMap({
+                          ...quantityMap,
+                          [s._id]: e.target.value,
+                        })
+                      }
+                    />
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        onClick={() => setShowQuantityBox(null)}
+                        className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleBuySell(
+                            s.stock_name,
+                            showQuantityBox.type,
+                            s._id,
+                            quantityMap[s._id] || "1"
+                          )
+                        }
+                        className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                        disabled={buySellLoadingId === s._id}
+                      >
+                        {buySellLoadingId === s._id
+                          ? "..."
+                          : `Confirm ${showQuantityBox.type.toUpperCase()}`}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))
         ) : (
-          <p className="text-center">No stocks available.</p>
+          <p className="text-center text-gray-600">No stocks available</p>
         )}
       </div>
     </div>
