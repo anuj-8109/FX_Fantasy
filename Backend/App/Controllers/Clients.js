@@ -9,6 +9,7 @@ const Clients_Modal = db.Clients;
 const Mailtemplate_Modal = db.Mailtemplate;
 const BasicSetting_Modal = db.BasicSetting;
 const Payout_Modal = db.Payout;
+const Bank_Modal = db.Bank;
 
 
 class Clients {
@@ -653,6 +654,26 @@ class Clients {
       }
     }
   
+
+async  listBankDetails(req, res) {
+  try {
+    const { client_id } = req.query;
+
+    let filter = { del: false };
+    if (client_id) filter.client_id = client_id; // Client wise filter
+
+    const banks = await Bank_Modal.find(filter).sort({ created_at: -1 });
+
+    return res.status(200).json({
+      status: true,
+      message: "Bank details fetched successfully",
+      data: banks
+    });
+  } catch (error) {
+    console.error("List Bank Error:", error);
+    return res.status(500).json({ status: false, message: "Server error", error: error.message });
+  }
+}
 
 
 }
