@@ -471,7 +471,7 @@ export async function addBank(token, data) {
 export async function getBankdetalis(token, client_id) {
   try {
     const response = await axios.get(`${config.base_url}api/client/listbankdetails`, {
-      params: {client_id},
+      params: { client_id },
       headers: {
         Authorization: `Bearer ${token}`,
       }
@@ -479,5 +479,25 @@ export async function getBankdetalis(token, client_id) {
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Network Error" }
+  }
+}
+
+//deletebank
+
+export async function deletebank(token, id) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}api/client/deletebank`,
+      {
+        params: { id }, 
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || {
+      status: false,
+      message: "Network Error",
+    };
   }
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BackButton from "../../../pages/user/Backbutton";
-import { GetUserDetails, updateClientImage, getBankdetalis } from "../../../services/User";
+import { GetUserDetails, updateClientImage, getBankdetalis, deletebank } from "../../../services/User";
 import toast from "react-hot-toast";
 import * as config from "../../../utils/config";
 
@@ -56,6 +56,24 @@ const UserProfile = () => {
             setSelectedImage(URL.createObjectURL(file));
         }
     };
+
+    const hendledelete = async (bankId) => {
+        if (!window.confirm("Are you sure you want to delete this bank account?")) return;
+
+        try {
+            const res = await deletebank(token, bankId);
+            if (res?.status) {
+                toast.success("Bank account deleted successfully");
+                setBankDetail((prev) => prev.filter((bank) => bank.id !== bankId));
+            } else {
+                toast.error(res?.message || "Failed to delete bank account");
+            }
+        } catch (error) {
+            toast.error("Error deleting account");
+        }
+    };
+
+
 
     const handleUploadImage = async () => {
         if (!uploadFile) {
@@ -188,8 +206,8 @@ const UserProfile = () => {
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {bankdetail.map((bank) => (
                             <div
-                                key={bank.id}
-                                className="border rounded-xl p-4 shadow hover:shadow-lg transition duration-300 bg-white"
+                                key={bank._id}
+                                className="border rounded-xl p-4 shadow hover:shadow-lg transition duration-300 bg-white relative"
                             >
                                 <h3 className="text-lg font-semibold mb-2 text-gray-700">{bank.name}</h3>
                                 <p className="text-sm text-gray-600 mb-1">
@@ -199,6 +217,15 @@ const UserProfile = () => {
                                     <span className="font-medium">IFSC:</span> {bank.ifsc}
                                 </p>
                                 <p className="text-sm font-semibold text-gray-700">{bank.branch}</p>
+
+                                {/* Delete Button */}
+                                <button
+                                    onClick={() => hendledelete(bank._id)}
+                                    className="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600"
+                                >
+                                    Delete
+                                </button>
+
                             </div>
                         ))}
                     </div>
@@ -208,6 +235,7 @@ const UserProfile = () => {
                     </p>
                 )}
             </div>
+
 
             {/* Profile Photo Modal */}
             {isModalOpen && (
