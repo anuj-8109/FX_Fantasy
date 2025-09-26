@@ -29,8 +29,7 @@ const Client = () => {
   const [cityId, setCityId] = useState("");
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
- console.log("states:", states);
-  console.log("cities:", cities);
+
 
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
@@ -54,18 +53,19 @@ const Client = () => {
     }
   };
 
- 
-  const fetchCities = async (id) => {
+
+  const fetchCities = async (stateName) => {
     try {
-      if (!id) return setCities([]);
-      const res = await getStateByCity(id, token);
-      console.Consolelog("res",res)
-        setCities(res?.data || []);
-    
+      if (!stateName) return setCities([]);
+      const res = await getStateByCity(stateName, token);
+      console.log("cities response:", res);
+      setCities(res || []);
     } catch (error) {
       toast.error("Failed to load cities");
     }
   };
+
+
 
   useEffect(() => {
     fetchClients();
@@ -80,9 +80,15 @@ const Client = () => {
     setStateId(client?.stateId || "");
     setCityId(client?.cityId || "");
     setDob(client?.dob || "");
-    if (client?.stateId) fetchCities(client.stateId);
+
+    if (client?.stateId) {
+      const stateObj = states.find((s) => s._id === client.stateId);
+      if (stateObj) fetchCities(stateObj.name);
+    }
+
     setOpen(true);
   };
+
 
   const handleCancel = () => {
     setOpen(false);
@@ -282,19 +288,25 @@ const Client = () => {
                   <select
                     value={stateId}
                     onChange={(e) => {
-                      setStateId(e.target.value);
+                      const selectedStateId = e.target.value;
+                      setStateId(selectedStateId);
                       setCityId("");
-                      fetchCities(e.target.value);
+
+                      const stateObj = states.find((s) => s._id === selectedStateId);
+                      if (stateObj) fetchCities(stateObj.name); // pass name to API
+                      else setCities([]);
                     }}
                     className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   >
                     <option value="">Select State</option>
-                    {states?.map((s) => (
+                    {states.map((s) => (
                       <option key={s._id} value={s._id}>
                         {s.name}
                       </option>
                     ))}
                   </select>
+
+
                 </div>
 
                 <div>
@@ -307,10 +319,11 @@ const Client = () => {
                     <option value="">Select City</option>
                     {cities.map((c) => (
                       <option key={c._id} value={c._id}>
-                        {c.name}
+                        {c.city}
                       </option>
                     ))}
                   </select>
+
                 </div>
 
 
