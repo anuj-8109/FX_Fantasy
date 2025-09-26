@@ -644,6 +644,21 @@ class Users {
         });
       }
 
+// ✅ Check for duplicate email (other clients only)
+    const existingEmailClient = await Users_Modal.findOne({
+      Email,
+      _id: { $ne: id },
+      del: 0
+    });
+
+    if (existingEmailClient) {
+      return res.status(400).json({
+        status: false,
+        message: "This email is already in use by another account"
+      });
+    }
+
+
       // Update the user's profile information
       if (FullName) user.FullName = FullName;
       if (Email) user.Email = Email;
