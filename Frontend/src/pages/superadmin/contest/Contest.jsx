@@ -74,6 +74,14 @@ const Contest = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, Delete",
       cancelButtonText: "Cancel",
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "text-xl font-semibold text-white-800",
+        confirmButton:
+          "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
+        cancelButton:
+          "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+      },
     });
 
     if (!confirm.isConfirmed) return;
@@ -161,6 +169,7 @@ const Contest = () => {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
+
     });
 
     if (!confirm.isConfirmed) return;
@@ -297,7 +306,7 @@ const Contest = () => {
 
   return (
     <Content Page_title="Contest Management" button_title="Back" button_status={true} route="/superadmin/dashboard"
-      // extra_button="Add Contest" extra_button_action={"/superadmin/add-contest"} 
+    // extra_button="Add Contest" extra_button_action={"/superadmin/add-contest"} 
     >
       <div className="p-2 ">
 
@@ -305,59 +314,114 @@ const Contest = () => {
           <Datatable columns={columns} data={contests} title="Contest List" onRefresh={fetchContests} />
         </div>
 
-
         {open && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <AddContest
-              token={token}
-              onSuccess={() => {
-                fetchContests();
-                setOpen(false);
-              }}
-              onCancel={() => setOpen(false)}
-            />
-          </div>
-        )}
-
-        {viewOpen && viewContest && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 ">
-            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
+          <div
+            className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40"
+            onClick={handleCancel} // overlay pe click karte hi close
+          >
+            <div
+              className="w-full max-w-xl rounded-2xl bg-white shadow-2xl p-6 mt-10"
+              onClick={(e) => e.stopPropagation()} // andar click karne se band na ho
+            >
               <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
-                <span>👁️ Contest Details</span>
+                <span>{selectedContest ? "✏️ Edit Contest" : "➕ Add Contest"}</span>
                 <button
-                  onClick={() => {
-                    setViewOpen(false);
-                    setViewContest(null);
-                  }}
+                  onClick={handleCancel}
                   className="text-gray-500 hover:text-gray-700"
                 >
                   ✖
                 </button>
               </h2>
 
-              <div className="space-y-3">
-                <p><strong>Name:</strong> {viewContest?.name}</p>
-                <p><strong>Description:</strong> {viewContest?.description}</p>
-                <p><strong>Entry Fee:</strong> {viewContest?.entry_fee}</p>
-                <p><strong>Total Spots:</strong> {viewContest?.total_spots}</p>
-                <p><strong>Prize Pool:</strong> {viewContest?.prize_pool}</p>
-                <p><strong>Status:</strong> {viewContest?.status}</p>
-              </div>
+              {/* Form */}
+              <form onSubmit={handleSave} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium">Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full border rounded-md p-2"
+                    required
+                  />
+                </div>
 
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={() => {
-                    setViewOpen(false);
-                    setViewContest(null);
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md"
-                >
-                  Close
-                </button>
-              </div>
+                <div>
+                  <label className="block text-sm font-medium">Description</label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full border rounded-md p-2"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium">Entry Fee</label>
+                    <input
+                      type="number"
+                      value={entryFee}
+                      onChange={(e) => setEntryFee(e.target.value)}
+                      className="w-full border rounded-md p-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium">Total Spots</label>
+                    <input
+                      type="number"
+                      value={totalSpots}
+                      onChange={(e) => setTotalSpots(e.target.value)}
+                      className="w-full border rounded-md p-2"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">Prize Pool</label>
+                  <input
+                    type="number"
+                    value={prizePool}
+                    onChange={(e) => setPrizePool(e.target.value)}
+                    className="w-full border rounded-md p-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">Status</label>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    className="w-full border rounded-md p-2"
+                  >
+                    <option value="upcoming">Upcoming</option>
+                    <option value="live">Live</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
+
+                <div className="flex justify-end gap-3 mt-4">
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                  >
+                    {selectedContest ? "Update" : "Save"}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
+
+
+
+
       </div>
     </Content>
   );

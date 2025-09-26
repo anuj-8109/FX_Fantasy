@@ -73,6 +73,14 @@ const AllUsers = () => {
       cancelButtonColor: "#6b7280",
       confirmButtonText: isEnabling ? "Yes, Activate" : "Yes, Deactivate",
       cancelButtonText: "Cancel",
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "text-xl font-semibold text-white-800",
+        confirmButton:
+          "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
+        cancelButton:
+          "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+      },
     });
 
     if (!confirm.isConfirmed) return;
@@ -86,6 +94,7 @@ const AllUsers = () => {
           title: "Success",
           text: response?.message || "User status updated successfully.",
           confirmButtonColor: "#2563eb",
+          
         });
 
         setAllUsers((prev) =>
@@ -133,6 +142,14 @@ const AllUsers = () => {
       inputValue: currentPermissions,
       confirmButtonText: "Update",
       showCancelButton: true,
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "text-xl font-semibold text-white-800",
+        confirmButton:
+          "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
+        cancelButton:
+          "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+      },
     });
 
     if (!selectedPermissions || selectedPermissions.length === 0) {
@@ -287,7 +304,7 @@ const AllUsers = () => {
 
 
         <div className=" border shadow-lg rounded-xl  ">
-          <Datatable columns={columns} data={allusers} title="Users List" />
+          <Datatable columns={columns} data={allusers} title="Users List" onRefresh={fetchAllUsers} />
         </div>
       </div>
     </Content>

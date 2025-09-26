@@ -24,12 +24,18 @@ const UserProfile = () => {
                 const response = await GetUserDetails(token, id);
                 setUserDetails(response?.data);
                 setName(response?.data?.FullName || "");
+
+                // ✅ Agar user ke pass image hai to state me set karo
+                if (response?.data?.image) {
+                    setSelectedImage(`${config.image_url}uploads/clients/${response.data.image}`);
+                }
             } catch (error) {
                 console.error("Error fetching user details:", error);
             }
         };
         fetchUserDetails();
     }, [token, id]);
+
 
     useEffect(() => {
         const fetchBankDetails = async () => {

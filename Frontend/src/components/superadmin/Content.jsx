@@ -51,7 +51,7 @@ const Content = ({
             typeof extra_button_action === "function" ? (
               <button
                 onClick={extra_button_action}
-                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm rounded text-white"
+                 className="px-3 py-1 border rounded-lg shadow hover:bg-green-500 transition flex items-center gap-2 text-sm font-medium"
               >
                 {extra_button}
               </button>

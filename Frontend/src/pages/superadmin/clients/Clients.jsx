@@ -157,14 +157,14 @@ const Client = () => {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
-      customClass: {
-        popup: "custom-swal-popup",
-        title: "text-xl font-semibold text-white-800",
-        confirmButton:
-          "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
-        cancelButton:
-          "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
-      },
+        customClass: {
+          popup: "custom-swal-popup",
+          title: "text-xl font-semibold text-white-800",
+          confirmButton:
+            "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
+          cancelButton:
+            "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+        },
     });
 
     if (!confirm.isConfirmed) return;
@@ -241,16 +241,16 @@ const Client = () => {
 
   return (
     <Content Page_title="Client Management" button_title="Back" button_status={true}
-      route={"/superadmin/dashboard"} extra_button="Add Client"
-      extra_button_action={handleOpen} >
+      route={"/superadmin/dashboard"} extra_button="Add client"
+    extra_button_action={() => handleOpen(null)}   >
       <div className="p-2">
         <div className="shadow-lg rounded-xl p-4 ">
           <Datatable columns={columns} data={clients} title="Client List" onRefresh={fetchClients} />
         </div>
 
         {open && (
-          <div className="fixed mt-5 inset-0 flex items-center justify-center z-50 bg-opacity-40 client-style">
-            <div className=" w-lg max-h-[80vh] overflow-y-auto Add-client-style shadow-2xl p-6 hide-scrollbar">
+          <div className="fixed mt-5 inset-0 flex items-center justify-center z-50 bg-opacity-40 ">
+            <div className=" w-lg max-h-[80vh] overflow-y-auto Add-client-style shadow-2xl p-6 hide-scrollbar client-style">
               <h2 className="text-lg font-semibold border-b pb-2">
                 {selectedClient ? "✏️ Edit Client" : "➕ Add Client"}
               </h2>

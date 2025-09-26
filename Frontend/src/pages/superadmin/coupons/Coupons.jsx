@@ -294,8 +294,8 @@ const Coupons = () => {
 
         {open && (
           <div className="fixed inset-0 flex items-center justify-center z-50 Coupons_style bg-opacity-40">
-            <div className="w-full max-w-2xl max-h-[85vh] mt-10 overflow-y-auto rounded-2xl shadow-2xl p-6 Add-client-style hide-scrollbar">
-              <h2 className="text-lg font-semibold mb-4 border-b pb-2">
+            <div className="w-full max-w-2xl max-h-[85vh] mt-10 overflow-y-auto rounded-2xl shadow-2xl p-6  hide-scrollbar Add-client-style">
+              <h2 className="text-lg font-semibold mb-4 border-b pb-2 ">
                 {selectedCoupon ? "✏️ Edit Coupon" : "➕ Add Coupon"}
               </h2>
               <form onSubmit={handleSave} className="space-y-4">
