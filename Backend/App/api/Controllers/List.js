@@ -12,7 +12,8 @@ const Tournament_Model = db.Tournament;
 const Contest_Model = db.Contest;
 const Contestjoin_Modal = db.Contestjoin;
 const Contesttrade_Modal = db.Contesttrade;
-
+const States = db.States;
+const City = db.City;
 
 
 mongoose = require('mongoose');
@@ -665,6 +666,27 @@ async getContestRanking(req, res) {
     });
   }
 }
+
+
+  async getAllStates(req, res) {
+    try {
+      const states = await States.find({}).toArray(); // MongoDB native driver ka use ho raha hai
+      res.status(200).json(states);
+    } catch (error) {
+      res.status(500).json({ error: "Something went wrong" });
+    }
+  }
+
+  async getCityByStates(req, res) {
+    try {
+      const stateName = decodeURIComponent(req.params.stateName); // "Madhya Pradesh"
+
+      const cities = await City.find({ state: stateName }).toArray(); // nativ
+      res.status(200).json(cities);
+    } catch (error) {
+      res.status(500).json({ error: "Something went wrong" });
+    }
+  }
 
 
 
