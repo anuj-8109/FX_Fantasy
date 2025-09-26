@@ -1444,7 +1444,27 @@ export async function getContestsByTournamentId(token, tournament_id) {
   }
  }
 
- 
+
+ export async function getStateByCity(stateId, token) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}api/list/getstatebycity/${encodeURIComponent(stateId)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        maxBodyLength: Infinity, // optional for large responses
+      }
+    );
+
+    return response?.data; 
+  } catch (error) {
+    console.error("Error fetching state by city:", error);
+    return error?.response?.data || { status: false, message: "Network Error" };
+  }
+}
+
+
 
 
 

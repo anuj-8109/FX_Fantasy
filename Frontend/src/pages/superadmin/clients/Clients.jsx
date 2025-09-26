@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/Datatable";
-import { FileText, Edit, Eye, Trash2 } from "lucide-react";
+import { Edit, Eye, Trash2 } from "lucide-react";
 import {
   AddClient,
   GetClientsWithFilter,
   DeleteClient,
-  GetClientDetails,
   UpdateClientStatus,
   UpdateClient,
+  getState,
+  getStateByCity,
 } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -23,27 +24,52 @@ const Client = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNo, setPhoneNo] = useState("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
   const [dob, setDob] = useState("");
+  const [stateId, setStateId] = useState("");
+  const [cityId, setCityId] = useState("");
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+ console.log("states:", states);
+  console.log("cities:", cities);
 
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
 
-  // fetch clients
+  // Fetch clients
   const fetchClients = async () => {
     setLoading(true);
     const response = await GetClientsWithFilter(token, {});
-    if (response?.status) {
-      setClients(response?.data);
-    } else {
-      toast.error(response?.message || "Failed to load clients");
-    }
+    if (response?.status) setClients(response?.data);
+    else toast.error(response?.message || "Failed to load clients");
     setLoading(false);
+  };
+
+  // Fetch states
+  const fetchStates = async () => {
+    try {
+      const res = await getState(token);
+      setStates(res || []);
+    } catch (error) {
+      toast.error("Failed to load states");
+    }
+  };
+
+ 
+  const fetchCities = async (id) => {
+    try {
+      if (!id) return setCities([]);
+      const res = await getStateByCity(id, token);
+      console.Consolelog("res",res)
+        setCities(res?.data || []);
+    
+    } catch (error) {
+      toast.error("Failed to load cities");
+    }
   };
 
   useEffect(() => {
     fetchClients();
+    fetchStates();
   }, []);
 
   const handleOpen = (client = null) => {
@@ -51,42 +77,11 @@ const Client = () => {
     setFullName(client?.FullName || "");
     setEmail(client?.Email || "");
     setPhoneNo(client?.PhoneNo || "");
-    setState(client?.state || "");
-    setCity(client?.city || "");
+    setStateId(client?.stateId || "");
+    setCityId(client?.cityId || "");
     setDob(client?.dob || "");
+    if (client?.stateId) fetchCities(client.stateId);
     setOpen(true);
-  };
-
-  const handleDelete = async (client) => {
-    const confirm = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to delete this client?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Delete",
-      cancelButtonText: "Cancel",
-      customClass: {
-        popup: "custom-swal-popup",
-        title: "text-xl font-semibold text-white-800",
-        confirmButton:
-          "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
-        cancelButton:
-          "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
-      },
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    setLoading(true);
-    const response = await DeleteClient(token, client._id);
-    setLoading(false);
-
-    if (response?.status) {
-      toast.success(response?.message || "Client deleted successfully");
-      fetchClients();
-    } else {
-      toast.error(response?.message || "Failed to delete client");
-    }
   };
 
   const handleCancel = () => {
@@ -95,8 +90,8 @@ const Client = () => {
     setFullName("");
     setEmail("");
     setPhoneNo("");
-    setState("");
-    setCity("");
+    setStateId("");
+    setCityId("");
     setDob("");
   };
 
@@ -121,35 +116,28 @@ const Client = () => {
       FullName: fullName,
       Email: email,
       PhoneNo: phoneNo,
-      state,
-      city,
+      stateId,
+      cityId,
       dob,
     };
-
     if (selectedClient) payload.id = selectedClient._id;
 
     setLoading(true);
     let response;
-    if (selectedClient) {
-      response = await UpdateClient(token, payload);
-    } else {
-      response = await AddClient(token, payload);
-    }
+    if (selectedClient) response = await UpdateClient(token, payload);
+    else response = await AddClient(token, payload);
 
     if (response?.status) {
       toast.success(response?.message || "Saved successfully");
       fetchClients();
       handleCancel();
-    } else {
-      toast.error(response?.message || "Failed to save");
-    }
+    } else toast.error(response?.message || "Failed to save");
 
     setLoading(false);
   };
 
   const handleStatusChange = async (client) => {
     const actionText = client.ActiveStatus === 1 ? "Deactivate" : "Activate";
-
     const confirm = await Swal.fire({
       title: `Are you sure?`,
       text: `Do you want to ${actionText} this client?`,
@@ -157,36 +145,39 @@ const Client = () => {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
-        customClass: {
-          popup: "custom-swal-popup",
-          title: "text-xl font-semibold text-white-800",
-          confirmButton:
-            "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
-          cancelButton:
-            "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
-        },
     });
 
     if (!confirm.isConfirmed) return;
 
-    let payload = {
+    const res = await UpdateClientStatus(token, {
       id: client._id,
       status: client.ActiveStatus === 1 ? "0" : "1",
-    };
-
-    console.log(payload);
-
-    const res = await UpdateClientStatus(token, payload);
+    });
 
     if (res?.status) {
       toast.success(res?.message || `Client ${actionText}d`);
       fetchClients();
-    } else {
-      toast.error(res?.message || "Failed to change status");
-    }
+    } else toast.error(res?.message || "Failed to change status");
   };
 
-  // datatable columns
+  const handleDelete = async (client) => {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to delete this client?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Delete",
+      cancelButtonText: "Cancel",
+    });
+    if (!confirm.isConfirmed) return;
+
+    const res = await DeleteClient(token, client._id);
+    if (res?.status) {
+      toast.success(res?.message || "Client deleted successfully");
+      fetchClients();
+    } else toast.error(res?.message || "Failed to delete client");
+  };
+
   const columns = [
     { name: "S.No", selector: (row, i) => i + 1, width: "80px" },
     { name: "Name", selector: (row) => row.FullName || "N/A", sortable: true },
@@ -213,14 +204,8 @@ const Client = () => {
       name: "Action",
       cell: (row) => (
         <div className="flex gap-3">
-          <Edit
-            className="cursor-pointer text-blue-600"
-            onClick={() => handleOpen(row)}
-          />
-          <Trash2
-            className="cursor-pointer text-red-600"
-            onClick={() => handleDelete(row)}
-          />
+          <Edit className="cursor-pointer text-blue-600" onClick={() => handleOpen(row)} />
+          <Trash2 className="cursor-pointer text-red-600" onClick={() => handleDelete(row)} />
         </div>
       ),
     },
@@ -240,26 +225,29 @@ const Client = () => {
   ];
 
   return (
-    <Content Page_title="Client Management" button_title="Back" button_status={true}
-      route={"/superadmin/dashboard"} extra_button="Add client"
-    extra_button_action={() => handleOpen(null)}   >
+    <Content
+      Page_title="Client Management"
+      button_title="Back"
+      button_status={true}
+      route={"/superadmin/dashboard"}
+      extra_button="Add client"
+      extra_button_action={() => handleOpen(null)}
+    >
       <div className="p-2">
-        <div className="shadow-lg rounded-xl p-4 ">
+        <div className="shadow-lg rounded-xl p-4">
           <Datatable columns={columns} data={clients} title="Client List" onRefresh={fetchClients} />
         </div>
 
+        {/* Add/Edit Client Modal */}
         {open && (
-          <div className="fixed mt-5 inset-0 flex items-center justify-center z-50 bg-opacity-40 ">
-            <div className=" w-lg max-h-[80vh] overflow-y-auto Add-client-style shadow-2xl p-6 hide-scrollbar client-style">
+          <div className="fixed mt-5 inset-0 flex items-center justify-center z-50 bg-opacity-40">
+            <div className="w-lg max-h-[80vh] overflow-y-auto Add-client-style shadow-2xl p-6 hide-scrollbar client-style">
               <h2 className="text-lg font-semibold border-b pb-2">
                 {selectedClient ? "✏️ Edit Client" : "➕ Add Client"}
               </h2>
 
-              <form
-                onSubmit={handleSave}
-                className="grid grid-cols-2 gap-4 mt-4"
-              >
-                <div className="">
+              <form onSubmit={handleSave} className="grid grid-cols-2 gap-4 mt-4">
+                <div>
                   <label className="text-sm">Full Name</label>
                   <input
                     type="text"
@@ -291,25 +279,42 @@ const Client = () => {
 
                 <div>
                   <label className="text-sm">State</label>
-                  <input
-                    type="text"
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
+                  <select
+                    value={stateId}
+                    onChange={(e) => {
+                      setStateId(e.target.value);
+                      setCityId("");
+                      fetchCities(e.target.value);
+                    }}
                     className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
-                  />
+                  >
+                    <option value="">Select State</option>
+                    {states?.map((s) => (
+                      <option key={s._id} value={s._id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
                   <label className="text-sm">City</label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
+                  <select
+                    value={cityId}
+                    onChange={(e) => setCityId(e.target.value)}
                     className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
-                  />
+                  >
+                    <option value="">Select City</option>
+                    {cities.map((c) => (
+                      <option key={c._id} value={c._id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                <div className="">
+
+                <div>
                   <label className="text-sm">DOB</label>
                   <input
                     type="date"
@@ -342,7 +347,7 @@ const Client = () => {
 
         {/* View Client */}
         {viewOpen && viewClient && (
-          <div className="fixed inset-0 flex items-center justify-center z-50  bg-opacity-40 ">
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-opacity-40">
             <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
               <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
                 <span>👁️ Client Details</span>
