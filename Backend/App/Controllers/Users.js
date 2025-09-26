@@ -194,6 +194,21 @@ class Users {
           message: "User ID is required",
         });
       }
+ const existingEmailClient = await Users_Modal.findOne({
+      Email,
+      _id: { $ne: id },
+      del: 0
+    });
+
+    if (existingEmailClient) {
+      return res.status(400).json({
+        status: false,
+        message: "This email is already in use by another account"
+      });
+    }
+
+
+
 
       // Find the User by ID and update their details
       const updatedUser = await Users_Modal.findByIdAndUpdate(
