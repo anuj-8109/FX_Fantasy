@@ -174,7 +174,7 @@ const EditUsers = () => {
     }
 
     return (
-     <Content Page_title="Edit User" button_status={true} button_title="Back" route={"/superadmin/alluser"} >
+     <Content Page_title="Edit Employee" button_status={true} button_title="Back" route={"/superadmin/alluser"} >
         <div className="min-h-screen bg-gray-50 p-4 md:p-8">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}

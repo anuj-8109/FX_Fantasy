@@ -1430,6 +1430,24 @@ export async function getContestsByTournamentId(token, tournament_id) {
 }
 
 
+// get state client
+ export async function getState(token){
+  try {
+    const response = await axios.get(`${config.base_url}api/list/getstates`,{
+      headers:{
+        Authorization: `Bearer ${token}`,
+      }
+    })
+    return response?.data
+  } catch (error) {
+    return error?.response?.data || {status: false , message:"Network Error"}
+  }
+ }
+
+ 
+
+
+
 
 
 

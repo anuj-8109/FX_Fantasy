@@ -281,8 +281,8 @@ const AllUsers = () => {
   ];
 
   return (
-    <Content Page_title="All Users" button_status={true} button_title="Back" route="/superadmin/dashboard"
-      extra_button="Add User"
+    <Content Page_title="All Employees" button_status={true} button_title="Back" route="/superadmin/dashboard"
+      extra_button="Add Employee"
       extra_button_action="/superadmin/addUser">
       <div className="p-8 min-h-screen AllUsers_Style">
         {/* <div className="flex items-center justify-between mb-6 border  rounded-xl shadow-sm p-2">
