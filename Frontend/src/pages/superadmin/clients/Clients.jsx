@@ -60,6 +60,20 @@ const Client = () => {
     fetchClients({ page: 1, limit: rowsPerPage, filter: text }); // reset to page 1
   };
 
+  function isValidAge(dob, minAge = 18) {
+    const birthDate = new Date(dob);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    return age >= minAge;
+  }
+
 
   // Fetch clients
   const fetchClients = async () => {
@@ -148,6 +162,17 @@ const Client = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
+
+    if (!dob) {
+      toast.error("Please enter Date of Birth");
+      return;
+    }
+
+    if (!isValidAge(dob, 18)) {
+      toast.error("Client must be at least 18 years old");
+      return;
+    }
+
     if (!stateId) {
       toast.error("Please select state");
       return;
@@ -166,12 +191,15 @@ const Client = () => {
 
     if (!confirm.isConfirmed) return;
 
+    const stateObj = states.find((s) => s._id === stateId);
+    const cityObj = cities.find((c) => c._id === cityId);
+
     let payload = {
       add_by,
       FullName: fullName,
       Email: email,
       PhoneNo: phoneNo,
-      state: stateObj?.name || "",   // 👈 backend ke hisaab se
+      state: stateObj?.name || "",
       city: cityObj?.city || "",
       dob,
     };
@@ -190,6 +218,7 @@ const Client = () => {
 
     setLoading(false);
   };
+
 
   const handleStatusChange = async (client) => {
     const actionText = client.ActiveStatus === 1 ? "Deactivate" : "Activate";
