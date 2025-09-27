@@ -70,6 +70,16 @@ const Datatable = ({
     },
     ...columns,
   ];
+  const filteredData = data.filter((row) =>
+    columns.some((col) => {
+      const value = col.selector ? col.selector(row) : row[col.id];
+      return value
+        ?.toString()
+        .toLowerCase()
+        .includes(filterText.toLowerCase());
+    })
+  );
+
 
   return (
     <div className="w-full space-y-0 custom-datatable Search_btn">
@@ -117,11 +127,10 @@ const Datatable = ({
           {showExport && (
             <button
               onClick={handleExport}
-              className={`inline-flex items-center gap-2 px-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                theme === "dark"
+              className={`inline-flex items-center gap-2 px-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${theme === "dark"
                   ? "bg-blue-600 hover:bg-blue-700 text-white"
                   : "bg-blue-600 hover:bg-blue-700 text-white"
-              } shadow-sm hover:shadow-md`}
+                } shadow-sm hover:shadow-md`}
             >
               <Download className="h-4 w-4" />
               Export CSV
@@ -133,7 +142,7 @@ const Datatable = ({
       {/* DataTable */}
       <DataTable
         columns={enhancedColumns}
-        data={data}
+        data={filteredData}
         pagination
         paginationServer
         paginationTotalRows={totalRows}
