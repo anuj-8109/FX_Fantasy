@@ -40,6 +40,9 @@ const Client = () => {
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
 
+  let stateObj = states.find((s) => s._id === stateId);
+  let cityObj = cities.find((c) => c._id === cityId);
+
   const handlePageChange = (page) => {
     setCurrentPage(page);
     fetchClients({ page, limit: rowsPerPage, filter: filterText });
@@ -110,7 +113,7 @@ const Client = () => {
 
 
   useEffect(() => {
-    fetchClients({currentPage, rowsPerPage, filterText});
+    fetchClients({ currentPage, rowsPerPage, filterText });
     fetchStates();
   }, [currentPage, rowsPerPage, filterText]);
 
@@ -145,6 +148,10 @@ const Client = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (!stateId) {
+      toast.error("Please select state");
+      return;
+    }
 
     const confirm = await Swal.fire({
       title: selectedClient ? "Update Client?" : "Add Client?",
@@ -164,8 +171,8 @@ const Client = () => {
       FullName: fullName,
       Email: email,
       PhoneNo: phoneNo,
-      stateId,
-      cityId,
+      state: stateObj?.name || "",   // 👈 backend ke hisaab se
+      city: cityObj?.city || "",
       dob,
     };
     if (selectedClient) payload.id = selectedClient._id;
@@ -361,7 +368,7 @@ const Client = () => {
                       setCityId("");
 
                       const stateObj = states.find((s) => s._id === selectedStateId);
-                      if (stateObj) fetchCities(stateObj.name); // pass name to API
+                      if (stateObj) fetchCities(stateObj.name);
                       else setCities([]);
                     }}
                     className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
@@ -448,25 +455,27 @@ const Client = () => {
                     <tr className="bg-gray-100 text-left">
                       <th className="px-4 py-2 border">#</th>
                       <th className="px-4 py-2 border">Bank Name</th>
+                      <th className="px-4 py-2 border">Branch Name</th>
                       <th className="px-4 py-2 border">Account No</th>
                       <th className="px-4 py-2 border">IFSC</th>
-                      <th className="px-4 py-2 border">Status</th>
+                      {/* <th className="px-4 py-2 border">Status</th> */}
                     </tr>
                   </thead>
                   <tbody>
                     {bankDetails.map((item, index) => (
                       <tr key={index} className="hover:bg-gray-50">
                         <td className="px-4 py-2 border">{index + 1}</td>
-                        <td className="px-4 py-2 border">{item.bank_name}</td>
-                        <td className="px-4 py-2 border">{item.account_number}</td>
-                        <td className="px-4 py-2 border">{item.ifsc_code}</td>
-                        <td className="px-4 py-2 border">
+                        <td className="px-4 py-2 border">{item.name}</td>
+                        <td className="px-4 py-2 border">{item.branch}</td>
+                        <td className="px-4 py-2 border">{item.accountno}</td>
+                        <td className="px-4 py-2 border">{item.ifsc}</td>
+                        {/* <td className="px-4 py-2 border">
                           {item.status == "approved" ? (
                             <span className="text-green-600 font-semibold">Approved</span>
                           ) : (
                             <span className="text-yellow-600 font-semibold">Pending</span>
                           )}
-                        </td>
+                        </td> */}
                       </tr>
                     ))}
                   </tbody>

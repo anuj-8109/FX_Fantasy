@@ -181,7 +181,8 @@ function Chatreply() {
                   key={msg._id}
                   className={`flex ${isAdmin ? "justify-end" : "justify-start"} mb-2`}
                 >
-                  <div className={`flex ${isAdmin ? "flex-row-reverse" : "flex-row"} items-end`}>
+               <div className={`flex ${isAdmin ? "flex-row-reverse" : "flex-row"} items-end gap-1`}>
+
                     {/* Profile Image or Initial */}
                     {msg.profileImage ? (
                       <img
@@ -190,21 +191,29 @@ function Chatreply() {
                         className="w-8 h-8 rounded-full border border-gray-300"
                       />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-gray-400 text-white flex items-center justify-center border border-gray-300 text-sm font-bold">
+                      <div className="w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center border border-gray-300 text-xs font-bold">
                         {initial}
                       </div>
+
                     )}
                     {/* Message Bubble */}
-                    <div className={`max-w-[70%] px-4 py-2 rounded-lg shadow ${isAdmin ? "bg-blue-100" : "bg-green-100"} break-words`}>
-                      <p className="text-sm font-semibold mb-1">{name}</p>
-                      <p>{msg.message}</p>
-                      <p className="text-xs text-gray-500 text-right mt-1">{formatTime(msg.created_at)}</p>
+                    <div className={`max-w-[55%] px-2 py-1 rounded-xl shadow-sm ${isAdmin ? "bg-blue-100" : "bg-green-100"} break-words`}>
+                      <p className="text-sm">{msg.message}</p>
+
                       {msg.attachment && (
-                        <a href={msg.attachment} target="_blank" className="text-blue-500 hover:underline text-xs block mt-1" rel="noreferrer">
+                        <a
+                          href={msg.attachment}
+                          target="_blank"
+                          className="text-blue-500 hover:underline text-xs block mt-1"
+                          rel="noreferrer"
+                        >
                           Attachment
                         </a>
                       )}
+
+                      <p className="text-[10px] text-gray-500 text-right mt-1">{formatTime(msg.created_at)}</p>
                     </div>
+
                   </div>
                 </div>
               );

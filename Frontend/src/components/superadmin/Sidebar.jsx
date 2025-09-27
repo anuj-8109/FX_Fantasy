@@ -91,11 +91,11 @@ const menuItems = [
     url: "/superadmin/kycapproval",
     icon: <LifeBuoy />,
   },
-   {
-    title: "Bank details",
-    url: "/superadmin/bankdetail",
-    icon: <LifeBuoy />,
-  },
+  //  {
+  //   title: "Bank details",
+  //   url: "/superadmin/bankdetail",
+  //   icon: <LifeBuoy />,
+  // },
   {
     title: "HelpDesk",
     url: "/superadmin/help",
