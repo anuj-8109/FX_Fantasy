@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "../../../extracomponents/DatatablePagination";
 import { Edit, Eye, Trash2 } from "lucide-react";
 import {
   AddClient,
@@ -9,6 +9,7 @@ import {
   UpdateClient,
   getState,
   getStateByCity,
+  getBankdetails
 } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -29,18 +30,59 @@ const Client = () => {
   const [cityId, setCityId] = useState("");
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
-
+  const [bankOpen, setBankOpen] = useState(false);
+  const [bankDetails, setBankDetails] = useState([]);
+  const [totalRows, setTotalRows] = useState(0);
+const [currentPage, setCurrentPage] = useState(1);
+const [rowsPerPage, setRowsPerPage] = useState(10);
+const [filterText, setFilterText] = useState("");
 
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
 
+ const handlePageChange = (page) => {
+  setCurrentPage(page);
+  fetchClients({ page, limit: rowsPerPage, filter: filterText });
+};
+
+const handleRowsPerPageChange = (newPerPage, page) => {
+  setRowsPerPage(newPerPage);
+  setCurrentPage(page);
+  fetchClients({ page, limit: newPerPage, filter: filterText });
+};
+
+
+const handleFilterChange = (text) => {
+  setFilterText(text);
+  fetchClients({ page: 1, limit: rowsPerPage, filter: text }); // reset to page 1
+};
+
+
   // Fetch clients
   const fetchClients = async () => {
     setLoading(true);
-    const response = await GetClientsWithFilter(token, {});
-    if (response?.status) setClients(response?.data);
-    else toast.error(response?.message || "Failed to load clients");
+    const data = {status: "", kyc_verification :"",  search:"", add_by :"", page: currentPage , limit :rowsPerPage}
+    const response = await GetClientsWithFilter(token,data);
+    if (response?.status) {
+      setClients(response?.data);
+       setTotalRows(response?.pagination.totalRecords);
+  }else toast.error(response?.message || "Failed to load clients");
     setLoading(false);
+  };
+
+  const fetchBankDetails = async (client_id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await getBankdetails(token, client_id);
+      if (res?.status) {
+        setBankDetails(res?.data || []);
+        setBankOpen(true);
+      } else {
+        toast.error(res?.message || "Failed to fetch bank details");
+      }
+    } catch (error) {
+      toast.error("Error fetching bank details");
+    }
   };
 
   // Fetch states
@@ -70,7 +112,7 @@ const Client = () => {
   useEffect(() => {
     fetchClients();
     fetchStates();
-  }, []);
+  }, [currentPage , rowsPerPage]);
 
   const handleOpen = (client = null) => {
     setSelectedClient(client);
@@ -185,7 +227,6 @@ const Client = () => {
   };
 
   const columns = [
-    { name: "S.No", selector: (row, i) => i + 1, width: "80px" },
     { name: "Name", selector: (row) => row.FullName || "N/A", sortable: true },
     { name: "Email", selector: (row) => row.Email || "N/A" },
     { name: "Phone", selector: (row) => row.PhoneNo || "N/A" },
@@ -216,6 +257,19 @@ const Client = () => {
       ),
     },
     {
+      name: "Bank Details",
+      cell: (row) => (
+        <button
+          className="px-2 py-1 bg-purple-600 text-white rounded-md text-sm"
+          onClick={() => fetchBankDetails(row._id)}
+        >
+          View Banks
+        </button>
+      ),
+
+    },
+
+    {
       name: "View",
       cell: (row) => (
         <Eye
@@ -241,7 +295,21 @@ const Client = () => {
     >
       <div className="p-2">
         <div className="shadow-lg rounded-xl p-4">
-          <Datatable columns={columns} data={clients} title="Client List" onRefresh={fetchClients} />
+          {/* <Datatable columns={columns}
+           data={clients} 
+           title="Client List"
+            onRefresh={fetchClients} /> */}
+           <Datatable
+  columns={columns}
+  data={clients}
+  totalRows={totalRows}
+  currentPage={currentPage}
+  rowsPerPage={rowsPerPage}
+  onPageChange={handlePageChange}
+  onRowsPerPageChange={handleRowsPerPageChange}
+  filterText={filterText}
+  onFilterChange={handleFilterChange}
+/>
         </div>
 
         {/* Add/Edit Client Modal */}
@@ -357,6 +425,59 @@ const Client = () => {
             </div>
           </div>
         )}
+
+        {bankOpen && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-opacity-40">
+            <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl p-6 overflow-auto max-h-[80vh]">
+              <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
+                <span>🏦 Bank Details</span>
+                <button
+                  onClick={() => {
+                    setBankOpen(false);
+                    setBankDetails([]);
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✖
+                </button>
+              </h2>
+
+              {bankDetails.length > 0 ? (
+                <table className="min-w-full border border-gray-300 rounded-lg">
+                  <thead>
+                    <tr className="bg-gray-100 text-left">
+                      <th className="px-4 py-2 border">#</th>
+                      <th className="px-4 py-2 border">Bank Name</th>
+                      <th className="px-4 py-2 border">Account No</th>
+                      <th className="px-4 py-2 border">IFSC</th>
+                      <th className="px-4 py-2 border">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bankDetails.map((item, index) => (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="px-4 py-2 border">{index + 1}</td>
+                        <td className="px-4 py-2 border">{item.bank_name}</td>
+                        <td className="px-4 py-2 border">{item.account_number}</td>
+                        <td className="px-4 py-2 border">{item.ifsc_code}</td>
+                        <td className="px-4 py-2 border">
+                          {item.status == "approved" ? (
+                            <span className="text-green-600 font-semibold">Approved</span>
+                          ) : (
+                            <span className="text-yellow-600 font-semibold">Pending</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-gray-500">No bank details found.</p>
+              )}
+            </div>
+          </div>
+        )}
+
 
         {/* View Client */}
         {viewOpen && viewClient && (

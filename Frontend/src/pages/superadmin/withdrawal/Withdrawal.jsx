@@ -90,7 +90,7 @@ const WithdrawalRequest = () => {
   };
 
   const columns = [
-    { name: "S.No", selector: (row, i) => i + 1, width: "70px" },
+   
     { name: "ID", selector: (row) => row._id },
     { name: "Client ID", selector: (row) => row.clientid },
     { name: "Amount", selector: (row) => `₹${row.amount}` },

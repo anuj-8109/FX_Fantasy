@@ -38,6 +38,8 @@ import Withdrawal from "../pages/superadmin/withdrawal/Withdrawal"
 import Viewtournamentcontest from "../pages/superadmin/contest/Viewtournamentcontest";
 import Kycinformation from "../pages/superadmin/basicsettings/kycinformation";
 import Referearn from "../pages/superadmin/basicsettings/Referearn";
+import Kycapproval from "../pages/superadmin/kycapproval/Kycapproval";
+import Bankdetails from "../pages/superadmin/bankdetails/Bankdetails";
 const SuperAdminRoutes = () => {
 
   return (
@@ -80,6 +82,8 @@ const SuperAdminRoutes = () => {
         <Route path="tournamentcontest" element={<Viewtournamentcontest/>}/>
         <Route path="kycinformation" element={<Kycinformation/>}/>
         <Route path="referearn" element={<Referearn/>}/>
+        <Route path="kycapproval" element={<Kycapproval/>}/>
+        <Route path="bankdetail"  element={<Bankdetails/>}/>
       </Route>
     </>
   );

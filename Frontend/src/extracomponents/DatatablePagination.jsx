@@ -1,30 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
 import { Search, RefreshCw, Download, FileText, X } from "lucide-react";
 
 const Datatable = ({
   columns,
-  data,
+  data = [],
+  totalRows = 0,
+  currentPage = 1,
+  rowsPerPage = 10,
+  onPageChange,
+  onRowsPerPageChange,
+  onRefresh,
   title,
-  subtitle,
   showExport = true,
   showRefresh = true,
-  onRefresh,
-  customStyles = {},
   theme = "light",
+  filterText: parentFilterText = "",
+  onFilterChange,
 }) => {
-  const [filterText, setFilterText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [filterText, setFilterText] = useState(parentFilterText);
 
-  const filteredData = data?.filter((item) =>
-    Object.values(item)
-      .join(" ")
-      .toLowerCase()
-      .includes(filterText.toLowerCase())
-  );
+  useEffect(() => {
+    setFilterText(parentFilterText);
+  }, [parentFilterText]);
 
   const handleRefresh = async () => {
     if (onRefresh) {
@@ -37,7 +36,7 @@ const Datatable = ({
   const handleExport = () => {
     const csvContent = [
       columns.map((col) => col.name).join(","),
-      ...filteredData.map((row) =>
+      ...data.map((row) =>
         columns
           .map((col) => {
             const value = col.selector ? col.selector(row) : row[col.id] || "";
@@ -63,7 +62,6 @@ const Datatable = ({
     selectAllRowsItemText: "All",
   };
 
-  // Add S.No column dynamically
   const enhancedColumns = [
     {
       name: "S.No",
@@ -75,24 +73,29 @@ const Datatable = ({
 
   return (
     <div className="w-full space-y-0 custom-datatable Search_btn">
+      {/* Search and action buttons */}
       <div className="relative flex justify-between px-1 py-2 border-b Search_btn">
         <div className="relative max-w-md">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-gray-400" />
           </div>
-
           <input
             type="text"
             placeholder="Search across all columns..."
             className="block w-full pl-10 pr-10 py-2.5 rounded-lg text-sm transition-all duration-200 border focus:outline-none"
             value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
+            onChange={(e) => {
+              setFilterText(e.target.value);
+              if (onFilterChange) onFilterChange(e.target.value);
+            }}
           />
-
           {filterText && (
             <button
               type="button"
-              onClick={() => setFilterText("")}
+              onClick={() => {
+                setFilterText("");
+                if (onFilterChange) onFilterChange("");
+              }}
               className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center justify-center h-6 w-6 rounded-full border border-gray-400 bg-white hover:bg-gray-200"
             >
               <X className="h-4 w-4" />
@@ -111,7 +114,6 @@ const Datatable = ({
               Refresh
             </button>
           )}
-
           {showExport && (
             <button
               onClick={handleExport}
@@ -128,39 +130,36 @@ const Datatable = ({
         </div>
       </div>
 
-      <div key={refreshKey}>
-        <DataTable
-          columns={enhancedColumns}
-          data={filteredData}
-          pagination
-          paginationPerPage={rowsPerPage}
-          paginationRowsPerPageOptions={[2, 5, 10, 15, 20, 25, 50]}
-          onChangePage={(page) => setCurrentPage(page)}
-          onChangeRowsPerPage={(newPerPage, page) => {
-            setRowsPerPage(newPerPage);
-            setCurrentPage(page); // adjust page if needed
-          }}
-          highlightOnHover
-          striped={false}
-          fixedHeader
-          fixedHeaderScrollHeight="1000px"
-          responsive
-          paginationComponentOptions={paginationComponentOptions}
-          progressPending={isLoading}
-          progressComponent={
-            <div className="flex flex-col items-center justify-center py-16 space-y-4 Search_btn">
-              <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
-              <p className="text-sm">Loading data...</p>
-            </div>
-          }
-          noDataComponent={
-            <div className="flex flex-col items-center justify-center py-16 space-y-4 Search_btn">
-              <FileText className="w-12 h-12" />
-              <p className="text-lg font-medium">No data available</p>
-            </div>
-          }
-        />
-      </div>
+      {/* DataTable */}
+      <DataTable
+        columns={enhancedColumns}
+        data={data}
+        pagination
+        paginationServer
+        paginationTotalRows={totalRows}
+        paginationPerPage={rowsPerPage}
+        paginationRowsPerPageOptions={[2, 5, 10, 15, 20, 25, 50]}
+        onChangePage={onPageChange}
+        onChangeRowsPerPage={onRowsPerPageChange}
+        highlightOnHover
+        fixedHeader
+        fixedHeaderScrollHeight="600px"
+        responsive
+        paginationComponentOptions={paginationComponentOptions}
+        progressPending={isLoading}
+        progressComponent={
+          <div className="flex flex-col items-center justify-center py-16 space-y-4">
+            <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
+            <p className="text-sm">Loading data...</p>
+          </div>
+        }
+        noDataComponent={
+          <div className="flex flex-col items-center justify-center py-16 space-y-4">
+            <FileText className="w-12 h-12" />
+            <p className="text-lg font-medium">No data available</p>
+          </div>
+        }
+      />
     </div>
   );
 };

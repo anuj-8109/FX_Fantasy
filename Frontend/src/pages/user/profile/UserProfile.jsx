@@ -25,7 +25,6 @@ const UserProfile = () => {
                 setUserDetails(response?.data);
                 setName(response?.data?.FullName || "");
 
-                // ✅ Agar user ke pass image hai to state me set karo
                 if (response?.data?.image) {
                     setSelectedImage(`${config.image_url}uploads/clients/${response.data.image}`);
                 }
@@ -175,13 +174,24 @@ const UserProfile = () => {
                                 <div className="border p-4 rounded-lg bg-gray-50">
                                     <p className="font-medium mb-2">KYC Verification</p>
                                     <p className="text-sm text-gray-600">Required for withdrawals.</p>
-                                    <button
-                                        onClick={() => navigate("/kycdetail")}
-                                        className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
-                                    >
-                                        Complete KYC
-                                    </button>
+
+                                    {userDetails?.kyc_verification === 1 ? (
+                                        <button
+                                            disabled
+                                            className="mt-2 px-4 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed text-sm"
+                                        >
+                                            Completed
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => navigate("/kycdetail")}
+                                            className="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                                        >
+                                            Complete KYC
+                                        </button>
+                                    )}
                                 </div>
+
 
                                 <div className="border p-4 rounded-lg bg-gray-50">
                                     <p className="font-medium mb-2">Bank / UPI Details</p>

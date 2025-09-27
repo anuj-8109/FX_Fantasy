@@ -991,9 +991,9 @@ export async function AddClient(token, data) {
   }
 }
 
-export async function GetClientsWithFilter(token, filters) {
+export async function GetClientsWithFilter(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}client/listwithfilter`, filters, {
+    const response = await axios.post(`${config.base_url}client/listwithfilter`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -1462,6 +1462,21 @@ export async function getStateByCity(stateName, token) {
   }
 }
 
+// getKycdetails
+
+export async function getBankdetails(token, client_id) {
+  try {
+    const response = await axios.get(`${config.base_url}client/listbankdetails`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: { client_id }   
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Server error" };
+  }
+}
 
 
 

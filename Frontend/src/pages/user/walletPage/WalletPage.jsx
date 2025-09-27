@@ -6,8 +6,11 @@ import {
   WalletHistory,
   withdrolmoney,
   withdrolHistory,
+  GetUserDetails,
 } from "../../../services/User";
 import BackButton from "../../../pages/user/Backbutton";
+
+
 
 const WalletPage = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -20,9 +23,12 @@ const WalletPage = () => {
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [userDetails, setUserDetails] = useState(null);
 
 
-  // Load Razorpay
+  const kycVerified = userDetails?.kyc_verification === 1;
+
+
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
       const script = document.createElement("script");
@@ -33,7 +39,7 @@ const WalletPage = () => {
     });
   };
 
-  // Add Money Function
+
   const handleAddMoney = async () => {
     const { value: amount } = await Swal.fire({
       title: "Add Money to Wallet",
@@ -105,23 +111,37 @@ const WalletPage = () => {
     }
   };
 
+  const fetchUser = async () => {
+    try {
+      const id = localStorage.getItem("userId");
+      const token = localStorage.getItem("token");
+      const res = await GetUserDetails(token, id); // aapka API function
+      if (res?.status) setUserDetails(res.data);
+    } catch (error) {
+      console.error("Failed to fetch user details", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+
   // Withdraw Function
   const handleWithdraw = async () => {
     const { value: formValues } = await Swal.fire({
       title: "Withdraw Money",
       html:
-        `<input id="swal-account" class="swal2-input" placeholder="Account Number" style="margin-bottom: 10px;">` +
-        `<input id="swal-ifsc" class="swal2-input" placeholder="IFSC Code" style="margin-bottom: 10px;">` +
+
         `<input id="swal-amount" type="number" class="swal2-input" placeholder="Amount (₹)" style="margin-bottom: 10px;">`,
       focusConfirm: false,
       showCancelButton: true,
       confirmButtonText: "Submit Withdrawal",
       cancelButtonText: "Cancel",
       preConfirm: () => {
-        const account = document.getElementById("swal-account").value;
-        const ifsc = document.getElementById("swal-ifsc").value;
+
         const amount = document.getElementById("swal-amount").value;
-        if (!account || !ifsc || !amount || amount <= 0) {
+        if (!amount || amount <= 0) {
           Swal.showValidationMessage("Please fill all fields with valid data");
           return null;
         }
@@ -129,7 +149,7 @@ const WalletPage = () => {
           Swal.showValidationMessage("Minimum withdrawal amount is ₹100");
           return null;
         }
-        return { account, ifsc, amount };
+        return { amount };
       },
     });
 
@@ -137,7 +157,7 @@ const WalletPage = () => {
       const data = {
         clientId: userId,
         amount: parseInt(formValues.amount),
-        remark: `Withdraw to A/C ${formValues.account}, IFSC ${formValues.ifsc}`,
+        // remark: `Withdraw to A/C ${formValues.account}, IFSC ${formValues.ifsc}`,
         type: "withdraw",
         date: new Date().toISOString(),
       };
@@ -397,7 +417,7 @@ const WalletPage = () => {
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         {/* Left: Back button + Heading */}
         <div className="flex items-center ">
-         <BackButton showText={false} />
+          <BackButton showText={false} />
           <h1 className="text-2xl font-extrabold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent flex items-center gap-2">
             <Wallet size={20} />
             Wallet Management
@@ -408,14 +428,22 @@ const WalletPage = () => {
         <div className="flex flex-wrap gap-3">
           <button
             onClick={handleAddMoney}
-            className="px-3 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2 font-medium"
+            className="px-3 py-2 rounded-xl shadow-md flex items-center gap-2 font-medium text-white transition-all duration-200
+  bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-lg hover:scale-105"
           >
             <Plus size={18} />
             Add Money
           </button>
+
+
           <button
-            onClick={handleWithdraw}
-            className="px-3 py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2 font-medium"
+            onClick={kycVerified ? handleWithdraw : () => Swal.fire("KYC Pending", "Please complete KYC to use wallet features.", "warning")}
+          
+            className={`px-3 py-2 rounded-xl shadow-md flex items-center gap-2 font-medium text-white transition-all duration-200
+    ${kycVerified
+                ? "bg-gradient-to-r from-red-500 to-rose-600 hover:shadow-lg hover:scale-105"
+                : "bg-gray-400 cursor-not-allowed"
+              }`}
           >
             <Minus size={18} />
             Withdraw
@@ -459,7 +487,6 @@ const WalletPage = () => {
           </div>
         )}
 
-        {/* Click outside to close dropdown */}
         {dropdownOpen && (
           <div
             className="fixed inset-0 z-0"
@@ -469,7 +496,6 @@ const WalletPage = () => {
       </div>
 
 
-      {/* Date Filters */}
       <div className="flex flex-wrap gap-4 items-center mb-8 p-5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 shadow-sm">
         <div className="flex items-center gap-2">
           <Calendar size={18} className="text-orange-500" />

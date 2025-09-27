@@ -86,6 +86,16 @@ const menuItems = [
     url: "/superadmin/withdrawal",
     icon: <Banknote />,
   },
+   {
+    title: "Kyc Approval",
+    url: "/superadmin/kycapproval",
+    icon: <LifeBuoy />,
+  },
+   {
+    title: "Bank details",
+    url: "/superadmin/bankdetail",
+    icon: <LifeBuoy />,
+  },
   {
     title: "HelpDesk",
     url: "/superadmin/help",

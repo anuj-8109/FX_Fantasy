@@ -145,56 +145,62 @@ function Pricepol() {
               const progress = (contest.filled_spots / contest.total_spots) * 100 || 0;
 
               return (
-                <div
+            <div
                   key={contest._id}
-                  className="bg-white shadow-md rounded-2xl p-3 sm:p-5 border border-gray-100 hover:shadow-xl transition-all duration-300 w-full"
+                  className="bg-white/80 backdrop-blur-md shadow-md rounded-2xl p-4 sm:p-6 border border-gray-200 
+             hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 w-full"
                 >
                   {/* Top Section */}
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
                     <div>
                       <p className="text-xs sm:text-sm text-gray-500">Prize Pool</p>
-                      <p className="text-lg sm:text-2xl font-bold text-indigo-600">
+                      <p className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
                         ₹{contest.prize_pool}
                       </p>
                     </div>
-                    <span className="text-xs sm:text-sm text-green-600 font-medium mt-2 sm:mt-0">
-                      ✔ Guaranteed
+                    <span className="text-xs sm:text-sm text-green-600 font-semibold mt-2 sm:mt-0 flex items-center gap-1">
+                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                      Guaranteed
                     </span>
                   </div>
 
                   {/* Progress Bar */}
                   <div>
-                    <div className="w-full bg-gray-100 rounded-full h-2 sm:h-3">
+                    <div className="w-full bg-gray-100 rounded-full h-2 sm:h-3 overflow-hidden">
                       <div
-                        className="h-2 sm:h-3 rounded-full bg-indigo-500 transition-all"
+                        className="h-2 sm:h-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">
+                    <div className="flex justify-between text-xs sm:text-sm text-gray-500 mt-2">
                       <span>{contest.total_spots - contest.filled_spots} spots left</span>
                       <span>{contest.total_spots} spots</span>
                     </div>
                   </div>
 
                   {/* Bottom Section */}
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3 sm:mt-5 gap-2 sm:gap-0">
-                    <span className="text-sm sm:text-base text-gray-600">
-                      🏆 Winners: {contest.winners || 1}
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-5 gap-3 sm:gap-0">
+                    <span className="text-sm sm:text-base text-gray-700">
+                      🏆 Winners: <span className="font-semibold">{contest.winners || 1}</span>
                     </span>
 
-                    <div className="flex items-center gap-2 mt-2 sm:mt-0">
-                      <p className="text-sm sm:text-base font-medium text-gray-600">
+                    <div className="flex items-center gap-3">
+                      <p className="text-sm sm:text-base font-semibold text-gray-800">
                         ₹{contest.entry_fee}
                       </p>
                       <button
                         onClick={() => handleJoinNow(contest)}
-                        className="px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transition"
+                        className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 
+                   hover:from-purple-600 hover:to-indigo-700 text-white rounded-xl 
+                   text-xs sm:text-sm font-semibold shadow-md hover:shadow-lg 
+                   transform hover:-translate-y-1 transition-all duration-300"
                       >
                         Join Now
                       </button>
                     </div>
                   </div>
                 </div>
+
               );
             })}
 
