@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "../../../extracomponents/DatatablePagination";
 import { GetTournament, UpdateTournament, DeleteTournament, UpdateTournamentStatus, UpdateTournamentStatusActive } from "../../../services/SuperAdmin";
 import Content from "../../../components/superadmin/Content";
 import { Edit, Trash2 } from "lucide-react";
@@ -10,11 +10,8 @@ function Tournament() {
     const navigate = useNavigate();
     const [tournament, setTournament] = useState([]);
     const [loading, setLoading] = useState(false);
-
-
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editData, setEditData] = useState(null);
-
     const [formData, setFormData] = useState({
         name: "",
         description: "",
@@ -28,6 +25,12 @@ function Tournament() {
         enddate: "",
         status: "upcoming",
     });
+
+    const [totalRows, setTotalRows] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [filterText, setFilterText] = useState("");
+
 
     const openModal = (data) => {
         setEditData(data);
@@ -131,7 +134,7 @@ function Tournament() {
 
 
     const columns = [
-        { name: "Sr No.", selector: (row, i) => i + 1, width: "80px" },
+        // { name: "Sr No.", selector: (row, i) => i + 1, width: "80px" },
         { name: "Name", selector: (row) => row.name, sortable: true },
         // { name: "Description", selector: (row) => row.description },
         // { name: "Type", selector: (row) => row.contest_type },
@@ -220,6 +223,29 @@ function Tournament() {
 
 
     ];
+    
+
+    const handlePageChange = (page) => setCurrentPage(page);
+
+    const handleRowsPerPageChange = (newPerPage) => {
+        setRowsPerPage(newPerPage);
+        setCurrentPage(1);
+    };
+
+
+
+
+    const handleFilterChange = (text) => {
+        setFilterText(text);
+        fatchTournament({ page: 1, limit: rowsPerPage, filter: text });
+    };
+
+    const paginatedData = tournament.slice(
+        (currentPage - 1) * rowsPerPage,
+        currentPage * rowsPerPage
+    );
+
+
 
 
     const fatchTournament = async () => {
@@ -229,25 +255,20 @@ function Tournament() {
 
         if (res?.status) {
             const now = new Date();
-
             const updatedData = res.data.map((t) => {
                 const start = new Date(t.startdate);
                 const end = new Date(t.enddate);
 
                 let newStatus = t.status;
-
-                if (start > now) {
-                    newStatus = "upcoming";
-                } else if (start <= now && end >= now) {
-                    newStatus = "live";
-                } else if (end < now) {
-                    newStatus = "completed";
-                }
+                if (start > now) newStatus = "upcoming";
+                else if (start <= now && end >= now) newStatus = "live";
+                else if (end < now) newStatus = "completed";
 
                 return { ...t, status: newStatus };
             });
 
             setTournament(updatedData);
+            setTotalRows(updatedData.length);
         } else {
             toast.error(res?.message || "Failed to fetch");
         }
@@ -255,9 +276,13 @@ function Tournament() {
     };
 
 
+
+
+
     useEffect(() => {
-        fatchTournament();
+        fatchTournament({ page: currentPage, limit: rowsPerPage, filter: filterText });
     }, []);
+
 
     return (
         <Content
@@ -269,7 +294,19 @@ function Tournament() {
             extra_button_action="/superadmin/add-tournament"
         >
             <div>
-                {loading ? <p>Loading...</p> : <Datatable columns={columns} data={tournament} onRefresh={fatchTournament} />}
+                {loading ? <p>Loading...</p> :
+                    <Datatable
+                        columns={columns}
+                        data={paginatedData}
+                        totalRows={totalRows}
+                        currentPage={currentPage}
+                        rowsPerPage={rowsPerPage}
+                        onPageChange={handlePageChange}
+                        onRowsPerPageChange={handleRowsPerPageChange}
+                        onRefresh={fatchTournament}
+                    />
+
+                }
             </div>
 
 

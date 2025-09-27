@@ -33,40 +33,40 @@ const Client = () => {
   const [bankOpen, setBankOpen] = useState(false);
   const [bankDetails, setBankDetails] = useState([]);
   const [totalRows, setTotalRows] = useState(0);
-const [currentPage, setCurrentPage] = useState(1);
-const [rowsPerPage, setRowsPerPage] = useState(10);
-const [filterText, setFilterText] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [filterText, setFilterText] = useState("");
 
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
 
- const handlePageChange = (page) => {
-  setCurrentPage(page);
-  fetchClients({ page, limit: rowsPerPage, filter: filterText });
-};
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    fetchClients({ page, limit: rowsPerPage, filter: filterText });
+  };
 
-const handleRowsPerPageChange = (newPerPage, page) => {
-  setRowsPerPage(newPerPage);
-  setCurrentPage(page);
-  fetchClients({ page, limit: newPerPage, filter: filterText });
-};
+  const handleRowsPerPageChange = (newPerPage, page) => {
+    setRowsPerPage(newPerPage);
+    setCurrentPage(page);
+    fetchClients({ page, limit: newPerPage, filter: filterText });
+  };
 
 
-const handleFilterChange = (text) => {
-  setFilterText(text);
-  fetchClients({ page: 1, limit: rowsPerPage, filter: text }); // reset to page 1
-};
+  const handleFilterChange = (text) => {
+    setFilterText(text);
+    fetchClients({ page: 1, limit: rowsPerPage, filter: text }); // reset to page 1
+  };
 
 
   // Fetch clients
   const fetchClients = async () => {
     setLoading(true);
-    const data = {status: "", kyc_verification :"",  search:"", add_by :"", page: currentPage , limit :rowsPerPage}
-    const response = await GetClientsWithFilter(token,data);
+    const data = { status: "", kyc_verification: "", search: "", add_by: "", page: currentPage, limit: rowsPerPage }
+    const response = await GetClientsWithFilter(token, data);
     if (response?.status) {
       setClients(response?.data);
-       setTotalRows(response?.pagination.totalRecords);
-  }else toast.error(response?.message || "Failed to load clients");
+      setTotalRows(response?.pagination.totalRecords);
+    } else toast.error(response?.message || "Failed to load clients");
     setLoading(false);
   };
 
@@ -110,9 +110,9 @@ const handleFilterChange = (text) => {
 
 
   useEffect(() => {
-    fetchClients();
+    fetchClients({currentPage, rowsPerPage, filterText});
     fetchStates();
-  }, [currentPage , rowsPerPage]);
+  }, [currentPage, rowsPerPage, filterText]);
 
   const handleOpen = (client = null) => {
     setSelectedClient(client);
@@ -299,17 +299,17 @@ const handleFilterChange = (text) => {
            data={clients} 
            title="Client List"
             onRefresh={fetchClients} /> */}
-           <Datatable
-  columns={columns}
-  data={clients}
-  totalRows={totalRows}
-  currentPage={currentPage}
-  rowsPerPage={rowsPerPage}
-  onPageChange={handlePageChange}
-  onRowsPerPageChange={handleRowsPerPageChange}
-  filterText={filterText}
-  onFilterChange={handleFilterChange}
-/>
+          <Datatable
+            columns={columns}
+            data={clients}
+            totalRows={totalRows}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            filterText={filterText}
+            onFilterChange={handleFilterChange}
+          />
         </div>
 
         {/* Add/Edit Client Modal */}

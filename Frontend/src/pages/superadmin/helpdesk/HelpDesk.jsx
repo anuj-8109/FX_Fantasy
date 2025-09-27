@@ -1,93 +1,83 @@
 import React, { useState, useEffect } from "react";
-import { Ticket, X, Eye } from "lucide-react";
+import { Ticket, Eye } from "lucide-react";
 import { GetTicketsuper } from "../../../services/SuperAdmin";
 import { useNavigate } from "react-router-dom";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "../../../extracomponents/DatatablePagination";
 import Content from "../../../components/superadmin/Content";
+import toast from "react-hot-toast";
 
 function HelpDesk() {
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [tickets, setTickets] = useState([]);
   const [token, setToken] = useState("");
   const [clientId, setClientId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [filterText, setFilterText] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedClientId = localStorage.getItem("userId");
     setToken(storedToken || "");
     setClientId(storedClientId || "");
-    if (storedToken && storedClientId) {
-      fetchTickets(storedToken, storedClientId);
-    }
+    if (storedToken && storedClientId) fetchTickets(storedToken, storedClientId);
   }, []);
 
-  const fetchTickets = async (tokenValue = token, clientIdValue = clientId) => {
+  const fetchTickets = async (tokenValue = token, clientIdValue = clientId, page = currentPage, limit = rowsPerPage, filter = filterText) => {
     if (!tokenValue || !clientIdValue) return;
-    const result = await GetTicketsuper(tokenValue, clientIdValue);
-    if (result.status) {
-      setTickets(result.data);
+    setLoading(true);
+    const result = await GetTicketsuper(tokenValue, clientIdValue, { page, limit, filter });
+    if (result?.status) {
+      setTickets(result.data || []);
+      setTotalRows(result.pagination?.total || 0); 
     } else {
-      console.error("Error fetching tickets:", result.message);
+      toast.error(result?.message || "Failed to load tickets");
     }
+    setLoading(false);
   };
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    fetchTickets(token, clientId, page, rowsPerPage, filterText);
+  };
+
+  const handleRowsPerPageChange = (newPerPage, page) => {
+    setRowsPerPage(newPerPage);
+    setCurrentPage(page);
+    fetchTickets(token, clientId, page, newPerPage, filterText);
+  };
+
+  const handleFilterChange = (text) => {
+    setFilterText(text);
+    setCurrentPage(1); 
+    fetchTickets(token, clientId, 1, rowsPerPage, text);
+  };
 
   const columns = [
-    {
-      name: "Ticket #",
-      selector: row => row.ticketnumber,
-      sortable: true,
-    },
-    {
-      name: "Subject",
-      selector: row => row.subject,
-      sortable: true,
-    },
-    {
-      name: "Message",
-      selector: row => row.message,
-      sortable: false,
-      wrap: true,
-    },
+  
+    { name: "Ticket #", selector: (row) => row.ticketnumber, sortable: true },
+    { name: "Subject", selector: (row) => row.subject, sortable: true },
+    { name: "Message", selector: (row) => row.message, wrap: true },
     {
       name: "Status",
-      selector: row => {
-        let label = "";
-        let color = "";
-
+      selector: (row) => {
+        let label = "", color = "";
         switch (row.status) {
-          case 0:
-            label = "Pending";
-            color = "bg-yellow-200 text-yellow-800";
-            break;
-          case 1:
-            label = "Open";
-            color = "bg-blue-200 text-blue-800";
-            break;
-          case 2:
-            label = "Closed";
-            color = "bg-red-200 text-red-800";
-            break;
-          default:
-            label = "Unknown";
-            color = "bg-gray-200 text-gray-800";
+          case 0: label = "Pending"; color = "bg-yellow-200 text-yellow-800"; break;
+          case 1: label = "Open"; color = "bg-blue-200 text-blue-800"; break;
+          case 2: label = "Closed"; color = "bg-red-200 text-red-800"; break;
+          default: label = "Unknown"; color = "bg-gray-200 text-gray-800";
         }
-
-        return (
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${color}`}>
-            {label}
-          </span>
-        );
+        return <span className={`px-3 py-1 rounded-full text-sm font-medium ${color}`}>{label}</span>;
       },
       sortable: true,
     },
-
     {
       name: "Action",
-      cell: row => (
+      cell: (row) => (
         <button
           onClick={() => navigate(`/superadmin/chatreply/${row._id}`)}
           className="text-blue-500 hover:text-blue-700"
@@ -95,48 +85,27 @@ function HelpDesk() {
           <Eye size={20} />
         </button>
       ),
-
     },
   ];
 
   return (
-     <Content
-      Page_title="Help Desk"
-      button_title="Back"
-      button_status={true}
-      route="/superadmin/dashboard"
-
-      // extra_button="+ Add Content" extra_button_action={handleOpen}
-    >
-    <div className="flex bg-gray-100 min-h-screen">
-      <div className="flex-1 p-6">
-        {/* <div className="flex justify-between items-center mb-6">
-          <h1 className="text-xl font-semibold flex items-center gap-2">
-            <Ticket size={24} /> Help Desk
-          </h1>
-          <button
-            onClick={openModal}
-            className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 flex items-center gap-1"
-          >
-            <span>+</span> New Request
-          </button>
-        </div> */}
-
-        <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
+    <Content Page_title="Help Desk" button_title="Back" button_status={true} route="/superadmin/dashboard">
+      <div className="flex bg-gray-100 min-h-screen p-6">
+        <div className="flex-1 bg-white rounded-lg shadow-md p-4 border">
           <Datatable
             columns={columns}
             data={tickets}
-            pagination
-            highlightOnHover
-            pointerOnHover
-            noHeader
-            onRefresh={fetchTickets}
+            totalRows={totalRows}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            filterText={filterText}
+            onFilterChange={handleFilterChange}
+            onRefresh={() => fetchTickets()}
           />
         </div>
       </div>
-
-
-    </div>
     </Content>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Datatable from "../../../extracomponents/Datatable";
+import Datatable from "../../../extracomponents/DatatablePagination";
 import { FileText, Edit, Eye, Trash2 } from "lucide-react";
 import {
   GetContestsList,
@@ -25,8 +25,6 @@ const Contest = () => {
   const [loading, setLoading] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
   const [viewContest, setViewContest] = useState(null);
-
-
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [entryFee, setEntryFee] = useState("");
@@ -34,24 +32,56 @@ const Contest = () => {
   const [prizePool, setPrizePool] = useState("");
   const [status, setStatus] = useState("upcoming");
 
+
+  const [totalRows, setTotalRows] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [filterText, setFilterText] = useState("");
+
+
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
 
 
-  const fetchContests = async () => {
+  const fetchContests = async (page = currentPage, limit = rowsPerPage, filter = filterText) => {
     setLoading(true);
-    const response = await GetContestsList(token);
-    if (response?.status) {
-      setContests(response?.data);
-    } else {
-      toast.error(response?.message || "Failed to load contests");
+    try {
+      const response = await GetContestsList(token, { page, limit, filter });
+      if (response?.status) {
+        setContests(response.data || []);
+        setTotalRows(response.pagination?.total || 0);
+      } else toast.error(response?.message || "Failed to load contests");
+    } catch (err) {
+      toast.error("Something went wrong while fetching contests");
     }
     setLoading(false);
   };
 
+
+
+
+const handlePageChange = (page) => {
+  setCurrentPage(page);
+  fetchContests(page, rowsPerPage, filterText);
+};
+
+const handleRowsPerPageChange = (newPerPage) => {
+  setRowsPerPage(newPerPage);
+  setCurrentPage(1);
+  fetchContests(1, newPerPage, filterText);
+};
+
+const handleFilterChange = (text) => {
+  setFilterText(text);
+  setCurrentPage(1);
+  fetchContests(1, rowsPerPage, text);
+};
+
+
   useEffect(() => {
-    fetchContests();
-  }, []);
+  fetchContests(currentPage, rowsPerPage, filterText);
+}, [currentPage, rowsPerPage, filterText]);
+
 
 
   const handleOpen = (contest = null) => {
@@ -191,7 +221,7 @@ const Contest = () => {
 
 
   const columns = [
-    { name: "S.No", selector: (row, i) => i + 1, width: "70px" },
+    // { name: "S.No", selector: (row, i) => i + 1, width: "70px" },
     { name: "Name", selector: (row) => row.name, sortable: true, width: "160px" },
     { name: "Description", selector: (row) => row.description, grow: 2 },
     { name: "Type", selector: (row) => row.contest_type },
@@ -311,7 +341,20 @@ const Contest = () => {
       <div className="p-2 ">
 
         <div className="shadow-lg rounded-xl p-4">
-          <Datatable columns={columns} data={contests} title="Contest List" onRefresh={fetchContests} />
+          <Datatable
+            columns={columns}
+            data={contests}
+            totalRows={totalRows}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            filterText={filterText}
+            onFilterChange={handleFilterChange}
+            onRefresh={() => fetchContests({ page: currentPage, limit: rowsPerPage, filter: filterText })}
+          />
+
+
         </div>
 
         {open && (

@@ -1087,18 +1087,22 @@ export async function AddContest(token, data) {
   }
 }
 
-export async function GetContestsList(token) {
+export async function GetContestsList(token, { page = 1, limit = 10, filter = "" } = {}) {
   try {
-    const response = await axios.get(`${config.base_url}contest/list`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${config.base_url}contest/list?page=${page}&limit=${limit}&filter=${filter}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
   }
 }
+
 
 export async function GetContestDetails(token, contestId) {
   try {
@@ -1292,23 +1296,21 @@ export async function PassWordChange(token, data) {
 // Tickes
 
 // GetTicket
-export async function GetTicketsuper(token, clientId) {
+export async function GetTicketsuper(token, clientId, { page = 1, limit = 10, filter = "" } = {}) {
   try {
     const response = await axios.post(
       `${config.base_url}ticket/listwithfilter`,
-      { clientId: clientId },
+      { clientId, page, limit, filter },
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       }
     );
-    return response?.data;
+    return response.data;
   } catch (error) {
-    return error?.response?.data || { status: false, message: "Unknown error" };
+    return error.response?.data || { status: false, message: "Something went wrong" };
   }
 }
+
 
 
 // getdetailsticket
@@ -1431,18 +1433,18 @@ export async function getContestsByTournamentId(token, tournament_id) {
 
 
 // get state client
- export async function getState(token){
+export async function getState(token) {
   try {
-    const response = await axios.get(`${config.base_url}api/list/getstates`,{
-      headers:{
+    const response = await axios.get(`${config.base_url}api/list/getstates`, {
+      headers: {
         Authorization: `Bearer ${token}`,
       }
     })
     return response?.data
   } catch (error) {
-    return error?.response?.data || {status: false , message:"Network Error"}
+    return error?.response?.data || { status: false, message: "Network Error" }
   }
- }
+}
 
 
 export async function getStateByCity(stateName, token) {
@@ -1470,7 +1472,7 @@ export async function getBankdetails(token, client_id) {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      params: { client_id }   
+      params: { client_id }
     });
     return response?.data;
   } catch (error) {
