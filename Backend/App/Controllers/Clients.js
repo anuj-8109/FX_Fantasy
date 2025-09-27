@@ -675,6 +675,49 @@ async  listBankDetails(req, res) {
   }
 }
 
+async kycVerificationUpdate(req, res) {
+  try {
+    const { id, kyc_verification } = req.body;
+
+    // Valid KYC statuses: 0 = pending, 1 = verified, 2 = rejected
+    const validStatuses = [0, 1, 2];
+    if (!validStatuses.includes(Number(kyc_verification))) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid kyc_verification value"
+      });
+    }
+
+    // Find and update the client
+    const result = await Clients_Modal.findByIdAndUpdate(
+      id,
+      { kyc_verification: Number(kyc_verification) },
+      { new: true }
+    );
+
+    if (!result) {
+      return res.status(404).json({
+        status: false,
+        message: "Client not found"
+      });
+    }
+
+    return res.json({
+      status: true,
+      message: "KYC verification status updated successfully",
+      data: result
+    });
+
+  } catch (error) {
+    console.error("KYC Update Error:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      data: []
+    });
+  }
+}
+
 
 }
 module.exports = new Clients();
