@@ -162,8 +162,7 @@ class Clients {
 
   async getClientWithFilter(req, res) {
     try {
-    const { status = "", kyc_verification = "",  search = "", add_by = "", page = 1 } = req.body;
-    const limit = 10;
+    const { status = "", kyc_verification = "",  search = "", add_by = "", page = 1, limit = 10 } = req.body;
     const skip = (parseInt(page) - 1) * limit;
 
     // Base condition
