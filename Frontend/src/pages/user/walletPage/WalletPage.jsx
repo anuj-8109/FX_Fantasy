@@ -9,10 +9,12 @@ import {
   GetUserDetails,
 } from "../../../services/User";
 import BackButton from "../../../pages/user/Backbutton";
+import { useNavigate } from "react-router-dom";
 
 
 
 const WalletPage = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
   const [addMoneyHistory, setAddMoneyHistory] = useState([]);
   const [withdrawHistory, setWithdrawHistory] = useState([]);
@@ -437,10 +439,37 @@ const WalletPage = () => {
 
 
           <button
-            onClick={kycVerified ? handleWithdraw : () => Swal.fire("KYC Pending", "Please complete KYC to use wallet features.", "warning")}
-          
+            onClick={() => {
+              if (!kycVerified) {
+                Swal.fire({
+                  icon: "warning",
+                  title: "KYC Verification Required",
+                  text: "Please complete KYC to use wallet features.",
+                  confirmButtonText: "Go to KYC",
+                }).then(() => {
+                  navigate("/kycdetail");
+                });
+                return;
+              }
+
+              
+              if (!userDetails?.bank || !userDetails.bank.accountNumber) {
+                Swal.fire({
+                  icon: "warning",
+                  title: "Bank Details Missing",
+                  text: "Please add your bank account before making a withdrawal.",
+                  confirmButtonText: "Add Bank",
+                }).then(() => {
+                  navigate("/bankdetail"); 
+                });
+                return;
+              }
+
+              // dono checks pass -> allow withdraw
+              handleWithdraw();
+            }}
             className={`px-3 py-2 rounded-xl shadow-md flex items-center gap-2 font-medium text-white transition-all duration-200
-    ${kycVerified
+    ${kycVerified && userDetails?.bank?.accountNumber
                 ? "bg-gradient-to-r from-red-500 to-rose-600 hover:shadow-lg hover:scale-105"
                 : "bg-gray-400 cursor-not-allowed"
               }`}
@@ -448,6 +477,7 @@ const WalletPage = () => {
             <Minus size={18} />
             Withdraw
           </button>
+
         </div>
       </div>
 

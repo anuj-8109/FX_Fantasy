@@ -23,12 +23,12 @@ const ActiveUser = () => {
   }, []);
 
   const columns = [
-    {
-      name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: true,
-      width: "80px",
-    },
+    // {
+    //   name: "S.No",
+    //   selector: (row, index) => index + 1,
+    //   sortable: true,
+    //   width: "80px",
+    // },
     {
       name: "Name",
       selector: (row) => row?.FullName,

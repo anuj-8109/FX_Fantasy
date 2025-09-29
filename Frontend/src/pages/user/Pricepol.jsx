@@ -14,6 +14,14 @@ function Pricepol() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("myContests");
+  const [filters, setFilters] = useState({
+    minEntryFee: "",
+    maxEntryFee: "",
+    minPrizePool: "",
+    maxPrizePool: "",
+    minParticipants: "",
+    maxParticipants: "",
+  });
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -96,6 +104,42 @@ function Pricepol() {
     fetchMyContests();
   }, []);
 
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleResetFilters = () => {
+    setFilters({
+      minEntryFee: "",
+      maxEntryFee: "",
+      minPrizePool: "",
+      maxPrizePool: "",
+      minParticipants: "",
+      maxParticipants: "",
+    });
+  };
+
+  const filteredContests = contests.filter((contest) => {
+    const entryFee = parseFloat(contest.entry_fee);
+    const prizePool = parseFloat(contest.prize_pool);
+    const participants = contest.total_spots;
+
+    const { minEntryFee, maxEntryFee, minPrizePool, maxPrizePool, minParticipants, maxParticipants } = filters;
+
+    if (minEntryFee && entryFee < parseFloat(minEntryFee)) return false;
+    if (maxEntryFee && entryFee > parseFloat(maxEntryFee)) return false;
+    if (minPrizePool && prizePool < parseFloat(minPrizePool)) return false;
+    if (maxPrizePool && prizePool > parseFloat(maxPrizePool)) return false;
+    if (minParticipants && participants < parseInt(minParticipants)) return false;
+    if (maxParticipants && participants > parseInt(maxParticipants)) return false;
+
+    return true;
+  });
+
   return (
     <div className="p-2 sm:p-4 md:p-6 lg:p-8 bg-gray-50 min-h-screen">
 
@@ -104,10 +148,8 @@ function Pricepol() {
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-orange-600 flex-1">
           Tournament Contests
         </h1>
-        {/* Empty div to balance the BackButton on the left */}
         <div className="w-12"></div>
       </div>
-
 
       {/* Tabs */}
       <div className="flex justify-center mb-4 sm:mb-6">
@@ -131,6 +173,83 @@ function Pricepol() {
         </div>
       </div>
 
+      {/* Filters */}
+      {/* {activeTab === "contests" && (
+        <div className="bg-white rounded-xl shadow-md p-4 mb-4 flex flex-wrap items-center gap-3 justify-start">
+      
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
+            <span className="text-gray-600 text-xs sm:text-sm font-medium">Entry Fee:</span>
+            <input
+              type="number"
+              name="minEntryFee"
+              placeholder="Min"
+              value={filters.minEntryFee}
+              onChange={handleFilterChange}
+              className="border border-gray-300 rounded-md p-2 w-20 sm:w-24 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            />
+            <input
+              type="number"
+              name="maxEntryFee"
+              placeholder="Max"
+              value={filters.maxEntryFee}
+              onChange={handleFilterChange}
+              className="border border-gray-300 rounded-md p-2 w-20 sm:w-24 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            />
+          </div>
+
+       
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
+            <span className="text-gray-600 text-xs sm:text-sm font-medium">Prize Pool:</span>
+            <input
+              type="number"
+              name="minPrizePool"
+              placeholder="Min"
+              value={filters.minPrizePool}
+              onChange={handleFilterChange}
+              className="border border-gray-300 rounded-md p-2 w-20 sm:w-24 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            />
+            <input
+              type="number"
+              name="maxPrizePool"
+              placeholder="Max"
+              value={filters.maxPrizePool}
+              onChange={handleFilterChange}
+              className="border border-gray-300 rounded-md p-2 w-20 sm:w-24 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            />
+          </div>
+
+ 
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
+            <span className="text-gray-600 text-xs sm:text-sm font-medium">Participants:</span>
+            <input
+              type="number"
+              name="minParticipants"
+              placeholder="Min"
+              value={filters.minParticipants}
+              onChange={handleFilterChange}
+              className="border border-gray-300 rounded-md p-2 w-20 sm:w-24 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            />
+            <input
+              type="number"
+              name="maxParticipants"
+              placeholder="Max"
+              value={filters.maxParticipants}
+              onChange={handleFilterChange}
+              className="border border-gray-300 rounded-md p-2 w-20 sm:w-24 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            />
+          </div>
+
+
+          <button
+            onClick={handleResetFilters}
+            className="ml-auto px-4 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition-all text-sm sm:text-base"
+          >
+            Reset Filters
+          </button>
+        </div>
+      )} */}
+
+
       {/* Loading/Error */}
       {loading && <p className="text-center text-blue-500">Loading contests...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
@@ -141,7 +260,7 @@ function Pricepol() {
 
           {/* All Contests */}
           {activeTab === "contests" &&
-            contests.map((contest) => {
+            filteredContests.map((contest) => {
               const progress =
                 (contest.filled_spots / contest.total_spots) * 100 || 0;
 
@@ -151,7 +270,6 @@ function Pricepol() {
                   className="bg-white/90 backdrop-blur-md shadow-md rounded-xl p-3 sm:p-4 border border-gray-200 
         hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full"
                 >
-                  {/* Top Section */}
                   <div className="flex justify-between items-center mb-3">
                     <div>
                       <p className="text-[11px] sm:text-xs text-gray-500">Prize Pool</p>
@@ -164,8 +282,6 @@ function Pricepol() {
                       Guaranteed
                     </span>
                   </div>
-
-                  {/* Progress Bar */}
                   <div>
                     <div className="w-full bg-gray-100 rounded-full h-1.5 sm:h-2 overflow-hidden">
                       <div
@@ -178,13 +294,10 @@ function Pricepol() {
                       <span>{contest.total_spots} spots</span>
                     </div>
                   </div>
-
-                  {/* Bottom Section */}
                   <div className="flex justify-between items-center mt-3">
                     <span className="text-xs sm:text-sm text-gray-700">
                       🏆 <span className="font-semibold">{contest.winners || 1}</span> winners
                     </span>
-
                     <div className="flex items-center gap-2">
                       <p className="text-xs sm:text-sm font-semibold text-gray-800">
                         ₹{contest.entry_fee}
@@ -215,7 +328,6 @@ function Pricepol() {
                       key={contestWrapper._id}
                       className="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300"
                     >
-                      {/* Header */}
                       <div className="bg-orange-100 border-b border-orange-100 px-3 py-3 flex  sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
                           <h2 className="font-bold text-base sm:text-lg lg:text-2xl text-orange-600 tracking-wide">
@@ -256,8 +368,6 @@ function Pricepol() {
                           </button>
                         </div>
                       </div>
-
-                      {/* Details */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 sm:p-4 text-[10px] sm:text-sm">
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
                           <p className="text-gray-500 text-[10px] sm:text-xs">Prize Pool</p>
@@ -304,9 +414,8 @@ function Pricepol() {
             </p>
           )}
         </div>
-      )
-      }
-    </div >
+      )}
+    </div>
   );
 }
 
