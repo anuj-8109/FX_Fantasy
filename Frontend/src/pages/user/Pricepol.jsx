@@ -348,7 +348,7 @@ function Pricepol() {
                                   contestId: contestWrapper?.contest_id?._id,
                                   stocks:
                                     contestWrapper?.contest_id?.tournament_id?.stocks || [],
-                                  useamount: contestWrapper?.contest_id?.useamount || 0,
+                                    wallet_balance: contestWrapper?.wallet_balance || 0,
                                 },
                               })
                             }

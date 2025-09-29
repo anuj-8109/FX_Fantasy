@@ -410,7 +410,7 @@ const WalletPage = () => {
     { key: "all", label: "All Transactions", icon: Wallet },
     { key: "add", label: "Add Money", icon: Plus },
     { key: "withdraw", label: "Withdrawals", icon: Minus },
-    { key: "buysell", label: "Buy/Sell", icon: TrendingUp },
+    // { key: "buysell", label: "Buy/Sell", icon: TrendingUp },
   ];
 
   return (

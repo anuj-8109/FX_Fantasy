@@ -21,7 +21,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
     const [description, setDescription] = useState("");
     const [contestType, setContestType] = useState("Mega");
     const [entryFee, setEntryFee] = useState("");
-    const [useAmount, setUseAmount] = useState(""); // Added missing useamount field
+    const [useAmount, setUseAmount] = useState(""); 
     const [totalSpots, setTotalSpots] = useState("");
     const [maxEntryPerUser, setMaxEntryPerUser] = useState(1);
     const [prizePool, setPrizePool] = useState("");

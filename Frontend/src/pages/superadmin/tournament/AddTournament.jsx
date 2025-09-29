@@ -6,7 +6,7 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
-import * as yup from "yup"
+import * as Yup from "yup";
 
 function AddTournament() {
   const navigate = useNavigate();
@@ -24,28 +24,33 @@ function AddTournament() {
   const [stocklistData, setStocklistData] = useState([]);
   const [searchResults, setSearchResults] = useState({});
 
-
-const validationSchaema = yup.object().shape({
-  name: yup.string()
-    .required("Tournament name is require")
-    .min(3,"name must be at least 3 charactors"),
-
-  description: yup.string()
-    .required("Description is required"),
-
-  stock: yup.array()
-      .required("Stock name is required")
-      .min(1,"minimum one stock is required")
-})
+  // Yup validation schema
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().required("Tournament name is required"),
+    description: Yup.string().required("Description is required"),
+    startDate: Yup.date().required("Start date is required"),
+    endDate: Yup.date()
+      .required("End date is required")
+      .min(Yup.ref("startDate"), "End date cannot be before start date"),
+    status: Yup.string().required("Status is required"),
+    stocks: Yup.array()
+      .of(
+        Yup.object().shape({
+          stock_id: Yup.string().required("Select a valid stock from suggestions"),
+          stock_name: Yup.string().required(),
+        })
+      )
+      .min(1, "At least one stock is required"),
+  });
 
   useEffect(() => {
-    fatchstocklist();
+    fetchStockList();
   }, []);
 
-  const fatchstocklist = async () => {
+  const fetchStockList = async () => {
     try {
       const res = await stocklist(token);
-      if (res?.status === true) {
+      if (res?.status) {
         setStocklistData(res?.data || []);
       } else {
         Swal.fire("Failed to fetch stocks");
@@ -55,11 +60,8 @@ const validationSchaema = yup.object().shape({
     }
   };
 
-  const addStockRow = () =>
-    setStocks([...stocks, { stock_id: "", stock_name: "" }]);
-
-  const removeStockRow = (i) =>
-    setStocks(stocks.filter((_, idx) => idx !== i));
+  const addStockRow = () => setStocks([...stocks, { stock_id: "", stock_name: "" }]);
+  const removeStockRow = (i) => setStocks(stocks.filter((_, idx) => idx !== i));
 
   const handleSearchChange = (i, value) => {
     const updated = [...stocks];
@@ -86,30 +88,21 @@ const validationSchaema = yup.object().shape({
       lotsize: stock.lotsize,
     };
     setStocks(updated);
-
-
     setSearchResults((prev) => ({ ...prev, [i]: [] }));
   };
 
-  const onCancel = () => {
-    navigate("/superadmin/tournament");
-  };
+  const onCancel = () => navigate("/superadmin/tournament");
 
   const handleSave = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-       await validationSchema.validate(
-      { name, description, stocks, startDate, endDate, status },
-      { abortEarly: false } // show all errors at once
-    );
-
-      if (stocks.some((s) => !s.stock_id)) {
-        Swal.fire("Please select valid stocks from search results");
-        setLoading(false);
-        return;
-      }
+      // Validate all fields
+      await validationSchema.validate(
+        { name, description, stocks, startDate, endDate, status },
+        { abortEarly: false }
+      );
 
       const payload = {
         name,
@@ -130,7 +123,12 @@ const validationSchaema = yup.object().shape({
         Swal.fire("Failed to add tournament");
       }
     } catch (err) {
-      Swal.fire("Something went wrong!");
+      if (err.inner) {
+        const messages = err.inner.map((e) => e.message).join("\n");
+        Swal.fire("Validation Error", messages, "error");
+      } else {
+        Swal.fire("Something went wrong!");
+      }
     } finally {
       setLoading(false);
     }
@@ -144,9 +142,7 @@ const validationSchaema = yup.object().shape({
       route="/superadmin/tournament"
     >
       <div className="w-full max-w-5xl shadow-xl rounded-xl p-6">
-        <h2 className="text-xl font-semibold mb-4 border-b pb-2">
-          Add Tournament
-        </h2>
+        <h2 className="text-xl font-semibold mb-4 border-b pb-2">Add Tournament</h2>
 
         <form onSubmit={handleSave} className="space-y-6">
           {/* Tournament Name */}
@@ -213,17 +209,10 @@ const validationSchaema = yup.object().shape({
               </div>
             ))}
 
-            {stocks.length < 2 && (  
-              <button
-                type="button"
-                onClick={addStockRow}
-                className="text-blue-600 text-sm"
-              >
-                + Add Stock
-              </button>
-            )}
+            <button type="button" onClick={addStockRow} className="text-blue-600 text-sm">
+              + Add Stock
+            </button>
           </div>
-
 
           {/* Status */}
           <div>
@@ -234,8 +223,6 @@ const validationSchaema = yup.object().shape({
               className="w-full border rounded-md px-3 py-2 mt-1"
             >
               <option value="upcoming">Upcoming</option>
-              {/* <option value="live">Live</option>
-              <option value="completed">Completed</option> */}
             </select>
           </div>
 
@@ -244,9 +231,7 @@ const validationSchaema = yup.object().shape({
             <h3 className="font-medium mb-2"> Schedule *</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium">
-                  Start Date & Time *
-                </label>
+                <label className="text-sm font-medium">Start Date & Time *</label>
                 <input
                   type="datetime-local"
                   value={startDate}
@@ -270,18 +255,10 @@ const validationSchaema = yup.object().shape({
 
           {/* Buttons */}
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-4 py-2 rounded-md border bg-gray-300"
-            >
+            <button type="button" onClick={onCancel} className="px-4 py-2 rounded-md border bg-gray-300">
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 rounded-md bg-blue-600 text-white"
-            >
+            <button type="submit" disabled={loading} className="px-4 py-2 rounded-md bg-blue-600 text-white">
               {loading ? "Saving..." : "Save Tournament"}
             </button>
           </div>

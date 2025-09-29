@@ -332,30 +332,41 @@ const Client = () => {
       width: "180px",
       cell: (row) => (
         <div className="flex gap-2">
-          {row.kyc_verification === 1 ? (
-            <span className="text-green-600 font-semibold">Verified ✅</span>
-          ) : row.kyc_verification === 2 ? (
-            <span className="text-red-600 font-semibold">Rejected ❌</span>
+          {row.kyc_type === 1 ? (
+            row.kyc_verification === 1 ? (
+              <span className="text-green-600 font-semibold">Verified ✅</span>
+            ) : row.kyc_verification === 2 ? (
+              <span className="text-red-600 font-semibold">Rejected ❌</span>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  className="px-2 py-1 bg-green-600 text-white rounded-md text-sm"
+                  onClick={() => handleKycVerification(row, 1)}
+                >
+                  Approve
+                </button>
+                <button
+                  className="px-2 py-1 bg-red-600 text-white rounded-md text-sm"
+                  onClick={() => handleKycVerification(row, 2)}
+                >
+                  Reject
+                </button>
+              </div>
+            )
           ) : (
-            <div className="flex gap-2">
-              <button
-                className="px-2 py-1 bg-green-600 text-white rounded-md text-sm"
-                onClick={() => handleKycVerification(row, 1)}
-              >
-                Approve
-              </button>
-              <button
-                className="px-2 py-1 bg-red-600 text-white rounded-md text-sm"
-                onClick={() => handleKycVerification(row, 2)}
-              >
-                Reject
-              </button>
-            </div>
+         
+            row.kyc_verification === 1 ? (
+              <span className="text-green-600 font-semibold">Verified ✅</span>
+            ) : row.kyc_verification === 2 ? (
+              <span className="text-red-600 font-semibold">Rejected ❌</span>
+            ) : (
+              <span className="text-gray-500 font-semibold">Pending ⏳</span>
+            )
           )}
         </div>
       ),
-
     },
+
 
     {
       name: "Bank Details",

@@ -88,7 +88,7 @@ const UserProfile = () => {
                 toast.success("Profile photo updated!");
                 setIsModalOpen(false);
                 setUserDetails((prev) => ({ ...prev, image: res.data.image }));
-                setSelectedImage(`${config.image_url}uploads/clients/${res.data.image}`);
+                setSelectedImage(`${config.image_url}uploads/clients`);
             } else {
                 toast.error(res?.message || "Failed to update image");
             }
