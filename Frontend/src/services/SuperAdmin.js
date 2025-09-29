@@ -1464,7 +1464,7 @@ export async function getStateByCity(stateName, token) {
   }
 }
 
-// getKycdetails
+// getBank details
 
 export async function getBankdetails(token, client_id) {
   try {
@@ -1477,6 +1477,22 @@ export async function getBankdetails(token, client_id) {
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Server error" };
+  }
+}
+
+
+//get Kyc details
+
+export async function kyc_verification(token,data){
+  try {
+    const response = await axios.post(`${config.base_url}client/kycverificationupdate`,data,{
+      headers:{
+        Authorization:`Bearer ${token}`,
+      }
+    })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || {status:false, message:"Server Error"}
   }
 }
 

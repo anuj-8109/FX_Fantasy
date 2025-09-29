@@ -156,11 +156,11 @@ const UserDashboard = () => {
 
 
       {/* Tabs */}
-      <div className="flex justify-around bg-white mt-4 mx-4 rounded-xl shadow-sm overflow-hidden text-[0.75rem] sm:text-sm">
+      <div className="flex justify-around bg-white mt-4 mx-2 rounded-xl shadow-sm overflow-hidden text-[0.75rem] sm:text-sm">
         {[
-          { key: "ongoing", label: "Live Contests", icon: Trophy },
+          { key: "ongoing", label: "Live Tournament", icon: Trophy },
           { key: "upcoming", label: "Upcoming", icon: Clock },
-          { key: "mycontests", label: "My Contests", icon: Target },
+          // { key: "mycontests", label: "My Contests", icon: Target },
         ].map(({ key, label, icon: Icon }) => (
           <button
             key={key}

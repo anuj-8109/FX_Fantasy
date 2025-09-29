@@ -9,7 +9,8 @@ import {
   UpdateClient,
   getState,
   getStateByCity,
-  getBankdetails
+  getBankdetails,
+  kyc_verification
 } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -39,6 +40,7 @@ const Client = () => {
 
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
+
 
   let stateObj = states.find((s) => s._id === stateId);
   let cityObj = cities.find((c) => c._id === cityId);
@@ -262,6 +264,39 @@ const Client = () => {
     } else toast.error(res?.message || "Failed to delete client");
   };
 
+  const handleKycVerification = async (clientId, status) => {
+    const actionText = status === 1 ? "Approve" : "Reject";
+
+    const confirm = await Swal.fire({
+      title: `${actionText} KYC?`,
+      text: `Do you really want to ${actionText.toLowerCase()} this KYC?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: `Yes, ${actionText}`,
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const res = await kyc_verification(token, {
+        id: clientId,
+        kyc_verification: status,
+      });
+
+      if (res?.status) {
+        toast.success(res?.message || `KYC ${actionText}d successfully`);
+        fetchClients(); // refresh list
+      } else {
+        toast.error(res?.message || "Failed to update KYC status");
+      }
+    } catch (error) {
+      toast.error("Error updating KYC status");
+    }
+  };
+
+
+
   const columns = [
     { name: "Name", selector: (row) => row.FullName || "N/A", sortable: true },
     { name: "Email", selector: (row) => row.Email || "N/A" },
@@ -293,7 +328,38 @@ const Client = () => {
       ),
     },
     {
+      name: "KYC",
+      width: "180px",
+      cell: (row) => (
+        <div className="flex gap-2">
+          {row.kyc_verification === 1 ? (
+            <span className="text-green-600 font-semibold">Verified ✅</span>
+          ) : row.kyc_verification === 2 ? (
+            <span className="text-red-600 font-semibold">Rejected ❌</span>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                className="px-2 py-1 bg-green-600 text-white rounded-md text-sm"
+                onClick={() => handleKycVerification(row, 1)}
+              >
+                Approve
+              </button>
+              <button
+                className="px-2 py-1 bg-red-600 text-white rounded-md text-sm"
+                onClick={() => handleKycVerification(row, 2)}
+              >
+                Reject
+              </button>
+            </div>
+          )}
+        </div>
+      ),
+
+    },
+
+    {
       name: "Bank Details",
+      width: "120px",
       cell: (row) => (
         <button
           className="px-2 py-1 bg-purple-600 text-white rounded-md text-sm"

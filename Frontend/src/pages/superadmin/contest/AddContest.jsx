@@ -7,9 +7,9 @@ import { AddContest } from "../../../services/SuperAdmin";
 import Content from "../../../components/superadmin/Content";
 import { useLocation } from "react-router-dom";
 
-export default function AddContest1({ onSuccess, onCancel }) {  
+export default function AddContest1({ onSuccess, onCancel }) {
     const location = useLocation();
-    const tournamentId = location?.state?.tournament_id ;
+    const tournamentId = location?.state?.tournament_id;
     console.log("Received tournamentId:", tournamentId);
     const [authData, setAuthData] = useState({
         add_by: null,
@@ -25,7 +25,10 @@ export default function AddContest1({ onSuccess, onCancel }) {
     const [totalSpots, setTotalSpots] = useState("");
     const [maxEntryPerUser, setMaxEntryPerUser] = useState(1);
     const [prizePool, setPrizePool] = useState("");
-    const [prizeDistribution, setPrizeDistribution] = useState([{ rank: "", amount: "" }]);
+    const [prizeDistribution, setPrizeDistribution] = useState([
+        { from: 1, to: 1, amount: "" },
+    ]);
+
     const [stocks, setStocks] = useState([{ stock_name: "" }]);
     const [isGuaranteed, setIsGuaranteed] = useState(false);
     const [isPrivate, setIsPrivate] = useState(false);
@@ -35,7 +38,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
     const [status, setStatus] = useState("upcoming");
     const [loading, setLoading] = useState(false);
 
-    
+
     useEffect(() => {
         const add_by = localStorage.getItem("add_by");
         const token = localStorage.getItem("token");
@@ -59,28 +62,48 @@ export default function AddContest1({ onSuccess, onCancel }) {
         });
     }, []);
 
+    // const handlePrizeChange = (idx, field, value) => {
+    //     const updated = [...prizeDistribution];
+    //     updated[idx][field] = value;
+    //     setPrizeDistribution(updated);
+    // };
+
+    const addPrizeRow = () => {
+        setPrizeDistribution([...prizeDistribution, { from: "", to: "", amount: "" }]);
+    };
+
+    const removePrizeRow = (idx) => {
+        setPrizeDistribution(prizeDistribution.filter((_, i) => i !== idx));
+    };
+
     const handlePrizeChange = (idx, field, value) => {
         const updated = [...prizeDistribution];
         updated[idx][field] = value;
         setPrizeDistribution(updated);
     };
 
-    const addPrizeRow = () => {
-        setPrizeDistribution([...prizeDistribution, { rank: "", amount: "" }]);
-    };
-
-    const removePrizeRow = (idx) => {
-        if (prizeDistribution.length > 1) {
-            const updated = prizeDistribution.filter((_, i) => i !== idx);
-            setPrizeDistribution(updated);
-        }
-    };
 
     const handleStockChange = (idx, field, value) => {
         const updated = [...stocks];
         updated[idx][field] = value;
         setStocks(updated);
     };
+
+    const expandPrizeDistribution = (prizes) => {
+        let expanded = [];
+        prizes.forEach((p) => {
+            if (p.from && p.to && p.amount) {
+                for (let r = parseInt(p.from); r <= parseInt(p.to); r++) {
+                    expanded.push({
+                        rank: r,
+                        amount: Number(p.amount),
+                    });
+                }
+            }
+        });
+        return expanded;
+    };
+
 
     const addStockRow = () => {
         setStocks([...stocks, { stock_name: "" }]);
@@ -93,7 +116,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
         }
     };
 
-    
+
     const validateForm = () => {
         const errors = [];
 
@@ -105,19 +128,42 @@ export default function AddContest1({ onSuccess, onCancel }) {
         if (prizePool === "" || prizePool < 0) errors.push("Valid prize pool is required");
         if (!startDate || !endDate) errors.push("Start and End date are required");
 
-        
         const start = new Date(startDate);
         const end = new Date(endDate);
         if (start >= end) errors.push("End date must be after start date");
 
-        const validPrizes = prizeDistribution.filter(p => p.rank && p.amount);
-        if (validPrizes.length === 0) errors.push("At least one valid prize distribution is required");
+        // ✅ Prize distribution validation
+        const validPrizes = prizeDistribution.filter(p => p.from && p.to && p.amount);
+        if (validPrizes.length === 0) {
+            errors.push("At least one valid prize distribution is required");
+        }
 
+        validPrizes.forEach((p, idx) => {
+            if (parseInt(p.from) <= 0) {
+                errors.push(`Row ${idx + 1}: From rank must be greater than 0`);
+            }
+            if (parseInt(p.to) < parseInt(p.from)) {
+                errors.push(`Row ${idx + 1}: To rank must be greater than or equal to From rank`);
+            }
+            if (parseFloat(p.amount) <= 0) {
+                errors.push(`Row ${idx + 1}: Amount must be greater than 0`);
+            }
+        });
 
-        const validStocks = stocks.filter(s => s.stock_name.trim());
-        if (validStocks.length === 0) errors.push("At least one stock is required");
+        // ✅ Overlap check
+        for (let i = 0; i < validPrizes.length; i++) {
+            for (let j = i + 1; j < validPrizes.length; j++) {
+                if (
+                    parseInt(validPrizes[i].from) <= parseInt(validPrizes[j].to) &&
+                    parseInt(validPrizes[j].from) <= parseInt(validPrizes[i].to)
+                ) {
+                    errors.push(
+                        `Row ${i + 1} and Row ${j + 1} have overlapping rank ranges`
+                    );
+                }
+            }
+        }
 
-        
         if (!authData.isValid) {
             errors.push("Authentication required. Please login again.");
         }
@@ -128,10 +174,10 @@ export default function AddContest1({ onSuccess, onCancel }) {
     const handleSave = async (e) => {
         e.preventDefault();
 
-       
+
         const validationErrors = validateForm();
         if (validationErrors.length > 0) {
-            toast.error(validationErrors[0]); 
+            toast.error(validationErrors[0]);
             console.log("Validation errors:", validationErrors);
             return;
         }
@@ -145,10 +191,14 @@ export default function AddContest1({ onSuccess, onCancel }) {
             cancelButtonText: "Cancel",
         });
 
+
         if (!confirm.isConfirmed) return;
 
-        
-        const cleanPrizeDistribution = prizeDistribution.filter(p => p.rank && p.amount);
+
+        const cleanPrizeDistribution = expandPrizeDistribution(
+            prizeDistribution.filter(p => p.from && p.to && p.amount)
+        );
+
         const cleanStocks = stocks.filter(s => s.stock_name.trim());
 
         const payload = {
@@ -157,7 +207,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
             description,
             contest_type: contestType,
             entry_fee: Number(entryFee),
-            useamount: Number(useAmount), 
+            useamount: Number(useAmount),
             total_spots: Number(totalSpots),
             max_entry_per_user: Number(maxEntryPerUser),
             prize_pool: Number(prizePool),
@@ -202,7 +252,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
         }
     };
 
-    
+
     if (!authData.isValid) {
         return (
             <Content Page_title="Add-content" button_title="Back" button_status={true} route="/superadmin/contest">
@@ -211,7 +261,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                         <h2 className="text-xl font-semibold mb-4 text-red-600">Authentication Required</h2>
                         <p className="text-gray-600 mb-4">Please login to access this feature.</p>
                         <button
-                            onClick={() => window.location.href = '/login'}
+                            onClick={() => window.location.href = '/'}
                             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                         >
                             Go to Login
@@ -228,7 +278,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                 <h2 className="text-xl font-semibold mb-4 border-b pb-2">Add Contest</h2>
 
                 <form onSubmit={handleSave} className="space-y-6">
-                   
+
                     <div>
                         <label className="text-sm font-medium">Name *</label>
                         <input
@@ -240,7 +290,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                         />
                     </div>
 
-                    
+
                     <div>
                         <label className="text-sm font-medium input-Add">Description</label>
                         <CKEditor
@@ -252,7 +302,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                         />
                     </div>
 
-                    
+
                     <div>
                         <label className="text-sm font-medium  input-Add" >Contest Type *</label>
                         <select
@@ -263,11 +313,11 @@ export default function AddContest1({ onSuccess, onCancel }) {
                         >
                             <option value="Mega">Mega</option>
                             <option value="Head-to-Head">Head-to-Head</option>
-                            
+
                         </select>
                     </div>
 
-                  
+
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="text-sm font-medium">Entry Fee *</label>
@@ -315,7 +365,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                         </div>
                     </div>
 
-                    
+
                     <div>
                         <label className="text-sm font-medium">Prize Pool *</label>
                         <input
@@ -328,18 +378,26 @@ export default function AddContest1({ onSuccess, onCancel }) {
                         />
                     </div>
 
-                   
+
                     <div>
                         <h3 className="font-medium mb-2">🏆 Prize Distribution *</h3>
                         {prizeDistribution.map((p, idx) => (
                             <div key={idx} className="flex gap-2 mb-1 items-center">
                                 <input
                                     type="number"
-                                    placeholder="Rank"
+                                    placeholder="From Rank"
                                     min="1"
-                                    value={p.rank}
-                                    onChange={(e) => handlePrizeChange(idx, "rank", e.target.value)}
-                                    className="w-1/3 border rounded-md px-2 py-1  input-Add"
+                                    value={p.from}
+                                    onChange={(e) => handlePrizeChange(idx, "from", e.target.value)}
+                                    className="w-1/4 border rounded-md px-2 py-1"
+                                />
+                                <input
+                                    type="number"
+                                    placeholder="To Rank"
+                                    min={p.from || 1}
+                                    value={p.to}
+                                    onChange={(e) => handlePrizeChange(idx, "to", e.target.value)}
+                                    className="w-1/4 border rounded-md px-2 py-1"
                                 />
                                 <input
                                     type="number"
@@ -347,26 +405,32 @@ export default function AddContest1({ onSuccess, onCancel }) {
                                     min="0"
                                     value={p.amount}
                                     onChange={(e) => handlePrizeChange(idx, "amount", e.target.value)}
-                                    className="w-2/3 border rounded-md px-2 py-1  input-Add"
+                                    className="w-1/2 border rounded-md px-2 py-1"
                                 />
                                 {prizeDistribution.length > 1 && (
                                     <button
                                         type="button"
                                         onClick={() => removePrizeRow(idx)}
-                                        className="text-red-600 text-sm px-2  input-Add"
+                                        className="text-red-600 text-sm px-2"
                                     >
                                         X
                                     </button>
                                 )}
                             </div>
                         ))}
-                        <button type="button" onClick={addPrizeRow} className="text-blue-600 text-sm   input-Add">
-                             Add Prize
+
+                        <button
+                            type="button"
+                            onClick={addPrizeRow}
+                            className="text-blue-600 text-sm"
+                        >
+                            + Add Prize Row
                         </button>
                     </div>
 
-                   
-                    <div>
+
+
+                    {/* <div>
                         <h3 className="font-medium mb-2 input-Add">📈 Stocks *</h3>
                         {stocks.map((s, idx) => (
                             <div key={idx} className="flex gap-2 mb-1 items-center ">
@@ -389,11 +453,11 @@ export default function AddContest1({ onSuccess, onCancel }) {
                             </div>
                         ))}
                         <button type="button" onClick={addStockRow} className="text-blue-600 text-sm">
-                             Add Stock
+                            Add Stock
                         </button>
-                    </div>
+                    </div> */}
 
-                   
+
                     <div>
                         <h3 className="font-medium mb-2"> Settings</h3>
                         <div className="space-y-2">
@@ -424,14 +488,14 @@ export default function AddContest1({ onSuccess, onCancel }) {
                                 className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
                             >
                                 <option value="upcoming">Upcoming</option>
-                                <option value="live">Live</option>
-                                <option value="completed">Completed</option>
+                                {/* <option value="live">Live</option>
+                                <option value="completed">Completed</option> */}
                             </select>
                         </div>
                     </div>
 
-          
-                    <div>
+
+                    {/* <div>
                         <label className="text-sm font-medium ">Contest Code</label>
                         <input
                             type="text"
@@ -440,9 +504,9 @@ export default function AddContest1({ onSuccess, onCancel }) {
                             className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
                             placeholder="Optional unique code for the contest "
                         />
-                    </div>
+                    </div> */}
 
-                 
+
                     <div>
                         <h3 className="font-medium mb-2">📅 Schedule *</h3>
                         <div className="grid grid-cols-2 gap-4">
@@ -469,8 +533,8 @@ export default function AddContest1({ onSuccess, onCancel }) {
                         </div>
                     </div>
 
-                 
-              
+
+
                     <div className="flex justify-end gap-3 pt-4 border-t">
                         <button
                             type="button"

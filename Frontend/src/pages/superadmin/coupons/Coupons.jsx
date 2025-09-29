@@ -182,11 +182,11 @@ const Coupons = () => {
   };
 
   const columns = [
-    {
-      name: "S.No",
-      selector: (row, index) => index + 1,
-      width: "80px",
-    },
+    // {
+    //   name: "S.No",
+    //   selector: (row, index) => index + 1,
+    //   width: "80px",
+    // },
     {
       name: "Name",
       selector: (row) => row?.name,

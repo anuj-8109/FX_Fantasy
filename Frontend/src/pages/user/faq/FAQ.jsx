@@ -6,14 +6,14 @@ import BackButton from "../../../pages/user/Backbutton";
 function FAQ() {
   const [faq, setFaq] = useState([]);
   const [loading, setLoading] = useState(false);
-  console.log("faq", faq)
+  const [openIndex, setOpenIndex] = useState(null); // track which accordion is open
+
   const token = localStorage.getItem("token");
 
   const fetchFaq = async () => {
     try {
       setLoading(true);
       const res = await Getfaq(token);
-      console.log("res", res)
       if (res?.status === true) {
         setFaq(res?.data || []);
       } else {
@@ -30,40 +30,50 @@ function FAQ() {
     fetchFaq();
   }, []);
 
+  const toggleAccordion = (index) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        {/* Left: Back button */}
+    <div className="max-w-3xl mx-auto">
+      <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">FAQ</h2>
-
-        {/* Right: Heading */}
         <BackButton />
-
       </div>
 
+      {loading && <p className="text-gray-500">Loading...</p>}
 
-      {loading && <p>Loading...</p>}
-
-      {!loading && faq?.length === 0 && <p>No FAQ found.</p>}
+      {!loading && faq?.length === 0 && (
+        <p className="text-gray-500">No FAQ found.</p>
+      )}
 
       {!loading &&
         faq?.length > 0 &&
         faq.map((item, index) => (
           <div
             key={item._id}
-            style={{
-              marginBottom: "20px",
-              padding: "10px",
-              borderBottom: "1px solid #ddd",
-            }}
+            className="border rounded-lg mb-3 shadow-sm overflow-hidden"
           >
-            <p>
-              <strong>Q{index + 1}: {item.title}</strong>
-            </p>
-            <div
-              dangerouslySetInnerHTML={{ __html: item.description }}
-              style={{ marginLeft: "10px", color: "#555" }}
-            />
+            {/* Accordion Header */}
+            <button
+              onClick={() => toggleAccordion(index)}
+              className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 hover:bg-gray-200 transition-all"
+            >
+              <span className="font-medium text-left">
+                Q{index + 1}: {item.title}
+              </span>
+              <span className="text-lg">
+                {openIndex === index ? "−" : "+"}
+              </span>
+            </button>
+
+            {/* Accordion Content */}
+            {openIndex === index && (
+              <div
+                className="px-4 py-3 text-gray-600 bg-white animate-fadeIn"
+                dangerouslySetInnerHTML={{ __html: item.description }}
+              />
+            )}
           </div>
         ))}
     </div>

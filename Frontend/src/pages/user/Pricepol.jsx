@@ -142,65 +142,65 @@ function Pricepol() {
           {/* All Contests */}
           {activeTab === "contests" &&
             contests.map((contest) => {
-              const progress = (contest.filled_spots / contest.total_spots) * 100 || 0;
+              const progress =
+                (contest.filled_spots / contest.total_spots) * 100 || 0;
 
               return (
-            <div
+                <div
                   key={contest._id}
-                  className="bg-white/80 backdrop-blur-md shadow-md rounded-2xl p-4 sm:p-6 border border-gray-200 
-             hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 w-full"
+                  className="bg-white/90 backdrop-blur-md shadow-md rounded-xl p-3 sm:p-4 border border-gray-200 
+        hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full"
                 >
                   {/* Top Section */}
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                  <div className="flex justify-between items-center mb-3">
                     <div>
-                      <p className="text-xs sm:text-sm text-gray-500">Prize Pool</p>
-                      <p className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
+                      <p className="text-[11px] sm:text-xs text-gray-500">Prize Pool</p>
+                      <p className="text-sm sm:text-lg font-bold bg-gradient-to-r from-orange-500 to-orange-600 text-transparent bg-clip-text">
                         ₹{contest.prize_pool}
                       </p>
                     </div>
-                    <span className="text-xs sm:text-sm text-green-600 font-semibold mt-2 sm:mt-0 flex items-center gap-1">
-                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span className="text-[11px] sm:text-xs text-green-600 font-medium flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                       Guaranteed
                     </span>
                   </div>
 
                   {/* Progress Bar */}
                   <div>
-                    <div className="w-full bg-gray-100 rounded-full h-2 sm:h-3 overflow-hidden">
+                    <div className="w-full bg-gray-100 rounded-full h-1.5 sm:h-2 overflow-hidden">
                       <div
-                        className="h-2 sm:h-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500"
+                        className="h-1.5 sm:h-2 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-500"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-xs sm:text-sm text-gray-500 mt-2">
-                      <span>{contest.total_spots - contest.filled_spots} spots left</span>
+                    <div className="flex justify-between text-[11px] sm:text-xs text-gray-500 mt-1">
+                      <span>{contest.total_spots - contest.filled_spots} left</span>
                       <span>{contest.total_spots} spots</span>
                     </div>
                   </div>
 
                   {/* Bottom Section */}
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-5 gap-3 sm:gap-0">
-                    <span className="text-sm sm:text-base text-gray-700">
-                      🏆 Winners: <span className="font-semibold">{contest.winners || 1}</span>
+                  <div className="flex justify-between items-center mt-3">
+                    <span className="text-xs sm:text-sm text-gray-700">
+                      🏆 <span className="font-semibold">{contest.winners || 1}</span> winners
                     </span>
 
-                    <div className="flex items-center gap-3">
-                      <p className="text-sm sm:text-base font-semibold text-gray-800">
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs sm:text-sm font-semibold text-gray-800">
                         ₹{contest.entry_fee}
                       </p>
                       <button
                         onClick={() => handleJoinNow(contest)}
-                        className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 
-                   hover:from-purple-600 hover:to-indigo-700 text-white rounded-xl 
-                   text-xs sm:text-sm font-semibold shadow-md hover:shadow-lg 
-                   transform hover:-translate-y-1 transition-all duration-300"
+                        className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-orange-600 
+              hover:from-orange-600 hover:to-orange-700 text-white rounded-lg 
+              text-[11px] sm:text-xs font-semibold shadow-sm hover:shadow-md 
+              transition-all duration-300"
                       >
-                        Join Now
+                        Join
                       </button>
                     </div>
                   </div>
                 </div>
-
               );
             })}
 
@@ -213,66 +213,73 @@ function Pricepol() {
                   return (
                     <div
                       key={contestWrapper._id}
-                      className="bg-white shadow-md rounded-2xl border border-gray-200 hover:shadow-xl transition-all duration-300 w-full"
+                      className="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300"
                     >
                       {/* Header */}
-                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 md:p-6 border-b border-gray-100 gap-2 md:gap-0">
+                      <div className="bg-orange-100 border-b border-orange-100 px-3 py-3 flex  sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
-                          <h2 className="font-bold text-lg sm:text-xl md:text-2xl text-gray-800">{contest?.name}</h2>
-                          <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                          <h2 className="font-bold text-base sm:text-lg lg:text-2xl text-orange-600 tracking-wide">
+                            {contest?.name}
+                          </h2>
+                          <p className="text-[10px] sm:text-xs lg:text-lg text-gray-600 mt-1">
                             Tournament:{" "}
-                            <span className="text-indigo-600 font-medium">
+                            <span className="text-orange-500 font-semibold">
                               {contest?.tournament_id?.name}
                             </span>
                           </p>
                         </div>
-                        <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
+                        <div className="flex gap-2 mt-2 sm:mt-0">
                           <button
                             onClick={() =>
                               navigate("/trade", {
                                 state: {
                                   contestId: contestWrapper?.contest_id?._id,
-                                  stocks: contestWrapper?.contest_id?.tournament_id?.stocks || [],
-                                  useamount: contestWrapper?.contest_id?.useamount || 0   // <-- yaha set karo
-                                }
+                                  stocks:
+                                    contestWrapper?.contest_id?.tournament_id?.stocks || [],
+                                  useamount: contestWrapper?.contest_id?.useamount || 0,
+                                },
                               })
                             }
-                            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 
-             hover:from-indigo-600 hover:to-indigo-700 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md"
+                            className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
                           >
                             Live
                           </button>
-
                           <button
                             onClick={() =>
-                              navigate("/tradehistory", { state: { contestId: contestWrapper?.contest_id?._id } })
+                              navigate("/tradehistory", {
+                                state: { contestId: contestWrapper?.contest_id?._id },
+                              })
                             }
-                            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md"
+                            className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
                           >
-                            view History
+                            History
                           </button>
                         </div>
                       </div>
 
-                      {/* Details Grid */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 p-4 md:p-6 text-xs sm:text-sm md:text-base">
-                        <div className="bg-gray-50 rounded-lg p-2 md:p-3">
-                          <p className="text-gray-500 text-xs sm:text-sm">Prize Pool</p>
-                          <p className="font-semibold text-gray-800">₹{contest.prize_pool}</p>
+                      {/* Details */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 sm:p-4 text-[10px] sm:text-sm">
+                        <div className="bg-gray-50 border rounded-md p-2 text-center">
+                          <p className="text-gray-500 text-[10px] sm:text-xs">Prize Pool</p>
+                          <p className="font-bold text-sm sm:text-base text-gray-800">
+                            ₹{contest.prize_pool}
+                          </p>
                         </div>
-                        <div className="bg-gray-50 rounded-lg p-2 md:p-3">
-                          <p className="text-gray-500 text-xs sm:text-sm">Entry Fee</p>
-                          <p className="font-semibold text-gray-800">₹{contest.entry_fee}</p>
+                        <div className="bg-gray-50 border rounded-md p-2 text-center">
+                          <p className="text-gray-500 text-[10px] sm:text-xs">Entry Fee</p>
+                          <p className="font-bold text-sm sm:text-base text-gray-800">
+                            ₹{contest.entry_fee}
+                          </p>
                         </div>
-                        <div className="bg-gray-50 rounded-lg p-2 md:p-3">
-                          <p className="text-gray-500 text-xs sm:text-sm">Joined At</p>
-                          <p className="font-semibold text-gray-800">
+                        <div className="bg-gray-50 border rounded-md p-2 text-center">
+                          <p className="text-gray-500 text-[10px] sm:text-xs">Joined At</p>
+                          <p className="font-bold text-[10px] sm:text-sm text-gray-800">
                             {new Date(contestWrapper.joined_at).toLocaleString()}
                           </p>
                         </div>
-                        <div className="bg-gray-50 rounded-lg p-2 md:p-3">
-                          <p className="text-gray-500 text-xs sm:text-sm">Status</p>
-                          <span className="inline-block px-2 py-1 rounded-full text-xs sm:text-sm font-medium bg-green-100 text-green-700">
+                        <div className="bg-gray-50 border rounded-md p-2 text-center">
+                          <p className="text-gray-500 text-[10px] sm:text-xs">Status</p>
+                          <span className="inline-block px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-green-100 text-green-700">
                             Joined
                           </span>
                         </div>
@@ -281,8 +288,8 @@ function Pricepol() {
                   );
                 })
               ) : (
-                <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
-                  <p className="text-gray-600 text-sm sm:text-base md:text-lg">
+                <div className="text-center py-8 bg-white rounded-lg shadow-sm border border-gray-100">
+                  <p className="text-gray-600 text-sm sm:text-base">
                     📌 You haven’t joined any contests yet.
                   </p>
                 </div>

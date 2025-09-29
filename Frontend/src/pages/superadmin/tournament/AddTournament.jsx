@@ -6,6 +6,7 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
+import * as yup from "yup"
 
 function AddTournament() {
   const navigate = useNavigate();
@@ -23,7 +24,20 @@ function AddTournament() {
   const [stocklistData, setStocklistData] = useState([]);
   const [searchResults, setSearchResults] = useState({});
 
-  // Fetch stock list on load
+
+const validationSchaema = yup.object().shape({
+  name: yup.string()
+    .required("Tournament name is require")
+    .min(3,"name must be at least 3 charactors"),
+
+  description: yup.string()
+    .required("Description is required"),
+
+  stock: yup.array()
+      .required("Stock name is required")
+      .min(1,"minimum one stock is required")
+})
+
   useEffect(() => {
     fatchstocklist();
   }, []);
@@ -86,6 +100,10 @@ function AddTournament() {
     setLoading(true);
 
     try {
+       await validationSchema.validate(
+      { name, description, stocks, startDate, endDate, status },
+      { abortEarly: false } // show all errors at once
+    );
 
       if (stocks.some((s) => !s.stock_id)) {
         Swal.fire("Please select valid stocks from search results");
@@ -195,7 +213,7 @@ function AddTournament() {
               </div>
             ))}
 
-            {stocks.length < 2 && (  // limit to max 2 stocks
+            {stocks.length < 2 && (  
               <button
                 type="button"
                 onClick={addStockRow}

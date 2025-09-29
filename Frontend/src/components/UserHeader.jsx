@@ -28,8 +28,8 @@ const UserHeader = () => {
     fetchWallet();
 
     // हर 10 सेकंड में balance refresh
-    const interval = setInterval(fetchWallet, 10000);
-    return () => clearInterval(interval);
+    // const interval = setInterval(fetchWallet, 10000);
+    // return () => clearInterval(interval);
   }, [token, userId]);
 
   const toggleTheme = () => {
