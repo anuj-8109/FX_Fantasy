@@ -38,11 +38,10 @@ const UserProfile = () => {
         fetchUserDetails();
     }, [token, id]);
 
-
     useEffect(() => {
         const fetchBankDetails = async () => {
             try {
-                const res = await getBankdetalis(token, id);
+                const res = await getBankdetalis(token, id); // pass userId
                 if (res?.status) setBankDetail(res.data || []);
             } catch (error) {
                 toast.error("Failed to fetch bank details");
@@ -78,7 +77,7 @@ const UserProfile = () => {
             const res = await deletebank(token, bankId);
             if (res?.status) {
                 toast.success("Bank account deleted successfully");
-                setBankDetail((prev) => prev.filter((bank) => bank._id !== bankId)); 
+                setBankDetail((prev) => prev.filter((bank) => bank._id !== bankId));
 
             } else {
                 toast.error(res?.message || "Failed to delete bank account");
