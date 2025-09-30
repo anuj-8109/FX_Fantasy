@@ -4,6 +4,8 @@ import BackButton from "../../../pages/user/Backbutton";
 import { GetUserDetails, updateClientImage, getBankdetalis, deletebank } from "../../../services/User";
 import toast from "react-hot-toast";
 import * as config from "../../../utils/config";
+import Swal from "sweetalert2";
+
 
 const UserProfile = () => {
     const [userDetails, setUserDetails] = useState(null);
@@ -13,6 +15,7 @@ const UserProfile = () => {
     const [name, setName] = useState(localStorage.getItem("playerName") || "");
     const [bankdetail, setBankDetail] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+  console.log("selectedImage",selectedImage)
 
     const token = localStorage.getItem("token");
     const id = localStorage.getItem("userId");
@@ -26,7 +29,7 @@ const UserProfile = () => {
                 setName(response?.data?.FullName || "");
 
                 if (response?.data?.image) {
-                    setSelectedImage(`${config.image_url}uploads/clients/${response.data.image}`);
+                    setSelectedImage(response?.data?.image);
                 }
             } catch (error) {
                 console.error("Error fetching user details:", error);
@@ -57,7 +60,18 @@ const UserProfile = () => {
     };
 
     const hendledelete = async (bankId) => {
-        if (!window.confirm("Are you sure you want to delete this bank account?")) return;
+        const result = await Swal.fire({
+            title: "Are you sure you want to delete this bank account?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel",
+            customClass: "custom-swal-popup1"
+        });
+
+        if (!result.isConfirmed) {
+            return;
+        }
 
         try {
             const res = await deletebank(token, bankId);
@@ -84,11 +98,13 @@ const UserProfile = () => {
             formData.append("id", id);
             formData.append("image", uploadFile);
             const res = await updateClientImage(token, formData);
+            console.log(res);
             if (res?.status === true) {
                 toast.success("Profile photo updated!");
                 setIsModalOpen(false);
                 setUserDetails((prev) => ({ ...prev, image: res.data.image }));
-                setSelectedImage(`${config.image_url}uploads/clients`);
+                setSelectedImage(`${config.image_url}uploads/basicsetting/${res.data.image}?t=${Date.now()}`);
+
             } else {
                 toast.error(res?.message || "Failed to update image");
             }
