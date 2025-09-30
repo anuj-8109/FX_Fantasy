@@ -15,7 +15,7 @@ const UserProfile = () => {
     const [name, setName] = useState(localStorage.getItem("playerName") || "");
     const [bankdetail, setBankDetail] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-  console.log("selectedImage",selectedImage)
+    console.log("selectedImage", selectedImage)
 
     const token = localStorage.getItem("token");
     const id = localStorage.getItem("userId");
@@ -42,14 +42,15 @@ const UserProfile = () => {
     useEffect(() => {
         const fetchBankDetails = async () => {
             try {
-                const res = await getBankdetalis(token);
+                const res = await getBankdetalis(token, id);
                 if (res?.status) setBankDetail(res.data || []);
             } catch (error) {
                 toast.error("Failed to fetch bank details");
             }
         };
         fetchBankDetails();
-    }, [token]);
+    }, [token, id]);
+
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -77,7 +78,8 @@ const UserProfile = () => {
             const res = await deletebank(token, bankId);
             if (res?.status) {
                 toast.success("Bank account deleted successfully");
-                setBankDetail((prev) => prev.filter((bank) => bank.id !== bankId));
+                setBankDetail((prev) => prev.filter((bank) => bank._id !== bankId)); 
+
             } else {
                 toast.error(res?.message || "Failed to delete bank account");
             }

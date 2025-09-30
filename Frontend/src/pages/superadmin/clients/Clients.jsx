@@ -296,7 +296,6 @@ const Client = () => {
   };
 
 
-
   const columns = [
     { name: "Name", selector: (row) => row.FullName || "N/A", sortable: true },
     { name: "Email", selector: (row) => row.Email || "N/A" },
@@ -439,7 +438,7 @@ const Client = () => {
                   <input
                     type="text"
                     value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                    onChange={(e) => setFullName(e.target.value.replace(/[^a-zA-Z\s]/g, ""))}
                     className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   />
                 </div>
@@ -459,7 +458,7 @@ const Client = () => {
                   <input
                     type="text"
                     value={phoneNo}
-                    onChange={(e) => setPhoneNo(e.target.value)}
+                    onChange={(e) => setPhoneNo(e.target.value.replace(/\D/g, ""))} 
                     className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   />
                 </div>
