@@ -9,6 +9,7 @@ function Pricepol() {
   const location = useLocation();
   const tournamentId = location?.state?._id;
   const [contests, setContests] = useState([]);
+  const [joinedContests, setJoinedContests] = useState([]);
   const [myContests, setMyContests] = useState([]);
   const [tournament, setTournament] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -58,6 +59,9 @@ function Pricepol() {
       if (!token) return toast.error("Please login to join the contest");
       if (!clientId) return toast.error("Client ID missing!");
 
+      if (!joinedContests.includes(contest._id)) {
+        setJoinedContests((prev) => [...prev, contest._id]);
+      }
       const entryFee = parseFloat(contest.entry_fee) || 0;
       const discount = parseFloat(contest.discount) || 0;
       const total = entryFee - discount;
@@ -91,8 +95,16 @@ function Pricepol() {
       setLoading(true);
       try {
         const data = await GetMyContests(token, clientId);
-        if (data.status && data.data.length > 0) setMyContests(data.data);
-        else setMyContests([]);
+        if (data.status && data.data.length > 0) {
+          setMyContests(data.data);
+
+          // ✅ update joinedContests also
+          const joinedIds = data.data.map((c) => c.contest_id?._id);
+          setJoinedContests(joinedIds);
+        } else {
+          setMyContests([]);
+          setJoinedContests([]);
+        }
       } catch (err) {
         console.error(err);
         setError("Error fetching my contests");
@@ -103,6 +115,7 @@ function Pricepol() {
 
     fetchMyContests();
   }, []);
+
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -145,7 +158,7 @@ function Pricepol() {
 
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <BackButton />
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-orange-600 flex-1">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-[rgb(6,69,91)] flex-1">
           Tournament Contests
         </h1>
         <div className="w-12"></div>
@@ -153,7 +166,7 @@ function Pricepol() {
 
       {/* Tabs */}
       <div className="flex justify-center mb-4 sm:mb-6">
-        <div className="bg-white rounded-full shadow-md flex flex-wrap justify-center gap-2 p-1 sm:p-2">
+        <div className="bg-[#053e53]rounded-full shadow-md flex flex-wrap justify-center gap-2 p-1 sm:p-2">
           {[
             { key: "contests", label: "Contests" },
             { key: "myContests", label: "My Contests" },
@@ -163,7 +176,7 @@ function Pricepol() {
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`px-4 sm:px-6 py-1 sm:py-2 rounded-full font-medium text-xs sm:text-sm md:text-base transition-all ${activeTab === tab.key
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 shadow text-white"
+                ? "bg-[#053e53] shadow text-white"
                 : "bg-gray-100 text-gray-700"
                 }`}
             >
@@ -264,20 +277,22 @@ function Pricepol() {
               const progress =
                 (contest.filled_spots / contest.total_spots) * 100 || 0;
 
+              const isJoined = joinedContests.includes(contest._id);
+
               return (
                 <div
                   key={contest._id}
-                  className="bg-white/90 backdrop-blur-md shadow-md rounded-xl p-3 sm:p-4 border border-gray-200 
+                  className="bg-[#053e5338] backdrop-blur-md shadow-md rounded-xl p-3 sm:p-4 border border-gray-200 
         hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full"
                 >
                   <div className="flex justify-between items-center mb-3">
                     <div>
-                      <p className="text-[11px] sm:text-xs text-gray-500">Prize Pool</p>
-                      <p className="text-sm sm:text-lg font-bold bg-gradient-to-r from-orange-500 to-orange-600 text-transparent bg-clip-text">
+                      <p className="text-[11px] sm:text-xs text-[rgba(4, 53, 71, 1)]">Prize Pool</p>
+                      <p className="text-sm sm:text-lg font-bold bg-[#053e53] text-transparent bg-clip-text">
                         ₹{contest.prize_pool}
                       </p>
                     </div>
-                    <span className="text-[11px] sm:text-xs text-green-600 font-medium flex items-center gap-1">
+                    <span className="text-[11px] sm:text-xs text-[rgba(4, 53, 71, 1)] font-medium flex items-center gap-1">
                       <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                       Guaranteed
                     </span>
@@ -289,28 +304,30 @@ function Pricepol() {
                         style={{ width: `${progress}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-[11px] sm:text-xs text-gray-500 mt-1">
+                    <div className="flex justify-between text-[11px] sm:text-xs text-[rgba(4, 53, 71, 1)]  mt-1">
                       <span>{contest.total_spots - contest.filled_spots} left</span>
                       <span>{contest.total_spots} spots</span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center mt-3">
-                    <span className="text-xs sm:text-sm text-gray-700">
+                    <span className="text-xs sm:text-sm text-[rgba(4, 53, 71, 1)]">
                       🏆 <span className="font-semibold">{contest.winners || 1}</span> winners
                     </span>
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs sm:text-sm font-semibold text-gray-800">
+                    <div className="flex items-center gap-2 ">
+                      <p className="text-xs sm:text-sm font-semibold text-[rgb(6,69,91)]">
                         ₹{contest.entry_fee}
                       </p>
                       <button
                         onClick={() => handleJoinNow(contest)}
-                        className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-orange-600 
-              hover:from-orange-600 hover:to-orange-700 text-white rounded-lg 
-              text-[11px] sm:text-xs font-semibold shadow-sm hover:shadow-md 
-              transition-all duration-300"
+                        disabled={isJoined}
+                        className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold shadow-sm transition-all duration-300
+                         ${isJoined
+                            ? "bg-gray-400 text-white cursor-not-allowed"
+                            : "bg-[#053e53] text-white hover:shadow-md"}`}
                       >
-                        Join
+                        {isJoined ? "Joined" : "Join"}
                       </button>
+
                     </div>
                   </div>
                 </div>
@@ -328,14 +345,14 @@ function Pricepol() {
                       key={contestWrapper._id}
                       className="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300"
                     >
-                      <div className="bg-orange-100 border-b border-orange-100 px-3 py-3 flex  sm:flex-row justify-between items-start sm:items-center gap-2">
+                      <div className="heading_style border-b border-orange-100 px-3 py-3 flex  sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
-                          <h2 className="font-bold text-base sm:text-lg lg:text-2xl text-orange-600 tracking-wide">
+                          <h2 className="font-bold text-base sm:text-lg lg:text-2xl text-[rgb(6,69,91)] tracking-wide">
                             {contest?.name}
                           </h2>
-                          <p className="text-[10px] sm:text-xs lg:text-lg text-gray-600 mt-1">
+                          <p className="text-[10px] sm:text-xs lg:text-lg text-[rgb(6,69,91)] mt-1">
                             Tournament:{" "}
-                            <span className="text-orange-500 font-semibold">
+                            <span className="text-[rgb(6,69,91)] font-semibold">
                               {contest?.tournament_id?.name}
                             </span>
                           </p>
@@ -348,11 +365,11 @@ function Pricepol() {
                                   contestId: contestWrapper?.contest_id?._id,
                                   stocks:
                                     contestWrapper?.contest_id?.tournament_id?.stocks || [],
-                                    wallet_balance: contestWrapper?.wallet_balance || 0,
+                                  wallet_balance: contestWrapper?.wallet_balance || 0,
                                 },
                               })
                             }
-                            className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
+                            className="px-3 py-1.5  button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
                           >
                             Live
                           </button>
@@ -362,9 +379,19 @@ function Pricepol() {
                                 state: { contestId: contestWrapper?.contest_id?._id },
                               })
                             }
-                            className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
+                            className="px-3 py-1.5  button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
                           >
                             History
+                          </button>
+                             <button
+                            onClick={() =>
+                              navigate("/contesttracking", {
+                                state: { _id: contestWrapper?.contest_id?._id },
+                              })
+                            }
+                            className="px-3 py-1.5  button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
+                          >
+                            View Rank
                           </button>
                         </div>
                       </div>
