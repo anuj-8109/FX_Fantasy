@@ -50,7 +50,7 @@ class Clients {
           message: "Client not found"
         });
       }
-      const image = `https://${req.headers.host}/uploads/basicsetting/${client.image}`;
+      const image = `https://${req.headers.host}/uploads/clients/${client.image}`;
 
       const clientData = {
         ...client._doc,
