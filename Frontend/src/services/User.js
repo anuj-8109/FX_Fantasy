@@ -483,6 +483,8 @@ export async function getBankdetalis(token, client_id) {
 }
 
 
+
+
 //deletebank
 
 export async function deletebank(token, id) {
