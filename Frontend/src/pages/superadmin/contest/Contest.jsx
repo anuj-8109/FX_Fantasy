@@ -32,18 +32,19 @@ const Contest = () => {
   const [prizePool, setPrizePool] = useState("");
   const [status, setStatus] = useState("upcoming");
 
-
   const [totalRows, setTotalRows] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterText, setFilterText] = useState("");
 
-
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
 
-
-  const fetchContests = async (page = currentPage, limit = rowsPerPage, filter = filterText) => {
+  const fetchContests = async (
+    page = currentPage,
+    limit = rowsPerPage,
+    filter = filterText
+  ) => {
     setLoading(true);
     try {
       const response = await GetContestsList(token, { page, limit, filter });
@@ -57,32 +58,26 @@ const Contest = () => {
     setLoading(false);
   };
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    fetchContests(page, rowsPerPage, filterText);
+  };
 
+  const handleRowsPerPageChange = (newPerPage) => {
+    setRowsPerPage(newPerPage);
+    setCurrentPage(1);
+    fetchContests(1, newPerPage, filterText);
+  };
 
-
-const handlePageChange = (page) => {
-  setCurrentPage(page);
-  fetchContests(page, rowsPerPage, filterText);
-};
-
-const handleRowsPerPageChange = (newPerPage) => {
-  setRowsPerPage(newPerPage);
-  setCurrentPage(1);
-  fetchContests(1, newPerPage, filterText);
-};
-
-const handleFilterChange = (text) => {
-  setFilterText(text);
-  setCurrentPage(1);
-  fetchContests(1, rowsPerPage, text);
-};
-
+  const handleFilterChange = (text) => {
+    setFilterText(text);
+    setCurrentPage(1);
+    fetchContests(1, rowsPerPage, text);
+  };
 
   useEffect(() => {
-  fetchContests(currentPage, rowsPerPage, filterText);
-}, [currentPage, rowsPerPage, filterText]);
-
-
+    fetchContests(currentPage, rowsPerPage, filterText);
+  }, [currentPage, rowsPerPage, filterText]);
 
   const handleOpen = (contest = null) => {
     setSelectedContest(contest);
@@ -199,7 +194,6 @@ const handleFilterChange = (text) => {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
-
     });
 
     if (!confirm.isConfirmed) return;
@@ -219,10 +213,14 @@ const handleFilterChange = (text) => {
     }
   };
 
-
   const columns = [
     // { name: "S.No", selector: (row, i) => i + 1, width: "70px" },
-    { name: "Name", selector: (row) => row.name, sortable: true, width: "160px" },
+    {
+      name: "Name",
+      selector: (row) => row.name,
+      sortable: true,
+      width: "160px",
+    },
     { name: "Description", selector: (row) => row.description, grow: 2 },
     { name: "Type", selector: (row) => row.contest_type },
     { name: "Entry Fee", selector: (row) => row.entry_fee },
@@ -268,20 +266,20 @@ const handleFilterChange = (text) => {
       width: "100px",
     },
 
-    { name: "Code", selector: (row) => row.contest_code, width: "120px" },
+    // { name: "Code", selector: (row) => row.contest_code||"-", width: "120px" },
 
-    {
-      name: "Start Date",
-      selector: (row) =>
-        row.startdate ? new Date(row.startdate).toLocaleString() : "-",
-      width: "180px",
-    },
-    {
-      name: "End Date",
-      selector: (row) =>
-        row.enddate ? new Date(row.enddate).toLocaleString() : "-",
-      width: "180px",
-    },
+    // {
+    //   name: "Start Date",
+    //   selector: (row) =>
+    //     row.startdate ? new Date(row.startdate).toLocaleString() : "-",
+    //   width: "180px",
+    // },
+    // {
+    //   name: "End Date",
+    //   selector: (row) =>
+    //     row.enddate ? new Date(row.enddate).toLocaleString() : "-",
+    //   width: "180px",
+    // },
 
     {
       name: "Status",
@@ -333,13 +331,15 @@ const handleFilterChange = (text) => {
     },
   ];
 
-
   return (
-    <Content Page_title="Contest Management" button_title="Back" button_status={true} route="/superadmin/dashboard"
-    // extra_button="Add Contest" extra_button_action={"/superadmin/add-contest"} 
+    <Content
+      Page_title="Contest Management"
+      button_title="Back"
+      button_status={true}
+      route="/superadmin/dashboard"
+      // extra_button="Add Contest" extra_button_action={"/superadmin/add-contest"}
     >
       <div className="p-2 ">
-
         <div className="shadow-lg rounded-xl p-4">
           <Datatable
             columns={columns}
@@ -351,10 +351,14 @@ const handleFilterChange = (text) => {
             onRowsPerPageChange={handleRowsPerPageChange}
             filterText={filterText}
             onFilterChange={handleFilterChange}
-            onRefresh={() => fetchContests({ page: currentPage, limit: rowsPerPage, filter: filterText })}
+            onRefresh={() =>
+              fetchContests({
+                page: currentPage,
+                limit: rowsPerPage,
+                filter: filterText,
+              })
+            }
           />
-
-
         </div>
 
         {open && (
@@ -367,7 +371,9 @@ const handleFilterChange = (text) => {
               onClick={(e) => e.stopPropagation()} // andar click karne se band na ho
             >
               <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
-                <span>{selectedContest ? "✏️ Edit Contest" : "➕ Add Contest"}</span>
+                <span>
+                  {selectedContest ? "✏️ Edit Contest" : "➕ Add Contest"}
+                </span>
                 <button
                   onClick={handleCancel}
                   className="text-gray-500 hover:text-gray-700"
@@ -390,7 +396,9 @@ const handleFilterChange = (text) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium">Description</label>
+                  <label className="block text-sm font-medium">
+                    Description
+                  </label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -400,7 +408,9 @@ const handleFilterChange = (text) => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium">Entry Fee</label>
+                    <label className="block text-sm font-medium">
+                      Entry Fee
+                    </label>
                     <input
                       type="number"
                       value={entryFee}
@@ -409,7 +419,9 @@ const handleFilterChange = (text) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium">Total Spots</label>
+                    <label className="block text-sm font-medium">
+                      Total Spots
+                    </label>
                     <input
                       type="number"
                       value={totalSpots}
@@ -420,7 +432,9 @@ const handleFilterChange = (text) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium">Prize Pool</label>
+                  <label className="block text-sm font-medium">
+                    Prize Pool
+                  </label>
                   <input
                     type="number"
                     value={prizePool}
@@ -461,10 +475,6 @@ const handleFilterChange = (text) => {
             </div>
           </div>
         )}
-
-
-
-
       </div>
     </Content>
   );

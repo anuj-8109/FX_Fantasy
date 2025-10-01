@@ -65,11 +65,11 @@ const Datatable = ({
 
   // Add S.No column dynamically
   const enhancedColumns = [
-    {
-      name: "S.No",
-      selector: (row, i) => (currentPage - 1) * rowsPerPage + i + 1,
-      width: "70px",
-    },
+    // {
+    //   name: "S.No",
+    //   selector: (row, i) => (currentPage - 1) * rowsPerPage + i + 1,
+    //   width: "70px",
+    // },
     ...columns,
   ];
 

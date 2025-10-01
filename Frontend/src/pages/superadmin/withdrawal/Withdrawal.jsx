@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Content from "../../../components/superadmin/Content";
 import Datatable from "../../../extracomponents/Datatable";
-import { withdrawalPayoutrequest, payoutlist } from "../../../services/SuperAdmin";
+import {
+  withdrawalPayoutrequest,
+  payoutlist,
+} from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 
@@ -27,7 +30,6 @@ const WithdrawalRequest = () => {
   const filteredTransactions = transactions.filter(
     (t) => statusMap[t.status] === activeTab
   );
-
 
   const fetchTransactions = async (status) => {
     try {
@@ -58,7 +60,9 @@ const WithdrawalRequest = () => {
 
     const confirm = await Swal.fire({
       title: `${actionText} Transaction?`,
-      text: `Do you want to ${actionText.toLowerCase()} this transaction of ₹${transaction.amount}?`,
+      text: `Do you want to ${actionText.toLowerCase()} this transaction of ₹${
+        transaction.amount
+      }?`,
       icon: "question",
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
@@ -90,12 +94,22 @@ const WithdrawalRequest = () => {
   };
 
   const columns = [
-   
+    {
+      name: "S.No",
+      selector: (row, index) => index + 1,
+      width: "80px",
+    },
     { name: "ID", selector: (row) => row._id },
     { name: "Client ID", selector: (row) => row.clientid },
     { name: "Amount", selector: (row) => `₹${row.amount}` },
-    { name: "Created At", selector: (row) => new Date(row.created_at).toLocaleString() },
-    { name: "Updated At", selector: (row) => new Date(row.updated_at).toLocaleString() },
+    {
+      name: "Created At",
+      selector: (row) => new Date(row.created_at).toLocaleString(),
+    },
+    {
+      name: "Updated At",
+      selector: (row) => new Date(row.updated_at).toLocaleString(),
+    },
     { name: "Status", selector: (row) => statusMap[row.status] },
     {
       name: "Action",
@@ -123,7 +137,12 @@ const WithdrawalRequest = () => {
   ];
 
   return (
-    <Content Page_title="Withdrawal Requests" button_status={true} button_title="Back" route={"/superadmin/dashboard"}>
+    <Content
+      Page_title="Withdrawal Requests"
+      button_status={true}
+      button_title="Back"
+      route={"/superadmin/dashboard"}
+    >
       <div className="p-4">
         {/* Tabs */}
         <div className="flex gap-4 border-b mb-4">
@@ -131,10 +150,11 @@ const WithdrawalRequest = () => {
             <button
               key={tab.label}
               onClick={() => setActiveTab(tab.label)}
-              className={`px-4 py-2 font-medium ${activeTab === tab.label
+              className={`px-4 py-2 font-medium ${
+                activeTab === tab.label
                   ? "text-white bg-sky-600 rounded-t-lg"
                   : "text-gray-600 hover:text-gray-800"
-                }`}
+              }`}
             >
               {tab.label}
             </button>
@@ -152,7 +172,6 @@ const WithdrawalRequest = () => {
               fetchTransactions(tabs.find((t) => t.label === activeTab)?.status)
             }
           />
-
         </div>
       </div>
     </Content>

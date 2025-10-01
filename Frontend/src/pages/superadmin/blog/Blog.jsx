@@ -45,7 +45,7 @@ const Blog = () => {
     fetchBlogs();
   }, []);
 
-  console.log("config.image_url",config.image_url)
+  console.log("config.image_url", config.image_url);
 
   const handleOpen = (blog = null) => {
     setSelectedBlog(blog);
@@ -160,25 +160,24 @@ const Blog = () => {
   };
 
   const columns = [
-    // {
-    //   name: "S.No",
-    //   selector: (row, index) => index + 1,
-    //   width: "80px",
-    // },
     {
-  name: "Image",
-  cell: (row) => (
-    row?.image ? (
-      <img
-        src={`${config?.image_url}uploads/blogs/${row.image}`}
-        alt={row.title}
-        className="w-16 h-16 object-cover rounded"
-      />
-    ) : (
-      <span className="text-gray-400 italic">No Image</span>
-    )
-  ),
-},
+      name: "S.No",
+      selector: (row, index) => index + 1,
+      width: "80px",
+    },
+    {
+      name: "Image",
+      cell: (row) =>
+        row?.image ? (
+          <img
+            src={`${config?.image_url}uploads/blogs/${row.image}`}
+            alt={row.title}
+            className="w-16 h-16 object-cover rounded"
+          />
+        ) : (
+          <span className="text-gray-400 italic">No Image</span>
+        ),
+    },
 
     {
       name: "Title",
@@ -247,11 +246,11 @@ const Blog = () => {
       Page_title="All Blogs"
       button_title="Back"
       button_status={true}
-       extra_button="+ Add Blog"  extra_button_action={() => handleOpen(null)}
+      extra_button="+ Add Blog"
+      extra_button_action={() => handleOpen(null)}
       route="/superadmin/dashboard"
     >
       <div className="p-2 ">
-
         {/* <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <FileText />
@@ -267,7 +266,12 @@ const Blog = () => {
         </div> */}
 
         <div className="shadow-lg rounded-xl p-4 bg-#1E293B">
-          <Datatable columns={columns} data={blogs} title="Blogs List" onRefresh={fetchBlogs} />
+          <Datatable
+            columns={columns}
+            data={blogs}
+            title="Blogs List"
+            onRefresh={fetchBlogs}
+          />
         </div>
 
         {open && (

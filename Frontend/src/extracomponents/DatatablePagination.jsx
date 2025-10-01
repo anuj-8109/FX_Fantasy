@@ -152,7 +152,7 @@ const Datatable = ({
         onChangeRowsPerPage={onRowsPerPageChange}
         highlightOnHover
         fixedHeader
-        fixedHeaderScrollHeight="600px"
+        fixedHeaderScrollHeight="700px"
         responsive
         paginationComponentOptions={paginationComponentOptions}
         progressPending={isLoading}
