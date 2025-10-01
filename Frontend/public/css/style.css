@@ -292,3 +292,27 @@ aside .w-16 .anuj{
 .client-style{
     border-radius: 10px;
 }
+
+.theme-trading-light .custom {
+    background-image: linear-gradient(to right, #fef3c7, #fbcfe8, #9333ea);
+    color: #1f2937; /* dark gray text color */
+    font-family: 'Arial', sans-serif; /* font family */
+   
+    font-weight: 200; /* font weight */
+   
+    border-radius: 8px; /* rounded corners */
+}
+.header,footer
+{
+    background-image: linear-gradient(to right, #022f40,#08516b, #38aacc) !important;
+
+}
+
+
+.heading_style{
+    background-color: rgb(16 121 159 / 16%);
+}
+
+.button_style{
+     background-color: rgb(6 71 94);
+}

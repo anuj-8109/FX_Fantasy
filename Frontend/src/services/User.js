@@ -504,3 +504,22 @@ export async function deletebank(token, id) {
     };
   }
 }
+
+
+// ContestTracking
+
+export async function getContestRanking(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/list/getcontestranking`,
+      data,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
+
+

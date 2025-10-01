@@ -101,7 +101,7 @@ const UserDashboard = () => {
 
   const getCompanyIcon = (name, color) => (
     <div
-      className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-md"
+      className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-[0.675rem] shadow-md"
       style={{ backgroundColor: color }}
     >
       {name[0]}
@@ -156,7 +156,7 @@ const UserDashboard = () => {
 
 
       {/* Tabs */}
-      <div className="flex justify-around bg-white mt-4 mx-2 rounded-xl shadow-sm overflow-hidden text-[0.75rem] sm:text-sm">
+      <div className="flex justify-around bg-[#0648601c] mt-4 mx-2 rounded-xl shadow-sm overflow-hidden text-[0.75rem] sm:text-sm">
         {[
           { key: "ongoing", label: "Live Tournament", icon: Trophy },
           { key: "upcoming", label: "Upcoming", icon: Clock },
@@ -168,7 +168,7 @@ const UserDashboard = () => {
             className={`flex-1 py-3 sm:py-4 px-2 font-medium transition-all duration-200 ${activeTab === key ? "border-b-2 border-blue-600" : ""
               }`}
           >
-            <div className="flex flex-col items-center space-y-1">
+            <div className="flex flex-col items-center space-y-1 ">
               <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>{label}</span>
             </div>
@@ -187,7 +187,7 @@ const UserDashboard = () => {
                   
                 )
               }
-              className={`bg-white rounded-xl shadow-md hover:shadow-xl transition p-4 cursor-pointer border-l-4 ${contest.status === "ongoing"
+              className={`bg-[#0648601c] rounded-xl shadow-md hover:shadow-xl transition p-4 cursor-pointer border-l-4 ${contest.status === "ongoing"
                 ? "border-green-500"
                 : contest.status === "upcoming"
                   ? "border-yellow-400"
@@ -212,7 +212,7 @@ const UserDashboard = () => {
                 <div className="flex items-center space-x-2">
                   {getCompanyIcon(contest.company, contest.companyColor)}
                   <div>
-                    <p className="font-semibold text-sm sm:text-base">
+                    <p className="font-semibold text-[0.675rem] sm:text-base">
                       {contest.company}
                     </p>
                     <p className="text-[10px] sm:text-[11px] text-gray-500">
@@ -222,7 +222,7 @@ const UserDashboard = () => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="text-right">
-                    <p className="font-semibold text-sm sm:text-base">
+                    <p className="font-semibold text-[0.675rem] sm:text-base">
                       {contest.partner}
                     </p>
                     <p className="text-[10px] sm:text-[11px] text-gray-500">
@@ -236,13 +236,13 @@ const UserDashboard = () => {
               {/* Stats */}
               <div className="grid grid-cols-3 gap-2 mb-3">
                 <div className="text-center p-2 rounded-md border">
-                  <p className="text-base font-bold">{contest.prizePool}</p>
+                  <p className="text-[0.675rem] font-bold">{contest.prizePool}</p>
                   <p className="text-[10px] sm:text-[11px] text-gray-500">
                     Prize Pool
                   </p>
                 </div>
                 <div className="text-center p-2 rounded-md border">
-                  <p className="text-base font-bold">
+                  <p className="text-[0.675rem] font-bold">
                     {getTimeLeft(contest.end)}
                   </p>
                   <p className="text-[10px] sm:text-[11px] text-gray-500">
@@ -250,7 +250,7 @@ const UserDashboard = () => {
                   </p>
                 </div>
                 <div className="text-center p-2 rounded-md border">
-                  <p className="text-base font-bold flex items-center justify-center">
+                  <p className="text-[0.675rem] font-bold flex items-center justify-center">
                     <Users className="w-4 h-4 mr-1" />
                     {contest.participants}
                   </p>
