@@ -33,27 +33,37 @@ const Datatable = ({
     }
   };
 
-  const handleExport = () => {
-    const csvContent = [
-      columns.map((col) => col.name).join(","),
-      ...data.map((row) =>
-        columns
-          .map((col) => {
-            const value = col.selector ? col.selector(row) : row[col.id] || "";
-            return `"${String(value).replace(/"/g, '""')}"`;
-          })
-          .join(",")
-      ),
-    ].join("\n");
+const handleExport = async () => {
+  let exportData = data; // current page by default
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${title || "data"}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
+  // Optional: Fetch all data if server-side
+  if (typeof fetchAllData === "function") {
+    exportData = await fetchAllData(filterText); // you can pass the filter if needed
+  }
+
+  const exportableColumns = columns.filter((col) => col.export !== false);
+
+  const csvContent = [
+    ["S.No", ...exportableColumns.map((col) => col.name)].join(","), // header
+    ...exportData.map((row, index) => {
+      const serialNumber = index + 1;
+      const rowValues = exportableColumns.map((col) => {
+        let value = col.selector ? col.selector(row) : row[col.id] || "";
+        if (col.name.toLowerCase().includes("phone")) value = `\t${String(value)}`;
+        return `"${String(value).replace(/"/g, '""')}"`;
+      });
+      return [serialNumber, ...rowValues].join(",");
+    }),
+  ].join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${title || "data"}.csv`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+};
 
   const paginationComponentOptions = {
     rowsPerPageText: "Rows per page:",

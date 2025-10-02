@@ -182,30 +182,42 @@ const AllUsers = () => {
   }, []);
 
   const columns = [
-    {
-      name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: true,
-      width: "80px",
-    },
+    // {
+    //   name: "S.No",
+    //   selector: (row, index) => index + 1,
+    //   sortable: true,
+    //   width: "80px",
+    // },
     {
       name: "Name",
-      selector: (row) => row?.FullName,
+      selector: (row) => row?.FullName || "N/A",
+      exportValue: (row) => row?.FullName || "N/A",
+      export: true,
       sortable: true,
+      width: "150px",
     },
     {
       name: "User Name",
-      selector: (row) => row?.UserName,
+      selector: (row) => row?.UserName || "N/A",
+      exportValue: (row) => row?.UserName || "N/A",
+      export: true,
       sortable: true,
+      width: "150px",
     },
     {
       name: "Email",
-      selector: (row) => row?.Email,
+      selector: (row) => row?.Email || "N/A",
+      exportValue: (row) => row?.Email || "N/A",
+      export: true,
+      width: "250px",
     },
     {
       name: "Phone No",
-      selector: (row) => row?.PhoneNo,
+      selector: (row) => row?.PhoneNo || "N/A",
+      exportValue: (row) => row?.PhoneNo || "N/A",
+      export: true,
       sortable: true,
+      width: "120px",
     },
     {
       name: "Status",
@@ -226,7 +238,10 @@ const AllUsers = () => {
           </label>
         </div>
       ),
+      exportValue: (row) => (row.ActiveStatus === 1 ? "Active" : "Inactive"),
+      export: true,
       sortable: true,
+      width: "80px",
     },
     {
       name: "Permission",
@@ -260,6 +275,8 @@ const AllUsers = () => {
           </button>
         </div>
       ),
+      width: "100px",
+      export: false,
     },
     {
       name: "Action",
@@ -281,6 +298,7 @@ const AllUsers = () => {
           />
         </div>
       ),
+      export: false,
     },
   ];
 

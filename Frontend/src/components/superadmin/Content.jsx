@@ -8,13 +8,12 @@ const Content = ({
   Page_title_showClient,
   button_status,
   route,
-  extra_button,          
-  extra_button_action,   
+  extra_button,
+  extra_button_action,
   ...rest
 }) => {
   return (
     <div className="flex-1 p-4 min-h-screen ">
-
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border p-2 rounded-md Content_Style">
         <div className="flex flex-col ">
           <div className="flex items-center gap-2 Content-Style ">
@@ -36,7 +35,6 @@ const Content = ({
         </div>
 
         <div className="flex gap-2">
-        
           {button_status !== false && button_title !== "Back" && (
             <Link
               to={route}
@@ -46,12 +44,11 @@ const Content = ({
             </Link>
           )}
 
-         
-          {extra_button && (
-            typeof extra_button_action === "function" ? (
+          {extra_button &&
+            (typeof extra_button_action === "function" ? (
               <button
                 onClick={extra_button_action}
-                 className="px-3 py-1 border rounded-lg shadow hover:bg-green-500 transition flex items-center gap-2 text-sm font-medium"
+                className="px-3 py-1 border rounded-lg shadow hover:bg-green-500 transition flex items-center gap-2 text-sm font-medium"
               >
                 {extra_button}
               </button>
@@ -62,12 +59,10 @@ const Content = ({
               >
                 {extra_button}
               </Link>
-            )
-          )}
+            ))}
         </div>
       </div>
 
-      
       <div className="rounded-xl space-y-4 border transition duration-300">
         {rest.cardTitle && (
           <h4 className="text-lg font-semibold text-gray-900">

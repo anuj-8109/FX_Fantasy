@@ -137,23 +137,42 @@ const Client = () => {
     fetchStates();
   }, [currentPage, rowsPerPage, filterText]);
 
-  const handleOpen = (client = null) => {
+  const handleOpen = async (client = null) => {
     setSelectedClient(client);
     setFullName(client?.FullName || "");
     setEmail(client?.Email || "");
     setPhoneNo(client?.PhoneNo || "");
-    setStateId(client?.stateId || "");
-    setCityId(client?.cityId || "");
     setDob(client?.dob || "");
 
-    if (client?.stateId) {
-      const stateObj = states.find((s) => s._id === client.stateId);
-      if (stateObj) fetchCities(stateObj.name);
+    // Find and set state by name from API response
+    if (client?.state && states.length > 0) {
+      const stateObj = states.find((s) => s.name === client.state);
+      if (stateObj) {
+        setStateId(stateObj._id);
+
+        // Fetch cities and then set city
+        try {
+          const res = await getStateByCity(stateObj.name, token);
+          const fetchedCities = res || [];
+          setCities(fetchedCities);
+
+          // Find and set city by name
+          if (client?.city) {
+            const cityObj = fetchedCities.find((c) => c.city === client.city);
+            if (cityObj) setCityId(cityObj._id);
+          }
+        } catch (error) {
+          console.error("Failed to load cities", error);
+        }
+      }
+    } else {
+      setStateId("");
+      setCityId("");
+      setCities([]);
     }
 
     setOpen(true);
   };
-
   const handleCancel = () => {
     setOpen(false);
     setSelectedClient(null);
@@ -181,6 +200,38 @@ const Client = () => {
     if (!stateId) {
       toast.error("Please select state");
       return;
+    }
+
+    // If editing, check if any changes were made
+    if (selectedClient) {
+      const stateObj = states.find((s) => s._id === stateId);
+      const cityObj = cities.find((c) => c._id === cityId);
+
+      const noChanges =
+        selectedClient.FullName === fullName &&
+        selectedClient.Email === email &&
+        selectedClient.PhoneNo === phoneNo &&
+        selectedClient.dob === dob &&
+        selectedClient.state === (stateObj?.name || "") &&
+        selectedClient.city === (cityObj?.city || "");
+
+      if (noChanges) {
+        Swal.fire({
+          icon: "info",
+          title: "No changes made",
+          text: "You haven't modified any details.",
+          confirmButtonColor: "#3085d6",
+          customClass: {
+            popup: "custom-swal-popup",
+            title: "text-xl font-semibold text-white-800",
+            confirmButton:
+              "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
+            cancelButton:
+              "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+          },
+        });
+        return; // exit without making API call
+      }
     }
 
     const confirm = await Swal.fire({
@@ -298,11 +349,50 @@ const Client = () => {
   };
 
   const columns = [
-    { name: "Name", selector: (row) => row.FullName || "N/A", sortable: true },
-    { name: "Email", selector: (row) => row.Email || "N/A" },
-    { name: "Phone", selector: (row) => row.PhoneNo || "N/A" },
-    { name: "City", selector: (row) => row.city || "N/A" },
-    { name: "State", selector: (row) => row.state || "N/A" },
+    {
+      name: "Name",
+      selector: (row) => row.FullName || "N/A",
+      exportValue: (row) => row.FullName || "N/A",
+      export: true,
+      sortable: true,
+      width: "150px",
+    },
+    {
+      name: "Email",
+      selector: (row) => row.Email || "N/A",
+      exportValue: (row) => row.Email || "N/A",
+      export: true,
+      width: "250px",
+    },
+    {
+      name: "Phone",
+      selector: (row) => row.PhoneNo || "N/A",
+      exportValue: (row) => row.PhoneNo || "N/A",
+      export: true,
+      width: "120px",
+    },
+    {
+      name: "City",
+      selector: (row) => row.city || "N/A",
+      exportValue: (row) => row.city || "N/A",
+      export: true,
+      width: "120px",
+    },
+    {
+      name: "State",
+      selector: (row) => row.state || "N/A",
+      exportValue: (row) => row.state || "N/A",
+      export: true,
+      width: "180px",
+    },
+    {
+      name: "DOB",
+      selector: (row) => row.dob || "N/A",
+      exportValue: (row) => row.dob || "N/A",
+      export: true,
+      width: "100px",
+    },
+
     {
       name: "Status",
       cell: (row) => (
@@ -317,6 +407,8 @@ const Client = () => {
           <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border peer-checked:translate-x-full transition-transform"></div>
         </label>
       ),
+      width: "80px",
+      export: false,
     },
     {
       name: "View",
@@ -330,6 +422,8 @@ const Client = () => {
           }}
         />
       ),
+      width: "60px",
+      export: false,
     },
     {
       name: "Action",
@@ -345,10 +439,11 @@ const Client = () => {
           />
         </div>
       ),
+      export: false,
     },
     {
       name: "KYC",
-      width: "180px",
+      width: "110px",
       cell: (row) => (
         <div className="flex gap-2">
           {row.kyc_type === 1 ? (
@@ -381,6 +476,7 @@ const Client = () => {
           )}
         </div>
       ),
+      export: false,
     },
 
     {
@@ -394,6 +490,7 @@ const Client = () => {
           View Banks
         </button>
       ),
+      export: false,
     },
   ];
 
@@ -635,7 +732,21 @@ const Client = () => {
                   <strong>DOB:</strong> {viewClient?.dob || "N/A"}
                 </p>
                 <p>
-                  <strong>Status:</strong> {viewClient?.status || "N/A"}
+                  <strong>Status:</strong>{" "}
+                  {viewClient?.ActiveStatus === 1 ||
+                  viewClient?.ActiveStatus === "1"
+                    ? "Active"
+                    : "Inactive"}
+                </p>
+                <p>
+                  <strong>KYC:</strong>{" "}
+                  {viewClient.kyc_verification === 1 ? (
+                    <span>Verified</span>
+                  ) : viewClient.kyc_verification === 2 ? (
+                    <span>Rejected </span>
+                  ) : (
+                    <span>Pending </span>
+                  )}
                 </p>
               </div>
 
