@@ -219,27 +219,59 @@ async function TournamentStatusChange(req, res) {
 
 async function getLivePrice(symbol) {
   try {
-    
-    const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}.BSE&apikey=3B7SZFS9ANX227CY`;
-    
-    const response = await axios.get(url);
+      
+        const csvFilePath = "https://docs.google.com/spreadsheets/d/1wwSMDmZuxrDXJsmxSIELk1O01F0x1-0LEpY03iY1tWU/export?format=csv";
+        const { data } = await axios.get(csvFilePath);
+        
+        // Return a promise that resolves with the CPrice after parsing
+        return new Promise((resolve, reject) => {
+            Papa.parse(data, {
+                header: true,
+                complete: (result) => {
+                    let sheetData = result.data;
 
-    if (
-      response.data &&
-      response.data["Global Quote"] &&
-      response.data["Global Quote"]["05. price"]
-    ) {
-      const price = parseFloat(response.data["Global Quote"]["05. price"]);
-      return price; // ✅ live price return
-    } else {
-      console.error("No price data found:", response.data);
-      return null;
+                    // Map symbol names as needed
+                    sheetData.forEach(item => {
+                        switch (item.SYMBOL) {
+                            case "NIFTY_BANK":
+                                item.SYMBOL = "BANKNIFTY";
+                                break;
+                            case "NIFTY_50":
+                                item.SYMBOL = "NIFTY";
+                                break;
+                            case "NIFTY_FIN_SERVICE":
+                                item.SYMBOL = "FINNIFTY";
+                                break;
+                        }
+                    });
+
+                    // Find the requested symbol and return its CPrice
+                   // const stockData = sheetData.find(item => item.SYMBOL === symbol);
+
+                      const stockData = sheetData.find(item => 
+                        item.SYMBOL === symbol.trim() || 
+                        item.SYMBOL === `NSE:${symbol.trim()}`
+                    );
+
+                    // console.log("Searching for Symbol:", symbol.trim());
+                    // console.log("Matched Stock Data:", stockData);
+
+                    if (stockData && stockData.CPrice && stockData.CPrice !== "#N/A") {
+                        resolve(stockData.CPrice);
+                    } else {
+                        reject(new Error("CPrice unavailable or symbol not found."));
+                    }
+                },
+                error: (error) => {
+                    reject(error);
+                }
+            });
+        });
+    } catch (error) {
+       
+       return;
     }
-  } catch (error) {
-    console.error("Error fetching live price:", error.message);
-    return null; // fallback
   }
-}
 async function updateContestRanks(req, res) {
   try {
     // 1️⃣ Get all live tournaments
