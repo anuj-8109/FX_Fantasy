@@ -283,10 +283,15 @@ function Pricepol() {
                 <div
                   key={contest._id}
                   className="bg-[#053e5338] backdrop-blur-md shadow-md rounded-xl p-3 sm:p-4 border border-gray-200 
-        hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full"
+                   hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full"
                 >
+                  {/* Tournament Name */}
+                  <p className="text-[12px] sm:text-sm font-semibold text-[#053e53] mb-2">
+                    {contest.tournament_name || contest.tournament_id?.name || "Tournament"}
+                  </p>
+
                   <div className="flex justify-between items-center mb-3">
-                    <div>
+                    <div className="flex flex-row items-center gap-3">
                       <p className="text-[11px] sm:text-xs text-[rgba(4, 53, 71, 1)]">Prize Pool</p>
                       <p className="text-sm sm:text-lg font-bold bg-[#053e53] text-transparent bg-clip-text">
                         ₹{contest.prize_pool}
@@ -297,6 +302,7 @@ function Pricepol() {
                       Guaranteed
                     </span>
                   </div>
+
                   <div>
                     <div className="w-full bg-gray-100 rounded-full h-1.5 sm:h-2 overflow-hidden">
                       <div
@@ -383,7 +389,7 @@ function Pricepol() {
                           >
                             History
                           </button>
-                             <button
+                          <button
                             onClick={() =>
                               navigate("/contesttracking", {
                                 state: { _id: contestWrapper?.contest_id?._id },

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BackButton from "../../../pages/user/Backbutton";
-import { GetUserDetails, updateClientImage, getBankdetalis, deletebank } from "../../../services/User";
+import { GetUserDetails, updateClientImage, getBankdetalis, deletebank, EditUser } from "../../../services/User";
 import toast from "react-hot-toast";
 import * as config from "../../../utils/config";
 import Swal from "sweetalert2";
@@ -15,6 +15,9 @@ const UserProfile = () => {
     const [name, setName] = useState(localStorage.getItem("playerName") || "");
     const [bankdetail, setBankDetail] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [edituser, setEdituser] = ([]);
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [updatedName, setUpdatedName] = useState(name);
     console.log("selectedImage", selectedImage)
 
     const token = localStorage.getItem("token");
@@ -114,6 +117,47 @@ const UserProfile = () => {
         }
     };
 
+
+
+    const handleSaveName = async () => {
+    if (!updatedName.trim()) {
+        toast.error("Name cannot be empty");
+        return;
+    }
+
+    try {
+        // Send PUT request with updated name
+        const res = await EditUser(token, {
+            id, // user ID from localStorage
+            FullName: updatedName,
+            Email: userDetails?.Email, // keep current email
+            PhoneNo: userDetails?.PhoneNo // keep current phone
+        });
+
+        if (res?.status) {
+            setUserDetails((prev) => ({ ...prev, FullName: updatedName }));
+            setName(updatedName);
+            setIsEditingName(false);
+            toast.success("Name updated successfully!");
+        } else {
+            toast.error(res?.message || "Failed to update name");
+        }
+    } catch (error) {
+        toast.error("Error updating name");
+    }
+};
+
+
+    const handleupdateuser = async () => {
+        const response = await EditUser(token);
+        if (response?.status) {
+            setEdituser(response?.data);
+        }
+        else {
+            toast.error("can't fatch data")
+        }
+    }
+
     return (
         <div className="p-6 max-w-6xl mx-auto">
             <BackButton />
@@ -133,12 +177,12 @@ const UserProfile = () => {
                     <p className="text-sm text-gray-500">{userDetails?.Email || "Email not provided"}</p>
 
                     <div className="flex justify-center gap-4 mt-4">
-                        <span className={`px-4 py-2 rounded-lg text-sm font-medium ${userDetails?.ActiveStatus === 1
+                        {/* <span className={`px-4 py-2 rounded-lg text-sm font-medium ${userDetails?.ActiveStatus === 1
                             ? "bg-green-500 text-white"
                             : "bg-red-100 text-red-600"
                             }`}>
                             {userDetails?.ActiveStatus === 1 ? "Active" : "DeActive"}
-                        </span>
+                        </span> */}
 
                         <button
                             onClick={() => setIsModalOpen(true)}
@@ -177,8 +221,41 @@ const UserProfile = () => {
                             <div className="space-y-4">
                                 <div className="border p-3 rounded-lg bg-gray-50">
                                     <p className="text-xs text-gray-500">Username</p>
-                                    <p>{name}</p>
+                                    {isEditingName ? (
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={updatedName}
+                                                onChange={(e) => setUpdatedName(e.target.value)}
+                                                className="border rounded-lg p-1 flex-1"
+                                            />
+                                            <button
+                                                onClick={handleSaveName}
+                                                className="px-3 py-1 bg-blue-600 text-white rounded-lg"
+                                            >
+                                                Save
+                                            </button>
+                                            <button
+                                                onClick={() => { setIsEditingName(false); setUpdatedName(name); }}
+                                                className="px-3 py-1 bg-gray-300 rounded-lg"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="flex justify-between items-center">
+                                            <span>{name}</span>
+                                            <button
+                                                onClick={() => setIsEditingName(true)}
+                                                className="text-blue-600 text-sm font-medium"
+                                            >
+                                                Edit
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
+
+
                                 <div className="border p-3 rounded-lg bg-gray-50">
                                     <p className="text-xs text-gray-500">Phone Number</p>
                                     <p>{userDetails?.PhoneNo || "Not provided"}</p>
@@ -217,7 +294,13 @@ const UserProfile = () => {
                                         onClick={() => navigate("/bankdetail")}
                                         className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm"
                                     >
-                                        Add Bank/UPI
+                                        Add Bank
+                                    </button>
+                                    <button
+                                        onClick={() => navigate("/bankdetail")}
+                                        className="mt-2 ms-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm"
+                                    >
+                                        Add UPI
                                     </button>
                                 </div>
                             </div>

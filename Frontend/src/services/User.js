@@ -522,4 +522,17 @@ export async function getContestRanking(token, data) {
 }
 
 
+// User update
+export async function EditUser(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}user/update-profile`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
 
