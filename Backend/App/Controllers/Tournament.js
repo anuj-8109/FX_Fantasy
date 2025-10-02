@@ -13,6 +13,7 @@ class TournamentController {
                 description,
                 startdate,
                 enddate,
+                useamount,
                 stocks,
                 add_by,
                 status
@@ -27,6 +28,7 @@ class TournamentController {
                 description,
                 startdate,
                 enddate,
+                useamount,
                 stocks,
                 add_by,
                 status
@@ -117,7 +119,7 @@ class TournamentController {
     // Update tournament
     async updateTournament(req, res) {
         try {
-            const { id, name, description, startdate, enddate, stocks,status } = req.body;
+            const { id, name, description, startdate, enddate, stocks,useamount,status } = req.body;
 
             if (!id) return res.status(400).json({ status: false, message: "Tournament ID is required" });
 
@@ -127,6 +129,7 @@ class TournamentController {
                 startdate,
                 enddate,
                 stocks,
+                useamount,
                 status
             };
 

@@ -366,11 +366,20 @@ async  joinContest(req, res) {
       return res.status(404).json({ status: false, message: "Contest not found" });
     }
 
+const tournament = await Tournament_Model.findOne({ _id: contest.tournament_id, del: false });
+if (!tournament) {
+  return res.status(404).json({ status: false, message: "Tournament not found" });
+}
+
+
     // Validate client exists
     const client = await Clients_Modal.findOne({ _id: client_id, del: 0 });
     if (!client) {
       return res.status(404).json({ status: false, message: "Client not found" });
     }
+
+
+    
 
     // Check if already joined
     const existingJoin = await Contestjoin_Modal.findOne({ contest_id, client_id });
@@ -406,7 +415,7 @@ async  joinContest(req, res) {
       discount,
       total,
       entry_count: 1,
-      wallet_balance: contest.useamount,
+      wallet_balance: tournament.useamount,
       joined_at: new Date()
     });
 

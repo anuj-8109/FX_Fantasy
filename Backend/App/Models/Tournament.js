@@ -39,6 +39,11 @@ const TournamentSchema = new Schema({
     type: Boolean,
     default: true // true = active, false = inactive
   },
+    useamount: {
+    type: Number,
+    required: true,
+    min: 0
+  },
   del: {
     type: Boolean,
     default: false
