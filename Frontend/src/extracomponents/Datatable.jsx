@@ -34,27 +34,45 @@ const Datatable = ({
     }
   };
 
-  const handleExport = () => {
-    const csvContent = [
-      columns.map((col) => col.name).join(","),
-      ...filteredData.map((row) =>
-        columns
-          .map((col) => {
-            const value = col.selector ? col.selector(row) : row[col.id] || "";
-            return `"${String(value).replace(/"/g, '""')}"`;
-          })
-          .join(",")
-      ),
-    ].join("\n");
+const handleExport = () => {
+  const exportableColumns = columns.filter((col) => col.export !== false);
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${title || "data"}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
+  const csvContent = [
+    ["S.No", ...exportableColumns.map((col) => col.name)].join(","), // header including S.No
+    ...filteredData.map((row, index) => {
+      const serialNumber = (currentPage - 1) * rowsPerPage + index + 1; // same S.No logic
+
+      const rowValues = exportableColumns.map((col) => {
+        let value = "";
+        if (col.exportValue) {
+          value = col.exportValue(row);
+        } else if (col.selector) {
+          value = col.selector(row);
+        } else {
+          value = row[col.id] || "";
+        }
+
+        // Phone numbers as string to prevent Excel formatting
+        if (col.name.toLowerCase().includes("phone")) {
+          value = `\t${String(value)}`;
+        }
+
+        return `"${String(value).replace(/"/g, '""')}"`;
+      });
+
+      return [serialNumber, ...rowValues].join(","); // prepend S.No
+    }),
+  ].join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${title || "data"}.csv`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+};
+
 
   const paginationComponentOptions = {
     rowsPerPageText: "Rows per page:",
@@ -107,7 +125,9 @@ const Datatable = ({
               disabled={isLoading}
               className="inline-flex items-center gap-2 px-2 py-2.5 border rounded-lg text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
             >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+              />
               Refresh
             </button>
           )}

@@ -37,14 +37,15 @@ const menuItems = [
   {
     title: "Employee",
     icon: <Users />,
-    children: [
-      { title: "All Employee", url: "/superadmin/alluser", icon: <Users /> },
-      {
-        title: "Active Employee",
-        url: "/superadmin/activeuser",
-        icon: <UserCheck />,
-      },
-    ],
+    url: "/superadmin/alluser",
+    // children: [
+    //   { title: "All Employee", url: "/superadmin/alluser", icon: <Users /> },
+    //   {
+    //     title: "Active Employee",
+    //     url: "/superadmin/activeuser",
+    //     icon: <UserCheck />,
+    //   },
+    // ],
   },
   {
     title: "Clients",

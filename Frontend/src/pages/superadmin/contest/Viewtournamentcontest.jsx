@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/Datatable";
 import { Eye, Edit } from "lucide-react";
-import { getContestsByTournamentId, UpdateContest } from "../../../services/SuperAdmin";
+import {
+  getContestsByTournamentId,
+  UpdateContest,
+} from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import { useLocation } from "react-router-dom";
 import Content from "../../../components/superadmin/Content";
@@ -101,7 +104,7 @@ const TournamentContests = () => {
     { name: "Entry Fee", selector: (row) => row.entry_fee },
     { name: "Total Spots", selector: (row) => row.total_spots },
     { name: "Prize Pool", selector: (row) => row.prize_pool },
-    { name: "Status", selector: (row) => row.status },
+    { name: "Status", selector: (row) => row.tournament_id.status },
     {
       name: "Action",
       cell: (row) => (
@@ -157,12 +160,24 @@ const TournamentContests = () => {
               </h2>
 
               <div className="space-y-3">
-                <p><strong>Name:</strong> {viewContest?.name}</p>
-                <p><strong>Description:</strong> {viewContest?.description}</p>
-                <p><strong>Entry Fee:</strong> {viewContest?.entry_fee}</p>
-                <p><strong>Total Spots:</strong> {viewContest?.total_spots}</p>
-                <p><strong>Prize Pool:</strong> {viewContest?.prize_pool}</p>
-                <p><strong>Status:</strong> {viewContest?.status}</p>
+                <p>
+                  <strong>Name:</strong> {viewContest?.name}
+                </p>
+                <p>
+                  <strong>Description:</strong> {viewContest?.description}
+                </p>
+                <p>
+                  <strong>Entry Fee:</strong> {viewContest?.entry_fee}
+                </p>
+                <p>
+                  <strong>Total Spots:</strong> {viewContest?.total_spots}
+                </p>
+                <p>
+                  <strong>Prize Pool:</strong> {viewContest?.prize_pool}
+                </p>
+                <p>
+                  <strong>Status:</strong> {viewContest?.tournament_id.status }
+                </p>
               </div>
 
               <div className="mt-6 flex justify-end">
@@ -189,7 +204,10 @@ const TournamentContests = () => {
             >
               <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
                 <span>✏️ Edit Contest</span>
-                <button onClick={handleCancel} className="text-gray-500 hover:text-gray-700">
+                <button
+                  onClick={handleCancel}
+                  className="text-gray-500 hover:text-gray-700"
+                >
                   ✖
                 </button>
               </h2>
@@ -261,7 +279,6 @@ const TournamentContests = () => {
             </div>
           </div>
         )}
-
       </div>
     </Content>
   );

@@ -10,7 +10,7 @@ import {
   getState,
   getStateByCity,
   getBankdetails,
-  kyc_verification
+  kyc_verification,
 } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -41,7 +41,6 @@ const Client = () => {
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
 
-
   let stateObj = states.find((s) => s._id === stateId);
   let cityObj = cities.find((c) => c._id === cityId);
 
@@ -56,7 +55,6 @@ const Client = () => {
     fetchClients({ page, limit: newPerPage, filter: filterText });
   };
 
-
   const handleFilterChange = (text) => {
     setFilterText(text);
     fetchClients({ page: 1, limit: rowsPerPage, filter: text }); // reset to page 1
@@ -69,18 +67,27 @@ const Client = () => {
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
 
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
 
     return age >= minAge;
   }
 
-
   // Fetch clients
   const fetchClients = async () => {
     setLoading(true);
-    const data = { status: "", kyc_verification: "", search: "", add_by: "", page: currentPage, limit: rowsPerPage }
+    const data = {
+      status: "",
+      kyc_verification: "",
+      search: "",
+      add_by: "",
+      page: currentPage,
+      limit: rowsPerPage,
+    };
     const response = await GetClientsWithFilter(token, data);
     if (response?.status) {
       setClients(response?.data);
@@ -114,7 +121,6 @@ const Client = () => {
     }
   };
 
-
   const fetchCities = async (stateName) => {
     try {
       if (!stateName) return setCities([]);
@@ -126,31 +132,47 @@ const Client = () => {
     }
   };
 
-
-
   useEffect(() => {
     fetchClients({ currentPage, rowsPerPage, filterText });
     fetchStates();
   }, [currentPage, rowsPerPage, filterText]);
 
-  const handleOpen = (client = null) => {
+  const handleOpen = async (client = null) => {
     setSelectedClient(client);
     setFullName(client?.FullName || "");
     setEmail(client?.Email || "");
     setPhoneNo(client?.PhoneNo || "");
-    setStateId(client?.stateId || "");
-    setCityId(client?.cityId || "");
     setDob(client?.dob || "");
 
-    if (client?.stateId) {
-      const stateObj = states.find((s) => s._id === client.stateId);
-      if (stateObj) fetchCities(stateObj.name);
+    // Find and set state by name from API response
+    if (client?.state && states.length > 0) {
+      const stateObj = states.find((s) => s.name === client.state);
+      if (stateObj) {
+        setStateId(stateObj._id);
+
+        // Fetch cities and then set city
+        try {
+          const res = await getStateByCity(stateObj.name, token);
+          const fetchedCities = res || [];
+          setCities(fetchedCities);
+
+          // Find and set city by name
+          if (client?.city) {
+            const cityObj = fetchedCities.find((c) => c.city === client.city);
+            if (cityObj) setCityId(cityObj._id);
+          }
+        } catch (error) {
+          console.error("Failed to load cities", error);
+        }
+      }
+    } else {
+      setStateId("");
+      setCityId("");
+      setCities([]);
     }
 
     setOpen(true);
   };
-
-
   const handleCancel = () => {
     setOpen(false);
     setSelectedClient(null);
@@ -178,6 +200,38 @@ const Client = () => {
     if (!stateId) {
       toast.error("Please select state");
       return;
+    }
+
+    // If editing, check if any changes were made
+    if (selectedClient) {
+      const stateObj = states.find((s) => s._id === stateId);
+      const cityObj = cities.find((c) => c._id === cityId);
+
+      const noChanges =
+        selectedClient.FullName === fullName &&
+        selectedClient.Email === email &&
+        selectedClient.PhoneNo === phoneNo &&
+        selectedClient.dob === dob &&
+        selectedClient.state === (stateObj?.name || "") &&
+        selectedClient.city === (cityObj?.city || "");
+
+      if (noChanges) {
+        Swal.fire({
+          icon: "info",
+          title: "No changes made",
+          text: "You haven't modified any details.",
+          confirmButtonColor: "#3085d6",
+          customClass: {
+            popup: "custom-swal-popup",
+            title: "text-xl font-semibold text-white-800",
+            confirmButton:
+              "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
+            cancelButton:
+              "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+          },
+        });
+        return; // exit without making API call
+      }
     }
 
     const confirm = await Swal.fire({
@@ -220,7 +274,6 @@ const Client = () => {
 
     setLoading(false);
   };
-
 
   const handleStatusChange = async (client) => {
     const actionText = client.ActiveStatus === 1 ? "Deactivate" : "Activate";
@@ -295,15 +348,55 @@ const Client = () => {
     }
   };
 
-
   const columns = [
-    { name: "Name", selector: (row) => row.FullName || "N/A", sortable: true },
-    { name: "Email", selector: (row) => row.Email || "N/A" },
-    { name: "Phone", selector: (row) => row.PhoneNo || "N/A" },
-    { name: "City", selector: (row) => row.city || "N/A" },
-    { name: "State", selector: (row) => row.state || "N/A" },
+    {
+      name: "Name",
+      selector: (row) => row.FullName || "N/A",
+      exportValue: (row) => row.FullName || "N/A",
+      export: true,
+      sortable: true,
+      width: "150px",
+    },
+    {
+      name: "Email",
+      selector: (row) => row.Email || "N/A",
+      exportValue: (row) => row.Email || "N/A",
+      export: true,
+      width: "250px",
+    },
+    {
+      name: "Phone",
+      selector: (row) => row.PhoneNo || "N/A",
+      exportValue: (row) => row.PhoneNo || "N/A",
+      export: true,
+      width: "120px",
+    },
+    {
+      name: "City",
+      selector: (row) => row.city || "N/A",
+      exportValue: (row) => row.city || "N/A",
+      export: true,
+      width: "120px",
+    },
+    {
+      name: "State",
+      selector: (row) => row.state || "N/A",
+      exportValue: (row) => row.state || "N/A",
+      export: true,
+      width: "180px",
+    },
+    {
+      name: "DOB",
+      selector: (row) => row.dob || "N/A",
+      exportValue: (row) => row.dob || "N/A",
+      export: true,
+      width: "100px",
+    },
+
     {
       name: "Status",
+      selector: (row) => (row.ActiveStatus === 1 ? "Active" : "Inactive"),
+      exportValue: (row) => (row.ActiveStatus === 1 ? "Active" : "Inactive"),
       cell: (row) => (
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -316,19 +409,54 @@ const Client = () => {
           <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border peer-checked:translate-x-full transition-transform"></div>
         </label>
       ),
+      width: "100px",
+      export: true,
+    },
+
+    {
+      name: "View",
+      cell: (row) => (
+        <Eye
+          className="cursor-pointer text-green-600"
+          size={20}
+          onClick={() => {
+            setViewClient(row);
+            setViewOpen(true);
+          }}
+        />
+      ),
+      width: "60px",
+      export: false,
     },
     {
       name: "Action",
       cell: (row) => (
         <div className="flex gap-3">
-          <Edit className="cursor-pointer text-blue-600" onClick={() => handleOpen(row)} />
-          <Trash2 className="cursor-pointer text-red-600" onClick={() => handleDelete(row)} />
+          <Edit
+            className="cursor-pointer text-blue-600"
+            onClick={() => handleOpen(row)}
+          />
+          <Trash2
+            className="cursor-pointer text-red-600"
+            onClick={() => handleDelete(row)}
+          />
         </div>
       ),
+      export: false,
     },
     {
       name: "KYC",
-      width: "180px",
+      width: "110px",
+      exportValue: (row) => {
+        if (row.kyc_verification === 1) return "Verified";
+        if (row.kyc_verification === 2) return "Rejected";
+        return "Pending";
+      },
+      selector: (row) => {
+        if (row.kyc_verification === 1) return "Verified";
+        if (row.kyc_verification === 2) return "Rejected";
+        return "Pending";
+      },
       cell: (row) => (
         <div className="flex gap-2">
           {row.kyc_type === 1 ? (
@@ -352,20 +480,17 @@ const Client = () => {
                 </button>
               </div>
             )
+          ) : row.kyc_verification === 1 ? (
+            <span className="text-green-600 font-semibold">Verified ✅</span>
+          ) : row.kyc_verification === 2 ? (
+            <span className="text-red-600 font-semibold">Rejected ❌</span>
           ) : (
-         
-            row.kyc_verification === 1 ? (
-              <span className="text-green-600 font-semibold">Verified ✅</span>
-            ) : row.kyc_verification === 2 ? (
-              <span className="text-red-600 font-semibold">Rejected ❌</span>
-            ) : (
-              <span className="text-gray-500 font-semibold">Pending ⏳</span>
-            )
+            <span className="text-gray-500 font-semibold">Pending ⏳</span>
           )}
         </div>
       ),
+      export: true,
     },
-
 
     {
       name: "Bank Details",
@@ -378,21 +503,7 @@ const Client = () => {
           View Banks
         </button>
       ),
-
-    },
-
-    {
-      name: "View",
-      cell: (row) => (
-        <Eye
-          className="cursor-pointer text-green-600"
-          size={20}
-          onClick={() => {
-            setViewClient(row);
-            setViewOpen(true);
-          }}
-        />
-      ),
+      export: false,
     },
   ];
 
@@ -432,13 +543,18 @@ const Client = () => {
                 {selectedClient ? "✏️ Edit Client" : "➕ Add Client"}
               </h2>
 
-              <form onSubmit={handleSave} className="grid grid-cols-2 gap-4 mt-4">
+              <form
+                onSubmit={handleSave}
+                className="grid grid-cols-2 gap-4 mt-4"
+              >
                 <div>
                   <label className="text-sm">Full Name</label>
                   <input
                     type="text"
                     value={fullName}
-                    onChange={(e) => setFullName(e.target.value.replace(/[^a-zA-Z\s]/g, ""))}
+                    onChange={(e) =>
+                      setFullName(e.target.value.replace(/[^a-zA-Z\s]/g, ""))
+                    }
                     className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   />
                 </div>
@@ -458,7 +574,9 @@ const Client = () => {
                   <input
                     type="text"
                     value={phoneNo}
-                    onChange={(e) => setPhoneNo(e.target.value.replace(/\D/g, ""))} 
+                    onChange={(e) =>
+                      setPhoneNo(e.target.value.replace(/\D/g, ""))
+                    }
                     className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   />
                 </div>
@@ -472,7 +590,9 @@ const Client = () => {
                       setStateId(selectedStateId);
                       setCityId("");
 
-                      const stateObj = states.find((s) => s._id === selectedStateId);
+                      const stateObj = states.find(
+                        (s) => s._id === selectedStateId
+                      );
                       if (stateObj) fetchCities(stateObj.name);
                       else setCities([]);
                     }}
@@ -485,8 +605,6 @@ const Client = () => {
                       </option>
                     ))}
                   </select>
-
-
                 </div>
 
                 <div>
@@ -503,9 +621,7 @@ const Client = () => {
                       </option>
                     ))}
                   </select>
-
                 </div>
-
 
                 <div>
                   <label className="text-sm">DOB</label>
@@ -592,7 +708,6 @@ const Client = () => {
           </div>
         )}
 
-
         {/* View Client */}
         {viewOpen && viewClient && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-opacity-40">
@@ -630,7 +745,21 @@ const Client = () => {
                   <strong>DOB:</strong> {viewClient?.dob || "N/A"}
                 </p>
                 <p>
-                  <strong>Status:</strong> {viewClient?.status || "N/A"}
+                  <strong>Status:</strong>{" "}
+                  {viewClient?.ActiveStatus === 1 ||
+                  viewClient?.ActiveStatus === "1"
+                    ? "Active"
+                    : "Inactive"}
+                </p>
+                <p>
+                  <strong>KYC:</strong>{" "}
+                  {viewClient.kyc_verification === 1 ? (
+                    <span>Verified</span>
+                  ) : viewClient.kyc_verification === 2 ? (
+                    <span>Rejected </span>
+                  ) : (
+                    <span>Pending </span>
+                  )}
                 </p>
               </div>
 

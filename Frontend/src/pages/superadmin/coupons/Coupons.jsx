@@ -182,11 +182,11 @@ const Coupons = () => {
   };
 
   const columns = [
-    // {
-    //   name: "S.No",
-    //   selector: (row, index) => index + 1,
-    //   width: "80px",
-    // },
+    {
+      name: "S.No",
+      selector: (row, index) => index + 1,
+      width: "80px",
+    },
     {
       name: "Name",
       selector: (row) => row?.name,
@@ -206,12 +206,32 @@ const Coupons = () => {
     },
     {
       name: "Validity",
-      cell: (row) => (
-        <div>
-          {row?.startdate} - {row?.enddate}
-        </div>
-      ),
+      cell: (row) => {
+        const start = new Date(row?.startdate).toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const end = new Date(row?.enddate).toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+        return (
+          <div>
+            {start} - {end}
+          </div>
+        );
+      },
+      width: "280px",
+
     },
+
     {
       name: "Min Purchase",
       selector: (row) => row?.minpurchasevalue,
@@ -269,11 +289,11 @@ const Coupons = () => {
       Page_title="Coupon Management"
       button_title="Back"
       button_status={true}
-       extra_button="+ Add Coupon"  extra_button_action={() => handleOpen(null)}
+      extra_button="+ Add Coupon"
+      extra_button_action={() => handleOpen(null)}
       route="/superadmin/dashboard"
     >
       <div className="p-2 ">
-
         {/* <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <FileText />
@@ -289,7 +309,12 @@ const Coupons = () => {
         </div> */}
 
         <div className="shadow-lg rounded-xl p-4 ">
-          <Datatable columns={columns} data={coupons} title="Coupons List" onRefresh={fetchCoupons} />
+          <Datatable
+            columns={columns}
+            data={coupons}
+            title="Coupons List"
+            onRefresh={fetchCoupons}
+          />
         </div>
 
         {open && (
@@ -357,9 +382,7 @@ const Coupons = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-sm ">
-                      Min Purchase Value
-                    </label>
+                    <label className="text-sm ">Min Purchase Value</label>
                     <input
                       type="number"
                       value={minpurchasevalue}
@@ -368,9 +391,7 @@ const Coupons = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-sm ">
-                      Min Coupon Value
-                    </label>
+                    <label className="text-sm ">Min Coupon Value</label>
                     <input
                       type="number"
                       value={mincouponvalue}

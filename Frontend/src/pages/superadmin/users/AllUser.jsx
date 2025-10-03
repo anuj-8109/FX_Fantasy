@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/Datatable";
 import { User } from "lucide-react";
-import { GetAllUser, StatusChange, UpdatePermissions } from "../../../services/SuperAdmin";
+import {
+  GetAllUser,
+  StatusChange,
+  UpdatePermissions,
+} from "../../../services/SuperAdmin";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { Edit, Trash2 } from "lucide-react";
-import { DeleteUser, EditUser } from "../../../services/SuperAdmin"
+import { DeleteUser, EditUser } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Content from "../../../components/superadmin/Content";
 
@@ -13,7 +17,6 @@ const AllUsers = () => {
   const navigate = useNavigate();
   const [allusers, setAllUsers] = useState([]);
   const token = localStorage.getItem("token");
-
 
   const fetchAllUsers = async () => {
     try {
@@ -29,9 +32,6 @@ const AllUsers = () => {
     navigate("/superadmin/addUser");
   };
 
-
-
-
   const handleDelete = (row) => {
     Swal.fire({
       title: "Are you sure?",
@@ -46,10 +46,14 @@ const AllUsers = () => {
         try {
           const token = localStorage.getItem("token");
           const res = await DeleteUser(token, row._id);
-          console.log("res", res)
+          console.log("res", res);
 
           if (res?.status) {
-            toast.success("User Deleted successfully!", res?.message, "success");
+            toast.success(
+              "User Deleted successfully!",
+              res?.message,
+              "success"
+            );
             fetchAllUsers();
           }
         } catch (err) {
@@ -94,7 +98,6 @@ const AllUsers = () => {
           title: "Success",
           text: response?.message || "User status updated successfully.",
           confirmButtonColor: "#2563eb",
-          
         });
 
         setAllUsers((prev) =>
@@ -174,8 +177,6 @@ const AllUsers = () => {
     }
   };
 
-
-
   useEffect(() => {
     fetchAllUsers();
   }, []);
@@ -189,22 +190,34 @@ const AllUsers = () => {
     // },
     {
       name: "Name",
-      selector: (row) => row?.FullName,
+      selector: (row) => row?.FullName || "N/A",
+      exportValue: (row) => row?.FullName || "N/A",
+      export: true,
       sortable: true,
+      width: "150px",
     },
     {
       name: "User Name",
-      selector: (row) => row?.UserName,
+      selector: (row) => row?.UserName || "N/A",
+      exportValue: (row) => row?.UserName || "N/A",
+      export: true,
       sortable: true,
+      width: "150px",
     },
     {
       name: "Email",
-      selector: (row) => row?.Email,
+      selector: (row) => row?.Email || "N/A",
+      exportValue: (row) => row?.Email || "N/A",
+      export: true,
+      width: "250px",
     },
     {
       name: "Phone No",
-      selector: (row) => row?.PhoneNo,
+      selector: (row) => row?.PhoneNo || "N/A",
+      exportValue: (row) => row?.PhoneNo || "N/A",
+      export: true,
       sortable: true,
+      width: "120px",
     },
     {
       name: "Status",
@@ -223,7 +236,17 @@ const AllUsers = () => {
             <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
             <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border bg-white peer-checked:translate-x-full transition-transform"></div>
           </label>
-
+        </div>
+      ),
+      exportValue: (row) => (row.ActiveStatus === 1 ? "Active" : "Inactive"),
+      export: true,
+      sortable: true,
+      width: "80px",
+    },
+    {
+      name: "Permission",
+      cell: (row) => (
+        <div className="flex items-center gap-3">
           {/* ✅ Gear icon for permissions */}
           <button
             onClick={() => handlePermissionUpdate(row)}
@@ -252,11 +275,9 @@ const AllUsers = () => {
           </button>
         </div>
       ),
-      sortable: true,
+      width: "100px",
+      export: false,
     },
-
-
-
     {
       name: "Action",
       selector: (row) => row?.PhoneNo,
@@ -277,13 +298,19 @@ const AllUsers = () => {
           />
         </div>
       ),
+      export: false,
     },
   ];
 
   return (
-    <Content Page_title="All Employees" button_status={true} button_title="Back" route="/superadmin/dashboard"
+    <Content
+      Page_title="All Employees"
+      button_status={true}
+      button_title="Back"
+      route="/superadmin/dashboard"
       extra_button="Add Employee"
-      extra_button_action="/superadmin/addUser">
+      extra_button_action="/superadmin/addUser"
+    >
       <div className="p-8 min-h-screen AllUsers_Style">
         {/* <div className="flex items-center justify-between mb-6 border  rounded-xl shadow-sm p-2">
         <div className="flex items-center gap-2">
@@ -299,12 +326,13 @@ const AllUsers = () => {
         </button>
       </div> */}
 
-
-
-
-
         <div className=" border shadow-lg rounded-xl  ">
-          <Datatable columns={columns} data={allusers} title="Users List" onRefresh={fetchAllUsers} />
+          <Datatable
+            columns={columns}
+            data={allusers}
+            title="Users List"
+            onRefresh={fetchAllUsers}
+          />
         </div>
       </div>
     </Content>
