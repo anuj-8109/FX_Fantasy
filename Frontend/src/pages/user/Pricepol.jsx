@@ -161,7 +161,25 @@ function Pricepol() {
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-[rgb(6,69,91)] flex-1">
           Tournament Contests
         </h1>
-        <div className="w-12"></div>
+        
+          <button
+           
+            onClick={() =>
+              navigate("/addprivatecontest", {
+                state: {
+                  tournament_id: contests?.contest_id?.tournament_id?._id || null,
+                },
+              })
+            }
+            className="bg-[#043e53] text-white px-4 py-2 rounded-lg shadow transition text-xs sm:text-sm md:text-base"
+          >
+            Create Contest
+          </button>
+       
+
+
+
+
       </div>
 
       {/* Tabs */}

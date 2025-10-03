@@ -492,7 +492,7 @@ export async function deletebank(token, id) {
     const response = await axios.get(
       `${config.base_url}api/client/deletebank`,
       {
-        params: { id }, 
+        params: { id },
         headers: { Authorization: `Bearer ${token}` },
       }
     );
@@ -536,3 +536,50 @@ export async function EditUser(token, data) {
   }
 }
 
+// addprivatecontent router.post("/api/client/addcontestprivate", auth, AddContestPrivate);
+
+export async function addprivatecontent(token,formData) {
+  try {
+    const response = await axios.post(`${config.base_url}api/client/addcontestprivate`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
+//get private contests
+export async function ListPrivateContests(token, client_id) {
+  try {
+    const response = await axios.get(`${config.base_url}api/client/listprivatecontests`, {
+      params: { client_id },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network Error" }
+  }
+}
+
+// router.post("/api/client/shareprivatecontest", auth, SharePrivateContest);
+export async function SharePrivateContest(token, contest_id, shared_with_client_id, shared_by_client_id) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/client/shareprivatecontest`,
+      { contest_id, shared_with_client_id, shared_by_client_id },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}

@@ -23,6 +23,9 @@ import Search from "../pages/user/search/Search";
 import ContestTracking from "../pages/user/contestTracking/ContestTracking"
 import Kycdetails from "../pages/user/kyc/Kycdetails";
 import Bankdetail from "../pages/user/bankdetail/Bankdetail";
+import AddprivateContest from "../pages/user/privatecontest/Addprivatecontest";
+import Getprivatecontest from "../pages/user/privatecontest/Getprivatecontest";
+
 
 const UserRoutes = () => {
   return (
@@ -48,6 +51,8 @@ const UserRoutes = () => {
         <Route path="contesttracking" element={<ContestTracking/>}/>
         <Route path="kycdetail" element={<Kycdetails/>}/>
         <Route path="bankdetail" element={<Bankdetail/>}/>
+        <Route path="addprivatecontest" element={<AddprivateContest/>}/>
+        <Route path="listprivatecontest" element={<Getprivatecontest/>}/>
 
 
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
