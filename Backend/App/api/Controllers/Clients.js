@@ -16,8 +16,7 @@ const Ticketmessage_Modal = db.Ticketmessage;
 const Wallet_Modal = db.Wallet;
 const Bank_Modal = db.Bank;
 const ContestShare_Model = db.ContestShare;
-
-
+const Contest_Model = db.Contest
 
 const { sendSMS } = require('../../Utils/smsHelper');
 const upload = require('../../Utils/multerHelper');
@@ -1619,7 +1618,6 @@ async deleteBank(req, res) {
                 contest_type,
                 entry_fee,
                 total_spots,
-                max_entry_per_user,
                 prize_pool,
                 prize_distribution,
                 is_guaranteed,
@@ -1665,7 +1663,6 @@ async deleteBank(req, res) {
                 contest_type,
                 entry_fee,
                 total_spots,
-                max_entry_per_user,
                 prize_pool,
                 prize_distribution: prizeDist,
                 is_guaranteed,

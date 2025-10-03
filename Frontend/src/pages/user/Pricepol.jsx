@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { GetContestByTurnament, JoinContest, GetMyContests } from "../../services/User";
+import { GetContestByTurnament, JoinContest, GetMyContests, ListPrivateContests } from "../../services/User";
 import toast from "react-hot-toast";
 import BackButton from "../../pages/user/Backbutton";
 
@@ -15,6 +15,7 @@ function Pricepol() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("myContests");
+  const [privateContests, setPrivateContests] = useState([]);
   const [filters, setFilters] = useState({
     minEntryFee: "",
     maxEntryFee: "",
@@ -24,6 +25,7 @@ function Pricepol() {
     maxParticipants: "",
   });
   const token = localStorage.getItem("token");
+  console.log("privateContests", privateContests)
 
   useEffect(() => {
     if (!tournamentId || !token) {
@@ -153,6 +155,29 @@ function Pricepol() {
     return true;
   });
 
+  useEffect(() => {
+    const fetchPrivateContests = async () => {
+      const token = localStorage.getItem("token");
+      const clientId = localStorage.getItem("userId");
+      if (!token || !clientId) return;
+
+      try {
+        const res = await ListPrivateContests(token, clientId);
+        if (res.status) {
+          // set the contests array correctly
+          setPrivateContests(res.contests || []);
+        } else {
+          setPrivateContests([]);
+        }
+      } catch (err) {
+        console.error("Error fetching private contests:", err);
+      }
+    };
+
+    if (activeTab === "myTeam") fetchPrivateContests();
+  }, [activeTab]);
+
+
   return (
     <div className="p-2 sm:p-4 md:p-6 lg:p-8 bg-gray-50 min-h-screen">
 
@@ -161,7 +186,19 @@ function Pricepol() {
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-[rgb(6,69,91)] flex-1">
           Tournament Contests
         </h1>
-        <div className="w-12"></div>
+
+        <button
+          onClick={() =>
+            navigate("/addprivatecontest", {
+              state: {
+                tournament_id: tournament?._id, // ✅ dynamically uses current tournament
+              },
+            })
+          }
+          className="bg-[#043e53] text-white px-4 py-2 rounded-lg shadow transition text-xs sm:text-sm md:text-base"
+        >
+          Create Contest
+        </button>
       </div>
 
       {/* Tabs */}
@@ -170,7 +207,7 @@ function Pricepol() {
           {[
             { key: "contests", label: "Contests" },
             { key: "myContests", label: "My Contests" },
-            { key: "myTeam", label: "My Team" },
+            { key: "myTeam", label: "Private Contests" },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -440,14 +477,121 @@ function Pricepol() {
             </div>
           )}
 
-          {/* My Team */}
           {activeTab === "myTeam" && (
-            <p className="text-center text-gray-600 text-sm sm:text-base md:text-lg mt-6">
-              👥 Your created teams will appear here.
-            </p>
+            <div className="space-y-4 sm:space-y-6">
+              {privateContests.length > 0 ? (
+                privateContests.map((data) => (
+                  <div
+                    key={data._id}
+                    className="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300"
+                  >
+                    <div className="px-3 py-3 flex justify-between items-center">
+                      <div>
+                        <h2 className="font-bold text-base sm:text-lg text-[rgb(6,69,91)]">
+                          {data.name}
+                        </h2>
+                        <p className="text-[10px] sm:text-xs text-[rgb(6,69,91)] mt-1">
+                          Tournament:{" "}
+                          <span className="font-semibold">{data.tournament_id}</span>
+                        </p>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() =>
+                            navigate("/trade", {
+                              state: {
+                                contestId: data._id,
+                                stocks: data.stocks || [], // add stocks if available
+                                wallet_balance: data.wallet_balance || 0,
+                              },
+                            })
+                          }
+                          className="px-3 py-1.5 button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
+                        >
+                          View / Buy
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            navigate("/tradehistory", {
+                              state: { contestId: data._id },
+                            })
+                          }
+                          className="px-3 py-1.5 button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
+                        >
+                          History
+                        </button>
+
+                        <button
+                          onClick={async () => {
+                            const token = localStorage.getItem("token");
+                            const clientId = localStorage.getItem("userId");
+                            const sharedWith = prompt("Enter client ID to share contest with:");
+                            if (!sharedWith) return;
+
+                            const res = await SharePrivateContest(
+                              token,
+                              data._id,
+                              sharedWith,
+                              clientId
+                            );
+                            if (res?.status) toast.success("Contest shared successfully!");
+                            else toast.error(res?.message || "Failed to share contest");
+                          }}
+                          className="px-3 py-1.5 button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
+                        >
+                          Share
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 sm:p-4 text-[10px] sm:text-sm">
+                      <div className="bg-gray-50 border rounded-md p-2 text-center">
+                        <p className="text-gray-500 text-[10px] sm:text-xs">Prize Pool</p>
+                        <p className="font-bold text-sm sm:text-base text-gray-800">
+                          ₹{data.prize_pool}
+                        </p>
+                      </div>
+
+                      <div className="bg-gray-50 border rounded-md p-2 text-center">
+                        <p className="text-gray-500 text-[10px] sm:text-xs">Entry Fee</p>
+                        <p className="font-bold text-sm sm:text-base text-gray-800">
+                          ₹{data.entry_fee}
+                        </p>
+                      </div>
+
+                      <div className="bg-gray-50 border rounded-md p-2 text-center">
+                        <p className="text-gray-500 text-[10px] sm:text-xs">Created At</p>
+                        <p className="font-bold text-[10px] sm:text-sm text-gray-800">
+                          {new Date(data.created_at).toLocaleString()}
+                        </p>
+                      </div>
+
+                      <div className="bg-gray-50 border rounded-md p-2 text-center">
+                        <p className="text-gray-500 text-[10px] sm:text-xs">Status</p>
+                        <span className="inline-block px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-green-100 text-green-700">
+                          Active
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 bg-white rounded-lg shadow-sm border border-gray-100">
+                  <p className="text-gray-600 text-sm sm:text-base">
+                    📌 You haven’t created any private contests yet.
+                  </p>
+                </div>
+              )}
+            </div>
           )}
+
         </div>
       )}
+
+
+
     </div>
   );
 }
