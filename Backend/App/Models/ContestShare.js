@@ -5,13 +5,13 @@ const { Schema, model } = require('mongoose');
 const ContestShareSchema = new Schema({
    
      contest_id: {
-         type: mongoose.Schema.Types.ObjectId,
-          ref: "Contest", 
-          required: true
+         type: Schema.Types.ObjectId,
+            ref: "Contest",
+            required: true
          },
      shared_with_client_id: { 
     type: Schema.Types.ObjectId,
-    ref: "Contest",
+    ref: "CLIENTS",
     required: true
    },
   shared_by_client_id: {
