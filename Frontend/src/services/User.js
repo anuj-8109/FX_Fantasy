@@ -538,13 +538,13 @@ export async function EditUser(token, data) {
 
 // addprivatecontent router.post("/api/client/addcontestprivate", auth, AddContestPrivate);
 
-export async function addprivatecontent(token,formData) {
+export async function addprivatecontent(token, formData) {
   try {
     const response = await axios.post(`${config.base_url}api/client/addcontestprivate`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
-      }
-    })
+      },
+    });
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Network error" };
