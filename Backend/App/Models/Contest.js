@@ -77,6 +77,15 @@ const ContestSchema = new Schema({
         type: Boolean,
         default: true // assuming true means active and false means inactive
     },
+  client_id: {
+        type: Schema.Types.ObjectId,
+        ref: "CLIENTS",
+        default: null
+ },
+  is_private: {
+        type: Boolean,
+        default: false // assuming true means active and false means inactive
+    },
   del: {
     type: Boolean,
     default: false
