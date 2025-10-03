@@ -162,7 +162,7 @@ const handleExport = async () => {
         onChangeRowsPerPage={onRowsPerPageChange}
         highlightOnHover
         fixedHeader
-        fixedHeaderScrollHeight="700px"
+        fixedHeaderScrollHeight="1000px"
         responsive
         paginationComponentOptions={paginationComponentOptions}
         progressPending={isLoading}

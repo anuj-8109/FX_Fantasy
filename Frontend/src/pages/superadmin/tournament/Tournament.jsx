@@ -374,8 +374,15 @@ function Tournament() {
       cell: (row) => (
         <div className="flex gap-3">
           <Edit
-            className="cursor-pointer text-blue-600"
-            onClick={() => openModal(row)}
+            className={`cursor-pointer ${
+              row.status === "live" || row.status === "completed"
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-blue-600"
+            }`}
+            onClick={() => {
+              if (row.status === "live" || row.status === "completed") return; // Disable click
+              openModal(row);
+            }}
           />
         </div>
       ),

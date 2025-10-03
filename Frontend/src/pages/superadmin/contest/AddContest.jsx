@@ -213,7 +213,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
       entry_fee: Number(entryFee),
       // useamount: Number(useAmount),
       total_spots: Number(totalSpots),
-      max_entry_per_user: Number(maxEntryPerUser),
+      max_entry_per_user: 1,
       prize_pool: Number(prizePool),
       prize_distribution: cleanPrizeDistribution,
       stocks: cleanStocks,
@@ -368,7 +368,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                 required
               />
             </div>
-            <div>
+            {/* <div>
               <label className="text-sm font-medium">Max Entry/User</label>
               <input
                 type="number"
@@ -377,7 +377,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                 onChange={(e) => setMaxEntryPerUser(e.target.value)}
                 className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
               />
-            </div>
+            </div> */}
           </div>
 
           <div>
