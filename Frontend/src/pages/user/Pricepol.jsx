@@ -191,7 +191,7 @@ function Pricepol() {
           onClick={() =>
             navigate("/addprivatecontest", {
               state: {
-                tournament_id: tournament?._id, // ✅ dynamically uses current tournament
+                tournament_id: tournament?._id, 
               },
             })
           }
