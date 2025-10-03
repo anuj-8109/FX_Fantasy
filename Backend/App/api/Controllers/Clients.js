@@ -15,7 +15,7 @@ const Ticket_Modal = db.Ticket;
 const Ticketmessage_Modal = db.Ticketmessage;
 const Wallet_Modal = db.Wallet;
 const Bank_Modal = db.Bank;
-
+const ContestShare_Model = db.ContestShare;
 
 
 
@@ -1607,6 +1607,170 @@ async deleteBank(req, res) {
   } catch (error) {
     console.error("Delete Bank Error:", error);
     return res.status(500).json({ status: false, message: "Server error", error: error.message });
+  }
+}
+
+
+ async AddContestPrivate(req, res) {
+        try {
+            const {
+                name,
+                description,
+                contest_type,
+                entry_fee,
+                total_spots,
+                max_entry_per_user,
+                prize_pool,
+                prize_distribution,
+                is_guaranteed,
+                is_private,
+                contest_code,
+                add_by,
+                tournament_id,
+                client_id,
+            } = req.body;
+
+            // Basic validations
+            if (!name) return res.status(400).json({ status: false, message: "name is required" });
+            if (!contest_type) return res.status(400).json({ status: false, message: "contest_type is required" });
+            if (!entry_fee && entry_fee !== 0) return res.status(400).json({ status: false, message: "entry_fee is required" });
+            if (!total_spots) return res.status(400).json({ status: false, message: "total_spots is required" });
+            if (!prize_pool && prize_pool !== 0) return res.status(400).json({ status: false, message: "prize_pool is required" });
+            if (!client_id) return res.status(400).json({ status: false, message: "client_id is required" });
+
+
+
+ const client = await Clients_Modal.findOne({ _id: client_id });
+
+      if (!client) {
+        return res.json({
+          status: false,
+          message: "Client not found",
+        });
+      }
+
+            // Convert prize_distribution from JSON string if needed
+            let prizeDist = prize_distribution;
+            if (typeof prize_distribution === "string") {
+                try {
+                    prizeDist = JSON.parse(prize_distribution);
+                } catch (err) {
+                    return res.status(400).json({ status: false, message: "Invalid prize_distribution JSON" });
+                }
+            }
+
+            const contest = new Contest_Model({
+                name,
+                description,
+                contest_type,
+                entry_fee,
+                total_spots,
+                max_entry_per_user,
+                prize_pool,
+                prize_distribution: prizeDist,
+                is_guaranteed,
+                is_private,
+                contest_code,
+                add_by,
+                client_id,
+                tournament_id,
+                is_private: true,
+            });
+
+            await contest.save();
+
+            return res.status(200).json({
+                status: true,
+                message: "Contest added successfully"
+            });
+
+        } catch (error) {
+            return res.status(500).json({ status: false, message: "Server error", error: error.message });
+        }
+    }
+
+// Share Private Contest
+async SharePrivateContest(req, res) {
+  try {
+    const { contest_id, shared_with_client_id, shared_by_client_id } = req.body;
+
+    if (!contest_id || !shared_with_client_id || !shared_by_client_id) {
+      return res.status(400).json({
+        status: false,
+        message: "contest_id, shared_with_client_id and shared_by_client_id are required"
+      });
+    }
+
+    // Check contest exists
+    const contest = await Contest_Model.findOne({ _id: contest_id, is_private: true });
+    if (!contest) {
+      return res.status(404).json({ status: false, message: "Private contest not found" });
+    }
+
+    // Save share entry
+    const shareEntry = new ContestShare_Model({
+      contest_id,
+      shared_with_client_id,
+      shared_by_client_id,
+    });
+
+    await shareEntry.save();
+
+    return res.status(200).json({
+      status: true,
+      message: "Contest shared successfully"
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+}
+
+// List Private Contests
+async ListPrivateContests(req, res) {
+  try {
+    const { client_id } = req.query;
+
+    if (!client_id) {
+      return res.status(400).json({
+        status: false,
+        message: "client_id is required"
+      });
+    }
+
+    // 1. Contests created by client
+    const ownContests = await Contest_Model.find({
+      client_id,
+      is_private: true
+    });
+
+    // 2. Contests shared with client
+    const sharedEntries = await ContestShare_Model.find({ shared_with_client_id: client_id });
+    const sharedContestIds = sharedEntries.map(e => e.contest_id);
+
+    const sharedContests = await Contest_Model.find({
+      _id: { $in: sharedContestIds },
+      is_private: true
+    });
+
+    // Combine both
+    const contests = [...ownContests, ...sharedContests];
+
+    return res.status(200).json({
+      status: true,
+      contests
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message
+    });
   }
 }
 
