@@ -395,6 +395,8 @@ const Client = () => {
 
     {
       name: "Status",
+      selector: (row) => (row.ActiveStatus === 1 ? "Active" : "Inactive"),
+      exportValue: (row) => (row.ActiveStatus === 1 ? "Active" : "Inactive"),
       cell: (row) => (
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -407,9 +409,10 @@ const Client = () => {
           <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border peer-checked:translate-x-full transition-transform"></div>
         </label>
       ),
-      width: "80px",
-      export: false,
+      width: "100px",
+      export: true,
     },
+
     {
       name: "View",
       cell: (row) => (
@@ -444,6 +447,16 @@ const Client = () => {
     {
       name: "KYC",
       width: "110px",
+      exportValue: (row) => {
+        if (row.kyc_verification === 1) return "Verified";
+        if (row.kyc_verification === 2) return "Rejected";
+        return "Pending";
+      },
+      selector: (row) => {
+        if (row.kyc_verification === 1) return "Verified";
+        if (row.kyc_verification === 2) return "Rejected";
+        return "Pending";
+      },
       cell: (row) => (
         <div className="flex gap-2">
           {row.kyc_type === 1 ? (
@@ -476,7 +489,7 @@ const Client = () => {
           )}
         </div>
       ),
-      export: false,
+      export: true,
     },
 
     {

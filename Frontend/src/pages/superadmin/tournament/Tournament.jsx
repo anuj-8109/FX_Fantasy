@@ -163,16 +163,28 @@ function Tournament() {
     //     ),
     //     width: "120px",
     // },
-    { name: "Status", selector: (row) => row.status },
+    { name: "Status", selector: (row) => row.status, width: "100px" },
+    {
+      name: "Stock",
+      selector: (row) =>
+        row.stocks && row.stocks.length > 0
+          ? row.stocks.map((s) => s.stock_name).join(", ")
+          : "N/A",
+           width: "150px"
+    },
+
     {
       name: "Start Date",
       selector: (row) => new Date(row.startdate).toLocaleString(),
       sortable: true,
+       width: "155px"
     },
     {
       name: "End Date",
       selector: (row) => new Date(row.enddate).toLocaleString(),
       sortable: true,
+       width: "155px"
+      
     },
     {
       name: "Action",
@@ -231,6 +243,10 @@ function Tournament() {
         </div>
       ),
       width: "140px",
+    },
+    {
+      name: "Description",
+      selector: (row) => row.description,
     },
   ];
 
