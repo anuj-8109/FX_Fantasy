@@ -20,6 +20,7 @@ function AddTournament() {
   const [stocks, setStocks] = useState([{ stock_id: "", stock_name: "" }]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [useamount, setUseAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [stocklistData, setStocklistData] = useState([]);
   const [searchResults, setSearchResults] = useState({});
@@ -36,11 +37,15 @@ function AddTournament() {
     stocks: Yup.array()
       .of(
         Yup.object().shape({
-          stock_id: Yup.string().required("Select a valid stock from suggestions"),
+          stock_id: Yup.string().required(
+            "Select a valid stock from suggestions"
+          ),
           stock_name: Yup.string().required(),
         })
       )
-      .min(1, "At least one stock is required"),
+      .min(1, "At least one stock is required")
+      .max(2, "You can add maximum 2 stocks only"),
+    useamount: Yup.string().required("Use amount is required"),
   });
 
   useEffect(() => {
@@ -60,23 +65,32 @@ function AddTournament() {
     }
   };
 
-  const addStockRow = () => setStocks([...stocks, { stock_id: "", stock_name: "" }]);
+  const addStockRow = () => {
+    if (stocks.length >= 2) {
+      toast.error("You can add maximum 2 stocks only");
+      return;
+    }
+    setStocks([...stocks, { stock_id: "", stock_name: "" }]);
+  };
+
   const removeStockRow = (i) => setStocks(stocks.filter((_, idx) => idx !== i));
 
+  // handleSearchChange ko update karo
   const handleSearchChange = (i, value) => {
     const updated = [...stocks];
     updated[i].stock_name = value;
     updated[i].stock_id = "";
     setStocks(updated);
 
+    let filtered = stocklistData;
+
     if (value.length > 0) {
-      const filtered = stocklistData.filter((s) =>
+      filtered = stocklistData.filter((s) =>
         s.symbol.toLowerCase().includes(value.toLowerCase())
       );
-      setSearchResults((prev) => ({ ...prev, [i]: filtered }));
-    } else {
-      setSearchResults((prev) => ({ ...prev, [i]: [] }));
     }
+
+    setSearchResults((prev) => ({ ...prev, [i]: filtered }));
   };
 
   const handleSelectStock = (i, stock) => {
@@ -95,14 +109,36 @@ function AddTournament() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
     try {
-      // Validate all fields
+      // Validate all fields first
       await validationSchema.validate(
-        { name, description, stocks, startDate, endDate, status },
+        { name, description, stocks, startDate, endDate, useamount, status },
         { abortEarly: false }
       );
+
+      // Confirmation popup
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to save this tournament?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes!",
+        cancelButtonText: "Cancel",
+        buttonsStyling: false,
+        customClass: {
+          popup: "custom-swal-popup",
+          title: "text-xl font-semibold text-gray-800",
+          confirmButton:
+            "px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
+          cancelButton:
+            "px-4 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+        },
+      });
+
+      if (!result.isConfirmed) return; // agar cancel kare to API call mat karo
+
+      setLoading(true);
 
       const payload = {
         name,
@@ -110,6 +146,7 @@ function AddTournament() {
         startdate: startDate,
         enddate: endDate,
         status,
+        useamount,
         stocks,
         add_by,
       };
@@ -142,7 +179,9 @@ function AddTournament() {
       route="/superadmin/tournament"
     >
       <div className="w-full max-w-5xl shadow-xl rounded-xl p-6">
-        <h2 className="text-xl font-semibold mb-4 border-b pb-2">Add Tournament</h2>
+        <h2 className="text-xl font-semibold mb-4 border-b pb-2">
+          Add Tournament
+        </h2>
 
         <form onSubmit={handleSave} className="space-y-6">
           {/* Tournament Name */}
@@ -170,7 +209,7 @@ function AddTournament() {
           {/* Stocks */}
           <div>
             <h3 className="font-medium mb-2">Stocks *</h3>
-            {stocks.map((s, idx) => (
+            {stocks?.map((s, idx) => (
               <div key={idx} className="mb-4 relative">
                 <div className="flex gap-2 items-center">
                   <input
@@ -178,6 +217,12 @@ function AddTournament() {
                     placeholder="Search stock by symbol"
                     value={s.stock_name}
                     onChange={(e) => handleSearchChange(idx, e.target.value)}
+                    onFocus={() =>
+                      setSearchResults((prev) => ({
+                        ...prev,
+                        [idx]: stocklistData,
+                      }))
+                    }
                     className="w-full border rounded-md px-2 py-1"
                     required
                   />
@@ -192,26 +237,39 @@ function AddTournament() {
                   )}
                 </div>
 
-                {/* Suggestions */}
+                {/* Suggestions List */}
                 {searchResults[idx]?.length > 0 && (
-                  <ul className="absolute z-10 bg-white border rounded-md shadow max-h-40 overflow-y-auto w-full mt-1">
-                    {searchResults[idx].map((stock) => (
-                      <li
-                        key={stock._id}
-                        onClick={() => handleSelectStock(idx, stock)}
-                        className="px-3 py-2 cursor-pointer hover:bg-gray-100"
-                      >
-                        {stock.symbol} ({stock.tradesymbol})
-                      </li>
-                    ))}
+                  <ul
+                    className="absolute z-10 bg-white border rounded-md shadow 
+                 max-h-40 overflow-y-auto w-full mt-1"
+                  >
+                    {searchResults[idx].slice(0, 500).map(
+                      (
+                        stock // slice se optional limit
+                      ) => (
+                        <li
+                          key={stock._id}
+                          onClick={() => handleSelectStock(idx, stock)}
+                          className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+                        >
+                          {stock.symbol} ({stock.tradesymbol})
+                        </li>
+                      )
+                    )}
                   </ul>
                 )}
               </div>
             ))}
 
-            <button type="button" onClick={addStockRow} className="text-blue-600 text-sm">
-              + Add Stock
-            </button>
+            {stocks.length < 2 && (
+              <button
+                type="button"
+                onClick={addStockRow}
+                className="text-blue-600 text-sm"
+              >
+                + Add Stock
+              </button>
+            )}
           </div>
 
           {/* Status */}
@@ -226,12 +284,25 @@ function AddTournament() {
             </select>
           </div>
 
+          <div>
+            <label className="text-sm font-medium">Use Amount*</label>
+            <input
+              type="text"
+              value={useamount}
+              onChange={(e) => setUseAmount(e.target.value)}
+              className="w-full border rounded-md px-3 py-2 mt-1"
+              required
+            />
+          </div>
+
           {/* Schedule */}
           <div>
             <h3 className="font-medium mb-2"> Schedule *</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium">Start Date & Time *</label>
+                <label className="text-sm font-medium">
+                  Start Date & Time *
+                </label>
                 <input
                   type="datetime-local"
                   value={startDate}
@@ -255,10 +326,18 @@ function AddTournament() {
 
           {/* Buttons */}
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <button type="button" onClick={onCancel} className="px-4 py-2 rounded-md border bg-gray-300">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 rounded-md border bg-gray-300"
+            >
               Cancel
             </button>
-            <button type="submit" disabled={loading} className="px-4 py-2 rounded-md bg-blue-600 text-white">
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 rounded-md bg-blue-600 text-white"
+            >
               {loading ? "Saving..." : "Save Tournament"}
             </button>
           </div>

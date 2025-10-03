@@ -99,7 +99,7 @@ const AllUsers = () => {
           text: response?.message || "User status updated successfully.",
           confirmButtonColor: "#2563eb",
         });
-
+        fetchAllUsers();
         setAllUsers((prev) =>
           prev?.map((item) =>
             item._id === userId ? { ...item, ActiveStatus: newStatus } : item

@@ -13,7 +13,6 @@ import Swal from "sweetalert2";
 import Content from "../../../components/superadmin/Content";
 import * as config from "../../../utils/config";
 
-
 const Banner = () => {
   const [banners, setBanners] = useState([]);
   const [open, setOpen] = useState(false);
@@ -82,46 +81,63 @@ const Banner = () => {
   };
 
   const handleSave = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const confirm = await Swal.fire({
-      title: selectedBanner ? "Update Banner?" : "Add Banner?",
-      text: selectedBanner
-        ? "Are you sure you want to update this banner?"
-        : "Are you sure you want to add this banner?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Save",
-      cancelButtonText: "Cancel",
-    });
+  // 🔹 Check for changes before showing confirmation
+  if (selectedBanner) {
+    const isSame =
+      hyperlink === selectedBanner.hyperlink &&
+      type === selectedBanner.type &&
+      (typeof image === "string" ? image === selectedBanner.image : false);
 
-    if (!confirm.isConfirmed) return;
-
-    const formData = new FormData();
-    formData.append("add_by", add_by);
-    formData.append("image", image);
-    formData.append("hyperlink", hyperlink);
-    formData.append("type", type);
-    if (selectedBanner) formData.append("id", selectedBanner._id);
-
-    setLoading(true);
-    let response;
-    if (selectedBanner) {
-      response = await UpdateBanner(token, formData);
-    } else {
-      response = await AddBanner(token, formData);
+    if (isSame) {
+      Swal.fire({
+        icon: "info",
+        title: "No changes made",
+        text: "You haven't modified anything to update.",
+      });
+      return;
     }
+  }
 
-    if (response?.status) {
-      toast.success(response?.message || "Saved successfully");
-      fetchBanners();
-      handleCancel();
-    } else {
-      toast.error(response?.message || "Failed to save");
-    }
+  const confirm = await Swal.fire({
+    title: selectedBanner ? "Update Banner?" : "Add Banner?",
+    text: selectedBanner
+      ? "Are you sure you want to update this banner?"
+      : "Are you sure you want to add this banner?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Save",
+    cancelButtonText: "Cancel",
+  });
 
-    setLoading(false);
-  };
+  if (!confirm.isConfirmed) return;
+
+  const formData = new FormData();
+  formData.append("add_by", add_by);
+  formData.append("hyperlink", hyperlink);
+  formData.append("type", type);
+  formData.append("image", image); // File ya string dono case handle hoga
+  if (selectedBanner) formData.append("id", selectedBanner._id);
+
+  setLoading(true);
+  let response;
+  if (selectedBanner) {
+    response = await UpdateBanner(token, formData);
+  } else {
+    response = await AddBanner(token, formData);
+  }
+
+  if (response?.status) {
+    toast.success(response?.message || "Saved successfully");
+    fetchBanners();
+    handleCancel();
+  } else {
+    toast.error(response?.message || "Failed to save");
+  }
+
+  setLoading(false);
+};
 
   const handleStatusChange = async (banner) => {
     const actionText = banner.status ? "Deactivate" : "Activate";
@@ -153,11 +169,11 @@ const Banner = () => {
   };
 
   const columns = [
-    {
-      name: "S.No",
-      selector: (row, index) => index + 1,
-      width: "80px",
-    },
+    // {
+    //   name: "S.No",
+    //   selector: (row, index) => index + 1,
+    //   width: "80px",
+    // },
     {
       name: "Image",
       cell: (row) => (
@@ -165,23 +181,29 @@ const Banner = () => {
           src={`${config?.image_url}uploads/banner/${row?.image}`}
           alt="banner"
           className="w-20 h-12 object-cover rounded"
-
         />
       ),
+      export: false,
     },
 
     {
       name: "Hyperlink",
       selector: (row) => row.hyperlink || "-",
+      exportValue: (row) => row.hyperlink || "N/A",
+      export: true,
       sortable: true,
     },
     {
       name: "Type",
       selector: (row) => row.type || "-",
+      exportValue: (row) => row.type || "N/A",
+      export: true,
       sortable: true,
     },
     {
       name: "Status",
+      exportValue: (row) => (row.status === true ? "Active" : "Inactive"),
+      export: true,
       cell: (row) => (
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -196,7 +218,6 @@ const Banner = () => {
           {/* Thumb */}
           <div className="absolute left-0.5  w-4 h-4 bg-white rounded-full border border-gray-300 shadow-sm peer-checked:translate-x-5 transition-transform duration-300"></div>
         </label>
-
       ),
     },
     {
@@ -213,6 +234,7 @@ const Banner = () => {
           />
         </div>
       ),
+      export: false,
     },
   ];
 
@@ -221,15 +243,18 @@ const Banner = () => {
       Page_title="Banner Management"
       button_title="Back"
       button_status={true}
-      extra_button="+ Add Banner" extra_button_action={() => handleOpen(null)}
+      extra_button="+ Add Banner"
+      extra_button_action={() => handleOpen(null)}
       route="/superadmin/dashboard"
-
     >
       <div className="p-2 ">
-
-
         <div className="shadow-lg rounded-xl p-4 bg-#1E293B">
-          <Datatable columns={columns} data={banners} title="Banners List" onRefresh={fetchBanners} />
+          <Datatable
+            columns={columns}
+            data={banners}
+            title="Banners List"
+            onRefresh={fetchBanners}
+          />
         </div>
 
         {open && (

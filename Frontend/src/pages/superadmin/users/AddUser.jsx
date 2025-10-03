@@ -24,7 +24,10 @@ const User = () => {
     FullName: Yup.string()
       .required("Full Name is required")
       .min(3, "Full Name must be at least 3 characters")
-      .matches(/^[A-Za-z\s]+$/, "Full Name must contain only alphabets and spaces"),
+      .matches(
+        /^[A-Za-z\s]+$/,
+        "Full Name must contain only alphabets and spaces"
+      ),
 
     Email: Yup.string()
       .email("Invalid email format")
@@ -36,7 +39,10 @@ const User = () => {
       .required("Phone number is required"),
 
     UserName: Yup.string()
-      .matches(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores")
+      .matches(
+        /^[a-zA-Z0-9_]+$/,
+        "Username can only contain letters, numbers, and underscores"
+      )
       .min(3, "Username must be at least 3 characters long")
       .max(20, "Username cannot exceed 20 characters")
       .required("Username is required"),
@@ -46,15 +52,16 @@ const User = () => {
       .matches(/[A-Z]/, "Password must have at least one uppercase letter")
       .matches(/[a-z]/, "Password must have at least one lowercase letter")
       .matches(/\d/, "Password must have at least one number")
-      .matches(/[@$!%*?&#]/, "Password must have at least one special character (@$!%*?&#)")
+      .matches(
+        /[@$!%*?&#]/,
+        "Password must have at least one special character (@$!%*?&#)"
+      )
       .required("Password is required"),
 
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Confirm Password is required"),
   });
-
-
 
   const fields = [
     {
@@ -124,17 +131,31 @@ const User = () => {
     },
   ];
 
-
   const onSubmit = async (values) => {
-    setLoading(true);
+    const { confirmPassword, ...rest } = values;
     const token = localStorage.getItem("token");
     const add_by = localStorage.getItem("add_by");
-
-    const { confirmPassword, ...rest } = values;
     const data = { ...rest, add_by };
+
+    // Confirmation popup
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to add this user?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, add user!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!result.isConfirmed) {
+      return; // agar user cancel kare to API call na ho
+    }
+
+    setLoading(true);
     try {
       const res = await AddUser(data, token);
-
 
       if (res?.status === false && res?.message?.includes("exists")) {
         toast.error(res.message);
@@ -156,7 +177,12 @@ const User = () => {
   };
 
   return (
-    <Content Page_title="Add User" button_status={true} button_title="Back" route={"/superadmin/alluser"} >
+    <Content
+      Page_title="Add User"
+      button_status={true}
+      button_title="Back"
+      route={"/superadmin/alluser"}
+    >
       <div className="Form-style">
         <ReusableForm
           initialValues={initialValues}
@@ -169,7 +195,6 @@ const User = () => {
               "col-span-6 mt-4 py-2 rounded-lg font-semibold shadow-lg transition disabled:opacity-50 w-1/3 mx-auto block",
             disabled: loading,
           }}
-
         />
       </div>
     </Content>
