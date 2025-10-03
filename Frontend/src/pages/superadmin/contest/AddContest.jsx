@@ -123,8 +123,8 @@ export default function AddContest1({ onSuccess, onCancel }) {
     if (!contestType) errors.push("Contest type is required");
     if (entryFee === "" || entryFee < 0)
       errors.push("Valid entry fee is required");
-    if (useAmount === "" || useAmount < 0)
-      errors.push("Use amount is required");
+    // if (useAmount === "" || useAmount < 0)
+    //   errors.push("Use amount is required");
     if (!totalSpots || totalSpots <= 0)
       errors.push("Total spots must be greater than 0");
     if (prizePool === "" || prizePool < 0)
@@ -211,7 +211,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
       description,
       contest_type: contestType,
       entry_fee: Number(entryFee),
-      useamount: Number(useAmount),
+      // useamount: Number(useAmount),
       total_spots: Number(totalSpots),
       max_entry_per_user: Number(maxEntryPerUser),
       prize_pool: Number(prizePool),
@@ -345,7 +345,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                 required
               />
             </div>
-            <div>
+            {/* <div>
               <label className="text-sm font-medium">Use Amount *</label>
               <input
                 type="number"
@@ -356,7 +356,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
                 placeholder="Amount to be used"
                 required
               />
-            </div>
+            </div> */}
             <div>
               <label className="text-sm font-medium">Total Spots *</label>
               <input

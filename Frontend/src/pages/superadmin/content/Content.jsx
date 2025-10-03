@@ -60,6 +60,22 @@ const Contents = () => {
   const handleSave = async (e) => {
     e.preventDefault();
 
+    // 🔹 Check if any changes were made before updating
+    if (selectedContent) {
+      const isSame =
+        title === selectedContent.title &&
+        description === selectedContent.description;
+
+      if (isSame) {
+        Swal.fire({
+          icon: "info",
+          title: "No changes made",
+          text: "You haven't modified anything to update.",
+        });
+        return;
+      }
+    }
+
     const confirm = await Swal.fire({
       title: selectedContent ? "Update Content?" : "Add Content?",
       text: selectedContent
@@ -129,18 +145,23 @@ const Contents = () => {
   };
 
   const columns = [
-    {
-      name: "S.No",
-      selector: (row, index) => index + 1,
-      width: "80px",
-    },
+    // {
+    //   name: "S.No",
+    //   selector: (row, index) => index + 1,
+    //   width: "80px",
+    // },
     {
       name: "Title",
       selector: (row) => row?.title,
+      exportValue: (row) => row?.title || "N/A",
+      export: true,
       sortable: true,
     },
     {
       name: "Description",
+      selector: (row) => row?.description,
+      exportValue: (row) => row.description || "N/A",
+      export: true,
       cell: (row) => (
         <div
           className="line-clamp-2 prose max-w-xs text-sm"
@@ -150,6 +171,9 @@ const Contents = () => {
     },
     {
       name: "Status",
+      selector: (row) => row?.status,
+      exportValue: (row) => (row.status === true ? "Active" : "InActive"),
+      export: true,
       cell: (row) => (
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -164,7 +188,6 @@ const Contents = () => {
       ),
     },
 
-
     {
       name: "Action",
       cell: (row) => (
@@ -175,6 +198,8 @@ const Contents = () => {
           />
         </div>
       ),
+      export: false,
+
     },
     {
       name: "View",
@@ -190,6 +215,8 @@ const Contents = () => {
           />
         </div>
       ),
+      export: false,
+
     },
   ];
 
@@ -198,7 +225,8 @@ const Contents = () => {
       Page_title="All Contents"
       button_title="Back"
       button_status={true}
-      extra_button="+ Add Content"  extra_button_action={() => handleOpen(null)}
+      extra_button="+ Add Content"
+      extra_button_action={() => handleOpen(null)}
       route="/superadmin/dashboard"
     >
       <div className="p-2 ">
@@ -216,7 +244,12 @@ const Contents = () => {
           </button>
         </div> */}
         <div className="shadow-lg rounded-xl p-4 bg-#1E293B">
-          <Datatable columns={columns} data={contents} title="Contents List" onRefresh={fetchContent} />
+          <Datatable
+            columns={columns}
+            data={contents}
+            title="Contents List"
+            onRefresh={fetchContent}
+          />
         </div>
 
         {open && (

@@ -6,12 +6,16 @@ import {
   DeleteTournament,
   UpdateTournamentStatus,
   UpdateTournamentStatusActive,
+  stocklist,
 } from "../../../services/SuperAdmin";
 import Content from "../../../components/superadmin/Content";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { Edit, Trash2 } from "lucide-react";
 import { toast } from "react-hot-toast";
-import swal from "sweetalert2";
+import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+
 function Tournament() {
   const navigate = useNavigate();
   const [tournament, setTournament] = useState([]);
@@ -25,41 +29,76 @@ function Tournament() {
     entry_fee: "",
     total_spots: "",
     max_entry_per_user: 1,
-    // prize_pool: "",
     contest_code: "",
     startdate: "",
+    useamount: "",
     enddate: "",
     status: "upcoming",
+    stocks: [{ stock_id: "", stock_name: "" }],
   });
+
+  const [stocklistData, setStocklistData] = useState([]);
+  const [searchResults, setSearchResults] = useState({});
+  const [inputValues, setInputValues] = useState({}); // Separate state for input display
 
   const [totalRows, setTotalRows] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterText, setFilterText] = useState("");
 
+  // Fetch stock list on component mount
+  useEffect(() => {
+    fetchStockList();
+  }, []);
+
+  const fetchStockList = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await stocklist(token);
+      if (res?.status) {
+        setStocklistData(res?.data || []);
+      } else {
+        Swal.fire("Failed to fetch stocks");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const openModal = (data) => {
     setEditData(data);
+    const stocks =
+      data?.stocks && data.stocks.length > 0
+        ? data.stocks
+        : [{ stock_id: "", stock_name: "" }];
+
     setFormData({
       name: data?.name || "",
       description: data?.description || "",
-      contest_type: data?.contest_type || "Mega",
-      entry_fee: data?.entry_fee || "",
-      total_spots: data?.total_spots || "",
-      max_entry_per_user: data?.max_entry_per_user || 1,
-      // prize_pool: data?.prize_pool || "",
-      contest_code: data?.contest_code || "",
+      useamount: data?.useamount || "",
       startdate: data
         ? new Date(data.startdate).toISOString().slice(0, 16)
         : "",
       enddate: data ? new Date(data.enddate).toISOString().slice(0, 16) : "",
       status: data?.status || "upcoming",
+      stocks: stocks,
     });
+
+    // Initialize input values with stock names
+    const initialInputs = {};
+    stocks.forEach((stock, idx) => {
+      initialInputs[idx] = stock.stock_name || "";
+    });
+    setInputValues(initialInputs);
+    setSearchResults({});
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setEditData(null);
+    setSearchResults({});
+    setInputValues({});
   };
 
   const handleChange = (e) => {
@@ -67,23 +106,159 @@ function Tournament() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Stock management functions
+  const addStockRow = () => {
+    if (formData.stocks.length >= 2) {
+      toast.error("You can add maximum 2 stocks only");
+      return;
+    }
+    const newIndex = formData.stocks.length;
+    setFormData((prev) => ({
+      ...prev,
+      stocks: [...prev.stocks, { stock_id: "", stock_name: "" }],
+    }));
+    setInputValues((prev) => ({ ...prev, [newIndex]: "" }));
+  };
+
+  const removeStockRow = (i) => {
+    setFormData((prev) => ({
+      ...prev,
+      stocks: prev.stocks.filter((_, idx) => idx !== i),
+    }));
+    setInputValues((prev) => {
+      const updated = { ...prev };
+      delete updated[i];
+      // Reindex remaining inputs
+      const newInputs = {};
+      Object.keys(updated).forEach((key, idx) => {
+        if (parseInt(key) > i) {
+          newInputs[parseInt(key) - 1] = updated[key];
+        } else {
+          newInputs[key] = updated[key];
+        }
+      });
+      return newInputs;
+    });
+    setSearchResults((prev) => {
+      const updated = { ...prev };
+      delete updated[i];
+      return updated;
+    });
+  };
+
+  const handleInputChange = (i, value) => {
+    // Update input display value
+    setInputValues((prev) => ({ ...prev, [i]: value }));
+
+    // Filter suggestions
+    let filtered = stocklistData;
+    if (value.length > 0) {
+      filtered = stocklistData.filter((s) =>
+        s.symbol.toLowerCase().includes(value.toLowerCase())
+      );
+    }
+    setSearchResults((prev) => ({ ...prev, [i]: filtered }));
+  };
+
+  const handleInputFocus = (i) => {
+    // Show all stocks on focus
+    setSearchResults((prev) => ({ ...prev, [i]: stocklistData }));
+  };
+
+  const handleSelectStock = (i, stock) => {
+    const updated = [...formData.stocks];
+    updated[i] = {
+      stock_id: stock._id,
+      stock_name: stock.symbol,
+      instrument_token: stock.instrument_token,
+      lotsize: stock.lotsize,
+    };
+    setFormData((prev) => ({ ...prev, stocks: updated }));
+    setInputValues((prev) => ({ ...prev, [i]: stock.symbol }));
+    setSearchResults((prev) => ({ ...prev, [i]: [] }));
+  };
+
   const handleUpdate = async () => {
+    // Check if any change is made
+    const isChanged =
+      formData.name !== editData.name ||
+      formData.description !== editData.description ||
+      formData.useamount !== editData.useamount ||
+      formData.startdate !==
+        new Date(editData.startdate).toISOString().slice(0, 16) ||
+      formData.enddate !==
+        new Date(editData.enddate).toISOString().slice(0, 16) ||
+      JSON.stringify(formData.stocks) !== JSON.stringify(editData.stocks);
+
+    if (!isChanged) {
+      Swal.fire({
+        icon: "info",
+        title: "No changes made",
+        text: "You haven't changed any data to update.",
+      });
+      return;
+    }
+
+    // Validate stocks - check if input value matches selected stock
+    const hasInvalidStock = formData.stocks.some((s, idx) => {
+      const inputVal = inputValues[idx] || "";
+      // If input value doesn't match stock_name OR stock_id is empty
+      return !s.stock_id || inputVal !== s.stock_name;
+    });
+
+    if (hasInvalidStock) {
+      Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: "Please select valid stocks from suggestions",
+      });
+      return;
+    }
+
+    if (formData.stocks.length === 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: "At least one stock is required",
+      });
+      return;
+    }
+
     try {
-      const token = localStorage.getItem("token");
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to update this tournament?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, update it!",
+        cancelButtonText: "Cancel",
+        customClass: {
+          popup: "custom-swal-popup",
+          title: "text-xl font-semibold text-white-800",
+          confirmButton:
+            "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
+          cancelButton:
+            "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+        },
+      });
 
-      const payload = {
-        ...formData,
-        id: editData._id,
-      };
+      if (result.isConfirmed) {
+        const token = localStorage.getItem("token");
 
-      const response = await UpdateTournament(payload, token);
+        const payload = {
+          ...formData,
+          id: editData._id,
+        };
 
-      if (response?.status) {
-        toast.success("Tournament updated successfully!");
-        closeModal();
-        fatchTournament();
-      } else {
-        toast.error(response?.message || "Update failed!");
+        const response = await UpdateTournament(payload, token);
+
+        if (response?.status) {
+          toast.success("Tournament updated successfully!");
+          closeModal();
+          fatchTournament();
+        } else {
+          toast.error(response?.message || "Update failed!");
+        }
       }
     } catch (err) {
       toast.error("Something went wrong!");
@@ -91,7 +266,16 @@ function Tournament() {
   };
 
   const handleDelete = async (row) => {
-    if (await swal.fire("Are you sure you want to delete this tournament?")) {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to delete this tournament?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (result.isConfirmed) {
       const token = localStorage.getItem("token");
       const res = await DeleteTournament(row._id, token);
       if (res?.status) {
@@ -107,7 +291,7 @@ function Tournament() {
     const token = localStorage.getItem("token");
     const actionText = tournament.status === "live" ? "Deactivate" : "Activate";
 
-    const confirm = await swal.fire({
+    const confirm = await Swal.fire({
       title: `Are you sure?`,
       text: `Do you want to ${actionText} this tournament?`,
       icon: "warning",
@@ -138,53 +322,52 @@ function Tournament() {
   };
 
   const columns = [
-    // { name: "Sr No.", selector: (row, i) => i + 1, width: "80px" },
-    { name: "Name", selector: (row) => row.name, sortable: true },
-    // { name: "Description", selector: (row) => row.description },
-    // { name: "Type", selector: (row) => row.contest_type },
-    // { name: "Entry Fee", selector: (row) => `₹${row.entry_fee}` },
-    // { name: "Total Spots", selector: (row) => row.total_spots },
-    // { name: "Max Entry/User", selector: (row) => row.max_entry_per_user },
-    // { name: "Prize Pool", selector: (row) => `₹${row.prize_pool}` },
-    // {
-    //     name: "Status",
-    //     cell: (row) => (
-    //         <label className="relative inline-flex items-center cursor-pointer">
-    //             <input
-    //                 type="checkbox"
-    //                 checked={row.status === "live"}
-    //                 onChange={() => handleStatusChange(row)}
-    //                 className="sr-only peer"
-    //             />
-    //             <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
-    //             <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border bg-white peer-checked:translate-x-full transition-transform"></div>
-    //         </label>
-
-    //     ),
-    //     width: "120px",
-    // },
-    { name: "Status", selector: (row) => row.status, width: "100px" },
+    {
+      name: "Name",
+      selector: (row) => row.name,
+      exportValue: (row) => row.name || "N/A",
+      export: true,
+      sortable: true,
+    },
+    {
+      name: "Status",
+      selector: (row) => row.status,
+      exportValue: (row) => row.status || "N/A",
+      export: true,
+      width: "100px",
+    },
     {
       name: "Stock",
       selector: (row) =>
         row.stocks && row.stocks.length > 0
           ? row.stocks.map((s) => s.stock_name).join(", ")
           : "N/A",
-           width: "150px"
+      exportValue: (row) => row.stocks || "N/A",
+      export: true,
+      width: "150px",
     },
-
+    {
+      name: "Use Amount",
+      selector: (row) => row.useamount || "N/A",
+      exportValue: (row) => row.useamount || "N/A",
+      export: true,
+      width: "100px",
+    },
     {
       name: "Start Date",
       selector: (row) => new Date(row.startdate).toLocaleString(),
+      exportValue: (row) => row.startdate || "N/A",
+      export: true,
       sortable: true,
-       width: "155px"
+      width: "155px",
     },
     {
       name: "End Date",
       selector: (row) => new Date(row.enddate).toLocaleString(),
+      exportValue: (row) => row.enddate || "N/A",
+      export: true,
       sortable: true,
-       width: "155px"
-      
+      width: "155px",
     },
     {
       name: "Action",
@@ -194,12 +377,9 @@ function Tournament() {
             className="cursor-pointer text-blue-600"
             onClick={() => openModal(row)}
           />
-          {/* <Trash2
-            className="cursor-pointer text-red-600"
-            onClick={() => handleDelete(row)}
-          /> */}
         </div>
       ),
+      export: false,
       width: "70px",
     },
     {
@@ -216,9 +396,9 @@ function Tournament() {
           View Contest
         </button>
       ),
+      export: false,
       width: "140px",
     },
-
     {
       name: "Contest",
       cell: (row) => (
@@ -229,7 +409,7 @@ function Tournament() {
                 ? "bg-green-600 hover:bg-green-700"
                 : "bg-gray-400 cursor-not-allowed"
             }`}
-            disabled={row.status !== "upcoming"} // disable live or completed
+            disabled={row.status !== "upcoming"}
             onClick={() => {
               if (row.status === "upcoming") {
                 navigate("/superadmin/add-contest", {
@@ -242,11 +422,14 @@ function Tournament() {
           </button>
         </div>
       ),
+      export: false,
       width: "140px",
     },
     {
       name: "Description",
       selector: (row) => row.description,
+      exportValue: (row) => row.description || "N/A",
+      export: true,
     },
   ];
 
@@ -329,10 +512,11 @@ function Tournament() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 mt-10 ">
-          <div className="bg-white p-6 rounded-md w-[500px] max-h-[80vh] overflow-y-auto hide-scrollbar">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 mt-10">
+          <div className="bg-white p-6 rounded-md w-[700px] max-h-[80vh] overflow-y-auto hide-scrollbar">
             <h2 className="text-lg font-bold mb-4">Edit Tournament</h2>
             <div className="grid gap-3">
+              <label className="text-sm font-medium">Name</label>
               <input
                 name="name"
                 value={formData.name}
@@ -340,34 +524,80 @@ function Tournament() {
                 placeholder="Tournament Name"
                 className="border p-2 rounded"
               />
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="Description"
-                className="border p-2 rounded"
+
+              <label className="text-sm font-medium">Description</label>
+              <CKEditor
+                editor={ClassicEditor}
+                data={formData.description}
+                onChange={(event, editor) => {
+                  const data = editor.getData();
+                  setFormData((prev) => ({ ...prev, description: data }));
+                }}
               />
+
+              {/* Stocks Section */}
+              <div>
+                <h3 className="font-medium mb-2">Stocks *</h3>
+                {formData.stocks?.map((s, idx) => (
+                  <div key={idx} className="mb-4 relative">
+                    <div className="flex gap-2 items-center">
+                      <input
+                        type="text"
+                        placeholder="Search stock by symbol"
+                        value={inputValues[idx] || ""}
+                        onChange={(e) => handleInputChange(idx, e.target.value)}
+                        onFocus={() => handleInputFocus(idx)}
+                        className="w-full border rounded-md px-2 py-1"
+                      />
+                      {formData.stocks.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeStockRow(idx)}
+                          className="text-red-600 text-sm px-2"
+                        >
+                          X
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Suggestions List */}
+                    {searchResults[idx]?.length > 0 && (
+                      <ul className="absolute z-10 bg-white border rounded-md shadow max-h-40 overflow-y-auto w-full mt-1">
+                        {searchResults[idx].slice(0, 500).map((stock) => (
+                          <li
+                            key={stock._id}
+                            onClick={() => handleSelectStock(idx, stock)}
+                            className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+                          >
+                            {stock.symbol} ({stock.tradesymbol})
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+
+                {formData.stocks.length < 2 && (
+                  <button
+                    type="button"
+                    onClick={addStockRow}
+                    className="text-blue-600 text-sm"
+                  >
+                    + Add Stock
+                  </button>
+                )}
+              </div>
+
+              <label className="text-sm font-medium">Use Amount</label>
               <input
-                name="entry_fee"
-                value={formData.entry_fee}
+                name="useamount"
+                value={formData.useamount}
                 onChange={handleChange}
-                placeholder="Entry Fee"
+                placeholder="Use Amount"
                 className="border p-2 rounded"
               />
-              <input
-                name="total_spots"
-                value={formData.total_spots}
-                onChange={handleChange}
-                placeholder="Total Spots"
-                className="border p-2 rounded"
-              />
-              <input
-                name="prize_pool"
-                value={formData.prize_pool}
-                onChange={handleChange}
-                placeholder="Prize Pool"
-                className="border p-2 rounded"
-              />
+
+              <label className="text-sm font-medium">Start Date</label>
               <input
                 type="datetime-local"
                 name="startdate"
@@ -375,6 +605,8 @@ function Tournament() {
                 onChange={handleChange}
                 className="border p-2 rounded"
               />
+
+              <label className="text-sm font-medium">End Date</label>
               <input
                 type="datetime-local"
                 name="enddate"
@@ -383,7 +615,7 @@ function Tournament() {
                 className="border p-2 rounded"
               />
             </div>
-            <div className="flex justify-end gap-3 mt-6 sticky  bg-white py-2">
+            <div className="flex justify-end gap-3 mt-6 sticky bg-white py-2">
               <button
                 className="px-4 py-2 bg-gray-400 rounded"
                 onClick={closeModal}
