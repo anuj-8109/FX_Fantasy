@@ -16,8 +16,7 @@ const Ticketmessage_Modal = db.Ticketmessage;
 const Wallet_Modal = db.Wallet;
 const Bank_Modal = db.Bank;
 const ContestShare_Model = db.ContestShare;
-
-
+const Contest_Model = db.Contest
 
 const { sendSMS } = require('../../Utils/smsHelper');
 const upload = require('../../Utils/multerHelper');
