@@ -13,6 +13,7 @@
     "node-cron": "^4.2.1",
     "node-datetime": "^2.1.2",
     "nodemailer": "^7.0.5",
+    "papaparse": "^5.5.3",
     "puppeteer": "^24.16.1",
     "redis": "^5.8.1",
     "socket.io": "^4.8.1"
