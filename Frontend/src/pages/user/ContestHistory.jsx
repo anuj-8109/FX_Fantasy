@@ -10,10 +10,10 @@ function HistoryPage() {
   const initialWallet = Number(location?.state?.wallet_balance || 0);
 
   const [buySellLoadingId, setBuySellLoadingId] = useState(null);
-  const [showQuantityBox, setShowQuantityBox] = useState(null); 
+  const [showQuantityBox, setShowQuantityBox] = useState(null);
   const [quantityMap, setQuantityMap] = useState({});
   const [walletBalance, setWalletBalance] = useState(initialWallet);
-  const [pnl, setPnl] = useState(0); 
+  const [pnl, setPnl] = useState(0);
   const [myContests, setMyContests] = useState([]);
 
   const token = localStorage.getItem("token");
@@ -39,32 +39,39 @@ function HistoryPage() {
     fetchMyContests();
   }, []);
 
-  const handleBuySell = async (stock_symbol, trade_type, stockId, quantity) => {
-    if (!token || !clientId || !contestId) return toast.message("Missing info");
+  const handleBuySell = async (stock_symbol, trade_type, stockId, quantity, price) => {
+    if (!token || !clientId || !contestId) return toast.error("Missing info");
 
     const qty = Number(quantity);
 
     setBuySellLoadingId(stockId);
     try {
-      const payload = { contest_id: contestId, client_id: clientId, stock_symbol, trade_type, quantity: qty };
+      const payload = {
+        contest_id: contestId,
+        client_id: clientId,
+        stock_symbol,
+        trade_type,
+        quantity: qty,
+        price: price  // ✅ add this
+      };
+
       const res = await BuySelltrade(token, payload);
       if (res?.status) {
-        toast.success(" Trade successful!");
+        toast.success("Trade successful!");
         setShowQuantityBox(null);
         setQuantityMap({ ...quantityMap, [stockId]: "" });
-
-        // Refresh My Contests to get updated wallet_balance
         await fetchMyContests();
       } else {
-        toast.error(res?.message || " Trade failed");
+        toast.error(res?.message || "Trade failed");
       }
     } catch (err) {
       console.error(err);
-      toast.error(" Trade failed due to network error");
+      toast.error("Trade failed due to network error");
     } finally {
       setBuySellLoadingId(null);
     }
   };
+
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
@@ -115,12 +122,25 @@ function HistoryPage() {
                 {showQuantityBox?.id === s._id && (
                   <div className="absolute top-full mt-2 right-0 bg-white shadow-lg rounded-lg p-4 w-64 z-10">
                     <p className="font-semibold mb-2">Enter Quantity ({showQuantityBox.type.toUpperCase()})</p>
-                    <input type="number" min="1" className="w-full border rounded px-2 py-1 mb-3" value={quantityMap[s._id] || ""} onChange={(e) => setQuantityMap({...quantityMap, [s._id]: e.target.value})} />
+                    <input type="number" min="1" className="w-full border rounded px-2 py-1 mb-3" value={quantityMap[s._id] || ""} onChange={(e) => setQuantityMap({ ...quantityMap, [s._id]: e.target.value })} />
                     <div className="flex justify-end space-x-2">
                       <button onClick={() => setShowQuantityBox(null)} className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
-                      <button onClick={() => handleBuySell(s.stock_name, showQuantityBox.type, s._id, quantityMap[s._id] || "1")} className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600" disabled={buySellLoadingId === s._id}>
+                      <button
+                        onClick={() =>
+                          handleBuySell(
+                            s.stock_name,
+                            showQuantityBox.type,
+                            s._id,
+                            quantityMap[s._id] || "1",
+                            s.last_price // ✅ pass the price
+                          )
+                        }
+                        className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                        disabled={buySellLoadingId === s._id}
+                      >
                         {buySellLoadingId === s._id ? "..." : `Confirm ${showQuantityBox.type.toUpperCase()}`}
                       </button>
+
                     </div>
                   </div>
                 )}
