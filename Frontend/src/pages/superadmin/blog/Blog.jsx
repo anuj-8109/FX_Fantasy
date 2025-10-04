@@ -177,15 +177,21 @@ const Blog = () => {
         ) : (
           <span className="text-gray-400 italic">No Image</span>
         ),
+      export: false,
     },
 
     {
       name: "Title",
       selector: (row) => row?.title,
+      exportValue: (row) => row.title || "N/A",
+      export: true,
       sortable: true,
     },
     {
       name: "Description",
+      selector: (row) => row?.description,
+      exportValue: (row) => row.description || "N/A",
+      export: true,
       cell: (row) => (
         <div
           className="line-clamp-2 prose max-w-xs text-sm"
@@ -195,6 +201,8 @@ const Blog = () => {
     },
     {
       name: "Status",
+      selector: (row) => (row.status === true ? "Active" : "Inactive"),
+      exportValue: (row) => (row.status === true ? "Active" : "Inactive"),
       cell: (row) => (
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -207,6 +215,7 @@ const Blog = () => {
           <div className="absolute left-1 top-1 w-3 h-3 bg-white rounded-full shadow-md transition-transform duration-300 peer-checked:translate-x-5"></div>
         </label>
       ),
+      export: true,
     },
     {
       name: "Action",
@@ -222,6 +231,7 @@ const Blog = () => {
           />
         </div>
       ),
+      export: false,
     },
     // {
     //   name: "View",
