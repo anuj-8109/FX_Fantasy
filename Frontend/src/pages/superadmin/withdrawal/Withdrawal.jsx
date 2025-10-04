@@ -100,17 +100,53 @@ const WithdrawalRequest = () => {
     //   width: "80px",
     // },
     // { name: "ID", selector: (row) => row._id },
-    { name: "Client Name", selector: (row) => row.clientid },
-    { name: "Amount", selector: (row) => `₹${row.amount}` },
     {
-      name: "Created At",
+      name: "Client Name",
+      selector: (row) => row.client_details.FullName || "N/A",
+      exportValue: (row) => row.client_details.FullName || "N/A",
+      export: true,
+      width: "150px",
+    },
+    {
+      name: "E-mail",
+      selector: (row) => row.client_details.Email || "N/A",
+      exportValue: (row) => row.client_details.Email || "N/A",
+      export: true,
+      width: "150px",
+    },
+    {
+      name: "Phone No",
+      selector: (row) => row.client_details.PhoneNo || "N/A",
+      exportValue: (row) => row.client_details.PhoneNo || "N/A",
+      export: true,
+      width: "110px",
+    },
+
+    {
+      name: "Amount",
+      selector: (row) => `₹${row.amount}` || "N/A",
+      exportValue: (row) => row.amount || "N/A",
+      export: true,
+      width: "80px",
+    },
+
+    {
+      name: "Date and Time",
       selector: (row) => new Date(row.created_at).toLocaleString(),
+      exportValue: (row) => new Date(row.created_at).toLocaleString() || "N/A",
+      export: true,
+      width: "160px",
     },
+    // {
+    //   name: "Updated At",
+    //   selector: (row) => new Date(row.updated_at).toLocaleString(),
+    // },
     {
-      name: "Updated At",
-      selector: (row) => new Date(row.updated_at).toLocaleString(),
+      name: "Status",
+      selector: (row) => statusMap[row.status],
+      exportValue: (row) => statusMap[row.status],
+      export: true,
     },
-    { name: "Status", selector: (row) => statusMap[row.status] },
     {
       name: "Action",
       cell: (row) =>
@@ -133,6 +169,7 @@ const WithdrawalRequest = () => {
           <span>—</span>
         ),
       width: "180px",
+      export: false,
     },
   ];
 

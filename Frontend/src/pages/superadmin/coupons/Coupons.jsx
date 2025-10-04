@@ -11,6 +11,7 @@ import {
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import Content from "../../../components/superadmin/Content";
+import * as config from "../../../utils/config";
 
 const Coupons = () => {
   const [coupons, setCoupons] = useState([]);
@@ -182,30 +183,89 @@ const Coupons = () => {
   };
 
   const columns = [
+    // {
+    //   name: "S.No",
+    //   selector: (row, index) => index + 1,
+    //   width: "80px",
+    // },
     {
-      name: "S.No",
-      selector: (row, index) => index + 1,
-      width: "80px",
+      name: "Image",
+      cell: (row) =>
+        row?.image ? (
+          <img
+            src={`${config?.image_url}uploads/coupon/${row.image}`}
+            alt={row.title}
+            className="w-16 h-16 object-cover rounded"
+          />
+        ) : (
+          <span className="text-gray-400 italic">No Image</span>
+        ),
+      export: false,
     },
     {
       name: "Name",
-      selector: (row) => row?.name,
+      selector: (row) => row?.name || "N/A",
+      exportValue: (row) => row.name || "N/A",
+      export: true,
       sortable: true,
     },
     {
       name: "Code",
-      selector: (row) => row?.code,
+      selector: (row) => row?.code || "N/A",
+      exportValue: (row) => row.code || "N/A",
+      export: true,
     },
     {
       name: "Type",
-      selector: (row) => row?.type,
+      selector: (row) => row?.type || "N/A",
+      exportValue: (row) => row.type || "N/A",
+      export: true,
     },
     {
       name: "Value",
-      selector: (row) => row?.value,
+      selector: (row) => row?.value || "N/A",
+      exportValue: (row) => row.value || "N/A",
+      export: true,
     },
     {
       name: "Validity",
+      selector: (row) =>
+        new Date(row.startdate).toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }) +
+        " - " +
+        new Date(row.enddate).toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+
+      exportValue: (row) => {
+        if (!row?.startdate || !row?.enddate) return "N/A";
+        const start = new Date(row.startdate).toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const end = new Date(row.enddate).toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        return `${start} - ${end}`;
+      },
+
+      export: true,
       cell: (row) => {
         const start = new Date(row?.startdate).toLocaleString("en-GB", {
           day: "2-digit",
@@ -229,23 +289,30 @@ const Coupons = () => {
         );
       },
       width: "280px",
-
     },
-
     {
       name: "Min Purchase",
-      selector: (row) => row?.minpurchasevalue,
+      selector: (row) => row?.minpurchasevalue || "N/A",
+      exportValue: (row) => row.minpurchasevalue || "N/A",
+      export: true,
     },
     {
       name: "Min Coupon Value",
-      selector: (row) => row?.mincouponvalue,
+      selector: (row) => row?.mincouponvalue || "N/A",
+      exportValue: (row) => row.mincouponvalue || "N/A",
+      export: true,
     },
     {
       name: "Limitation",
-      selector: (row) => row?.limitation,
+      selector: (row) => row?.limitation || "N/A",
+      exportValue: (row) => row.limitation || "N/A",
+      export: true,
     },
     {
       name: "Status",
+      selector: (row) => row?.status,
+      exportValue: (row) => (row.status ? "Acitve" : "InActive"),
+      export: true,
       cell: (row) => (
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -271,16 +338,17 @@ const Coupons = () => {
             className="cursor-pointer text-red-600"
             onClick={() => handleDelete(row)}
           />
-          <Eye
+          {/* <Eye
             className="cursor-pointer text-green-600"
             size={20}
             onClick={() => {
               setViewCoupon(row);
               setViewOpen(true);
             }}
-          />
+          /> */}
         </div>
       ),
+      export: false,
     },
   ];
 
