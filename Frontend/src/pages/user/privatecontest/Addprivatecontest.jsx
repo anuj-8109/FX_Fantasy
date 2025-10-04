@@ -11,6 +11,7 @@ const AddContest = () => {
   const tournament_id = location.state?.tournament_id || "";
 
   const initialForm = {
+    add_by:"",
     name: "",
     description: "",
     contest_type: "",
