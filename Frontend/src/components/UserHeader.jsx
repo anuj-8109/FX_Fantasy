@@ -68,14 +68,14 @@ const UserHeader = () => {
       {/* Right Section - Actions */}
       <div className="flex items-center space-x-3">
         {/* Theme Toggle */}
-        <button
+        {/* <button
           onClick={toggleTheme}
           className="bg-[#053e53] p-2 rounded-full text-white-500 hover:bg-gray-100 
           transition-transform duration-500 transform hover:rotate-180 shadow-md"
           title="Toggle Theme"
         >
           {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
+        </button> */}
 
         {/* Wallet Button */}
         <button
