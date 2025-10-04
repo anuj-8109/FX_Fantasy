@@ -17,7 +17,7 @@ const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("ongoing");
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [turnament, setTurnament] = useState([]);
-  console.log("turnament",turnament)
+  console.log("turnament", turnament)
   const [banners, setBanners] = useState([]);
   const [now, setNow] = useState(new Date());
 
@@ -57,9 +57,9 @@ const UserDashboard = () => {
           return {
             id: item._id,
             name: item.name,
-            company: item.stocks?.[0]?.stock_name || "N/A",
+            company: item.stocks?.[0]?.stock_name || "",
             companyColor: "#2563eb",
-            partner: item.stocks?.[1]?.stock_name || "N/A",
+            partner: item.stocks?.[1]?.stock_name || "",
             partnerColor: "#dc2626",
             start,
             end,
@@ -68,6 +68,7 @@ const UserDashboard = () => {
             prizePool: item.prizePool || "₹0",
             spots: item.spots || "N/A",
           };
+
         });
         setTurnament(mappedData);
       } else toast.error(res?.message || "Failed to fetch tournaments");
@@ -184,7 +185,7 @@ const UserDashboard = () => {
               key={contest.id}
               onClick={() =>
                 navigate("/pricepol", { state: { _id: contest.id, stocks: contest.stocks || [] } }
-                  
+
                 )
               }
               className={`bg-[#0648601c] rounded-xl shadow-md hover:shadow-xl transition p-4 cursor-pointer border-l-4 ${contest.status === "ongoing"
@@ -208,30 +209,39 @@ const UserDashboard = () => {
               </span> */}
 
               {/* Stocks */}
-              <div className="flex justify-between items-center mb-3">
-                <div className="flex items-center space-x-2">
-                  {getCompanyIcon(contest.company, contest.companyColor)}
-                  <div>
-                    <p className="font-semibold text-[0.675rem] sm:text-base">
-                      {contest.company}
-                    </p>
-                    <p className="text-[10px] sm:text-[11px] text-gray-500">
-                      Primary Stock
-                    </p>
+              {/* Tournament Card Header */}
+              <div className="mb-3 rounded border p-3 bg-red-100 shadow-sm">
+                {/* Tournament Name on Top */}
+                <p className="text-start font-semibold text-base sm:text-lg text-blue-600 mb-2">
+                  {contest.name}
+                </p>
+
+                {/* Company & Partner Row */}
+                <div className="flex justify-between items-center">
+                  {/* Left: Company */}
+                  <div className="flex items-center space-x-2">
+                    {getCompanyIcon(contest.company, contest.companyColor)}
+                    <div>
+                      <p className="font-semibold text-sm">{contest.company || "—"}</p>
+                      <p className="text-xs text-gray-500">Primary Stock</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="text-right">
-                    <p className="font-semibold text-[0.675rem] sm:text-base">
-                      {contest.partner}
-                    </p>
-                    <p className="text-[10px] sm:text-[11px] text-gray-500">
-                      Partner
-                    </p>
-                  </div>
-                  {getCompanyIcon(contest.partner, contest.partnerColor)}
+
+                  {/* Right: Partner (only if available) */}
+                  {contest.partner && (
+                    <div className="flex items-center space-x-2">
+                      <div className="text-right">
+                        <p className="font-semibold text-sm">{contest.partner}</p>
+                        <p className="text-xs text-gray-500">Partner</p>
+                      </div>
+                      {getCompanyIcon(contest.partner, contest.partnerColor)}
+                    </div>
+                  )}
                 </div>
               </div>
+
+
+
 
               {/* Stats */}
               <div className="grid grid-cols-3 gap-2 mb-3">
