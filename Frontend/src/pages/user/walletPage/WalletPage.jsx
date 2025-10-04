@@ -7,6 +7,7 @@ import {
   withdrolmoney,
   withdrolHistory,
   GetUserDetails,
+  getBankdetalis
 } from "../../../services/User";
 import BackButton from "../../../pages/user/Backbutton";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +27,8 @@ const WalletPage = () => {
   const userId = localStorage.getItem("userId");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
+  const [bankDetails, setBankDetails] = useState([]);
+  const [selectedBank, setSelectedBank] = useState(null);
 
 
   const kycVerified = userDetails?.kyc_verification === 1;
@@ -124,59 +127,84 @@ const WalletPage = () => {
     }
   };
 
+
+  useEffect(() => {
+    const fetchBankDetails = async () => {
+      try {
+        const id = localStorage.getItem("userId");
+        const token = localStorage.getItem("token");
+        const res = await getBankdetalis(token, id);
+
+        if (res?.status && Array.isArray(res.data)) {
+          setBankDetails(res.data);
+          if (res.data.length === 1) {
+            setSelectedBank(res.data[0]); // auto-select if only one bank
+          }
+        } else {
+          setBankDetails([]);
+          setSelectedBank(null);
+        }
+      } catch (error) {
+        console.error("Failed to fetch bank details:", error);
+        setBankDetails([]);
+      }
+    };
+    fetchBankDetails();
+  }, []);
+
+
+
   useEffect(() => {
     fetchUser();
   }, []);
 
 
   // Withdraw Function
-  const handleWithdraw = async () => {
-    const { value: formValues } = await Swal.fire({
-      title: "Withdraw Money",
-      html:
-
-        `<input id="swal-amount" type="number" class="swal2-input" placeholder="Amount (₹)" style="margin-bottom: 10px;">`,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: "Submit Withdrawal",
-      cancelButtonText: "Cancel",
-      preConfirm: () => {
-
-        const amount = document.getElementById("swal-amount").value;
-        if (!amount || amount <= 0) {
-          Swal.showValidationMessage("Please fill all fields with valid data");
-          return null;
-        }
-        if (amount < 100) {
-          Swal.showValidationMessage("Minimum withdrawal amount is ₹100");
-          return null;
-        }
-        return { amount };
-      },
-    });
-
-    if (formValues) {
-      const data = {
-        clientId: userId,
-        amount: parseInt(formValues.amount),
-        // remark: `Withdraw to A/C ${formValues.account}, IFSC ${formValues.ifsc}`,
-        type: "withdraw",
-        date: new Date().toISOString(),
-      };
-
-      try {
-        const result = await withdrolmoney(token, data);
-        if (result.status) {
-          Swal.fire("Success!", result.message || "Withdrawal request submitted successfully.", "success");
-          fetchWithdrawHistory();
-        } else {
-          Swal.fire("Error", result.message || "Failed to request withdrawal.", "error");
-        }
-      } catch (error) {
-        Swal.fire("Error", "Something went wrong!", "error");
+ const handleWithdraw = async (bank) => {
+  const { value: formValues } = await Swal.fire({
+    title: "Withdraw Money",
+    html: `<input id="swal-amount" type="number" class="swal2-input" placeholder="Amount (₹)" style="margin-bottom: 10px;">`,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: "Submit Withdrawal",
+    cancelButtonText: "Cancel",
+    preConfirm: () => {
+      const amount = document.getElementById("swal-amount").value;
+      if (!amount || amount <= 0) {
+        Swal.showValidationMessage("Please enter a valid amount");
+        return null;
       }
+      if (amount < 100) {
+        Swal.showValidationMessage("Minimum withdrawal amount is ₹100");
+        return null;
+      }
+      return { amount };
+    },
+  });
+
+  if (formValues && bank) {
+    const data = {
+      clientId: userId,
+      amount: parseInt(formValues.amount),
+      remark: `Withdraw to ${bank.name} (${bank.accountno.slice(-4)}), IFSC: ${bank.ifsc}`,
+      type: "withdraw",
+      date: new Date().toISOString(),
+    };
+
+    try {
+      const result = await withdrolmoney(token, data);
+      if (result.status) {
+        Swal.fire("Success!", result.message || "Withdrawal request submitted successfully.", "success");
+        fetchWithdrawHistory();
+      } else {
+        Swal.fire("Error", result.message || "Failed to request withdrawal.", "error");
+      }
+    } catch (error) {
+      Swal.fire("Error", "Something went wrong!", "error");
     }
-  };
+  }
+};
+
 
   // Fetch Add Money History
   const fetchAddMoneyHistory = async () => {
@@ -444,32 +472,49 @@ const WalletPage = () => {
                 Swal.fire({
                   icon: "warning",
                   title: "KYC Verification Required",
-                  text: "Please complete KYC to use wallet features.",
+                  text: "Please complete your KYC to withdraw funds.",
                   confirmButtonText: "Go to KYC",
-                }).then(() => {
-                  navigate("/kycdetail");
-                });
+                }).then(() => navigate("/kycdetail"));
                 return;
               }
 
-              
-              if (!userDetails?.bank || !userDetails.bank.accountNumber) {
+              if (!bankDetails.length) {
                 Swal.fire({
                   icon: "warning",
                   title: "Bank Details Missing",
-                  text: "Please add your bank account before making a withdrawal.",
+                  text: "Please add and verify your bank account before withdrawing.",
                   confirmButtonText: "Add Bank",
-                }).then(() => {
-                  navigate("/bankdetail"); 
+                }).then(() => navigate("/bankdetail"));
+                return;
+              }
+
+              // If multiple banks, prompt user to select
+              if (bankDetails.length > 1 && !selectedBank) {
+                Swal.fire({
+                  title: "Select Bank Account",
+                  input: "select",
+                  inputOptions: bankDetails.reduce((acc, bank, index) => {
+                    acc[index] = `${bank.name} (${bank.accountno.slice(-4)}) - ${bank.ifsc}`;
+                    return acc;
+                  }, {}),
+                  inputPlaceholder: "Choose bank",
+                  showCancelButton: true,
+                  confirmButtonText: "Select",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    const chosenBank = bankDetails[result.value];
+                    setSelectedBank(chosenBank);
+                    handleWithdraw(chosenBank); // pass selected bank
+                  }
                 });
                 return;
               }
 
-              // dono checks pass -> allow withdraw
-              handleWithdraw();
+              // If single or already selected bank
+              handleWithdraw(selectedBank || bankDetails[0]);
             }}
             className={`px-3 py-2 rounded-xl shadow-md flex items-center gap-2 font-medium text-white transition-all duration-200
-    ${kycVerified && userDetails?.bank?.accountNumber
+    ${kycVerified && bankDetails.length
                 ? "bg-gradient-to-r from-red-500 to-rose-600 hover:shadow-lg hover:scale-105"
                 : "bg-gray-400 cursor-not-allowed"
               }`}
@@ -478,8 +523,44 @@ const WalletPage = () => {
             Withdraw
           </button>
 
+
+
+
         </div>
       </div>
+
+
+
+      {/* ✅ Bank Status Section */}
+      <div className="mb-6 p-4 rounded-xl border bg-gradient-to-r from-gray-50 to-gray-100 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-3">
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/3094/3094830.png"
+            alt="Bank Icon"
+            className="w-8 h-8"
+          />
+          {bankDetails ? (
+            <div>
+              <p className="text-sm text-green-600 font-semibold">✅ Bank Verified</p>
+              <p className="text-gray-600 text-sm">
+                {bankDetails.bankName} — A/C ending in{" "}
+                {bankDetails.accountNumber?.slice(-4)}
+              </p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-sm text-red-500 font-semibold">⚠️ No Bank Details Added</p>
+              <button
+                onClick={() => navigate("/bankdetail")}
+                className="text-xs text-orange-600 underline hover:text-orange-700 mt-1"
+              >
+                Add Bank Details
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
 
 
 

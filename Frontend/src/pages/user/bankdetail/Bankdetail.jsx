@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { addBank } from "../../../services/User";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function AddBankForm() {
+        const navigate = useNavigate(); 
     const [formData, setFormData] = useState({
         name: "",
         branch: "",
@@ -38,10 +40,11 @@ export default function AddBankForm() {
         }
 
         try {
-            const res = await addBank(token, dataToSend); // send client_id here
+            const res = await addBank(token, dataToSend); 
             if (res?.status) {
                 toast.success("Bank added successfully");
                 setFormData({ name: "", branch: "", accountno: "", ifsc: "" });
+                navigate("/wallet"); 
             } else {
                 toast.error(res?.message || "Failed to add bank");
             }
