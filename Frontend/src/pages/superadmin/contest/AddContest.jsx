@@ -209,7 +209,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
       add_by: authData.add_by,
       name: name.trim(),
       description,
-      contest_type: contestType,
+      contest_type: "Mega",
       entry_fee: Number(entryFee),
       // useamount: Number(useAmount),
       total_spots: Number(totalSpots),
@@ -318,7 +318,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
             />
           </div>
 
-          <div>
+          {/* <div>
             <label className="text-sm font-medium  input-Add">
               Contest Type *
             </label>
@@ -331,7 +331,7 @@ export default function AddContest1({ onSuccess, onCancel }) {
               <option value="Mega">Mega</option>
               <option value="Head-to-Head">Head-to-Head</option>
             </select>
-          </div>
+          </div> */}
 
           <div className="grid grid-cols-2 gap-4">
             <div>

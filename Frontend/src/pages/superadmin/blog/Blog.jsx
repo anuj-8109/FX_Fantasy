@@ -160,11 +160,11 @@ const Blog = () => {
   };
 
   const columns = [
-    {
-      name: "S.No",
-      selector: (row, index) => index + 1,
-      width: "80px",
-    },
+    // {
+    //   name: "S.No",
+    //   selector: (row, index) => index + 1,
+    //   width: "80px",
+    // },
     {
       name: "Image",
       cell: (row) =>
@@ -208,7 +208,6 @@ const Blog = () => {
         </label>
       ),
     },
-
     {
       name: "Action",
       cell: (row) => (
@@ -224,21 +223,21 @@ const Blog = () => {
         </div>
       ),
     },
-    {
-      name: "View",
-      cell: (row) => (
-        <div className="flex gap-3">
-          <Eye
-            className="cursor-pointer text-green-600"
-            size={20}
-            onClick={() => {
-              setViewBlog(row);
-              setViewOpen(true);
-            }}
-          />
-        </div>
-      ),
-    },
+    // {
+    //   name: "View",
+    //   cell: (row) => (
+    //     <div className="flex gap-3">
+    //       <Eye
+    //         className="cursor-pointer text-green-600"
+    //         size={20}
+    //         onClick={() => {
+    //           setViewBlog(row);
+    //           setViewOpen(true);
+    //         }}
+    //       />
+    //     </div>
+    //   ),
+    // },
   ];
 
   return (

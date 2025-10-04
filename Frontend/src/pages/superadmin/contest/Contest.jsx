@@ -86,7 +86,7 @@ const Contest = () => {
     setEntryFee(contest?.entry_fee || "");
     setTotalSpots(contest?.total_spots || "");
     setPrizePool(contest?.prize_pool || "");
-    setStatus(contest?.status || "upcoming");
+    // setStatus(contest?.status || "upcoming");
     setOpen(true);
   };
 
@@ -132,7 +132,7 @@ const Contest = () => {
     setEntryFee("");
     setTotalSpots("");
     setPrizePool("");
-    setStatus("upcoming");
+    // setStatus("upcoming");
   };
 
   // save contest
@@ -159,7 +159,7 @@ const Contest = () => {
       entry_fee: entryFee,
       total_spots: totalSpots,
       prize_pool: prizePool,
-      status,
+      // status,
     };
 
     if (selectedContest) payload.id = selectedContest._id;
@@ -221,12 +221,21 @@ const Contest = () => {
       sortable: true,
       width: "160px",
     },
-    { name: "Description", selector: (row) => row.description, grow: 2 },
-    { name: "Type", selector: (row) => row.contest_type },
-    { name: "Entry Fee", selector: (row) => row.entry_fee },
-    { name: "Total Spots", selector: (row) => row.total_spots },
-    { name: "Max/User", selector: (row) => row.max_entry_per_user },
-    { name: "Prize Pool", selector: (row) => row.prize_pool },
+
+    { name: "Type", selector: (row) => row.contest_type, width: "70px" },
+    { name: "Entry Fee", selector: (row) => row.entry_fee, width: "90px" },
+    { name: "Total Spots", selector: (row) => row.total_spots, width: "100px" },
+    {
+      name: "Filld Spots",
+      selector: (row) => row.filled_spots,
+      width: "100px",
+    },
+    {
+      name: "Max/User",
+      selector: (row) => row.max_entry_per_user,
+      width: "90px",
+    },
+    { name: "Prize Pool", selector: (row) => row.prize_pool, width: "90px" },
 
     {
       name: "Prize Dist.",
@@ -239,7 +248,7 @@ const Contest = () => {
           ))}
         </div>
       ),
-      width: "150px",
+      width: "90px",
     },
 
     // {
@@ -257,7 +266,7 @@ const Contest = () => {
     {
       name: "Guaranteed",
       selector: (row) => (row.is_guaranteed ? " Yes" : " No"),
-      width: "120px",
+      width: "100px",
     },
 
     {
@@ -281,23 +290,41 @@ const Contest = () => {
     //   width: "180px",
     // },
 
+    // {
+    //   name: "Status",
+    //   cell: (row) => (
+    //     <label className="relative inline-flex items-center cursor-pointer">
+    //       <input
+    //         type="checkbox"
+    //         checked={row.activestatus === "true"}
+    //         onChange={() => handleStatusChange(row)}
+    //         className="sr-only peer"
+    //       />
+    //       <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
+    //       <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border bg-white peer-checked:translate-x-full transition-transform"></div>
+    //     </label>
+    //   ),
+    //   width: "120px",
+    // },
     {
       name: "Status",
+      selector: (row) => (row.activestatus === true ? "Active" : "Inactive"),
+      exportValue: (row) => (row.activestatus === true ? "Active" : "Inactive"),
       cell: (row) => (
         <label className="relative inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
-            checked={row.status === "live"}
+            checked={row?.activestatus === true}
             onChange={() => handleStatusChange(row)}
             className="sr-only peer"
           />
           <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
-          <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border bg-white peer-checked:translate-x-full transition-transform"></div>
+          <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border peer-checked:translate-x-full transition-transform"></div>
         </label>
       ),
-      width: "120px",
+      width: "100px",
+      export: true,
     },
-
     {
       name: "Action",
       cell: (row) => (
@@ -315,20 +342,21 @@ const Contest = () => {
       width: "100px",
     },
 
-    {
-      name: "View",
-      cell: (row) => (
-        <Eye
-          className="cursor-pointer text-green-600"
-          size={20}
-          onClick={() => {
-            setViewContest(row);
-            setViewOpen(true);
-          }}
-        />
-      ),
-      width: "80px",
-    },
+    // {
+    //   name: "View",
+    //   cell: (row) => (
+    //     <Eye
+    //       className="cursor-pointer text-green-600"
+    //       size={20}
+    //       onClick={() => {
+    //         setViewContest(row);
+    //         setViewOpen(true);
+    //       }}
+    //     />
+    //   ),
+    //   width: "80px",
+    // },
+    { name: "Description", selector: (row) => row.description, grow: 2 },
   ];
 
   return (
@@ -443,7 +471,7 @@ const Contest = () => {
                   />
                 </div>
 
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium">Status</label>
                   <select
                     value={status}
@@ -454,7 +482,7 @@ const Contest = () => {
                     <option value="live">Live</option>
                     <option value="completed">Completed</option>
                   </select>
-                </div>
+                </div> */}
 
                 <div className="flex justify-end gap-3 mt-4">
                   <button
