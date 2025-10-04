@@ -250,7 +250,7 @@ const FAQs = () => {
     <Content
       Page_title="FAQ Management"
       button_status={true}
-      button_title="back"
+      button_title="Back"
       extra_button="+ Add FAQ"
       extra_button_action={() => handleOpen(null)}
       route="/superadmin/dashboard"
