@@ -168,19 +168,24 @@ const FAQs = () => {
   };
 
   const columns = [
-    {
-      name: "S.No",
-      selector: (row, index) => index + 1,
-      width: "80px",
-    },
+    // {
+    //   name: "S.No",
+    //   selector: (row, index) => index + 1,
+    //   width: "80px",
+    // },
     {
       name: "Title",
       selector: (row) => row?.title,
+      exportValue: (row) => row.title || "N/A",
+      export: true,
       sortable: true,
       wrap: true,
     },
     {
       name: "Description",
+      selector: (row) => row?.description,
+      exportValue: (row) => row.description || "N/A",
+      export: true,
       cell: (row) => (
         <div
           className="prose prose-sm max-w-xs truncate"
@@ -191,6 +196,9 @@ const FAQs = () => {
 
     {
       name: "Status",
+      selector: (row) => row?.status,
+      exportValue: (row) => (row.status ? "Active" : "InActive" || "N/A"),
+      export: true,
       cell: (row) => (
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -220,6 +228,7 @@ const FAQs = () => {
           />
         </div>
       ),
+      export: false,
     },
     {
       name: "View",
@@ -233,6 +242,7 @@ const FAQs = () => {
           }}
         />
       ),
+      export: false,
     },
   ];
 
@@ -240,7 +250,7 @@ const FAQs = () => {
     <Content
       Page_title="FAQ Management"
       button_status={true}
-      button_title="back"
+      button_title="Back"
       extra_button="+ Add FAQ"
       extra_button_action={() => handleOpen(null)}
       route="/superadmin/dashboard"

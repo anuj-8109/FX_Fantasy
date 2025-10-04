@@ -218,39 +218,98 @@ const Contest = () => {
     {
       name: "Name",
       selector: (row) => row.name,
+      exportValue: (row) => row.name || "N/A",
+      export: true,
       sortable: true,
       width: "160px",
     },
 
-    { name: "Type", selector: (row) => row.contest_type, width: "70px" },
-    { name: "Entry Fee", selector: (row) => row.entry_fee, width: "90px" },
-    { name: "Total Spots", selector: (row) => row.total_spots, width: "100px" },
+    {
+      name: "Type",
+      selector: (row) => row.contest_type,
+      exportValue: (row) => row.contest_type || "N/A",
+      export: true,
+      width: "70px",
+    },
+    {
+      name: "Entry Fee",
+      selector: (row) => row.entry_fee,
+      exportValue: (row) => row.entry_fee || "N/A",
+      export: true,
+      width: "90px",
+    },
+    {
+      name: "Total Spots",
+      selector: (row) => row.total_spots,
+      exportValue: (row) => row.total_spots || "N/A",
+      export: true,
+      width: "100px",
+    },
     {
       name: "Filld Spots",
       selector: (row) => row.filled_spots,
+      exportValue: (row) => row.filled_spots || "N/A",
+      export: true,
       width: "100px",
     },
     {
       name: "Max/User",
       selector: (row) => row.max_entry_per_user,
+      exportValue: (row) => row.max_entry_per_user || "N/A",
+      export: true,
       width: "90px",
     },
-    { name: "Prize Pool", selector: (row) => row.prize_pool, width: "90px" },
+    {
+      name: "Prize Pool",
+      selector: (row) => row.prize_pool,
+      exportValue: (row) => row.prize_pool || "N/A",
+      export: true,
+      width: "90px",
+    },
 
     {
       name: "Prize Dist.",
+      selector: (row) => {
+        // Return a string for proper Excel export
+        if (
+          Array.isArray(row.prize_distribution) &&
+          row.prize_distribution.length > 0
+        ) {
+          return row.prize_distribution
+            .map((p) => `#${p.rank}: ${p.amount}`)
+            .join(", ");
+        }
+        return "N/A";
+      },
+      exportValue: (row) => {
+        // Same logic for export
+        if (
+          Array.isArray(row.prize_distribution) &&
+          row.prize_distribution.length > 0
+        ) {
+          return row.prize_distribution
+            .map((p) => `#${p.rank}: ₹${p.amount}`)
+            .join(", ");
+        }
+        return "N/A";
+      },
+      export: true,
       cell: (row) => (
         <div className="text-xs">
-          {row.prize_distribution?.map((p, idx) => (
-            <div key={idx}>
-              #{p.rank}: ₹{p.amount}
-            </div>
-          ))}
+          {Array.isArray(row.prize_distribution) &&
+          row.prize_distribution.length > 0 ? (
+            row.prize_distribution.map((p, idx) => (
+              <div key={idx}>
+                #{p.rank}: ₹{p.amount}
+              </div>
+            ))
+          ) : (
+            <span>N/A</span>
+          )}
         </div>
       ),
-      width: "90px",
+      width: "120px",
     },
-
     // {
     //   name: "Stocks",
     //   cell: (row) => (
@@ -266,12 +325,16 @@ const Contest = () => {
     {
       name: "Guaranteed",
       selector: (row) => (row.is_guaranteed ? " Yes" : " No"),
+      exportValue: (row) => (row.is_guaranteed ? " Yes" : " No") || "N/A",
+      export: true,
       width: "100px",
     },
 
     {
       name: "Private",
       selector: (row) => (row.is_private ? " Yes" : " No"),
+      exportValue: (row) => (row.is_private ? " Yes" : " No") || "N/A",
+      export: true,
       width: "100px",
     },
 
@@ -339,6 +402,7 @@ const Contest = () => {
           />
         </div>
       ),
+      export: false,
       width: "100px",
     },
 
@@ -356,7 +420,13 @@ const Contest = () => {
     //   ),
     //   width: "80px",
     // },
-    { name: "Description", selector: (row) => row.description, grow: 2 },
+    {
+      name: "Description",
+      selector: (row) => row.description,
+      exportValue: (row) => row.description || "N/A",
+      export: true,
+      grow: 2,
+    },
   ];
 
   return (
