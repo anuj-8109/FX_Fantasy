@@ -154,28 +154,29 @@ function Pricepol() {
 
     return true;
   });
+useEffect(() => {
+  const fetchPrivateContests = async () => {
+    const token = localStorage.getItem("token");
+    const clientId = localStorage.getItem("userId");
+    if (!token || !clientId || !tournamentId) return;
 
-  useEffect(() => {
-    const fetchPrivateContests = async () => {
-      const token = localStorage.getItem("token");
-      const clientId = localStorage.getItem("userId");
-      if (!token || !clientId) return;
-
-      try {
-        const res = await ListPrivateContests(token, clientId);
-        if (res.status) {
-          // set the contests array correctly
-          setPrivateContests(res.contests || []);
-        } else {
-          setPrivateContests([]);
-        }
-      } catch (err) {
-        console.error("Error fetching private contests:", err);
+    try {
+      const res = await ListPrivateContests(token, clientId, tournamentId); // pass tournamentId
+      if (res.status) {
+        setPrivateContests(res.data || []); // <-- use data
+      } else {
+        setPrivateContests([]);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching private contests:", err);
+    }
+  };
 
-    if (activeTab === "myTeam") fetchPrivateContests();
-  }, [activeTab]);
+  if (activeTab === "myTeam") fetchPrivateContests();
+}, [activeTab, tournamentId]);
+
+
+
 
 
   return (

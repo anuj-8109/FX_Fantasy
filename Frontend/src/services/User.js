@@ -552,19 +552,20 @@ export async function addprivatecontent(token, formData) {
 }
 
 //get private contests
-export async function ListPrivateContests(token, client_id) {
+export async function ListPrivateContests(token, client_id, tournament_id) {
   try {
     const response = await axios.get(`${config.base_url}api/client/listprivatecontests`, {
-      params: { client_id },
+      params: { client_id, tournament_id }, // add tournament_id
       headers: {
         Authorization: `Bearer ${token}`,
       }
-    })
+    });
     return response?.data;
   } catch (error) {
-    return error?.response?.data || { status: false, message: "Network Error" }
+    return error?.response?.data || { status: false, message: "Network Error" };
   }
 }
+
 
 // router.post("/api/client/shareprivatecontest", auth, SharePrivateContest);
 export async function SharePrivateContest(token, contest_id, shared_with_client_id, shared_by_client_id) {
