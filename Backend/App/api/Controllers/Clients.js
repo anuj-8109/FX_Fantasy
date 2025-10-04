@@ -1689,9 +1689,9 @@ async deleteBank(req, res) {
 // Share Private Contest
 async SharePrivateContest(req, res) {
   try {
-    const { contest_id, shared_with_client_id, shared_by_client_id } = req.body;
+    const { contest_id, shared_with_client_id, shared_by_client_id,PhoneNo } = req.body;
 
-    if (!contest_id || !shared_with_client_id || !shared_by_client_id) {
+    if (!contest_id || !shared_with_client_id || !shared_by_client_id || PhoneNo) {
       return res.status(400).json({
         status: false,
         message: "contest_id, shared_with_client_id and shared_by_client_id are required"
@@ -1709,6 +1709,7 @@ async SharePrivateContest(req, res) {
       contest_id,
       shared_with_client_id,
       shared_by_client_id,
+      PhoneNo,
     });
 
     await shareEntry.save();
@@ -1727,46 +1728,71 @@ async SharePrivateContest(req, res) {
   }
 }
 
-// List Private Contests
+// 📌 List Private Contests API
 async ListPrivateContests(req, res) {
   try {
-    const { client_id } = req.query;
+    const { client_id, page = 1, status, tournament_id } = req.query;
 
     if (!client_id) {
       return res.status(400).json({
         status: false,
-        message: "client_id is required"
+        message: "client_id is required",
       });
     }
 
-    // 1. Contests created by client
-    const ownContests = await Contest_Model.find({
-      client_id,
-      is_private: true
-    });
+    const pageNum = parseInt(page) || 1;
+    const limitNum = 10;
+    const skip = (pageNum - 1) * limitNum;
 
-    // 2. Contests shared with client
+    const now = new Date();
+
+    // 1️⃣ Contests created by client
+    let ownContestsFilter = { client_id, is_private: true };
+    if (status) {
+      if (status === "upcoming") ownContestsFilter.startdate = { $gt: now };
+      else if (status === "live") ownContestsFilter.startdate = { $lte: now, enddate: { $gte: now } };
+      else if (status === "completed") ownContestsFilter.enddate = { $lt: now };
+    }
+    if (tournament_id) ownContestsFilter.tournament_id = tournament_id;
+
+    const ownContests = await Contest_Model.find(ownContestsFilter);
+
+    // 2️⃣ Contests shared with client
     const sharedEntries = await ContestShare_Model.find({ shared_with_client_id: client_id });
     const sharedContestIds = sharedEntries.map(e => e.contest_id);
 
-    const sharedContests = await Contest_Model.find({
-      _id: { $in: sharedContestIds },
-      is_private: true
-    });
+    let sharedContestsFilter = { _id: { $in: sharedContestIds }, is_private: true };
+    if (status) {
+      if (status === "upcoming") sharedContestsFilter.startdate = { $gt: now };
+      else if (status === "live") sharedContestsFilter.startdate = { $lte: now, enddate: { $gte: now } };
+      else if (status === "completed") sharedContestsFilter.enddate = { $lt: now };
+    }
+    if (tournament_id) sharedContestsFilter.tournament_id = tournament_id;
+
+    const sharedContests = await Contest_Model.find(sharedContestsFilter);
 
     // Combine both
-    const contests = [...ownContests, ...sharedContests];
+    const allContests = [...ownContests, ...sharedContests];
+
+    // Pagination manually
+    const totalCount = allContests.length;
+    const paginatedContests = allContests.slice(skip, skip + limitNum);
 
     return res.status(200).json({
       status: true,
-      contests
+      message: "Private contests fetched successfully",
+      page: pageNum,
+      limit: limitNum,
+      total: totalCount,
+      data: paginatedContests,
     });
 
   } catch (error) {
+    console.error("Error fetching private contests:", error);
     return res.status(500).json({
       status: false,
       message: "Server error",
-      error: error.message
+      error: error.message,
     });
   }
 }

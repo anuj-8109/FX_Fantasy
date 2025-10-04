@@ -23,6 +23,18 @@ const ContestShareSchema = new Schema({
         type: Boolean,
         default: true // assuming true means active and false means inactive
     },
+      PhoneNo: {
+        type: String,
+        required: true,
+        trim: true,
+        validate: {
+            validator: function(v) {
+                return /\d{10}/.test(v); // ensures exactly 10 digits
+            },
+            message: props => `${props.value} is not a valid phone number!`
+        },
+        default: null
+    },
     del: {
         type: Boolean,
         default: false // assuming false means not deleted
