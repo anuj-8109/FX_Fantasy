@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { GetContestByTurnament, JoinContest, GetMyContests, ListPrivateContests } from "../../services/User";
+import { GetContestByTurnament, JoinContest, GetMyContests, ListPrivateContests ,SharePrivateContest} from "../../services/User";
 import toast from "react-hot-toast";
 import BackButton from "../../pages/user/Backbutton";
 
@@ -530,7 +530,7 @@ function Pricepol() {
                             const sharedWith = prompt("Enter client ID to share contest with:");
                             if (!sharedWith) return;
 
-                            const res = await ListPrivateContests(
+                            const res = await SharePrivateContest(
                               token,
                               data._id,
                               sharedWith,
