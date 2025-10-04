@@ -413,21 +413,21 @@ const Client = () => {
       export: true,
     },
 
-    {
-      name: "View",
-      cell: (row) => (
-        <Eye
-          className="cursor-pointer text-green-600"
-          size={20}
-          onClick={() => {
-            setViewClient(row);
-            setViewOpen(true);
-          }}
-        />
-      ),
-      width: "60px",
-      export: false,
-    },
+    // {
+    //   name: "View",
+    //   cell: (row) => (
+    //     <Eye
+    //       className="cursor-pointer text-green-600"
+    //       size={20}
+    //       onClick={() => {
+    //         setViewClient(row);
+    //         setViewOpen(true);
+    //       }}
+    //     />
+    //   ),
+    //   width: "60px",
+    //   export: false,
+    // },
     {
       name: "Action",
       cell: (row) => (

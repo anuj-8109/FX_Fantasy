@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/Datatable";
 import { FileText, Edit, Eye, Trash2 } from "lucide-react";
 import {
-  GetNewsList, AddNews, UpdateNews, UpdateNewsStatus, DeleteNews
+  GetNewsList,
+  AddNews,
+  UpdateNews,
+  UpdateNewsStatus,
+  DeleteNews,
 } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -153,11 +157,11 @@ const News = () => {
   };
 
   const columns = [
-    {
-      name: "S.No",
-      selector: (row, index) => index + 1,
-      width: "80px",
-    },
+    // {
+    //   name: "S.No",
+    //   selector: (row, index) => index + 1,
+    //   width: "80px",
+    // },
     {
       name: "Image",
       cell: (row) => (
@@ -167,14 +171,21 @@ const News = () => {
           className="w-16 h-16 object-cover"
         />
       ),
+      export: false,
     },
     {
       name: "Title",
       selector: (row) => row?.title,
+      exportValue: (row) => row.title || "N/A",
+      export: true,
       sortable: true,
+      width: "200px",
     },
     {
       name: "Description",
+      selector: (row) => row?.description,
+      exportValue: (row) => row.description || "N/A",
+      export: true,
       cell: (row) => (
         <div
           className="line-clamp-2 prose max-w-xs text-sm"
@@ -184,6 +195,9 @@ const News = () => {
     },
     {
       name: "Status",
+      selector: (row) => (row.status ? "Active" : "Inactive"),
+      exportValue: (row) => (row.status ? "Active" : "Inactive"),
+      export: true,
       cell: (row) => (
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -212,6 +226,7 @@ const News = () => {
           />
         </div>
       ),
+      export: false,
     },
     {
       name: "View",
@@ -227,6 +242,7 @@ const News = () => {
           />
         </div>
       ),
+      export: false,
     },
   ];
 
@@ -236,10 +252,10 @@ const News = () => {
       button_title="Back"
       route="/superadmin/dashboard"
       button_status={true}
-      extra_button="+ Add News"  extra_button_action={() => handleOpen(null)}
+      extra_button="+ Add News"
+      extra_button_action={() => handleOpen(null)}
     >
       <div className="p-2 ">
-
         {/* <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <FileText />
@@ -255,7 +271,12 @@ const News = () => {
         </div> */}
 
         <div className="shadow-lg rounded-xl p-4 ">
-          <Datatable columns={columns} data={news} title="News List" onRefresh={fetchNews} />
+          <Datatable
+            columns={columns}
+            data={news}
+            title="News List"
+            onRefresh={fetchNews}
+          />
         </div>
 
         {open && (
