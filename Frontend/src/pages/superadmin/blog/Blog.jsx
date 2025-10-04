@@ -233,21 +233,21 @@ const Blog = () => {
       ),
       export: false,
     },
-    // {
-    //   name: "View",
-    //   cell: (row) => (
-    //     <div className="flex gap-3">
-    //       <Eye
-    //         className="cursor-pointer text-green-600"
-    //         size={20}
-    //         onClick={() => {
-    //           setViewBlog(row);
-    //           setViewOpen(true);
-    //         }}
-    //       />
-    //     </div>
-    //   ),
-    // },
+    {
+      name: "View",
+      cell: (row) => (
+        <div className="flex gap-3">
+          <Eye
+            className="cursor-pointer text-green-600"
+            size={20}
+            onClick={() => {
+              setViewBlog(row);
+              setViewOpen(true);
+            }}
+          />
+        </div>
+      ),
+    },
   ];
 
   return (

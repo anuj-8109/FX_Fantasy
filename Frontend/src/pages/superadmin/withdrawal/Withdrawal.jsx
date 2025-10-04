@@ -94,13 +94,13 @@ const WithdrawalRequest = () => {
   };
 
   const columns = [
-    {
-      name: "S.No",
-      selector: (row, index) => index + 1,
-      width: "80px",
-    },
-    { name: "ID", selector: (row) => row._id },
-    { name: "Client ID", selector: (row) => row.clientid },
+    // {
+    //   name: "S.No",
+    //   selector: (row, index) => index + 1,
+    //   width: "80px",
+    // },
+    // { name: "ID", selector: (row) => row._id },
+    { name: "Client Name", selector: (row) => row.clientid },
     { name: "Amount", selector: (row) => `₹${row.amount}` },
     {
       name: "Created At",
