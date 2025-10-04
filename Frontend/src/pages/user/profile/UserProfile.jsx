@@ -18,6 +18,7 @@ const UserProfile = () => {
     const [edituser, setEdituser] = ([]);
     const [isEditingName, setIsEditingName] = useState(false);
     const [updatedName, setUpdatedName] = useState(name);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     console.log("selectedImage", selectedImage)
 
     const token = localStorage.getItem("token");
@@ -120,32 +121,32 @@ const UserProfile = () => {
 
 
     const handleSaveName = async () => {
-    if (!updatedName.trim()) {
-        toast.error("Name cannot be empty");
-        return;
-    }
-
-    try {
-        // Send PUT request with updated name
-        const res = await EditUser(token, {
-            id, // user ID from localStorage
-            FullName: updatedName,
-            Email: userDetails?.Email, // keep current email
-            PhoneNo: userDetails?.PhoneNo // keep current phone
-        });
-
-        if (res?.status) {
-            setUserDetails((prev) => ({ ...prev, FullName: updatedName }));
-            setName(updatedName);
-            setIsEditingName(false);
-            toast.success("Name updated successfully!");
-        } else {
-            toast.error(res?.message || "Failed to update name");
+        if (!updatedName.trim()) {
+            toast.error("Name cannot be empty");
+            return;
         }
-    } catch (error) {
-        toast.error("Error updating name");
-    }
-};
+
+        try {
+            // Send PUT request with updated name
+            const res = await EditUser(token, {
+                id, // user ID from localStorage
+                FullName: updatedName,
+                Email: userDetails?.Email, // keep current email
+                PhoneNo: userDetails?.PhoneNo // keep current phone
+            });
+
+            if (res?.status) {
+                setUserDetails((prev) => ({ ...prev, FullName: updatedName }));
+                setName(updatedName);
+                setIsEditingName(false);
+                toast.success("Name updated successfully!");
+            } else {
+                toast.error(res?.message || "Failed to update name");
+            }
+        } catch (error) {
+            toast.error("Error updating name");
+        }
+    };
 
 
     const handleupdateuser = async () => {
@@ -165,32 +166,45 @@ const UserProfile = () => {
             {/* Top Section: Profile Card */}
             <div className="grid lg:grid-cols-5 gap-8 mt-4">
                 <div className="lg:col-span-2 bg-white shadow rounded-xl p-6 text-center">
-                    <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden border border-gray-200 flex items-center justify-center text-4xl font-bold bg-gray-100">
+                    <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden border border-gray-200 relative flex items-center justify-center text-4xl font-bold bg-gray-100 cursor-pointer">
                         {selectedImage ? (
-                            <img src={selectedImage} alt="Profile" className="w-full h-full object-cover" />
+                            <img
+                                src={selectedImage}
+                                alt="Profile"
+                                className="w-full h-full object-cover"
+                                onClick={() => setIsPreviewOpen(true)}
+                            />
                         ) : (
-                            userDetails?.FullName?.charAt(0) || "U"
+                            <span onClick={() => setIsPreviewOpen(true)}>
+                                {userDetails?.FullName?.charAt(0) || "U"}
+                            </span>
                         )}
+
+                        {/* Edit overlay */}
+                        <label className="absolute bottom-1 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded cursor-pointer hover:bg-opacity-70">
+                            Edit
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                        const reader = new FileReader();
+                                        reader.onload = () => setSelectedImage(reader.result);
+                                        reader.readAsDataURL(file);
+                                    }
+                                }}
+                            />
+                        </label>
                     </div>
+
+
 
                     <h2 className="text-xl font-semibold mb-2">{userDetails?.FullName || "User"}</h2>
                     <p className="text-sm text-gray-500">{userDetails?.Email || "Email not provided"}</p>
 
-                    <div className="flex justify-center gap-4 mt-4">
-                        {/* <span className={`px-4 py-2 rounded-lg text-sm font-medium ${userDetails?.ActiveStatus === 1
-                            ? "bg-green-500 text-white"
-                            : "bg-red-100 text-red-600"
-                            }`}>
-                            {userDetails?.ActiveStatus === 1 ? "Active" : "DeActive"}
-                        </span> */}
 
-                        <button
-                            onClick={() => setIsModalOpen(true)}
-                            className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
-                        >
-                            Change Photo
-                        </button>
-                    </div>
                 </div>
 
                 {/* Tabs Section */}
@@ -345,6 +359,20 @@ const UserProfile = () => {
                     </p>
                 )}
             </div>
+            {isPreviewOpen && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                    onClick={() => setIsPreviewOpen(false)}
+                >
+                    <img
+                        src={selectedImage || "https://via.placeholder.com/150"}
+                        alt="Preview"
+                        className="w-80 h-58 object-cover rounded-full shadow-lg" // pill shape
+                        onClick={(e) => e.stopPropagation()} // prevent closing when clicking image
+                    />
+                </div>
+            )}
+
 
 
             {/* Profile Photo Modal */}

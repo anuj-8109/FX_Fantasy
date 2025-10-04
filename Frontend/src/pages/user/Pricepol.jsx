@@ -191,7 +191,7 @@ function Pricepol() {
           onClick={() =>
             navigate("/addprivatecontest", {
               state: {
-                tournament_id: tournament?._id, // ✅ dynamically uses current tournament
+                tournament_id: tournament?._id, 
               },
             })
           }
@@ -324,7 +324,7 @@ function Pricepol() {
                 >
                   {/* Tournament Name */}
                   <p className="text-[12px] sm:text-sm font-semibold text-[#053e53] mb-2">
-                    {contest.tournament_name || contest.tournament_id?.name || "Tournament"}
+                    {contest?.name || contest.tournament_id?.name || "Tournament"}
                   </p>
 
                   <div className="flex justify-between items-center mb-3">
@@ -530,7 +530,7 @@ function Pricepol() {
                             const sharedWith = prompt("Enter client ID to share contest with:");
                             if (!sharedWith) return;
 
-                            const res = await SharePrivateContest(
+                            const res = await ListPrivateContests(
                               token,
                               data._id,
                               sharedWith,
