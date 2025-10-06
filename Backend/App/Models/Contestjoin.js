@@ -41,6 +41,14 @@ const ContestJoinSchema = new Schema({
     type: Number,
     default: 0 // assign when contest ends
   },
+  refer_used: {
+    type: Number,
+    default: 0 // assign when contest ends
+  },
+  wallet_used: {
+    type: Number,
+    default: 0 // assign when contest ends
+  },
   joined_at: {
     type: Date,
     default: Date.now

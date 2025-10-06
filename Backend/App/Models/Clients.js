@@ -60,6 +60,11 @@ const clientsModel = new Schema({
         default: 0,
         min: 0
     },
+     referwamount: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
     del: {
         type: Number, 
         enum: [1, 0],
@@ -115,6 +120,11 @@ const clientsModel = new Schema({
         default: null
     },
     pancard: {
+        type: String,
+        trim: true,
+        default: null
+    },
+     token: {
         type: String,
         trim: true,
         default: null

@@ -91,6 +91,11 @@ const BasicSettingSchema = new Schema({
         trim: true,
         default: null
     },
+    refer_amount_used_percent: {
+        type: Number,
+        trim: true,
+        default: 0
+    },
     refer_image: {
         type: String,
         trim: true,

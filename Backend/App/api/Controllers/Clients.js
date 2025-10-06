@@ -18,6 +18,10 @@ const Bank_Modal = db.Bank;
 const ContestShare_Model = db.ContestShare;
 const Contest_Model = db.Contest
 
+const Tournament_Model = db.Tournament;
+const Contestjoin_Modal = db.Contestjoin;
+const Contesttrade_Modal = db.Contesttrade;
+
 const { sendSMS } = require('../../Utils/smsHelper');
 const upload = require('../../Utils/multerHelper');
 const { generatePDF } = require('../../Utils/pdfGenerator');
@@ -598,7 +602,7 @@ async LoginWithOTP(req, res) {
     if (!client) {
       // --- Validate referral token if provided ---
       if (token) {
-        const refUser = await Clients_Modal.findOne({ refer_token: token, del: 0, ActiveStatus: 1 });
+        const refUser = await Clients_Modal.findOne({ token: token, del: 0, ActiveStatus: 1 });
         if (!refUser) {
           return res.status(400).json({ status: false, message: "Referral code doesn't exist" });
         }
@@ -613,6 +617,7 @@ async LoginWithOTP(req, res) {
       client = new Clients_Modal({
         PhoneNo,
         refer_token,
+        token: token,
         refer_status: token ? (settings.refer_status || 0) : 0,
         del: 0,
         ActiveStatus: 0,
@@ -971,6 +976,83 @@ async  addMoneyInWallet(req, res) {
       { $inc: { wamount: amount } }, // increment balance
       { new: true }
     );
+
+
+
+
+      const refertokens = await Refer_Modal.find({ user_id: client._id, status: 0 });
+
+      if (client.refer_status && client.token) {
+        if (refertokens.length > 0) {
+        }
+        else {
+
+          const senderamount = (amount.price * settings.sender_earn) / 100;
+          const receiveramount = (amount.price * settings.receiver_earn) / 100;
+
+          const results = new Refer_Modal({
+            token: client.token,
+            user_id: client._id,
+            senderearn: settings.sender_earn,
+            receiverearn: settings.receiver_earn,
+            senderamount: senderamount,
+            receiveramount: receiveramount,
+            status: 1
+          })
+          await results.save();
+          client.referwamount+= receiveramount;
+          client.wamount += receiveramount;
+          await client.save();
+          const sender = await Clients_Modal.findOne({ refer_token: client.token, del: 0, ActiveStatus: 1 });
+
+          if (sender) {
+            sender.referwamount+= senderamount;
+            sender.wamount += senderamount;
+            await sender.save();
+          } else {
+            // console.error(`Sender not found or inactive for user_id: ${refertoken.user_id}`);
+          }
+
+        }
+
+      }
+
+      if (refertokens.length > 0) {
+        for (const refertoken of refertokens) {
+          const senderamount = (amount.price * refertoken.senderearn) / 100;
+          const receiveramount = (amount.price * refertoken.receiverearn) / 100;
+
+          refertoken.senderamount = senderamount;
+          refertoken.receiveramount = receiveramount;
+          refertoken.status = 1;
+
+          await refertoken.save();
+
+          // Update client's wallet amount
+            client.referwamount+= receiveramount;
+          client.wamount += receiveramount;
+          await client.save();
+
+          // Update sender's wallet amount
+          const sender = await Clients_Modal.findOne({ refer_token: refertoken.token, del: 0, ActiveStatus: 1 });
+
+          if (sender) {
+              sender.referwamount+= senderamount;
+            sender.wamount += senderamount;
+            await sender.save();
+          } else {
+            // console.error(`Sender not found or inactive for user_id: ${refertoken.user_id}`);
+          }
+        }
+      } else {
+        console.log('No referral tokens found.');
+      }
+
+    
+
+
+
+
 
     return res.status(200).json({
       status: true,
@@ -1743,7 +1825,6 @@ async ListPrivateContests(req, res) {
     const pageNum = parseInt(page) || 1;
     const limitNum = 10;
     const skip = (pageNum - 1) * limitNum;
-
     const now = new Date();
 
     // 1️⃣ Contests created by client
@@ -1755,7 +1836,9 @@ async ListPrivateContests(req, res) {
     }
     if (tournament_id) ownContestsFilter.tournament_id = tournament_id;
 
-    const ownContests = await Contest_Model.find(ownContestsFilter);
+    const ownContests = await Contest_Model.find(ownContestsFilter)
+      .populate("tournament_id") // 👈 Include tournament data
+      .lean();
 
     // 2️⃣ Contests shared with client
     const sharedEntries = await ContestShare_Model.find({ shared_with_client_id: client_id });
@@ -1769,7 +1852,9 @@ async ListPrivateContests(req, res) {
     }
     if (tournament_id) sharedContestsFilter.tournament_id = tournament_id;
 
-    const sharedContests = await Contest_Model.find(sharedContestsFilter);
+    const sharedContests = await Contest_Model.find(sharedContestsFilter)
+      .populate("tournament_id") // 👈 Include tournament data
+      .lean();
 
     // Combine both
     const allContests = [...ownContests, ...sharedContests];
@@ -1796,6 +1881,114 @@ async ListPrivateContests(req, res) {
     });
   }
 }
+
+
+async Refer(req, res) {
+  try {
+    const { refertoken } = req.query;   
+
+    if (!refertoken) {
+      return res.status(400).json({
+        status: false,
+        message: "refertoken is required in URL",
+      });
+    }
+
+    // Example: find referrer user from token
+       const referrer = await Clients_Modal.findOne({ refer_token: refertoken, del: 0, ActiveStatus: 1 });
+    if (!referrer) {
+      return res.status(404).json({
+        status: false,
+        message: "Invalid referral token",
+      });
+    }
+
+
+     return res.status(200).json({
+        status: true,
+      refertoken: refertoken,
+     });
+  
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+    });
+  }
+}
+
+
+// ✅ My Joined Contests (Without tournament_id filter)
+async myContestsWithoutTournament(req, res) {
+  try {
+    const { client_id, page = 1, status } = req.body;
+
+    if (!client_id) {
+      return res.status(400).json({ status: false, message: "client_id is required" });
+    }
+
+    const pageNum = parseInt(page) || 1;
+    const limitNum = 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    const now = new Date();
+
+    // Base filter (sirf client_id ke basis par)
+    const filter = { client_id };
+
+    // Status wise filtering
+    let dateFilter = {};
+    if (status === "upcoming") {
+      dateFilter = { startdate: { $gt: now } };
+    } else if (status === "live") {
+      dateFilter = { startdate: { $lte: now }, enddate: { $gte: now } };
+    } else if (status === "completed") {
+      dateFilter = { enddate: { $lt: now } };
+    }
+
+    // Main query (contest join ke data ke साथ contest aur tournament dono populate)
+    const contests = await Contestjoin_Modal.find(filter)
+      .populate({
+        path: "contest_id",
+        model: "Contest",
+        match: dateFilter, // status ke according filter
+        populate: {
+          path: "tournament_id",
+          model: "Tournament",
+        },
+      })
+      .populate("client_id") // optional: client details
+      .sort({ created_at: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .exec();
+
+    // Filter out null contests (agar match filter ke wajah se contest null ho gaya)
+    const validContests = contests.filter(c => c.contest_id);
+
+    const totalCount = validContests.length;
+
+    return res.status(200).json({
+      status: true,
+      message: "My contests fetched successfully",
+      page: pageNum,
+      limit: limitNum,
+      total: totalCount,
+      data: validContests,
+    });
+
+  } catch (error) {
+    console.error("Error fetching my contests:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
 
 
 }

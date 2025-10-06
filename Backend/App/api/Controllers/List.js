@@ -367,6 +367,11 @@ async  joinContest(req, res) {
       return res.status(404).json({ status: false, message: "Contest not found" });
     }
 
+if (contest.filled_spots <= 0) {
+      return res.status(400).json({ status: false, message: "Contest is full" });
+    }
+
+
 const tournament = await Tournament_Model.findOne({ _id: contest.tournament_id, del: false });
 if (!tournament) {
   return res.status(404).json({ status: false, message: "Tournament not found" });
@@ -395,19 +400,39 @@ if (!tournament) {
     }
 
 
- if (client.wamount < total) {
+   const result = await BasicSetting_Modal.findOne().exec();
+
+// Take dynamic percent, default 0
+const referPercent = result?.refer_amount_used_percent || 0; // default 0%
+
+let referUsed = 0;
+
+if (client.referwamount && client.referwamount > 0 && referPercent > 0) {
+  // Convert percent to decimal
+  const referPercentDecimal = referPercent / 100;
+
+  // Use referPercent% of total from refer wallet, but not more than available
+  referUsed = Math.min(client.referwamount, total * referPercentDecimal);
+}
+
+     const remaining = total - referUsed;
+
+
+ if (client.wamount < remaining) {
       return res.status(400).json({
         status: false,
         message: "Insufficient wallet balance"
       });
     }
 
-    // ✅ Deduct from wallet
-    client.wamount -= total;
+    // ✅ Deduct from wallets
+    if (referUsed > 0) client.referwamount -= referUsed;
+    client.wamount -= remaining;
     await client.save();
 
 
-
+ contest.filled_spots -= 1;
+    await contest.save();
     // Save new join entry
     const joinEntry = new Contestjoin_Modal({
       contest_id,
@@ -415,6 +440,8 @@ if (!tournament) {
       price,
       discount,
       total,
+      refer_used: referUsed,
+      wallet_used: remaining,
       entry_count: 1,
       wallet_balance: tournament.useamount,
       joined_at: new Date()
