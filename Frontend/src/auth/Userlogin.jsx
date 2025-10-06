@@ -100,6 +100,7 @@ const UserLogin = () => {
 
 
         localStorage.setItem("token", response?.data?.tokenjwt);
+
         toast.success(response.message || "OTP sent successfully");
         setOtpSent(true);
         setTimer(30);
@@ -143,9 +144,9 @@ const UserLogin = () => {
 
         const roleId = 3;
 
-        // Save user info to localStorage
+        // Save all user info to localStorage for automatic referral link generation
         localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("user", JSON.stringify(user)); // Full user object
         localStorage.setItem("roleId", roleId);
         localStorage.setItem("add_by", user.id);
         localStorage.setItem("userId", user.id);
@@ -155,13 +156,14 @@ const UserLogin = () => {
           position: "top-right",
         });
 
-        // Redirect based on whether name is already set
+        // Redirect
         if (user.FullName && user.FullName.trim() !== "") {
           navigate("/dashboard"); // Skip setname
         } else {
           navigate("/setname"); // Go to setname if no name
         }
-      } else {
+      }
+      else {
         Swal.fire("Error", response?.message?.message || "Invalid OTP");
       }
     } catch (error) {
