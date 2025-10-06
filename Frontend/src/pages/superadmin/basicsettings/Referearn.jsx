@@ -18,6 +18,7 @@ const Referearn = () => {
     refersendmsg: "",
     image: null,
     multipleTime: true,
+    refer_amount_used_percent: 0,
   });
 
   const fetchReferSettings = async () => {
@@ -35,6 +36,8 @@ const Referearn = () => {
           refersendmsg: data.refersendmsg || "",
           image: null,
           multipleTime: data.multipleTime ?? true,
+          refer_amount_used_percent: data.refer_amount_used_percent || 0,  // ✅ set from API
+
         });
       }
     } catch (error) {
@@ -113,6 +116,17 @@ const Referearn = () => {
           </div>
 
           <div className="flex gap-4">
+            <div>
+              <label className="block font-medium">Refer Amount Used (%)</label>
+              <input
+                type="number"
+                name="refer_amount_used_percent"
+                value={formData.refer_amount_used_percent}
+                onChange={handleChange}
+                className="w-full border p-2 rounded sms-style"
+              />
+            </div>
+
             <div className="flex-1">
               <label className="block font-medium">Sender Earn (%)</label>
               <input
@@ -159,7 +173,7 @@ const Referearn = () => {
 
           <div>
             <label className="block font-medium ">Image</label>
-            <input type="file" name="image" onChange={handleChange}  />
+            <input type="file" name="image" onChange={handleChange} />
           </div>
 
           <div>
@@ -201,9 +215,8 @@ const Referearn = () => {
           <button
             type="submit"
             disabled={updateLoading}
-            className={`bg-orange-500 text-white px-4 py-2 rounded ${
-              updateLoading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`bg-orange-500 text-white px-4 py-2 rounded ${updateLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
           >
             {updateLoading ? "Updating..." : "Update"}
           </button>

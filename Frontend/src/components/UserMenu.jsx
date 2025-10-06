@@ -74,7 +74,7 @@ const UserMenu = () => {
           className="flex flex-col items-center hover:scale-110 transition"
         >
           <Search className="h-6 w-6" />
-          <span className="text-xs">Search</span>
+          <span className="text-xs">My Contests</span>
         </button>
 
         {/* Alerts */}

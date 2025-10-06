@@ -598,3 +598,50 @@ export async function EditUser(token, data) {
     return error?.response?.data;
   }
 }
+
+
+//My contest list 
+
+export async function MyContestsWithoutTournament(token, client_id) {
+  try {
+    const response = await axios.post(`${config.base_url}api/list/mycontestswithouttournament`, { client_id }, {
+      headers: {  Authorization: `Bearer ${token}` }
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
+
+export async function applyReferral(token, user_id, refer_token) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/client/referearn`,
+      { user_id, refer_token },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
+// Refer & Earn API call
+// export async function getReferEarnData(token, client_id) {
+//   try {
+//     const response = await axios.post(
+//       `${config.base_url}api/client/referearn`, 
+//       { id: client_id },   // backend expect कर रहा है { id }
+//       {
+//         headers: { 
+//           Authorization: `Bearer ${token}`
+//         }
+//       }
+//     );
+
+//     return response?.data;
+//   } catch (error) {
+//     return error?.response?.data || { status: false, message: "Network error" };
+//   }
+// }

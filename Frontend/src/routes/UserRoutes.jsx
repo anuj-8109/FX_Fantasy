@@ -25,6 +25,7 @@ import Kycdetails from "../pages/user/kyc/Kycdetails";
 import Bankdetail from "../pages/user/bankdetail/Bankdetail";
 import AddprivateContest from "../pages/user/privatecontest/Addprivatecontest";
 import Getprivatecontest from "../pages/user/privatecontest/Getprivatecontest";
+import Refer from "../pages/user/referearn/refer";
 
 
 const UserRoutes = () => {
@@ -53,7 +54,7 @@ const UserRoutes = () => {
         <Route path="bankdetail" element={<Bankdetail/>}/>
         <Route path="addprivatecontest" element={<AddprivateContest/>}/>
         <Route path="listprivatecontest" element={<Getprivatecontest/>}/>
-
+        <Route path="referral" element={<Refer />} />
 
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
 
