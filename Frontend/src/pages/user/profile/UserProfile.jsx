@@ -19,7 +19,14 @@ const UserProfile = () => {
     const [isEditingName, setIsEditingName] = useState(false);
     const [updatedName, setUpdatedName] = useState(name);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-    console.log("selectedImage", selectedImage)
+    const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
+    const [editProfileData, setEditProfileData] = useState({
+        FullName: "",
+        Email: "",
+        state: "",
+        city: "",
+        dob: "",
+    });
 
     const token = localStorage.getItem("token");
     const id = localStorage.getItem("userId");
@@ -120,33 +127,33 @@ const UserProfile = () => {
 
 
 
-    const handleSaveName = async () => {
-        if (!updatedName.trim()) {
-            toast.error("Name cannot be empty");
-            return;
-        }
+    // const handleSaveName = async () => {
+    //     if (!updatedName.trim()) {
+    //         toast.error("Name cannot be empty");
+    //         return;
+    //     }
 
-        try {
-            // Send PUT request with updated name
-            const res = await EditUser(token, {
-                id, // user ID from localStorage
-                FullName: updatedName,
-                Email: userDetails?.Email, // keep current email
-                PhoneNo: userDetails?.PhoneNo // keep current phone
-            });
+    //     try {
+    //         // Send PUT request with updated name
+    //         const res = await EditUser(token, {
+    //             id,
+    //             FullName: updatedName,
+    //             Email: userDetails?.Email, // keep current email
+    //             PhoneNo: userDetails?.PhoneNo // keep current phone
+    //         });
 
-            if (res?.status) {
-                setUserDetails((prev) => ({ ...prev, FullName: updatedName }));
-                setName(updatedName);
-                setIsEditingName(false);
-                toast.success("Name updated successfully!");
-            } else {
-                toast.error(res?.message || "Failed to update name");
-            }
-        } catch (error) {
-            toast.error("Error updating name");
-        }
-    };
+    //         if (res?.status) {
+    //             setUserDetails((prev) => ({ ...prev, FullName: updatedName }));
+    //             setName(updatedName);
+    //             setIsEditingName(false);
+    //             toast.success("Name updated successfully!");
+    //         } else {
+    //             toast.error(res?.message || "Failed to update name");
+    //         }
+    //     } catch (error) {
+    //         toast.error("Error updating name");
+    //     }
+    // };
 
 
     const handleupdateuser = async () => {
@@ -161,8 +168,25 @@ const UserProfile = () => {
 
     return (
         <div className="p-6 max-w-6xl mx-auto">
-            <BackButton />
+            <div className="flex items-center justify-between">
+                <BackButton />
 
+                <button
+                    onClick={() => {
+                        setEditProfileData({
+                            FullName: userDetails?.FullName || "",
+                            Email: userDetails?.Email || "",
+                            state: userDetails?.state || "",
+                            city: userDetails?.city || "",
+                            dob: userDetails?.dob ? userDetails.dob.split("T")[0] : "",
+                        });
+                        setIsEditProfileModalOpen(true);
+                    }}
+                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                >
+                    Update Profile
+                </button>
+            </div>
             {/* Top Section: Profile Card */}
             <div className="grid lg:grid-cols-5 gap-8 mt-4">
                 <div className="lg:col-span-2 bg-white shadow rounded-xl p-6 text-center">
@@ -277,8 +301,14 @@ const UserProfile = () => {
                             </div>
                         )}
 
+
+
                         {activeTab === "management" && (
                             <div className="space-y-4">
+
+
+
+
                                 <div className="border p-4 rounded-lg bg-gray-50">
                                     <p className="font-medium mb-2">KYC Verification</p>
                                     <p className="text-sm text-gray-600">Required for withdrawals.</p>
@@ -370,6 +400,116 @@ const UserProfile = () => {
                         className="w-80 h-58 object-cover rounded-full shadow-lg" // pill shape
                         onClick={(e) => e.stopPropagation()} // prevent closing when clicking image
                     />
+                </div>
+            )}
+
+            {isEditProfileModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl shadow-lg w-96 p-6 relative">
+                        <h2 className="text-lg font-semibold mb-4 text-center">Update Profile</h2>
+
+                        <div className="space-y-3">
+                            {/* Full Name */}
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Full Name</label>
+                                <input
+                                    type="text"
+                                    value={editProfileData.FullName}
+                                    onChange={(e) =>
+                                        setEditProfileData({ ...editProfileData, FullName: e.target.value })
+                                    }
+                                    className="w-full border rounded-lg p-2"
+                                />
+                            </div>
+
+                            {/* Email */}
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Email</label>
+                                <input
+                                    type="email"
+                                    value={editProfileData.Email}
+                                    onChange={(e) =>
+                                        setEditProfileData({ ...editProfileData, Email: e.target.value })
+                                    }
+                                    className="w-full border rounded-lg p-2"
+                                />
+                            </div>
+
+                            {/* State */}
+                            <div>
+                                <label className="block text-sm font-medium mb-1">State</label>
+                                <input
+                                    type="text"
+                                    value={editProfileData.state}
+                                    onChange={(e) =>
+                                        setEditProfileData({ ...editProfileData, state: e.target.value })
+                                    }
+                                    className="w-full border rounded-lg p-2"
+                                />
+                            </div>
+
+                            {/* City */}
+                            <div>
+                                <label className="block text-sm font-medium mb-1">City</label>
+                                <input
+                                    type="text"
+                                    value={editProfileData.city}
+                                    onChange={(e) =>
+                                        setEditProfileData({ ...editProfileData, city: e.target.value })
+                                    }
+                                    className="w-full border rounded-lg p-2"
+                                />
+                            </div>
+
+                            {/* DOB */}
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Date of Birth</label>
+                                <input
+                                    type="date"
+                                    value={editProfileData.dob}
+                                    onChange={(e) =>
+                                        setEditProfileData({ ...editProfileData, dob: e.target.value })
+                                    }
+                                    className="w-full border rounded-lg p-2"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-3 mt-5">
+                            <button
+                                onClick={() => setIsEditProfileModalOpen(false)}
+                                className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        const res = await EditUser(token, {
+                                            id,
+                                            ...editProfileData,
+                                        });
+
+                                        if (res?.status) {
+                                            toast.success("Profile updated successfully!");
+                                            setUserDetails((prev) => ({
+                                                ...prev,
+                                                ...editProfileData,
+                                            }));
+                                            setIsEditProfileModalOpen(false);
+                                        } else {
+                                            toast.error(res?.message || "Failed to update profile");
+                                        }
+                                    } catch (error) {
+                                        toast.error("Error updating profile");
+                                    }
+                                }}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
 

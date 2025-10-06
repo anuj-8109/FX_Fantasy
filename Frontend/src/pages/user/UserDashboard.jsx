@@ -246,25 +246,25 @@ const UserDashboard = () => {
               {/* Stats */}
               <div className="grid grid-cols-3 gap-2 mb-3">
                 <div className="text-center p-2 rounded-md border">
-                  <p className="text-[0.675rem] font-bold">{contest.prizePool}</p>
-                  <p className="text-[10px] sm:text-[11px] text-gray-500">
+                  <p className="text-[0.875rem]   font-bold">{contest.prizePool}</p>
+                  <p className="text-[0.8rem]  text-gray-500">
                     Prize Pool
                   </p>
                 </div>
                 <div className="text-center p-2 rounded-md border">
-                  <p className="text-[0.675rem] font-bold">
+                  <p className="text-[0.875rem] font-bold">
                     {getTimeLeft(contest.end)}
                   </p>
-                  <p className="text-[10px] sm:text-[11px] text-gray-500">
+                  <p className="text-[0.8rem]  text-gray-500">
                     Time Left
                   </p>
                 </div>
                 <div className="text-center p-2 rounded-md border">
-                  <p className="text-[0.675rem] font-bold flex items-center justify-center">
+                  <p className="text-[0.875rem] font-bold flex items-center justify-center">
                     <Users className="w-4 h-4 mr-1" />
                     {contest.participants}
                   </p>
-                  <p className="text-[10px] sm:text-[11px] text-gray-500">
+                  <p className="text-[0.8rem] text-gray-500">
                     Participants
                   </p>
                 </div>

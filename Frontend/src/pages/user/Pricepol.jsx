@@ -154,28 +154,57 @@ function Pricepol() {
 
     return true;
   });
-useEffect(() => {
-  const fetchPrivateContests = async () => {
-    const token = localStorage.getItem("token");
-    const clientId = localStorage.getItem("userId");
-    if (!token || !clientId || !tournamentId) return;
+  useEffect(() => {
+    const fetchPrivateContests = async () => {
+      const token = localStorage.getItem("token");
+      const clientId = localStorage.getItem("userId");
+      if (!token || !clientId || !tournamentId) return;
 
-    try {
-      const res = await ListPrivateContests(token, clientId, tournamentId); // pass tournamentId
-      if (res.status) {
-        setPrivateContests(res.data || []); // <-- use data
-      } else {
-        setPrivateContests([]);
+      try {
+        const res = await ListPrivateContests(token, clientId, tournamentId); // pass tournamentId
+        if (res.status) {
+          setPrivateContests(res.data || []);
+        } else {
+          setPrivateContests([]);
+        }
+      } catch (err) {
+        console.error("Error fetching private contests:", err);
       }
-    } catch (err) {
-      console.error("Error fetching private contests:", err);
-    }
+    };
+
+    if (activeTab === "myTeam") fetchPrivateContests();
+  }, [activeTab, tournamentId]);
+
+
+  const AnimatedProgressBar = ({ filled, total }) => {
+    const [progress, setProgress] = React.useState(0);
+
+    useEffect(() => {
+      const percentage = total > 0 ? (filled / total) * 100 : 0;
+      const timer = setTimeout(() => setProgress(percentage), 150);
+      return () => clearTimeout(timer);
+    }, [filled, total]);
+
+    const left = total - filled;
+    const lowSpots = left <= 5;
+
+    return (
+      <div>
+        <div className="w-full bg-gray-100 rounded-full h-1.5 sm:h-2 overflow-hidden">
+          <div
+            className="h-1.5 sm:h-2 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-700 ease-in-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="flex justify-between text-[11px] sm:text-xs text-[rgba(4,53,71,1)] mt-1">
+          <span className={lowSpots ? "text-red-500 font-semibold" : ""}>
+            {left} left
+          </span>
+          <span>{total} spots</span>
+        </div>
+      </div>
+    );
   };
-
-  if (activeTab === "myTeam") fetchPrivateContests();
-}, [activeTab, tournamentId]);
-
-
 
 
 
@@ -341,18 +370,12 @@ useEffect(() => {
                     </span>
                   </div>
 
-                  <div>
-                    <div className="w-full bg-gray-100 rounded-full h-1.5 sm:h-2 overflow-hidden">
-                      <div
-                        className="h-1.5 sm:h-2 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-500"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-[11px] sm:text-xs text-[rgba(4, 53, 71, 1)]  mt-1">
-                      <span>{contest.total_spots - contest.filled_spots} left</span>
-                      <span>{contest.total_spots} spots</span>
-                    </div>
-                  </div>
+                  <AnimatedProgressBar
+                    filled={contest.filled_spots}
+                    total={contest.total_spots}
+                  />
+
+
                   <div className="flex justify-between items-center mt-3">
                     <span className="text-xs sm:text-sm text-[rgba(4, 53, 71, 1)]">
                       🏆 <span className="font-semibold">{contest.winners || 1}</span> winners

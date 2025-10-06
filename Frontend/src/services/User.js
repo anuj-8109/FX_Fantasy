@@ -523,18 +523,18 @@ export async function getContestRanking(token, data) {
 
 
 // User update
-export async function EditUser(token, data) {
-  try {
-    const response = await axios.post(`${config.base_url}user/update-profile`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response?.data;
-  } catch (error) {
-    return error?.response?.data;
-  }
-}
+// export async function EditUser(token, data) {
+//   try {
+//     const response = await axios.post(`${config.base_url}user/update-profile`, data, {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+//     return response?.data;
+//   } catch (error) {
+//     return error?.response?.data;
+//   }
+// }
 
 // addprivatecontent router.post("/api/client/addcontestprivate", auth, AddContestPrivate);
 
@@ -582,5 +582,19 @@ export async function SharePrivateContest(token, contest_id, shared_with_client_
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
+
+export async function EditUser(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}api/client/updateclientprofile`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
   }
 }
