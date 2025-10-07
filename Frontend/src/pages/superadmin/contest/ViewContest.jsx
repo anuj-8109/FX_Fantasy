@@ -99,13 +99,19 @@ const ViewContest = () => {
                 <strong>Entry Fee:</strong> ₹{contest?.entry_fee || 0}
               </div>
 
-              <div>
+              {/* <div>
                 <strong>Total Spots:</strong> {contest?.total_spots || 0}
               </div>
 
               <div>
                 <strong>Filled Spots:</strong> {contest?.filled_spots || 0}
-              </div>
+              </div> */}
+
+<div>
+  <strong>Spots:</strong>{" "}
+  {contest?.filled_spots || 0}/{contest?.total_spots || 0}
+</div>
+
 
               <div>
                 <strong>Prize Pool:</strong> ₹{contest?.prize_pool || 0}
