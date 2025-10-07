@@ -645,3 +645,20 @@ export async function applyReferral(token, user_id, refer_token) {
 //     return error?.response?.data || { status: false, message: "Network error" };
 //   }
 // }
+
+export async function getReferEarnData(token, refertoken) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}api/client/refer`,
+      {
+        params: { refertoken }, 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}

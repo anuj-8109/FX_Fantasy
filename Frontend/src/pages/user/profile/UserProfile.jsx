@@ -403,12 +403,19 @@ const UserProfile = () => {
                 </div>
             )}
 
+            
             {isEditProfileModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl shadow-lg w-96 p-6 relative">
-                        <h2 className="text-lg font-semibold mb-4 text-center">Update Profile</h2>
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                    onClick={() => setIsEditProfileModalOpen(false)} // Close when clicking outside
+                >
+                    <div
+                        className="bg-white rounded-xl shadow-lg w-[700px] p-6 relative"
+                        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+                    >
+                        <h2 className="text-xl font-semibold mb-5 text-center">Update Profile</h2>
 
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-4">
                             {/* Full Name */}
                             <div>
                                 <label className="block text-sm font-medium mb-1">Full Name</label>
@@ -462,7 +469,7 @@ const UserProfile = () => {
                             </div>
 
                             {/* DOB */}
-                            <div>
+                            <div className="col-span-2">
                                 <label className="block text-sm font-medium mb-1">Date of Birth</label>
                                 <input
                                     type="date"
@@ -475,7 +482,7 @@ const UserProfile = () => {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-3 mt-5">
+                        <div className="flex justify-end gap-3 mt-6">
                             <button
                                 onClick={() => setIsEditProfileModalOpen(false)}
                                 className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"

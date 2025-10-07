@@ -180,13 +180,16 @@ function Pricepol() {
     const [progress, setProgress] = React.useState(0);
 
     useEffect(() => {
-      const percentage = total > 0 ? (filled / total) * 100 : 0;
+      // Ensure filled is between 0 and total
+      const safeFilled = Math.max(0, Math.min(filled, total));
+      const percentage = total > 0 ? (safeFilled / total) * 100 : 0;
+
       const timer = setTimeout(() => setProgress(percentage), 150);
       return () => clearTimeout(timer);
     }, [filled, total]);
 
-    const left = total - filled;
-    const lowSpots = left <= 5;
+    const safeLeft = Math.max(total - filled, 0);
+    const lowSpots = safeLeft <= 5;
 
     return (
       <div>
@@ -198,13 +201,14 @@ function Pricepol() {
         </div>
         <div className="flex justify-between text-[11px] sm:text-xs text-[rgba(4,53,71,1)] mt-1">
           <span className={lowSpots ? "text-red-500 font-semibold" : ""}>
-            {left} left
+            {safeLeft} left
           </span>
           <span>{total} spots</span>
         </div>
       </div>
     );
   };
+
 
 
 
@@ -227,7 +231,7 @@ function Pricepol() {
           }
           className="bg-[#043e53] text-white px-4 py-2 rounded-lg shadow transition text-xs sm:text-sm md:text-base"
         >
-          Create Contest
+          Create Private Contest
         </button>
       </div>
 

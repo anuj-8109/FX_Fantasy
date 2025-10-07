@@ -367,7 +367,7 @@ async  joinContest(req, res) {
       return res.status(404).json({ status: false, message: "Contest not found" });
     }
 
-if (contest.filled_spots <= 0) {
+if (contest.total_spots <= contest.filled_spots) {
       return res.status(400).json({ status: false, message: "Contest is full" });
     }
 
@@ -431,7 +431,7 @@ if (client.referwamount && client.referwamount > 0 && referPercent > 0) {
     await client.save();
 
 
- contest.filled_spots -= 1;
+ contest.filled_spots += 1;
     await contest.save();
     // Save new join entry
     const joinEntry = new Contestjoin_Modal({
