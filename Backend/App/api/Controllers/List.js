@@ -463,7 +463,66 @@ if (client.referwamount && client.referwamount > 0 && referPercent > 0) {
     });
   }
 }
+async addTrade(req, res) {
+  try {
+    const { contest_id, client_id, stock_symbol, trade_type, quantity } = req.body;
 
+    // Validate
+    if (!contest_id || !client_id || !stock_symbol || !trade_type || !quantity) {
+      return res.status(400).json({ status: false, message: "All fields are required" });
+    }
+
+    const joinData = await Contestjoin_Modal.findOne({ contest_id, client_id });
+    if (!joinData) {
+      return res.status(404).json({ status: false, message: "Client has not joined this contest" });
+    }
+
+    const cPrice = await returnstockcloseprice(stock_symbol);
+    const price = cPrice; // live stock price
+    const tradeAmount = price * quantity;
+
+    // 1. Calculate user's current holding for this stock
+    const trades = await Contesttrade_Modal.find({ contest_id, client_id, stock_symbol });
+    let currentHolding = 0;
+    trades.forEach(t => {
+      if (t.trade_type.toUpperCase() === "BUY") currentHolding += t.quantity;
+      if (t.trade_type.toUpperCase() === "SELL") currentHolding -= t.quantity;
+    });
+
+    let updatedWalletBalance = joinData.wallet_balance;
+
+    if (trade_type.toUpperCase() === "BUY") {
+      if (updatedWalletBalance < tradeAmount) {
+        return res.status(400).json({ status: false, message: "Insufficient wallet balance" });
+      }
+      updatedWalletBalance -= tradeAmount;
+    } else if (trade_type.toUpperCase() === "SELL") {
+      if (currentHolding < quantity) {
+        return res.status(400).json({ status: false, message: "Cannot sell more than you hold" });
+      }
+      updatedWalletBalance += tradeAmount;
+    } else {
+      return res.status(400).json({ status: false, message: "Invalid trade type" });
+    }
+
+    const trade = new Contesttrade_Modal({ contest_id, client_id, stock_symbol, trade_type, quantity, price });
+    await trade.save();
+
+    joinData.wallet_balance = updatedWalletBalance;
+    await joinData.save();
+
+    return res.status(200).json({
+      status: true,
+      message: "Trade added successfully",
+      data: trade
+    });
+
+  } catch (error) {
+    return res.status(500).json({ status: false, message: "Server error", error: error.message });
+  }
+}
+
+/*
 async  addTrade(req, res) {
   try {
     const { contest_id, client_id, stock_symbol, trade_type, quantity } = req.body;
@@ -516,7 +575,7 @@ async  addTrade(req, res) {
     return res.status(500).json({ status: false, message: "Server error", error: error.message });
   }
 }
-
+*/
 // 📌 My Contests List API
 async myContests(req, res) {
   try {
