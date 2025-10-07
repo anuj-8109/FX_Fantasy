@@ -288,10 +288,10 @@ const UserLogin = () => {
               By continuing, I agree to Dream Trading T&C.
             </p>
             <div className="text-sm mt-2">
-              <a href="#" className="text-blue-600 hover:underline">
+              {/* <a href="#" className="text-blue-600 hover:underline">
                 Have an Invite Code?
-              </a>{" "}
-              |{" "}
+              </a>{" "} */}
+              {/* |{" "} */}
               <button
                 type="button"
                 onClick={() => setShowOtherOptions(!showOtherOptions)}

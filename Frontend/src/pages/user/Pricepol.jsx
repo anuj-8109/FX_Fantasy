@@ -14,7 +14,7 @@ function Pricepol() {
   const [tournament, setTournament] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState("myContests");
+  const [activeTab, setActiveTab] = useState("contests");
   const [privateContests, setPrivateContests] = useState([]);
   const [filters, setFilters] = useState({
     minEntryFee: "",
