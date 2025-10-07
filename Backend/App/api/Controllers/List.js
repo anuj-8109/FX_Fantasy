@@ -492,6 +492,48 @@ async  addTrade(req, res) {
       }
       updatedWalletBalance -= tradeAmount;
     } else if (trade_type.toUpperCase() === "SELL") {
+
+
+  const contestObjId = new mongoose.Types.ObjectId(contest_id);
+  const clientObjId = new mongoose.Types.ObjectId(client_id);
+
+  const totalBuys = await Contesttrade_Modal.aggregate([
+    {
+      $match: {
+        contest_id: contestObjId,
+        client_id: clientObjId,
+        stock_symbol: { $regex: new RegExp(`^${stock_symbol}$`, "i") }, // case-insensitive stock symbol
+        trade_type: { $regex: /^buy$/i }
+      }
+    },
+    { $group: { _id: null, totalQty: { $sum: "$quantity" } } }
+  ]);
+
+  const totalSells = await Contesttrade_Modal.aggregate([
+    {
+      $match: {
+        contest_id: contestObjId,
+        client_id: clientObjId,
+        stock_symbol: { $regex: new RegExp(`^${stock_symbol}$`, "i") },
+        trade_type: { $regex: /^sell$/i }
+      }
+    },
+    { $group: { _id: null, totalQty: { $sum: "$quantity" } } }
+  ]);
+
+
+    const boughtQty = totalBuys[0]?.totalQty || 0;
+    const soldQty = totalSells[0]?.totalQty || 0;
+    const availableQty = boughtQty - soldQty; // Stocks currently held
+
+  if (quantity > availableQty) {
+        return res.status(400).json({
+          status: false,
+          message: `Cannot sell ${quantity} shares. You only hold ${availableQty} shares of ${stock_symbol}.`
+        });
+      }
+
+
       updatedWalletBalance += tradeAmount;
     } else {
       return res.status(400).json({ status: false, message: "Invalid trade type" });
