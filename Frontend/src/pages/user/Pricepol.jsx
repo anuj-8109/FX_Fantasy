@@ -186,7 +186,7 @@ function Pricepol() {
     }, [filled, total]);
 
     const left = total - filled;
-    const lowSpots = left <= 5;
+    const lowSpots = left <= 5; // highlight when few spots left
 
     return (
       <div>

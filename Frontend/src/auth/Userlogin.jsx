@@ -5,13 +5,17 @@ import { UserLoginApi, LoginWithOtpApi } from "../services/Auth";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 import { FaFacebookF, FaGoogle } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
 
 const UserLogin = () => {
-
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const referToken = searchParams.get("refer");
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     UserName: "",
     otp: "",
+
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -125,12 +129,13 @@ const UserLogin = () => {
 
     setIsLoading(true);
     try {
-      const response = await LoginWithOtpApi({
+      const payload = {
         PhoneNo: formData.UserName,
         otp: formData.otp,
-      });
+        refer_token: referToken || null, 
+      };
 
-      console.log("OTP Verify Response:", response);
+      const response = await LoginWithOtpApi(payload);
 
       if (response.status === true && response.data) {
         const user = response.data;
@@ -142,29 +147,21 @@ const UserLogin = () => {
           return;
         }
 
-        const roleId = 3;
-
-        // Save all user info to localStorage for automatic referral link generation
+        // Save user info to localStorage
         localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user)); // Full user object
-        localStorage.setItem("roleId", roleId);
-        localStorage.setItem("add_by", user.id);
+        localStorage.setItem("user", JSON.stringify(user));
         localStorage.setItem("userId", user.id);
 
-        toast.success(response.message || "Login successful", {
-          duration: 2000,
-          position: "top-right",
-        });
+        toast.success(response.message || "Login successful");
 
         // Redirect
         if (user.FullName && user.FullName.trim() !== "") {
-          navigate("/dashboard"); // Skip setname
+          navigate("/dashboard");
         } else {
-          navigate("/setname"); // Go to setname if no name
+          navigate("/setname");
         }
-      }
-      else {
-        Swal.fire("Error", response?.message?.message || "Invalid OTP");
+      } else {
+        Swal.fire("Error", response?.message || "Invalid OTP");
       }
     } catch (error) {
       Swal.fire(

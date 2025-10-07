@@ -114,7 +114,7 @@ const UserMenu = () => {
                 ["FAQ", "/faq"],
                 ["Blog", "/blog"],
                 ["Content", "/content"],
-                ["Contest Tracking", "/contesttracking"],
+                // ["Contest Tracking", "/contesttracking"],
               ].map(([label, path]) => (
                 <button
                   key={path}
