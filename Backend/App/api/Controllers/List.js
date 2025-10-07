@@ -367,7 +367,7 @@ async  joinContest(req, res) {
       return res.status(404).json({ status: false, message: "Contest not found" });
     }
 
-if (contest.total_spots == contest.filled_spots) {
+if (contest.total_spots <= contest.filled_spots) {
       return res.status(400).json({ status: false, message: "Contest is full" });
     }
 
