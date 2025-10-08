@@ -328,6 +328,7 @@ function Tournament() {
       exportValue: (row) => row.name || "N/A",
       export: true,
       sortable: true,
+      width: "180px",
     },
     {
       name: "Status",
@@ -347,11 +348,11 @@ function Tournament() {
       width: "150px",
     },
     {
-      name: "Use Amount",
+      name: "Virtual Amount",
       selector: (row) => row.useamount || "N/A",
       exportValue: (row) => row.useamount || "N/A",
       export: true,
-      width: "100px",
+      width: "120px",
     },
     {
       name: "Start Date",

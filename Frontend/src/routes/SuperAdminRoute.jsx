@@ -40,6 +40,7 @@ import Kycinformation from "../pages/superadmin/basicsettings/kycinformation";
 import Referearn from "../pages/superadmin/basicsettings/Referearn";
 import Kycapproval from "../pages/superadmin/kycapproval/Kycapproval";
 import Bankdetails from "../pages/superadmin/bankdetails/Bankdetails";
+import ViewContest from "../pages/superadmin/contest/ViewContest";
 const SuperAdminRoutes = () => {
 
   return (
@@ -84,6 +85,7 @@ const SuperAdminRoutes = () => {
         <Route path="referearn" element={<Referearn/>}/>
         <Route path="kycapproval" element={<Kycapproval/>}/>
         <Route path="bankdetail"  element={<Bankdetails/>}/>
+        <Route path="viewcontest/:id" element={<ViewContest/>}/>
       </Route>
     </>
   );
