@@ -10,7 +10,7 @@ const Mailtemplate_Modal = db.Mailtemplate;
 const BasicSetting_Modal = db.BasicSetting;
 const Payout_Modal = db.Payout;
 const Bank_Modal = db.Bank;
-
+const Contestjoin_Modal = db.Contestjoin;
 
 class Clients {
 
