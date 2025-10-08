@@ -1,7 +1,7 @@
 const router = require("express").Router()
 const auth = require('../Middleware/auth');
 
-const {AddClient,updateClient,deleteClient,detailClient,statusChange,getClientWithFilter,getClientWithFilterExcel,getDeleteClientWithFilter,processPayoutRequest,payoutList,listBankDetails,kycVerificationUpdate} = require('../Controllers/Clients')
+const {AddClient,updateClient,deleteClient,detailClient,statusChange,getClientWithFilter,getClientWithFilterExcel,getDeleteClientWithFilter,processPayoutRequest,payoutList,listBankDetails,kycVerificationUpdate,getContestRanking} = require('../Controllers/Clients')
 
 
 
@@ -19,6 +19,7 @@ router.post('/client/process-payout-request', auth, processPayoutRequest);
 router.get('/client/payoutlist', auth,  payoutList);
 router.get("/client/listbankdetails", auth, listBankDetails);
 router.post('/client/kycverificationupdate', auth, kycVerificationUpdate);
+router.post('/client/getcontestranking', auth, getContestRanking); 
 
 
 module.exports = router;
