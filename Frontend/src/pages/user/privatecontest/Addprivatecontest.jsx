@@ -8,10 +8,10 @@ const AddContest = () => {
   const token = localStorage.getItem("token");
   const client_id = localStorage.getItem("userId");
   const location = useLocation();
-const tournament_id = location.state?.tournament_id; 
+  const tournament_id = location.state?.tournament_id;
 
   const initialForm = {
-    add_by:"",
+    add_by: "",
     name: "",
     description: "",
     contest_type: "",
