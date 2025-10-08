@@ -107,6 +107,10 @@ class ContestController {
         // Fetch data + total count for pagination
         const [contests, totalCount] = await Promise.all([
             Contest_Model.find(matchConditions)
+              .populate({
+            path: "tournament_id",
+            select: "name" // सिर्फ tournament का नाम चाहिए
+        })
                 .sort({ created_at: -1 })
                 .skip(skip)
                 .limit(limitValue),

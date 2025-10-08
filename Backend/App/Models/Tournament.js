@@ -44,6 +44,10 @@ const TournamentSchema = new Schema({
     required: true,
     min: 0
   },
+  closed_positions: {
+    type: Boolean,
+    default: false // ✅ Tournament end होने पर positions close हुए या नहीं
+  },
   del: {
     type: Boolean,
     default: false
