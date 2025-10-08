@@ -11,7 +11,7 @@ import {
 import Content from "../../../components/superadmin/Content";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Eye } from "lucide-react";
 import { toast } from "react-hot-toast";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
@@ -36,6 +36,8 @@ function Tournament() {
     status: "upcoming",
     stocks: [{ stock_id: "", stock_name: "" }],
   });
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [viewData, setViewData] = useState(null);
 
   const [stocklistData, setStocklistData] = useState([]);
   const [searchResults, setSearchResults] = useState({});
@@ -104,6 +106,16 @@ function Tournament() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const openViewModal = (data) => {
+    setViewData(data);
+    setViewModalOpen(true);
+  };
+
+  const closeViewModal = () => {
+    setViewModalOpen(false);
+    setViewData(null);
   };
 
   // Stock management functions
@@ -199,6 +211,27 @@ function Tournament() {
       return;
     }
 
+    // Validate start date
+    const now = new Date();
+    if (new Date(formData.startdate) < now) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Start Date",
+        text: "Start date cannot be in the past",
+      });
+      return;
+    }
+
+    // Validate end date
+    if (new Date(formData.enddate) < new Date(formData.startdate)) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid End Date",
+        text: "End date cannot be before start date",
+      });
+      return;
+    }
+
     // Validate stocks - check if input value matches selected stock
     const hasInvalidStock = formData.stocks.some((s, idx) => {
       const inputVal = inputValues[idx] || "";
@@ -289,7 +322,11 @@ function Tournament() {
 
   const handleStatusChange = async (tournament) => {
     const token = localStorage.getItem("token");
-    const actionText = tournament.status === "live" ? "Deactivate" : "Activate";
+    // const actionText = tournament.status === "true" ? "Deactivate" : "Activate";
+
+    const isActive =
+      tournament.activestatus === true || tournament.activestatus === 1;
+    const actionText = isActive ? "Deactivate" : "Activate";
 
     const confirm = await Swal.fire({
       title: `Are you sure?`,
@@ -304,11 +341,11 @@ function Tournament() {
 
     const payload = {
       id: tournament._id,
-      status: tournament.status === "live" ? "inactive" : "live",
+      status: tournament.activestatus === true ? false : true,
     };
 
     try {
-      const res = await UpdateTournamentStatus(payload, token);
+      const res = await UpdateTournamentStatusActive(payload, token);
 
       if (res?.status) {
         toast.success(res?.message || `Tournament ${actionText}d`);
@@ -336,6 +373,37 @@ function Tournament() {
       exportValue: (row) => row.status || "N/A",
       export: true,
       width: "100px",
+      cell: (row) => {
+        let bgColor = "";
+        let textColor = "text-white";
+
+        switch (row.status) {
+          case "live":
+            bgColor = "bg-green-300"; // light green
+            textColor = "text-black";
+            break;
+          case "completed":
+            bgColor = "bg-green-700"; // dark green
+            textColor = "text-white";
+            break;
+          case "upcoming":
+            bgColor = "bg-yellow-400"; // yellow
+            textColor = "text-black";
+            break;
+          default:
+            bgColor = "bg-gray-300";
+            textColor = "text-black";
+        }
+
+        return (
+          <span
+            className={`px-2 py-1 rounded-full text-sm font-medium ${bgColor} ${textColor}`}
+          >
+            {row.status}
+          </span>
+        );
+      },
+      width: "140px",
     },
     {
       name: "Stock",
@@ -371,9 +439,35 @@ function Tournament() {
       width: "155px",
     },
     {
+      name: "Status",
+      selector: (row) => (row.activestatus ? "Active" : "Inactive"),
+      exportValue: (row) => (row.activestatus ? "Active" : "Inactive"),
+      cell: (row) => (
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={row?.activestatus === true}
+            onChange={() => handleStatusChange(row)}
+            className="sr-only peer"
+          />
+          {/* Background track */}
+          <div className="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-600 transition-colors"></div>
+
+          {/* Toggle knob */}
+          <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full border border-gray-300 peer-checked:translate-x-full peer-checked:border-green-600 transition-transform"></div>
+        </label>
+      ),
+      width: "80px",
+      export: true,
+    },
+    {
       name: "Action",
       cell: (row) => (
         <div className="flex gap-3">
+          <Eye
+            className="text-green-600 cursor-pointer"
+            onClick={() => openViewModal(row)}
+          />
           <Edit
             className={`cursor-pointer ${
               row.status === "live" || row.status === "completed"
@@ -388,33 +482,29 @@ function Tournament() {
         </div>
       ),
       export: false,
-      width: "70px",
-    },
-    {
-      name: "View",
-      cell: (row) => (
-        <button
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-          onClick={() =>
-            navigate("/superadmin/tournamentcontest", {
-              state: { tournament_id: row._id },
-            })
-          }
-        >
-          View Contest
-        </button>
-      ),
-      export: false,
-      width: "140px",
+      width: "90px",
     },
     {
       name: "Contest",
       cell: (row) => (
-        <div>
+        <div className="flex gap-2">
+          {/* View Contest Button */}
           <button
-            className={`px-4 py-2 rounded text-white transition ${
+            className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+            onClick={() =>
+              navigate("/superadmin/tournamentcontest", {
+                state: { tournament_id: row._id },
+              })
+            }
+          >
+            View
+          </button>
+
+          {/* Add Contest Button */}
+          <button
+            className={`px-3 py-2 rounded text-white transition ${
               row.status === "upcoming"
-                ? "bg-green-600 hover:bg-green-700"
+                ? "bg-blue-600 hover:bg-blue-700"
                 : "bg-gray-400 cursor-not-allowed"
             }`}
             disabled={row.status !== "upcoming"}
@@ -426,19 +516,63 @@ function Tournament() {
               }
             }}
           >
-            Add Contest
+            Add
           </button>
         </div>
       ),
       export: false,
-      width: "140px",
+      width: "150px",
     },
-    {
-      name: "Description",
-      selector: (row) => row.description,
-      exportValue: (row) => row.description || "N/A",
-      export: true,
-    },
+
+    // {
+    //   name: "View",
+    //   cell: (row) => (
+    //     <button
+    //       className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+    //       onClick={() =>
+    //         navigate("/superadmin/tournamentcontest", {
+    //           state: { tournament_id: row._id },
+    //         })
+    //       }
+    //     >
+    //       View Contest
+    //     </button>
+    //   ),
+    //   export: false,
+    //   width: "140px",
+    // },
+    // {
+    //   name: "Contest",
+    //   cell: (row) => (
+    //     <div>
+    //       <button
+    //         className={`px-4 py-2 rounded text-white transition ${
+    //           row.status === "upcoming"
+    //             ? "bg-green-600 hover:bg-green-700"
+    //             : "bg-gray-400 cursor-not-allowed"
+    //         }`}
+    //         disabled={row.status !== "upcoming"}
+    //         onClick={() => {
+    //           if (row.status === "upcoming") {
+    //             navigate("/superadmin/add-contest", {
+    //               state: { tournament_id: row._id },
+    //             });
+    //           }
+    //         }}
+    //       >
+    //         Add Contest
+    //       </button>
+    //     </div>
+    //   ),
+    //   export: false,
+    //   width: "140px",
+    // },
+    // {
+    //   name: "Description",
+    //   selector: (row) => row.description,
+    //   exportValue: (row) => row.description || "N/A",
+    //   export: true,
+    // },
   ];
 
   const handlePageChange = (page) => setCurrentPage(page);
@@ -596,7 +730,7 @@ function Tournament() {
                 )}
               </div>
 
-              <label className="text-sm font-medium">Use Amount</label>
+              <label className="text-sm font-medium">Virtual Amount</label>
               <input
                 name="useamount"
                 value={formData.useamount}
@@ -605,7 +739,7 @@ function Tournament() {
                 className="border p-2 rounded"
               />
 
-              <label className="text-sm font-medium">Start Date</label>
+              {/* <label className="text-sm font-medium">Start Date</label>
               <input
                 type="datetime-local"
                 name="startdate"
@@ -621,6 +755,26 @@ function Tournament() {
                 value={formData.enddate}
                 onChange={handleChange}
                 className="border p-2 rounded"
+              /> */}
+
+              <label className="text-sm font-medium">Start Date</label>
+              <input
+                type="datetime-local"
+                name="startdate"
+                value={formData.startdate}
+                onChange={handleChange}
+                className="border p-2 rounded"
+                min={new Date().toISOString().slice(0, 16)} // Prevent past dates
+              />
+
+              <label className="text-sm font-medium">End Date</label>
+              <input
+                type="datetime-local"
+                name="enddate"
+                value={formData.enddate}
+                onChange={handleChange}
+                className="border p-2 rounded"
+                min={formData.startdate} // Prevent end date before start date
               />
             </div>
             <div className="flex justify-end gap-3 mt-6 sticky bg-white py-2">
@@ -635,6 +789,57 @@ function Tournament() {
                 onClick={handleUpdate}
               >
                 Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewModalOpen && viewData && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 mt-10">
+          <div className="bg-white p-6 rounded-md w-[650px] max-h-[80vh] overflow-y-auto hide-scrollbar">
+            <h2 className="text-lg font-bold mb-4">Tournament Details</h2>
+            <div className="space-y-3">
+              <div>
+                <strong>Name:</strong> {viewData.name || "N/A"}
+              </div>
+              <div>
+                <strong>Status:</strong> {viewData.status || "N/A"}
+              </div>
+              <div>
+                <strong>Virtual Amount:</strong> {viewData.useamount || "N/A"}
+              </div>
+              <div>
+                <strong>Start Date:</strong>{" "}
+                {new Date(viewData.startdate).toLocaleString()}
+              </div>
+              <div>
+                <strong>End Date:</strong>{" "}
+                {new Date(viewData.enddate).toLocaleString()}
+              </div>
+              <div>
+                <strong>Stocks:</strong>{" "}
+                {viewData.stocks && viewData.stocks.length > 0
+                  ? viewData.stocks.map((s) => s.stock_name).join(", ")
+                  : "N/A"}
+              </div>
+              <div>
+                <strong>Description:</strong>
+                <div
+                  className="border rounded p-2 mt-1"
+                  dangerouslySetInnerHTML={{
+                    __html: viewData.description || "N/A",
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button
+                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                onClick={closeViewModal}
+              >
+                Close
               </button>
             </div>
           </div>
