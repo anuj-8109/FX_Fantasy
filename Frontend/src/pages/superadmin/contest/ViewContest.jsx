@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { GetContestDetails } from "../../../services/SuperAdmin";
+import { getContestRanking } from "../../../services/User";
 import Content from "../../../components/superadmin/Content";
 import toast from "react-hot-toast";
 
@@ -20,7 +21,8 @@ const ViewContest = () => {
   const [memberRanks, setMemberRanks] = useState([]);
 
   useEffect(() => {
-    if (!contest) fetchContestDetails();
+    fetchContestDetails();
+    fetchMemberRank();
   }, [id]);
 
   const fetchContestDetails = async () => {
@@ -30,7 +32,22 @@ const ViewContest = () => {
       if (res?.status) {
         setContest(res.data);
         setPrizeDist(res.data?.prize_distribution || []);
-        setMemberRanks(res.data?.member_ranks || []);
+        // setMemberRanks(res.data?.member_ranks || []);
+      } else {
+        toast.error(res?.message || "Failed to fetch contest details");
+      }
+    } catch (err) {
+      toast.error("Something went wrong while fetching contest details");
+    }
+    setLoading(false);
+  };
+
+  const fetchMemberRank = async () => {
+    setLoading(true);
+    try {
+      const res = await getContestRanking(token, { contest_id: id });
+      if (res?.status) {
+        setMemberRanks(res.data || []);
       } else {
         toast.error(res?.message || "Failed to fetch contest details");
       }
@@ -107,18 +124,18 @@ const ViewContest = () => {
                 <strong>Filled Spots:</strong> {contest?.filled_spots || 0}
               </div> */}
 
-<div>
-  <strong>Spots:</strong>{" "}
-  {contest?.filled_spots || 0}/{contest?.total_spots || 0}
-</div>
-
+              <div>
+                <strong>Spots:</strong> {contest?.filled_spots || 0}/
+                {contest?.total_spots || 0}
+              </div>
 
               <div>
                 <strong>Prize Pool:</strong> ₹{contest?.prize_pool || 0}
               </div>
 
               <div>
-                <strong>Max Entry/User:</strong> {contest?.max_entry_per_user || 0}
+                <strong>Max Entry/User:</strong>{" "}
+                {contest?.max_entry_per_user || 0}
               </div>
 
               <div>
@@ -157,7 +174,9 @@ const ViewContest = () => {
                 <div
                   className="text-gray-700 mt-1 prose"
                   dangerouslySetInnerHTML={{
-                    __html: contest?.description || "<p>No description available.</p>",
+                    __html:
+                      contest?.description ||
+                      "<p>No description available.</p>",
                   }}
                 />
               </div>

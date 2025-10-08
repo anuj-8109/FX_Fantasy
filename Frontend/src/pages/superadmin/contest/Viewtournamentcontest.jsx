@@ -99,7 +99,7 @@ const TournamentContests = () => {
   };
 
   const columns = [
-    { name: "S.No", selector: (row, i) => i + 1, width: "70px" },
+    // { name: "S.No", selector: (row, i) => i + 1, width: "70px" },
     { name: "Name", selector: (row) => row.name, sortable: true },
     { name: "Entry Fee", selector: (row) => row.entry_fee },
     { name: "Total Spots", selector: (row) => row.total_spots },
