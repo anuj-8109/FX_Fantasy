@@ -563,12 +563,13 @@ async addTrade(req, res) {
   try {
     const { contest_id, client_id, stock_symbol, trade_type, quantity } = req.body;
 
+    // Validate input
     if (!contest_id || !client_id || !stock_symbol || !trade_type || !quantity) {
       return res.status(400).json({ status: false, message: "All fields are required" });
     }
 
+    // Check if user joined contest
     const joinData = await Contestjoin_Modal.findOne({ contest_id, client_id });
-
     if (!joinData) {
       return res.status(404).json({ status: false, message: "Client has not joined this contest" });
     }
@@ -581,7 +582,7 @@ async addTrade(req, res) {
     const contestObjId = new mongoose.Types.ObjectId(contest_id);
     const clientObjId = new mongoose.Types.ObjectId(client_id);
 
-    // Current aggregated position for this stock
+    // Aggregate existing trades for this stock
     const agg = await Contesttrade_Modal.aggregate([
       {
         $match: {
@@ -606,12 +607,14 @@ async addTrade(req, res) {
     const soldQty = stats.sellQty || 0;
     const netQty = boughtQty - soldQty; // positive => long, negative => short
 
-    let longAvg = boughtQty > 0 ? stats.buyValue / boughtQty : null;
-    let shortAvg = soldQty > 0 ? stats.sellValue / soldQty : null;
+    const longAvg = boughtQty > 0 ? stats.buyValue / boughtQty : null;
+    const shortAvg = soldQty > 0 ? stats.sellValue / soldQty : null;
     let realizedPnL = 0;
-
     const tradesToInsert = [];
 
+    // ==========================
+    // BUY Trade Handling
+    // ==========================
     if (trade_type.toUpperCase() === "BUY") {
       if (netQty < 0) {
         // Cover existing short
@@ -634,15 +637,14 @@ async addTrade(req, res) {
           position_type: "CLOSE",
           realizedPnL: pnlClose,
           wallet_balance_after_trade: wallet,
-          locked_balance_after_trade: locked,
-          trade_reference: null
+          locked_balance_after_trade: locked
         });
 
         const remainingQty = qty - closeQty;
         if (remainingQty > 0) {
           const amtRem = price * remainingQty;
           if (wallet < amtRem) {
-            return res.status(400).json({ status: false, message: "Insufficient wallet to open new long after covering" });
+            return res.status(400).json({ status: false, message: "Insufficient wallet to open new long after covering short" });
           }
           wallet -= amtRem;
           locked += amtRem;
@@ -651,17 +653,17 @@ async addTrade(req, res) {
             contest_id,
             client_id,
             stock_symbol,
-            trade_type: "sell",
+            trade_type: "buy", // ✅ corrected (was SELL before)
             quantity: remainingQty,
             price,
             position_type: "OPEN",
             realizedPnL: 0,
             wallet_balance_after_trade: wallet,
-            locked_balance_after_trade: locked,
-            trade_reference: null
+            locked_balance_after_trade: locked
           });
         }
       } else {
+        // Open new long position
         const tradeAmount = price * qty;
         if (wallet < tradeAmount) {
           return res.status(400).json({ status: false, message: "Insufficient wallet balance for BUY" });
@@ -679,10 +681,13 @@ async addTrade(req, res) {
           position_type: "OPEN",
           realizedPnL: 0,
           wallet_balance_after_trade: wallet,
-          locked_balance_after_trade: locked,
-          trade_reference: null
+          locked_balance_after_trade: locked
         });
       }
+
+    // ==========================
+    // SELL Trade Handling
+    // ==========================
     } else if (trade_type.toUpperCase() === "SELL") {
       if (netQty > 0) {
         // Close existing long
@@ -704,8 +709,7 @@ async addTrade(req, res) {
           position_type: "CLOSE",
           realizedPnL: pnlClose,
           wallet_balance_after_trade: wallet,
-          locked_balance_after_trade: locked,
-          trade_reference: null
+          locked_balance_after_trade: locked
         });
 
         const remainingQty = qty - closeQty;
@@ -727,14 +731,14 @@ async addTrade(req, res) {
             position_type: "OPEN",
             realizedPnL: 0,
             wallet_balance_after_trade: wallet,
-            locked_balance_after_trade: locked,
-            trade_reference: null
+            locked_balance_after_trade: locked
           });
         }
       } else {
+        // Open new short position
         const tradeAmount = price * qty;
         if (wallet < tradeAmount) {
-          return res.status(400).json({ status: false, message: "Insufficient wallet balance to open short (reserve required)" });
+          return res.status(400).json({ status: false, message: "Insufficient wallet balance to open short" });
         }
         wallet -= tradeAmount;
         locked += tradeAmount;
@@ -743,16 +747,16 @@ async addTrade(req, res) {
           contest_id,
           client_id,
           stock_symbol,
-          trade_type: "sell",
+          trade_type: "buy",
           quantity: qty,
           price,
           position_type: "OPEN",
           realizedPnL: 0,
           wallet_balance_after_trade: wallet,
-          locked_balance_after_trade: locked,
-          trade_reference: null
+          locked_balance_after_trade: locked
         });
       }
+
     } else {
       return res.status(400).json({ status: false, message: "Invalid trade type" });
     }
@@ -760,30 +764,34 @@ async addTrade(req, res) {
     // Apply realized P&L
     if (realizedPnL !== 0) wallet += realizedPnL;
 
-    // Save all trades
+    // Save trades
     await Contesttrade_Modal.insertMany(tradesToInsert);
 
-    // Update joinData balances
+    // Update balances in joinData
     joinData.wallet_balance = wallet;
     joinData.locked_balance = locked;
     await joinData.save();
 
     return res.status(200).json({
       status: true,
-      message: "Trade executed",
+      message: "Trade executed successfully",
       data: {
         trades: tradesToInsert,
-        wallet_balance: joinData.wallet_balance,
-        locked_balance: joinData.locked_balance,
+        wallet_balance: wallet,
+        locked_balance: locked,
         realizedPnL
       }
     });
 
   } catch (err) {
-    return res.status(500).json({ status: false, message: "Server error", error: err.message });
+    console.error("Error in addTrade:", err);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: err.message
+    });
   }
 }
-
 
 
 
