@@ -17,7 +17,7 @@ const States = db.States;
 const City = db.City;
 
 
-mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 class List {
 
@@ -463,7 +463,7 @@ if (client.referwamount && client.referwamount > 0 && referPercent > 0) {
     });
   }
 }
-
+/*
 async  addTrade(req, res) {
   try {
     const { contest_id, client_id, stock_symbol, trade_type, quantity } = req.body;
@@ -558,25 +558,18 @@ async  addTrade(req, res) {
     return res.status(500).json({ status: false, message: "Server error", error: error.message });
   }
 }
-
-/*
+*/
 async addTrade(req, res) {
-  const session = await mongoose.startSession();
   try {
-    session.startTransaction();
-
     const { contest_id, client_id, stock_symbol, trade_type, quantity } = req.body;
 
     if (!contest_id || !client_id || !stock_symbol || !trade_type || !quantity) {
-      await session.abortTransaction();
-      session.endSession();
       return res.status(400).json({ status: false, message: "All fields are required" });
     }
 
-    const joinData = await Contestjoin_Modal.findOne({ contest_id, client_id }).session(session);
+    const joinData = await Contestjoin_Modal.findOne({ contest_id, client_id });
+
     if (!joinData) {
-      await session.abortTransaction();
-      session.endSession();
       return res.status(404).json({ status: false, message: "Client has not joined this contest" });
     }
 
@@ -606,7 +599,7 @@ async addTrade(req, res) {
           sellValue: { $sum: { $cond: [{ $eq: [{ $toUpper: "$trade_type" }, "SELL"] }, { $multiply: ["$quantity", "$price"] }, 0] } }
         }
       }
-    ]).session(session);
+    ]);
 
     const stats = agg[0] || { buyQty: 0, buyValue: 0, sellQty: 0, sellValue: 0 };
     const boughtQty = stats.buyQty || 0;
@@ -635,7 +628,7 @@ async addTrade(req, res) {
           contest_id,
           client_id,
           stock_symbol,
-          trade_type: "BUY",
+          trade_type: "buy",
           quantity: closeQty,
           price,
           position_type: "CLOSE",
@@ -649,8 +642,6 @@ async addTrade(req, res) {
         if (remainingQty > 0) {
           const amtRem = price * remainingQty;
           if (wallet < amtRem) {
-            await session.abortTransaction();
-            session.endSession();
             return res.status(400).json({ status: false, message: "Insufficient wallet to open new long after covering" });
           }
           wallet -= amtRem;
@@ -660,7 +651,7 @@ async addTrade(req, res) {
             contest_id,
             client_id,
             stock_symbol,
-            trade_type: "BUY",
+            trade_type: "sell",
             quantity: remainingQty,
             price,
             position_type: "OPEN",
@@ -673,8 +664,6 @@ async addTrade(req, res) {
       } else {
         const tradeAmount = price * qty;
         if (wallet < tradeAmount) {
-          await session.abortTransaction();
-          session.endSession();
           return res.status(400).json({ status: false, message: "Insufficient wallet balance for BUY" });
         }
         wallet -= tradeAmount;
@@ -684,7 +673,7 @@ async addTrade(req, res) {
           contest_id,
           client_id,
           stock_symbol,
-          trade_type: "BUY",
+          trade_type: "buy",
           quantity: qty,
           price,
           position_type: "OPEN",
@@ -709,7 +698,7 @@ async addTrade(req, res) {
           contest_id,
           client_id,
           stock_symbol,
-          trade_type: "SELL",
+          trade_type: "sell",
           quantity: closeQty,
           price,
           position_type: "CLOSE",
@@ -723,8 +712,6 @@ async addTrade(req, res) {
         if (remainingQty > 0) {
           const amtRem = price * remainingQty;
           if (wallet < amtRem) {
-            await session.abortTransaction();
-            session.endSession();
             return res.status(400).json({ status: false, message: "Insufficient wallet to open short after closing long" });
           }
           wallet -= amtRem;
@@ -734,7 +721,7 @@ async addTrade(req, res) {
             contest_id,
             client_id,
             stock_symbol,
-            trade_type: "SELL",
+            trade_type: "sell",
             quantity: remainingQty,
             price,
             position_type: "OPEN",
@@ -747,8 +734,6 @@ async addTrade(req, res) {
       } else {
         const tradeAmount = price * qty;
         if (wallet < tradeAmount) {
-          await session.abortTransaction();
-          session.endSession();
           return res.status(400).json({ status: false, message: "Insufficient wallet balance to open short (reserve required)" });
         }
         wallet -= tradeAmount;
@@ -758,7 +743,7 @@ async addTrade(req, res) {
           contest_id,
           client_id,
           stock_symbol,
-          trade_type: "SELL",
+          trade_type: "sell",
           quantity: qty,
           price,
           position_type: "OPEN",
@@ -769,8 +754,6 @@ async addTrade(req, res) {
         });
       }
     } else {
-      await session.abortTransaction();
-      session.endSession();
       return res.status(400).json({ status: false, message: "Invalid trade type" });
     }
 
@@ -778,15 +761,12 @@ async addTrade(req, res) {
     if (realizedPnL !== 0) wallet += realizedPnL;
 
     // Save all trades
-    await Contesttrade_Modal.insertMany(tradesToInsert, { session });
+    await Contesttrade_Modal.insertMany(tradesToInsert);
 
     // Update joinData balances
     joinData.wallet_balance = wallet;
     joinData.locked_balance = locked;
-    await joinData.save({ session });
-
-    await session.commitTransaction();
-    session.endSession();
+    await joinData.save();
 
     return res.status(200).json({
       status: true,
@@ -800,14 +780,12 @@ async addTrade(req, res) {
     });
 
   } catch (err) {
-    await session.abortTransaction();
-    session.endSession();
     return res.status(500).json({ status: false, message: "Server error", error: err.message });
   }
 }
 
 
-*/
+
 
 // 📌 My Contests List API
 async myContests(req, res) {
@@ -930,6 +908,54 @@ const limit = 10;
   }
 }
 
+
+
+async getOpenPositions(req, res) {
+  try {
+    const { client_id, contest_id, page = 1 } = req.body;
+    const limit = 10;
+
+    if (!client_id && !contest_id) {
+      return res.status(400).json({
+        status: false,
+        message: "Either client_id or contest_id is required",
+      });
+    }
+
+    const filter = { position_type: "OPEN" };
+    if (client_id) filter.client_id = client_id;
+    if (contest_id) filter.contest_id = contest_id;
+
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    const trades = await Contesttrade_Modal.find(filter)
+      .populate("contest_id", "name startdate enddate")
+      .populate("client_id", "FullName Email PhoneNo")
+      .sort({ trade_time: -1 })
+      .skip(skip)
+      .limit(limitNum);
+
+    const total = await Contesttrade_Modal.countDocuments(filter);
+
+    return res.status(200).json({
+      status: true,
+      message: "Trade history fetched successfully",
+      page: pageNum,
+      limit: limitNum,
+      total,
+      data: trades,
+    });
+  } catch (error) {
+    console.error("Error fetching trade history:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
 
 async getContestRanking(req, res) {
   try {
