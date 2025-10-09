@@ -662,3 +662,17 @@ export async function getReferEarnData(token, refertoken) {
     return error?.response?.data || { status: false, message: "Network error" };
   }
 }
+
+// getopentrades with pagination
+export async function getOpenTrades(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}api/list/getopenpositions`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response?.data;
+  } catch (error) {
+    console.error("Error fetching open trades:", error?.response?.data || error.message);
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
