@@ -35,8 +35,8 @@ function FAQ() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
+    <div className="max-w-6xl mx-auto p-2">
+      <div className="flex justify-between items-center mb-6 border p-2 bg-gray-50 rounded-xl shadow-sm border-blue-200">
         <h2 className="text-2xl font-bold">FAQ</h2>
         <BackButton />
       </div>

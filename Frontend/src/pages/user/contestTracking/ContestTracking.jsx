@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Trophy, Award } from "lucide-react";
 import toast from "react-hot-toast";
 import { getContestRanking } from "../../../services/User";
+import BackButton from "../Backbutton";
 
 const ContestTracking = () => {
   const [contestData, setContestData] = useState([]);
@@ -32,12 +33,12 @@ const ContestTracking = () => {
   }, [contest_id]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-6">
-      <div className="text-center mb-10">
+    <div className="min-h-screen bg-white p-2 ">
+      <div className=" flex border p-2 justify-between mb-2 rounded bg-white shadow">
         <h1 className="text-xl font-extrabold text-orange-600 flex items-center justify-center gap-2">
-          <Trophy className="w-8 h-8 text-yellow-500" />
-          Live Contest Tracking
+          Live Tracking
         </h1>
+        <BackButton showText={true} />
       </div>
 
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-10">

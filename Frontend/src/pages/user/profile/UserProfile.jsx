@@ -168,7 +168,7 @@ const UserProfile = () => {
 
     return (
         <div className="p-6 max-w-6xl mx-auto">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center bg-gray-100 justify-between border border-gray-200 rounded-lg p-4  shadow-sm">
                 <BackButton />
 
                 <button
@@ -182,11 +182,12 @@ const UserProfile = () => {
                         });
                         setIsEditProfileModalOpen(true);
                     }}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                    className="mt-0 px-5 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
                 >
                     Update Profile
                 </button>
             </div>
+
             {/* Top Section: Profile Card */}
             <div className="grid lg:grid-cols-5 gap-8 mt-4">
                 <div className="lg:col-span-2 bg-white shadow rounded-xl p-6 text-center">
@@ -237,7 +238,7 @@ const UserProfile = () => {
                         <button
                             onClick={() => setActiveTab("profile")}
                             className={`flex-1 p-3 text-sm font-medium ${activeTab === "profile"
-                                ? "border-b-2 border-blue-600 text-blue-600"
+                                ? "border-b-2 border-orange-600 text-orange-600"
                                 : "text-gray-500"
                                 }`}
                         >
@@ -246,7 +247,7 @@ const UserProfile = () => {
                         <button
                             onClick={() => setActiveTab("management")}
                             className={`flex-1 p-3 text-sm font-medium ${activeTab === "management"
-                                ? "border-b-2 border-blue-600 text-blue-600"
+                                ? "border-b-2 border-orange-600 text-orange-600"
                                 : "text-gray-500"
                                 }`}
                         >
@@ -267,9 +268,9 @@ const UserProfile = () => {
                                                 onChange={(e) => setUpdatedName(e.target.value)}
                                                 className="border rounded-lg p-1 flex-1"
                                             />
-                                            <button
+                                            {/* <button
                                                 onClick={handleSaveName}
-                                                className="px-3 py-1 bg-blue-600 text-white rounded-lg"
+                                                className="px-3 py-1 bg-orange-600 text-orange-500 rounded-lg"
                                             >
                                                 Save
                                             </button>
@@ -278,21 +279,20 @@ const UserProfile = () => {
                                                 className="px-3 py-1 bg-gray-300 rounded-lg"
                                             >
                                                 Cancel
-                                            </button>
+                                            </button> */}
                                         </div>
                                     ) : (
-                                        <div className="flex justify-between items-center">
-                                            <span>{name}</span>
-                                            <button
+                                        <div className="flex items-center justify-between">
+                                            <span>{userDetails?.FullName || "Not provided"}</span>
+                                            {/* <button
                                                 onClick={() => setIsEditingName(true)}
                                                 className="text-blue-600 text-sm font-medium"
                                             >
                                                 Edit
-                                            </button>
+                                            </button> */}
                                         </div>
                                     )}
                                 </div>
-
 
                                 <div className="border p-3 rounded-lg bg-gray-50">
                                     <p className="text-xs text-gray-500">Phone Number</p>
@@ -336,13 +336,13 @@ const UserProfile = () => {
                                     <p className="text-sm text-gray-600">Required for payouts.</p>
                                     <button
                                         onClick={() => navigate("/bankdetail")}
-                                        className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm"
+                                        className="mt-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm"
                                     >
                                         Add Bank
                                     </button>
                                     <button
                                         onClick={() => navigate("/bankdetail")}
-                                        className="mt-2 ms-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm"
+                                        className="mt-2 ms-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm"
                                     >
                                         Add UPI
                                     </button>
@@ -403,7 +403,7 @@ const UserProfile = () => {
                 </div>
             )}
 
-            
+
             {isEditProfileModalOpen && (
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -511,7 +511,7 @@ const UserProfile = () => {
                                         toast.error("Error updating profile");
                                     }
                                 }}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
                             >
                                 Save
                             </button>

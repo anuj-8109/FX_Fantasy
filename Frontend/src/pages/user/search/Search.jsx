@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { MyContestsWithoutTournament } from "../../../services/User";
 import { useNavigate } from "react-router-dom";
+import BackButton from "../Backbutton";
 
 function Search() {
   const [results, setResults] = useState([]);
@@ -28,9 +29,17 @@ function Search() {
 
   return (
     <div className="p-4 sm:p-6">
-      <h2 className="text-lg sm:text-2xl font-bold mb-4 text-[rgb(6,69,91)]">
-        My Contests
-      </h2>
+
+      <div className="bg-gray-50  border-black rounded-2xl shadow-lg  sm:p-2 mb-6 relative">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-lg sm:text-xl font-bold text-[rgba(13, 13, 14, 1)] px-5 py-2 ">
+            My Contests
+          </h2>
+          <BackButton />
+        </div>
+        <div className="absolute inset-0 rounded-2xl border border-[rgba(6,69,91,0.3)] pointer-events-none"></div>
+      </div>
+
 
       <div className="space-y-4 sm:space-y-6">
         {results.length > 0 ? (
@@ -44,61 +53,58 @@ function Search() {
                 {/* Header */}
                 <div className="border-b border-orange-100 px-3 py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                   <div>
-                    <h2 className="font-bold text-base sm:text-lg lg:text-2xl text-[rgb(6,69,91)] tracking-wide">
+                    <h2 className="font-bold text-base sm:text-lg lg:text-2xl text-black tracking-wide">
                       {contest?.name}
                     </h2>
-                    <p className="text-[10px] sm:text-xs lg:text-lg text-[rgb(6,69,91)] mt-1">
+                    <p className="text-[10px] sm:text-xs lg:text-lg text-black mt-1">
                       Tournament:{" "}
-                      <span className="text-[rgb(6,69,91)] font-semibold">
+                      <span className="text-black font-semibold">
                         {contest?.tournament_id?.name}
                       </span>
                     </p>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-2 mt-2 sm:mt-0">
-                    <button
-                      onClick={() =>
-                        navigate("/trade", {
-                          state: {
-                            contestId: contestWrapper?.contest_id?._id,
-                            stocks:
-                              contestWrapper?.contest_id?.tournament_id
-                                ?.stocks || [],
-                            wallet_balance:
-                              contestWrapper?.wallet_balance || 0,
-                          },
-                        })
-                      }
-                      className="px-3 py-1.5 button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
-                    >
-                      Live
-                    </button>
+                 <div className="flex gap-2 mt-2 sm:mt-0">
+  <button
+    onClick={() =>
+      navigate("/trade", {
+        state: {
+          contestId: contestWrapper?.contest_id?._id,
+          stocks:
+            contestWrapper?.contest_id?.tournament_id?.stocks || [],
+          wallet_balance: contestWrapper?.wallet_balance || 0,
+        },
+      })
+    }
+    className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
+  >
+    Live
+  </button>
 
-                    <button
-                      onClick={() =>
-                        navigate("/tradehistory", {
-                          state: {
-                            contestId: contestWrapper?.contest_id?._id,
-                          },
-                        })
-                      }
-                      className="px-3 py-1.5 button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
-                    >
-                      History
-                    </button>
+  <button
+    onClick={() =>
+      navigate("/tradehistory", {
+        state: { contestId: contestWrapper?.contest_id?._id },
+      })
+    }
+    className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
+  >
+    History
+  </button>
 
-                    <button
-                      onClick={() =>
-                        navigate("/contesttracking", {
-                          state: { _id: contestWrapper?.contest_id?._id },
-                        })
-                      }
-                      className="px-3 py-1.5 button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
-                    >
-                      View Rank
-                    </button>
-                  </div>
+  <button
+    onClick={() =>
+      navigate("/contesttracking", {
+        state: { _id: contestWrapper?.contest_id?._id },
+      })
+    }
+    className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
+  >
+    View Rank
+  </button>
+</div>
+
                 </div>
 
                 {/* Info Cards */}

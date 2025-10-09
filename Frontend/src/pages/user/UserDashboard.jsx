@@ -110,10 +110,10 @@ const UserDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-6">
+    <div className="min-h-screen bg-gray-50 ">
 
-      <div className="px-2 sm:px-4 md:px-6 lg:px-2  relative">
-        <div className="overflow-hidden rounded-2xl shadow-xl relative h-40 sm:h-48 md:h-40 lg:h-40 xl:h-40">
+      <div className="relative w-full p-1 ">
+        <div className="overflow-hidden rounded-2xl shadow-md relative  h-40 sm:h-48">
           <div
             className="flex transition-transform duration-500 ease-out h-full"
             style={{ transform: `translateX(-${currentBannerIndex * 100}%)` }}
@@ -129,18 +129,20 @@ const UserDashboard = () => {
             ))}
           </div>
 
+          {/* Controls */}
           <button
             onClick={prevBanner}
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-white/30 backdrop-blur-sm rounded-full p-2 hover:bg-white/50 transition"
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </button>
           <button
             onClick={nextBanner}
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-white/30 backdrop-blur-sm rounded-full p-2 hover:bg-white/50 transition"
           >
             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </button>
+
           {/* Dots */}
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1 sm:space-x-2">
             {banners.map((_, idx) => (
@@ -155,21 +157,19 @@ const UserDashboard = () => {
         </div>
       </div>
 
-
       {/* Tabs */}
-      <div className="flex justify-around bg-[#0648601c] mt-4 mx-2 rounded-xl shadow-sm overflow-hidden text-[0.75rem] sm:text-sm">
+      <div className="flex justify-around  mt-2 mx-2 rounded-xl bg-white  overflow-hidden text-[0.75rem] sm:text-sm">
         {[
           { key: "ongoing", label: "Live Tournament", icon: Trophy },
           { key: "upcoming", label: "Upcoming", icon: Clock },
-          // { key: "mycontests", label: "My Contests", icon: Target },
         ].map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`flex-1 py-3 sm:py-4 px-2 font-medium transition-all duration-200 ${activeTab === key ? "border-b-2 border-blue-600" : ""
+            className={`flex-1 py-3 sm:py-4 px-2 font-medium transition-all duration-200 ${activeTab === key ? "text-orange-600 border-b-2 border-orange-600" : "text-gray-600"
               }`}
           >
-            <div className="flex flex-col items-center space-y-1 ">
+            <div className="flex flex-col items-center space-y-1">
               <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>{label}</span>
             </div>
@@ -184,54 +184,35 @@ const UserDashboard = () => {
             <div
               key={contest.id}
               onClick={() =>
-                navigate("/pricepol", { state: { _id: contest.id, stocks: contest.stocks || [] } }
-
-                )
+                navigate("/pricepol", {
+                  state: { _id: contest.id, stocks: contest.stocks || [] },
+                })
               }
-              className={`bg-[#0648601c] rounded-xl shadow-md hover:shadow-xl transition p-4 cursor-pointer border-l-4 ${contest.status === "ongoing"
-                ? "border-green-500"
-                : contest.status === "upcoming"
-                  ? "border-yellow-400"
-                  : "border-gray-300"
-                } relative overflow-hidden`}
+              className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
             >
-              {/* Status badge */}
-              {/* <span
-                className={`absolute top-2 right-2 px-2 py-1 text-[0.6rem] sm:text-xs rounded-full font-medium ${
-                  contest.status === "ongoing"
-                    ? "bg-green-100 text-green-800"
-                    : contest.status === "upcoming"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                {contest.status.toUpperCase()}
-              </span> */}
-
-              {/* Stocks */}
-              {/* Tournament Card Header */}
-              <div className="mb-3 rounded border p-3 bg-red-100 shadow-sm">
-                {/* Tournament Name on Top */}
-                <p className="text-start font-semibold text-base sm:text-lg text-blue-600 mb-2">
+              {/* Tournament Header */}
+              <div className="mb-3 border-b px-4 py-3 rounded-md">
+                <p className="text-start font-semibold text-base sm:text-lg text-gray-800 mb-2">
                   {contest.name}
                 </p>
 
-                {/* Company & Partner Row */}
                 <div className="flex justify-between items-center">
-                  {/* Left: Company */}
                   <div className="flex items-center space-x-2">
                     {getCompanyIcon(contest.company, contest.companyColor)}
                     <div>
-                      <p className="font-semibold text-sm">{contest.company || "—"}</p>
+                      <p className="font-semibold text-gray-700 text-sm">
+                        {contest.company || "—"}
+                      </p>
                       <p className="text-xs text-gray-500">Primary Stock</p>
                     </div>
                   </div>
 
-                  {/* Right: Partner (only if available) */}
                   {contest.partner && (
                     <div className="flex items-center space-x-2">
                       <div className="text-right">
-                        <p className="font-semibold text-sm">{contest.partner}</p>
+                        <p className="font-semibold text-gray-700 text-sm">
+                          {contest.partner}
+                        </p>
                         <p className="text-xs text-gray-500">Partner</p>
                       </div>
                       {getCompanyIcon(contest.partner, contest.partnerColor)}
@@ -240,33 +221,22 @@ const UserDashboard = () => {
                 </div>
               </div>
 
-
-
-
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-2 mb-3">
-                <div className="text-center p-2 rounded-md border">
-                  <p className="text-[0.875rem]   font-bold">{contest.prizePool}</p>
-                  <p className="text-[0.8rem]  text-gray-500">
-                    Prize Pool
-                  </p>
+              <div className="grid grid-cols-3 gap-2 px-4 pb-4">
+                <div className="text-center p-2 rounded-md border bg-gray-50">
+                  <p className="text-gray-800 font-bold text-sm">{contest.prizePool}</p>
+                  <p className="text-gray-500 text-xs">Prize Pool</p>
                 </div>
-                <div className="text-center p-2 rounded-md border">
-                  <p className="text-[0.875rem] font-bold">
-                    {getTimeLeft(contest.end)}
-                  </p>
-                  <p className="text-[0.8rem]  text-gray-500">
-                    Time Left
-                  </p>
+                <div className="text-center p-2 rounded-md border bg-gray-50">
+                  <p className="text-gray-800 font-bold text-sm">{getTimeLeft(contest.end)}</p>
+                  <p className="text-gray-500 text-xs">Time Left</p>
                 </div>
-                <div className="text-center p-2 rounded-md border">
-                  <p className="text-[0.875rem] font-bold flex items-center justify-center">
-                    <Users className="w-4 h-4 mr-1" />
+                <div className="text-center p-2 rounded-md border bg-gray-50">
+                  <p className="text-gray-800 font-bold flex items-center justify-center text-sm">
+                    <Users className="w-4 h-4 mr-1 text-gray-700" />
                     {contest.participants}
                   </p>
-                  <p className="text-[0.8rem] text-gray-500">
-                    Participants
-                  </p>
+                  <p className="text-gray-500 text-xs">Participants</p>
                 </div>
               </div>
             </div>
@@ -274,14 +244,14 @@ const UserDashboard = () => {
         ) : (
           <div className="text-center py-12 col-span-full">
             <Trophy className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg font-medium mb-2">
-              No contests available
-            </p>
+            <p className="text-gray-500 text-lg font-medium mb-2">No contests available</p>
             <p className="text-gray-400 text-sm">Check back soon for new contests!</p>
           </div>
         )}
       </div>
+
     </div>
+
   );
 };
 

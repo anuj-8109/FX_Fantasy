@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { BuySelltrade, GetMyContests } from "../../services/User";
 import toast from "react-hot-toast";
+import BackButton from "../../pages/user/Backbutton";
+import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 function HistoryPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const contestId = location?.state?.contestId;
   const stocks = location?.state?.stocks || [];
   const initialWallet = Number(location?.state?.wallet_balance || 0);
@@ -17,14 +20,17 @@ function HistoryPage() {
   const [myContests, setMyContests] = useState([]);
 
   const token = localStorage.getItem("token");
-  const clientId = localStorage.getItem("userId") || localStorage.getItem("client_id");
+  const clientId =
+    localStorage.getItem("userId") || localStorage.getItem("client_id");
 
   const fetchMyContests = async () => {
     if (!token || !clientId) return;
     try {
       const data = await GetMyContests(token, clientId);
       if (data.status && data.data?.length > 0) {
-        const contestWrapper = data.data.find(c => c.contest_id?._id === contestId);
+        const contestWrapper = data.data.find(
+          (c) => c.contest_id?._id === contestId
+        );
         setMyContests(data.data);
         if (contestWrapper) {
           setWalletBalance(contestWrapper?.wallet_balance);
@@ -39,12 +45,18 @@ function HistoryPage() {
     fetchMyContests();
   }, []);
 
-  const handleBuySell = async (stock_symbol, trade_type, stockId, quantity, price) => {
+  const handleBuySell = async (
+    stock_symbol,
+    trade_type,
+    stockId,
+    quantity,
+    price
+  ) => {
     if (!token || !clientId || !contestId) return toast.error("Missing info");
 
     const qty = Number(quantity);
-
     setBuySellLoadingId(stockId);
+
     try {
       const payload = {
         contest_id: contestId,
@@ -52,7 +64,7 @@ function HistoryPage() {
         stock_symbol,
         trade_type,
         quantity: qty,
-        price: price  // ✅ add this
+        price: price,
       };
 
       const res = await BuySelltrade(token, payload);
@@ -72,87 +84,193 @@ function HistoryPage() {
     }
   };
 
-
   return (
-    <div className="bg-gray-50 min-h-screen flex flex-col">
-      {/* Balance Section */}
-      <div className="max-w-6xl mx-auto w-full mt-6 px-4">
-        <div className="bg-white shadow-lg rounded-2xl p-6 text-center relative">
-          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
-            <div className="bg-black text-white mt-8 rounded-full w-10 h-10 flex items-center justify-center text-xl">
-              ₹
-            </div>
-          </div>
-          <h2 className="mt-6 text-lg font-semibold">
-            Total Balance: <span className="text-green-600 font-bold">₹{walletBalance + pnl}</span>
-          </h2>
+    <div className="bg-gray-100 min-h-screen flex flex-col p-2 ">
+      {/* Header Section */}
+      <header className="flex   justify-between items-center bg-gray-100 text-black px-5 py-3 shadow-md rounded-b-2xl">
+        <h1 className="text-xl sm:text-2xl font-semibold flex items-center gap-2">
+          Trading 
+        </h1>
 
-          <div className="grid grid-cols-2 gap-6 mt-6">
-            <div className="border rounded-lg py-3">
-              <p className="text-orange-600 font-semibold">Unutilized</p>
-              <p className="text-gray-500 text-xs">The Money You Add</p>
-              <p className="text-lg font-bold text-orange-600">₹{walletBalance}</p>
-            </div>
-            <div className="border rounded-lg py-3">
-              <p className="text-green-600 font-semibold">P&amp;L</p>
-              <p className="text-gray-500 text-xs">The Money You Win</p>
-              <p className="text-lg font-bold text-green-600">₹{pnl}</p>
-            </div>
-          </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/tradehistory", { state: { contestId } })}
+            className="px-4 py-2 bg-orange-500 text-white hover:bg-orange-400 rounded-lg font-semibold text-sm shadow-sm transition-all"
+          >
+            View History
+          </button>
+          <BackButton />
         </div>
+      </header>
+
+      {/* Wallet Summary */}
+      <div className="max-w-6xl mx-auto w-full mt-4  ">
+  <div className="bg-white shadow-md rounded-xl p-5 border border-gray-100">
+    {/* Top Section */}
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-lg font-semibold text-gray-800">Wallet Summary</h2>
+      <span className="text-sm text-gray-500">Updated just now</span>
+    </div>
+
+    {/* Total Balance */}
+    <div className="text-center mb-5">
+      <p className="text-sm text-gray-600">Total Balance</p>
+      <p className="text-2xl font-bold text-green-600">
+        ₹{walletBalance + pnl}
+      </p>
+    </div>
+
+    {/* Cards */}
+    <div className="grid grid-cols-2 gap-4">
+      <div className="bg-orange-50 border border-orange-100 p-4 rounded-lg text-center">
+        <p className="text-xs text-orange-700 font-medium">
+          Unutilized Balance
+        </p>
+        <p className="text-lg font-bold text-orange-600 mt-1">
+          ₹{walletBalance}
+        </p>
       </div>
 
-      {/* Stock List */}
-      <div className="max-w-6xl mx-auto w-full px-4 mt-6 flex-1">
+      <div className="bg-green-50 border border-green-100 p-4 rounded-lg text-center">
+        <p className="text-xs text-green-700 font-medium">Profit & Loss</p>
+        <p className="text-lg font-bold text-green-600 mt-1">₹{pnl}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+      {/* Stock Cards */}
+      <div className="max-w-6xl mx-auto w-full  mt-4 flex-1">
         {stocks.length > 0 ? (
-          stocks.map((s) => (
-            <div key={s._id} className="bg-white shadow rounded-lg p-4 flex items-center justify-between mb-4 relative">
-              <p className="font-semibold">{s.stock_name}</p>
-              <div className="text-right">
-                <p className="font-medium text-gray-800">{s.last_price}</p>
-                <p className={`text-sm font-semibold ${s.price_change >= 0 ? "text-green-600" : "text-red-600"}`}>
-                  {s.price_change >= 0 ? `+${s.price_change}%` : `${s.price_change}%`}
-                </p>
-              </div>
-
-              <div className="flex space-x-2 relative">
-                <button onClick={() => setShowQuantityBox({ id: s._id, type: "buy" })} className="px-4 py-1 rounded-lg bg-green-500 text-white text-sm hover:bg-green-600">BUY</button>
-                <button onClick={() => setShowQuantityBox({ id: s._id, type: "sell" })} className="px-4 py-1 rounded-lg bg-red-500 text-white text-sm hover:bg-red-600">SELL</button>
-
-                {showQuantityBox?.id === s._id && (
-                  <div className="absolute top-full mt-2 right-0 bg-white shadow-lg rounded-lg p-4 w-64 z-10">
-                    <p className="font-semibold mb-2">Enter Quantity ({showQuantityBox.type.toUpperCase()})</p>
-                    <input type="number" min="1" className="w-full border rounded px-2 py-1 mb-3" value={quantityMap[s._id] || ""} onChange={(e) => setQuantityMap({ ...quantityMap, [s._id]: e.target.value })} />
-                    <div className="flex justify-end space-x-2">
-                      <button onClick={() => setShowQuantityBox(null)} className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
-                      <button
-                        onClick={() =>
-                          handleBuySell(
-                            s.stock_name,
-                            showQuantityBox.type,
-                            s._id,
-                            quantityMap[s._id] || "1",
-                            s.last_price // ✅ pass the price
-                          )
-                        }
-                        className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-                        disabled={buySellLoadingId === s._id}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5">
+            {stocks.map((s) => (
+              <div
+                key={s._id}
+                className="relative bg-white border border-gray-200 shadow-md hover:shadow-lg rounded-2xl p-5 transition-all duration-300 overflow-hidden group"
+              >
+                {/* Stock Header */}
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-lg font-semibold text-gray-800">
+                      {s.stock_name}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-gray-700 font-medium">
+                        ₹{s.last_price}
+                      </span>
+                      <span
+                        className={`flex items-center text-sm font-semibold ${s.price_change >= 0
+                          ? "text-green-600"
+                          : "text-red-600"
+                          }`}
                       >
-                        {buySellLoadingId === s._id ? "..." : `Confirm ${showQuantityBox.type.toUpperCase()}`}
-                      </button>
+                        {s.price_change >= 0 ? (
+                          <ArrowUpRight size={14} />
+                        ) : (
+                          <ArrowDownRight size={14} />
+                        )}
+                        {s.price_change >= 0
+                          ? `+${s.price_change}%`
+                          : `${s.price_change}%`}
+                      </span>
+                    </div>
+                  </div>
 
+                  {/* Market Mood Tag */}
+                  <div
+                    className={`px-2 py-1 rounded-md text-xs font-semibold ${s.price_change >= 0
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                      }`}
+                  >
+                    {s.price_change >= 0 ? "Bullish" : "Bearish"}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-3 mt-5">
+                  <button
+                    onClick={() =>
+                      setShowQuantityBox({ id: s._id, type: "buy" })
+                    }
+                    className="flex-1 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-all shadow-sm hover:scale-105"
+                  >
+                    BUY
+                  </button>
+                  <button
+                    onClick={() =>
+                      setShowQuantityBox({ id: s._id, type: "sell" })
+                    }
+                    className="flex-1 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-all shadow-sm hover:scale-105"
+                  >
+                    SELL
+                  </button>
+                </div>
+
+                {/* Quantity Box */}
+                {showQuantityBox?.id === s._id && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-10 animate-fadeIn">
+                    <div className="bg-white p-5 rounded-2xl shadow-2xl w-72 border border-gray-200">
+                      <p className="font-semibold mb-2 text-gray-800 text-center">
+                        {showQuantityBox.type === "buy" ? "Buy" : "Sell"} Quantity
+                      </p>
+                      <input
+                        type="number"
+                        min="1"
+                        placeholder="Enter quantity"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-3 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                        value={quantityMap[s._id] || ""}
+                        onChange={(e) =>
+                          setQuantityMap({
+                            ...quantityMap,
+                            [s._id]: e.target.value,
+                          })
+                        }
+                      />
+                      <div className="flex justify-between mt-3">
+                        <button
+                          onClick={() => setShowQuantityBox(null)}
+                          className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleBuySell(
+                              s.stock_name,
+                              showQuantityBox.type,
+                              s._id,
+                              quantityMap[s._id] || "1",
+                              s.last_price
+                            )
+                          }
+                          className={`px-4 py-1.5 rounded-lg text-sm text-white font-medium ${showQuantityBox.type === "buy"
+                            ? "bg-green-500 hover:bg-green-600"
+                            : "bg-red-500 hover:bg-red-600"
+                            }`}
+                          disabled={buySellLoadingId === s._id}
+                        >
+                          {buySellLoadingId === s._id
+                            ? "Processing..."
+                            : `Confirm ${showQuantityBox.type.toUpperCase()}`}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         ) : (
-          <p className="text-center text-gray-600">No stocks available</p>
+          <p className="text-center text-gray-600 mt-12 text-lg">
+            No stocks available for trading.
+          </p>
         )}
       </div>
     </div>
   );
+
 }
 
 export default HistoryPage;

@@ -195,7 +195,7 @@ function Pricepol() {
       <div>
         <div className="w-full bg-gray-100 rounded-full h-1.5 sm:h-2 overflow-hidden">
           <div
-            className="h-1.5 sm:h-2 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-700 ease-in-out"
+            className="h-1.5 sm:h-2 rounded-full bg-gradient-to-r from-black-400 to-black-600 transition-all duration-700 ease-in-out"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -215,123 +215,55 @@ function Pricepol() {
   return (
     <div className="p-2 sm:p-4 md:p-6 lg:p-8 bg-gray-50 min-h-screen">
 
-      <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <BackButton />
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-[rgb(6,69,91)] flex-1">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6 bg-gradient-to-r from-[#f8fafc] to-[#e0f2fe] p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200">
+        {/* Back Button */}
+        <div className="w-full sm:w-auto flex justify-start sm:justify-normal">
+          <BackButton />
+        </div>
+
+        {/* Heading */}
+        <h1 className="text-lg sm:text-2xl md:text-3xl font-extrabold text-center text-orange-600 flex-1 tracking-wide drop-shadow-sm">
           Tournament Contests
         </h1>
 
-        <button
-          onClick={() =>
-            navigate("/addprivatecontest", {
-              state: {
-                tournament_id: tournament?._id,
-              },
-            })
-          }
-          className="bg-[#043e53] text-white px-4 py-2 rounded-lg shadow transition text-xs sm:text-sm md:text-base"
-        >
-          Create Private Contest
-        </button>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex justify-center mb-4 sm:mb-6">
-        <div className="bg-[#053e53]rounded-full shadow-md flex flex-wrap justify-center gap-2 p-1 sm:p-2">
-          {[
-            { key: "contests", label: "Contests" },
-            { key: "myContests", label: "My Contests" },
-            { key: "myTeam", label: "Private Contests" },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`px-4 sm:px-6 py-1 sm:py-2 rounded-full font-medium text-xs sm:text-sm md:text-base transition-all ${activeTab === tab.key
-                ? "bg-[#053e53] shadow text-white"
-                : "bg-gray-100 text-gray-700"
-                }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Filters */}
-      {/* {activeTab === "contests" && (
-        <div className="bg-white rounded-xl shadow-md p-4 mb-4 flex flex-wrap items-center gap-3 justify-start">
-      
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
-            <span className="text-gray-600 text-xs sm:text-sm font-medium">Entry Fee:</span>
-            <input
-              type="number"
-              name="minEntryFee"
-              placeholder="Min"
-              value={filters.minEntryFee}
-              onChange={handleFilterChange}
-              className="border border-gray-300 rounded-md p-2 w-20 sm:w-24 focus:outline-none focus:ring-1 focus:ring-orange-500"
-            />
-            <input
-              type="number"
-              name="maxEntryFee"
-              placeholder="Max"
-              value={filters.maxEntryFee}
-              onChange={handleFilterChange}
-              className="border border-gray-300 rounded-md p-2 w-20 sm:w-24 focus:outline-none focus:ring-1 focus:ring-orange-500"
-            />
-          </div>
-
-       
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
-            <span className="text-gray-600 text-xs sm:text-sm font-medium">Prize Pool:</span>
-            <input
-              type="number"
-              name="minPrizePool"
-              placeholder="Min"
-              value={filters.minPrizePool}
-              onChange={handleFilterChange}
-              className="border border-gray-300 rounded-md p-2 w-20 sm:w-24 focus:outline-none focus:ring-1 focus:ring-orange-500"
-            />
-            <input
-              type="number"
-              name="maxPrizePool"
-              placeholder="Max"
-              value={filters.maxPrizePool}
-              onChange={handleFilterChange}
-              className="border border-gray-300 rounded-md p-2 w-20 sm:w-24 focus:outline-none focus:ring-1 focus:ring-orange-500"
-            />
-          </div>
-
- 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
-            <span className="text-gray-600 text-xs sm:text-sm font-medium">Participants:</span>
-            <input
-              type="number"
-              name="minParticipants"
-              placeholder="Min"
-              value={filters.minParticipants}
-              onChange={handleFilterChange}
-              className="border border-gray-300 rounded-md p-2 w-20 sm:w-24 focus:outline-none focus:ring-1 focus:ring-orange-500"
-            />
-            <input
-              type="number"
-              name="maxParticipants"
-              placeholder="Max"
-              value={filters.maxParticipants}
-              onChange={handleFilterChange}
-              className="border border-gray-300 rounded-md p-2 w-20 sm:w-24 focus:outline-none focus:ring-1 focus:ring-orange-500"
-            />
-          </div>
-
-
+        {/* Create Button */}
+        <div className="w-full sm:w-auto flex justify-center sm:justify-end">
           <button
-            onClick={handleResetFilters}
-            className="ml-auto px-4 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition-all text-sm sm:text-base"
+            onClick={() =>
+              navigate("/addprivatecontest", {
+                state: { tournament_id: tournament?._id },
+              })
+            }
+            className="bg-orange-500 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg shadow-md transition-all duration-200 text-sm sm:text-base font-semibold w-full sm:w-auto"
           >
-            Reset Filters
+            + Create Private Contest
           </button>
         </div>
-      )} */}
+      </div>
+
+
+      {/* Tabs */}
+      <div className="flex justify-between mb-6 border-b border-gray-300">
+        {[
+          { key: "contests", label: "Contests" },
+          { key: "myContests", label: "My Contests" },
+          { key: "myTeam", label: "Private Contests" },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`pb-2 text-sm sm:text-base font-medium transition-all
+        ${activeTab === tab.key
+                ? "border-b-2 border-orange-600 text-orange-600"
+                : "text-black-600 hover:text-black-600"
+              }
+      `}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
 
 
       {/* Loading/Error */}
@@ -347,63 +279,57 @@ function Pricepol() {
             filteredContests.map((contest) => {
               const progress =
                 (contest.filled_spots / contest.total_spots) * 100 || 0;
-
               const isJoined = joinedContests.includes(contest._id);
 
               return (
                 <div
                   key={contest._id}
-                  className="bg-[#053e5338] backdrop-blur-md shadow-md rounded-xl p-3 sm:p-4 border border-gray-200 
-                   hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full"
+                  className="bg-gray-50 backdrop-blur-md shadow-md rounded-xl p-3 sm:p-4 border border-gray-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full"
                 >
-                  {/* Tournament Name */}
-                  <p className="text-[12px] sm:text-sm font-semibold text-[#053e53] mb-2">
+                  <p className="text-[12px] sm:text-sm lg:text-[14px] font-semibold text-black-600 mb-2">
                     {contest?.name || contest.tournament_id?.name || "Tournament"}
                   </p>
 
                   <div className="flex justify-between items-center mb-3">
                     <div className="flex flex-row items-center gap-3">
-                      <p className="text-[11px] sm:text-xs text-[rgba(4, 53, 71, 1)]">Prize Pool</p>
-                      <p className="text-sm sm:text-lg font-bold bg-[#053e53] text-transparent bg-clip-text">
+                      <p className="text-[11px] sm:text-xs lg:text-[14px] text-black-600">Prize Pool</p>
+                      <p className="text-sm sm:text-lg lg:text-[14px] font-bold text-black-600 bg-clip-text">
                         ₹{contest.prize_pool}
                       </p>
                     </div>
-                    <span className="text-[11px] sm:text-xs text-[rgba(4, 53, 71, 1)] font-medium flex items-center gap-1">
+                    <span className="text-[11px] sm:text-xs lg:text-[14px] text-orange-600 font-medium flex items-center gap-1">
                       <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                       Guaranteed
                     </span>
                   </div>
 
-                  <AnimatedProgressBar
-                    filled={contest.filled_spots}
-                    total={contest.total_spots}
-                  />
-
+                  <AnimatedProgressBar filled={contest.filled_spots} total={contest.total_spots} />
 
                   <div className="flex justify-between items-center mt-3">
-                    <span className="text-xs sm:text-sm text-[rgba(4, 53, 71, 1)]">
+                    <span className="text-xs sm:text-sm lg:text-[14px] text-black-600">
                       🏆 <span className="font-semibold">{contest.winners || 1}</span> winners
                     </span>
-                    <div className="flex items-center gap-2 ">
-                      <p className="text-xs sm:text-sm font-semibold text-[rgb(6,69,91)]">
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs sm:text-sm lg:text-[14px] font-semibold text-[rgb(6,69,91)]">
                         ₹{contest.entry_fee}
                       </p>
                       <button
                         onClick={() => handleJoinNow(contest)}
                         disabled={isJoined}
-                        className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold shadow-sm transition-all duration-300
-                         ${isJoined
-                            ? "bg-gray-400 text-white cursor-not-allowed"
-                            : "bg-[#053e53] text-white hover:shadow-md"}`}
+                        className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-xs lg:text-[14px] font-semibold border border-gray-300 shadow-sm transition-all duration-300 ${isJoined
+                          ? "bg-gray-200 text-gray-600 cursor-not-allowed"
+                          : "bg-white text-black hover:bg-gray-100"
+                          }`}
                       >
                         {isJoined ? "Joined" : "Join"}
                       </button>
-
                     </div>
                   </div>
                 </div>
               );
             })}
+
+
 
           {/* My Contests */}
           {activeTab === "myContests" && (
@@ -414,20 +340,21 @@ function Pricepol() {
                   return (
                     <div
                       key={contestWrapper._id}
-                      className="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300"
+                      className="bg-white-900 backdrop-blur-md shadow-md rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full"
                     >
-                      <div className="heading_style border-b border-orange-100 px-3 py-3 flex  sm:flex-row justify-between items-start sm:items-center gap-2">
+                      <div className="heading_style border-b border-black-100 px-3 py-3 flex sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
-                          <h2 className="font-bold text-base sm:text-lg lg:text-2xl text-[rgb(6,69,91)] tracking-wide">
+                          <h2 className="font-bold text-base sm:text-lg lg:text-2xl text-[rgba(8, 8, 8, 1)] tracking-wide">
                             {contest?.name}
                           </h2>
-                          <p className="text-[10px] sm:text-xs lg:text-lg text-[rgb(6,69,91)] mt-1">
+                          <p className="text-[10px] sm:text-xs lg:text-lg text-[rgba(5, 5, 5, 1)] mt-1">
                             Tournament:{" "}
-                            <span className="text-[rgb(6,69,91)] font-semibold">
+                            <span className="text-[rgba(7, 7, 7, 1)] font-semibold">
                               {contest?.tournament_id?.name}
                             </span>
                           </p>
                         </div>
+
                         <div className="flex gap-2 mt-2 sm:mt-0">
                           <button
                             onClick={() =>
@@ -440,53 +367,57 @@ function Pricepol() {
                                 },
                               })
                             }
-                            className="px-3 py-1.5  button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
+                            className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
                           >
                             Live
                           </button>
+
                           <button
                             onClick={() =>
                               navigate("/tradehistory", {
                                 state: { contestId: contestWrapper?.contest_id?._id },
                               })
                             }
-                            className="px-3 py-1.5  button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
+                            className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
                           >
                             History
                           </button>
+
                           <button
                             onClick={() =>
                               navigate("/contesttracking", {
                                 state: { _id: contestWrapper?.contest_id?._id },
                               })
                             }
-                            className="px-3 py-1.5  button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
+                            className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
                           >
                             View Rank
                           </button>
                         </div>
+
                       </div>
+
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 sm:p-4 text-[10px] sm:text-sm">
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
-                          <p className="text-gray-500 text-[10px] sm:text-xs">Prize Pool</p>
-                          <p className="font-bold text-sm sm:text-base text-gray-800">
+                          <p className="text-black text-[10px] sm:text-xs">Prize Pool</p>
+                          <p className="font-bold text-sm sm:text-base text-black">
                             ₹{contest.prize_pool}
                           </p>
                         </div>
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
-                          <p className="text-gray-500 text-[10px] sm:text-xs">Entry Fee</p>
-                          <p className="font-bold text-sm sm:text-base text-gray-800">
+                          <p className="text-black text-[10px] sm:text-xs">Entry Fee</p>
+                          <p className="font-bold text-sm sm:text-base text-black">
                             ₹{contest.entry_fee}
                           </p>
                         </div>
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
-                          <p className="text-gray-500 text-[10px] sm:text-xs">Joined At</p>
-                          <p className="font-bold text-[10px] sm:text-sm text-gray-800">
+                          <p className="text-black text-[10px] sm:text-xs">Joined At</p>
+                          <p className="font-bold text-[10px] sm:text-sm text-black">
                             {new Date(contestWrapper.joined_at).toLocaleString()}
                           </p>
                         </div>
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
-                          <p className="text-gray-500 text-[10px] sm:text-xs">Status</p>
+                          <p className="text-black text-[10px] sm:text-xs">Status</p>
                           <span className="inline-block px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-green-100 text-green-700">
                             Joined
                           </span>
@@ -496,7 +427,7 @@ function Pricepol() {
                   );
                 })
               ) : (
-                <div className="text-center py-8 bg-white rounded-lg shadow-sm border border-gray-100">
+                <div className="text-center py-8 bg-gray-50 rounded-lg shadow-sm border border-gray-100">
                   <p className="text-gray-600 text-sm sm:text-base">
                     📌 You haven’t joined any contests yet.
                   </p>
@@ -505,117 +436,101 @@ function Pricepol() {
             </div>
           )}
 
+
+          {/* Private Contests */}
           {activeTab === "myTeam" && (
             <div className="space-y-4 sm:space-y-6">
               {privateContests.length > 0 ? (
-                privateContests.map((contestWrapper) => {
-                  const contest = contestWrapper;
-                  return (
-                    <div
-                      key={contest._id}
-                      className="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300"
-                    >
-                      <div className="heading_style border-b border-orange-100 px-3 py-3 flex sm:flex-row justify-between items-start sm:items-center gap-2">
-                        <div>
-                          <h2 className="font-bold text-base sm:text-lg lg:text-2xl text-[rgb(6,69,91)] tracking-wide">
-                            {contest?.name}
-                          </h2>
-                          <p className="text-[10px] sm:text-xs lg:text-lg text-[rgb(6,69,91)] mt-1">
-                            Tournament:{" "}
-                            <span className="text-[rgb(6,69,91)] font-semibold">
-                              {contest?.tournament_id?.name || contest?.tournament_id}
-                            </span>
-                          </p>
-                        </div>
-                        <div className="flex gap-2 mt-2 sm:mt-0">
-
-                          <button
-                            onClick={() =>
-                              navigate("/trade", {
-                                state: {
-                                  contestId: contest?._id,
-                                  stocks: contest?.tournament_id?.stocks || [], // <-- fixed
-                                  wallet_balance: contest?.wallet_balance || 0,
-                                },
-                              })
-                            }
-                            className="px-3 py-1.5 button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
-                          >
-                            Live
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              navigate("/tradehistory", {
-                                state: { contestId: contest?._id },
-                              })
-                            }
-                            className="px-3 py-1.5 button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
-                          >
-                            History
-                          </button>
-
-                          <button
-                            onClick={async () => {
-                              const token = localStorage.getItem("token");
-                              const clientId = localStorage.getItem("userId");
-                              const sharedWith = prompt(
-                                "Enter client ID to share contest with:"
-                              );
-                              if (!sharedWith) return;
-
-                              const res = await SharePrivateContest(
-                                token,
-                                contest._id,
-                                sharedWith,
-                                clientId
-                              );
-                              if (res?.status)
-                                toast.success("Contest shared successfully!");
-                              else toast.error(res?.message || "Failed to share contest");
-                            }}
-                            className="px-3 py-1.5 button_style text-white rounded-md text-xs sm:text-sm font-semibold shadow-sm"
-                          >
-                            Share
-                          </button>
-
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 sm:p-4 text-[10px] sm:text-sm">
-                        <div className="bg-gray-50 border rounded-md p-2 text-center">
-                          <p className="text-gray-500 text-[10px] sm:text-xs">Prize Pool</p>
-                          <p className="font-bold text-sm sm:text-base text-gray-800">
-                            ₹{contest.prize_pool}
-                          </p>
-                        </div>
-
-                        <div className="bg-gray-50 border rounded-md p-2 text-center">
-                          <p className="text-gray-500 text-[10px] sm:text-xs">Entry Fee</p>
-                          <p className="font-bold text-sm sm:text-base text-gray-800">
-                            ₹{contest.entry_fee}
-                          </p>
-                        </div>
-
-                        <div className="bg-gray-50 border rounded-md p-2 text-center">
-                          <p className="text-gray-500 text-[10px] sm:text-xs">Created At</p>
-                          <p className="font-bold text-[10px] sm:text-sm text-gray-800">
-                            {new Date(contest.created_at).toLocaleString()}
-                          </p>
-                        </div>
-
-                        <div className="bg-gray-50 border rounded-md p-2 text-center">
-                          <p className="text-gray-500 text-[10px] sm:text-xs">Status</p>
-                          <span className="inline-block px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-green-100 text-green-700">
-                            Active
+                privateContests.map((contest) => (
+                  <div
+                    key={contest._id}
+                    className="bg-gray-50 shadow-md rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300"
+                  >
+                    <div className="heading_style border-b border-black-100 px-3 py-3 flex sm:flex-row justify-between items-start sm:items-center gap-2">
+                      <div>
+                        <h2 className="font-bold text-base sm:text-lg lg:text-2xl text-[rgb(6,69,91)] tracking-wide">
+                          {contest?.name}
+                        </h2>
+                        <p className="text-[10px] sm:text-xs lg:text-lg text-[rgb(6,69,91)] mt-1">
+                          Tournament:{" "}
+                          <span className="text-[rgb(6,69,91)] font-semibold">
+                            {contest?.tournament_id?.name || contest?.tournament_id}
                           </span>
-                        </div>
+                        </p>
+                      </div>
+                      <div className="flex gap-2 mt-2 sm:mt-0">
+                        <button
+                          onClick={() =>
+                            navigate("/trade", {
+                              state: {
+                                contestId: contest?._id,
+                                stocks: contest?.tournament_id?.stocks || [],
+                                wallet_balance: contest?.wallet_balance || 0,
+                              },
+                            })
+                          }
+                          className="px-3 py-1.5 bg-white text-black border border-gray-300 rounded-md text-xs sm:text-sm font-semibold shadow-sm hover:bg-gray-100 transition-all"
+                        >
+                          Live
+                        </button>
+                        <button
+                          onClick={() =>
+                            navigate("/tradehistory", {
+                              state: { contestId: contest?._id },
+                            })
+                          }
+                          className="px-3 py-1.5 bg-white text-black border border-gray-300 rounded-md text-xs sm:text-sm font-semibold shadow-sm hover:bg-gray-100 transition-all"
+                        >
+                          History
+                        </button>
+                        <button
+                          onClick={async () => {
+                            const token = localStorage.getItem("token");
+                            const clientId = localStorage.getItem("userId");
+                            const sharedWith = prompt("Enter client ID to share contest with:");
+                            if (!sharedWith) return;
+
+                            const res = await SharePrivateContest(token, contest._id, sharedWith, clientId);
+                            if (res?.status) toast.success("Contest shared successfully!");
+                            else toast.error(res?.message || "Failed to share contest");
+                          }}
+                          className="px-3 py-1.5 bg-white text-black border border-gray-300 rounded-md text-xs sm:text-sm font-semibold shadow-sm hover:bg-gray-100 transition-all"
+                        >
+                          Share
+                        </button>
                       </div>
                     </div>
-                  );
-                })
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 sm:p-4 text-[10px] sm:text-sm">
+                      <div className="bg-white border rounded-md p-2 text-center">
+                        <p className="text-gray-500 text-[10px] sm:text-xs">Prize Pool</p>
+                        <p className="font-bold text-sm sm:text-base text-gray-800">
+                          ₹{contest.prize_pool}
+                        </p>
+                      </div>
+                      <div className="bg-white border rounded-md p-2 text-center">
+                        <p className="text-gray-500 text-[10px] sm:text-xs">Entry Fee</p>
+                        <p className="font-bold text-sm sm:text-base text-gray-800">
+                          ₹{contest.entry_fee}
+                        </p>
+                      </div>
+                      <div className="bg-white border rounded-md p-2 text-center">
+                        <p className="text-gray-500 text-[10px] sm:text-xs">Created At</p>
+                        <p className="font-bold text-[10px] sm:text-sm text-gray-800">
+                          {new Date(contest.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="bg-white border rounded-md p-2 text-center">
+                        <p className="text-gray-500 text-[10px] sm:text-xs">Status</p>
+                        <span className="inline-block px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-green-100 text-green-700">
+                          Active
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
               ) : (
-                <div className="text-center py-8 bg-white rounded-lg shadow-sm border border-gray-100">
+                <div className="text-center py-8 bg-gray-50 rounded-lg shadow-sm border border-gray-100">
                   <p className="text-gray-600 text-sm sm:text-base">
                     📌 You haven’t created any private contests yet.
                   </p>
@@ -623,14 +538,10 @@ function Pricepol() {
               )}
             </div>
           )}
-
-
         </div>
       )}
-
-
-
     </div>
+
   );
 }
 

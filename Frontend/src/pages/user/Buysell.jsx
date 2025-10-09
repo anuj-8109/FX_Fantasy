@@ -46,9 +46,12 @@ function TradeHistory() {
   }, [token, clientId, contestId]);
 
   return (
-    <div className="max-w-4xl mx-auto mt-8 p-4 bg-white shadow-lg rounded-xl">
+    <div className="max-w-4xl p-4 bg-white shadow-lg rounded-xl">
+      <div className="flex justify-between items-center mb-6 border p-1 rounded-xl shadow-sm bg-gray-100">
+        <h2 className="text-xl font-bold text-center ">Trade History</h2>
       <BackButton />
-      <h2 className="text-xl font-bold text-center mb-4">Trade History</h2>
+      </div>
+   
 
       {loading ? (
         <p className="text-center text-gray-500">Loading...</p>
