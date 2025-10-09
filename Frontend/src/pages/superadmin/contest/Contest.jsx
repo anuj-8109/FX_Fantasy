@@ -216,14 +216,21 @@ const Contest = () => {
   const columns = [
     // { name: "S.No", selector: (row, i) => i + 1, width: "70px" },
     {
-      name: "Name",
+      name: "Tournament Name",
+      selector: (row) => row.tournament_id.name,
+      exportValue: (row) => row.tournament_id.name || "N/A",
+      export: true,
+      sortable: true,
+      width: "160px",
+    },
+    {
+      name: "Contest Name",
       selector: (row) => row.name,
       exportValue: (row) => row.name || "N/A",
       export: true,
       sortable: true,
       width: "160px",
     },
-
     {
       name: "Type",
       selector: (row) => row.contest_type,

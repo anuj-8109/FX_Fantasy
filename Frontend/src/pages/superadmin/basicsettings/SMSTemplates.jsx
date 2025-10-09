@@ -104,9 +104,7 @@ const SMSTemplates = () => {
               className="border rounded-2xl shadow-md p-5 flex flex-col sms-style "
             >
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium ">
-                  SMS Template
-                </span>
+                <span className="text-sm font-medium ">SMS Template</span>
                 <button
                   onClick={() => handleEdit(template)}
                   className="p-2 rounded-full transition"
@@ -124,9 +122,7 @@ const SMSTemplates = () => {
                   { label: "SMS Body", value: template.sms_body },
                 ].map((field, i) => (
                   <div key={i}>
-                    <label className=" text-xs">
-                      {field.label}
-                    </label>
+                    <label className=" text-xs">{field.label}</label>
                     <input
                       type="text"
                       value={field.value || "-"}
@@ -141,8 +137,8 @@ const SMSTemplates = () => {
         </div>
 
         {open && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full max-w-lg rounded-2xl sms-style  shadow-2xl p-6 animate-fadeIn">
+          <div className="fixed mt-5 inset-0 flex items-center justify-center z-50 bg-opacity-40">
+            <div className="w-lg max-h-[80vh] overflow-y-auto Add-client-style shadow-2xl p-6 hide-scrollbar client-style">
               <h2 className="text-xl font-semibold mb-6 border-b pb-3 ">
                 ✏️ Edit SMS Template
               </h2>

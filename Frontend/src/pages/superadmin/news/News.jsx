@@ -1,33 +1,25 @@
 import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/Datatable";
-import { FileText, Edit, Eye, Trash2 } from "lucide-react";
+import { Edit, Eye, Trash2 } from "lucide-react";
 import {
   GetNewsList,
-  AddNews,
-  UpdateNews,
   UpdateNewsStatus,
   DeleteNews,
 } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import Content from "../../../components/superadmin/Content";
+import { useNavigate } from "react-router-dom";
+import * as config from "../../../utils/config";
 
 const News = () => {
   const [news, setNews] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [selectedNews, setSelectedNews] = useState(null);
   const [loading, setLoading] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
   const [viewNews, setViewNews] = useState(null);
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [image, setImage] = useState("");
-
   const token = localStorage.getItem("token");
-  const add_by = localStorage.getItem("add_by");
+  const navigate = useNavigate();
 
   const fetchNews = async () => {
     setLoading(true);
@@ -44,15 +36,7 @@ const News = () => {
     fetchNews();
   }, []);
 
-  const handleOpen = (news = null) => {
-    setSelectedNews(news);
-    setTitle(news?.title || "");
-    setDescription(news?.description || "");
-    setImage(news?.image || "");
-    setOpen(true);
-  };
-
-  const handleDelete = async (news) => {
+  const handleDelete = async (newsItem) => {
     const confirm = await Swal.fire({
       title: "Are you sure?",
       text: "Do you want to delete this news?",
@@ -65,7 +49,7 @@ const News = () => {
     if (!confirm.isConfirmed) return;
 
     setLoading(true);
-    const response = await DeleteNews(token, news._id);
+    const response = await DeleteNews(token, newsItem._id);
     setLoading(false);
 
     if (response?.status) {
@@ -76,59 +60,8 @@ const News = () => {
     }
   };
 
-  const handleCancel = () => {
-    setOpen(false);
-    setSelectedNews(null);
-    setTitle("");
-    setDescription("");
-    setImage("");
-  };
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-
-    const confirm = await Swal.fire({
-      title: selectedNews ? "Update News?" : "Add News?",
-      text: selectedNews
-        ? "Are you sure you want to update this news?"
-        : "Are you sure you want to add this news?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Save",
-      cancelButtonText: "Cancel",
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    const formData = new FormData();
-    formData.append("add_by", add_by);
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("image", image);
-    if (selectedNews) formData.append("id", selectedNews._id);
-
-    setLoading(true);
-    let response;
-    if (selectedNews) {
-      formData.id = selectedNews._id;
-      response = await UpdateNews(token, formData);
-    } else {
-      response = await AddNews(token, formData);
-    }
-
-    if (response?.status) {
-      toast.success(response?.message || "Saved successfully");
-      fetchNews();
-      handleCancel();
-    } else {
-      toast.error(response?.message || "Failed to save");
-    }
-
-    setLoading(false);
-  };
-
-  const handleStatusChange = async (news) => {
-    const actionText = news.status ? "Deactivate" : "Activate";
+  const handleStatusChange = async (newsItem) => {
+    const actionText = newsItem.status ? "Deactivate" : "Activate";
 
     const confirm = await Swal.fire({
       title: `Are you sure?`,
@@ -142,8 +75,8 @@ const News = () => {
     if (!confirm.isConfirmed) return;
 
     const payload = {
-      id: news._id,
-      status: (!news.status).toString(),
+      id: newsItem._id,
+      status: (!newsItem.status).toString(),
     };
 
     const res = await UpdateNewsStatus(token, payload);
@@ -157,22 +90,20 @@ const News = () => {
   };
 
   const columns = [
-    // {
-    //   name: "S.No",
-    //   selector: (row, index) => index + 1,
-    //   width: "80px",
-    // },
     {
-      name: "Image",
-      cell: (row) => (
-        <img
-          src={row.image}
-          alt={row.title}
-          className="w-16 h-16 object-cover"
-        />
-      ),
-      export: false,
-    },
+         name: "Image",
+         cell: (row) =>
+           row?.image ? (
+             <img
+               src={`${config?.image_url}uploads/news/${row.image}`}
+               alt={row.title}
+               className="w-16 h-16 object-cover rounded"
+             />
+           ) : (
+             <span className="text-gray-400 italic">No Image</span>
+           ),
+         export: false,
+       },
     {
       name: "Title",
       selector: (row) => row?.title,
@@ -211,14 +142,15 @@ const News = () => {
         </label>
       ),
     },
-
     {
       name: "Action",
       cell: (row) => (
         <div className="flex gap-3">
           <Edit
             className="cursor-pointer text-blue-600"
-            onClick={() => handleOpen(row)}
+            onClick={() =>
+              navigate("/superadmin/add-news", { state: { news: row } })
+            }
           />
           <Trash2
             className="cursor-pointer text-red-600"
@@ -253,24 +185,10 @@ const News = () => {
       route="/superadmin/dashboard"
       button_status={true}
       extra_button="+ Add News"
-      extra_button_action={() => handleOpen(null)}
+      extra_button_action={() => navigate("/superadmin/add-news")}
     >
-      <div className="p-2 ">
-        {/* <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <FileText />
-            <h1 className="text-2xl font-bold">All News</h1>
-          </div>
-
-          <button
-            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm rounded text-white"
-            onClick={() => handleOpen()}
-          >
-            + Add News
-          </button>
-        </div> */}
-
-        <div className="shadow-lg rounded-xl p-4 ">
+      <div className="p-2">
+        <div className="shadow-lg rounded-xl p-4">
           <Datatable
             columns={columns}
             data={news}
@@ -279,63 +197,6 @@ const News = () => {
           />
         </div>
 
-        {open && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl p-6 Add-client-style">
-              <h2 className="text-lg font-semibold mb-4 border-b pb-2">
-                {selectedNews ? "✏️ Edit News" : "➕ Add News"}
-              </h2>
-              <form onSubmit={handleSave} className="space-y-4">
-                <div>
-                  <label className="text-sm ">Title</label>
-                  <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm">Description</label>
-                  <CKEditor
-                    editor={ClassicEditor}
-                    data={description}
-                    onChange={(event, editor) => {
-                      const data = editor.getData();
-                      setDescription(data);
-                    }}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm ">Image URL</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setImage(e.target.files[0])}
-                    className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
-                  />
-                </div>
-
-                <div className="flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={handleCancel}
-                    className="px-4 py-2 bg-blue-600 rounded-md"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md"
-                  >
-                    {loading ? "Saving..." : "Save"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
         {viewOpen && viewNews && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
             <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
@@ -373,9 +234,7 @@ const News = () => {
                   <h3 className="font-semibold text-gray-800">Description:</h3>
                   <div
                     className="prose max-w-none text-gray-600"
-                    dangerouslySetInnerHTML={{
-                      __html: viewNews?.description,
-                    }}
+                    dangerouslySetInnerHTML={{ __html: viewNews?.description }}
                   />
                 </div>
               </div>

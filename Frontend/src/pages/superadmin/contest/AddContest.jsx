@@ -536,7 +536,7 @@ const resetForm = () => {
           </div>
 
           <div>
-            <h3 className="font-medium mb-2"> Settings</h3>
+            <h3 className="font-medium mb-2">Contest Type</h3>
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm input-Add">
                 <input

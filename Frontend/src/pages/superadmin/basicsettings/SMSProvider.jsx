@@ -154,7 +154,6 @@ const SMSProviders = () => {
                 </button>
               </div>
 
-             
               <div className="space-y-2 text-sm flex-1 ">
                 {[
                   { label: "Name", value: provider.name },
@@ -184,16 +183,18 @@ const SMSProviders = () => {
         </div>
 
         {open && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full mt-12 max-w-lg rounded-2xl sms-style shadow-2xl p-6 animate-fadeIn max-h-[80vh] overflow-y-auto">
+          <div className="fixed mt-5 inset-0 flex items-center justify-center z-50 bg-opacity-40">
+            <div className="w-lg max-h-[80vh] overflow-y-auto Add-client-style shadow-2xl p-6 hide-scrollbar client-style">
               <h2 className="text-xl font-semibold mb-6 border-b pb-3 ">
                 ✏️ Edit SMS Provider
               </h2>
 
-              <form onSubmit={handleSave} >
+              <form onSubmit={handleSave}>
                 <div className="space-y-4 ">
                   <div>
-                    <label className="text-gray-600 text-sm sms-style">Name</label>
+                    <label className="text-gray-600 text-sm sms-style">
+                      Name
+                    </label>
                     <input
                       type="text"
                       value={name}
