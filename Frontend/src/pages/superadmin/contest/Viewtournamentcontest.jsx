@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/Datatable";
-import { Eye, Edit } from "lucide-react";
+import { Eye, Edit, Trash2 } from "lucide-react";
 import {
   getContestsByTournamentId,
   UpdateContest,
@@ -99,32 +99,130 @@ const TournamentContests = () => {
   };
 
   const columns = [
-    // { name: "S.No", selector: (row, i) => i + 1, width: "70px" },
-    { name: "Name", selector: (row) => row.name, sortable: true },
-    { name: "Entry Fee", selector: (row) => row.entry_fee },
-    { name: "Total Spots", selector: (row) => row.total_spots },
-    { name: "Prize Pool", selector: (row) => row.prize_pool },
-    { name: "Status", selector: (row) => row.tournament_id.status },
+    {
+      name: "Name",
+      selector: (row) => row.name,
+      exportValue: (row) => row.name || "N/A",
+      export: true,
+      sortable: true,
+      width: "160px",
+    },
+
+    {
+      name: "Type",
+      selector: (row) => row.contest_type,
+      exportValue: (row) => row.contest_type || "N/A",
+      export: true,
+      width: "70px",
+    },
+    {
+      name: "Entry Fee",
+      selector: (row) => row.entry_fee,
+      exportValue: (row) => row.entry_fee || "N/A",
+      export: true,
+      width: "90px",
+    },
+    {
+      name: "Spots",
+      selector: (row) => `${row.filled_spots || 0}/${row.total_spots || 0}`,
+      exportValue: (row) => `${row.filled_spots || 0}/${row.total_spots || 0}`,
+      export: true,
+      width: "70px",
+      cell: (row) => (
+        <span>
+          {row.filled_spots || 0}/{row.total_spots || 0}
+        </span>
+      ),
+    },
+    {
+      name: "Prize Pool",
+      selector: (row) => row.prize_pool,
+      exportValue: (row) => row.prize_pool || "N/A",
+      export: true,
+      width: "90px",
+    },
+    {
+      name: "Type",
+      selector: (row) => {
+        const types = [];
+        if (row.is_guaranteed) types.push("Guaranteed");
+        if (row.is_private) types.push("Private");
+        return types.length > 0 ? types.join(", ") : "-";
+      },
+      exportValue: (row) => {
+        const types = [];
+        if (row.is_guaranteed) types.push("Guaranteed");
+        if (row.is_private) types.push("Private");
+        return types.length > 0 ? types.join(", ") : "-";
+      },
+      export: true,
+      width: "150px",
+    },
+    {
+      name: "Status",
+      selector: (row) => (row.activestatus === true ? "Active" : "Inactive"),
+      exportValue: (row) => (row.activestatus === true ? "Active" : "Inactive"),
+      cell: (row) => (
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={row?.activestatus === true}
+            onChange={() => handleStatusChange(row)}
+            className="sr-only peer"
+          />
+          <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
+          <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border peer-checked:translate-x-full transition-transform"></div>
+        </label>
+      ),
+      width: "100px",
+      export: true,
+    },
     {
       name: "Action",
       cell: (row) => (
         <div className="flex gap-3">
           <Eye
             className="cursor-pointer text-green-600"
-            size={20}
-            onClick={() => {
-              setViewContest(row);
-              setViewOpen(true);
-            }}
+            size={25}
+            onClick={() =>
+              navigate(`/superadmin/viewcontest/${row._id}`, { state: row })
+            }
           />
           <Edit
             className="cursor-pointer text-blue-600"
-            size={20}
             onClick={() => handleOpen(row)}
+          />
+          <Trash2
+            className="cursor-pointer text-red-600"
+            onClick={() => handleDelete(row)}
           />
         </div>
       ),
+      export: false,
+      width: "100px",
     },
+
+    // {
+    //   name: "View",
+    //   cell: (row) => (
+    //     <Eye
+    //       className="cursor-pointer text-green-600"
+    //       size={20}
+    //       onClick={() => {
+    //         setViewContest(row);
+    //         setViewOpen(true);
+    //       }}
+    //     />
+    //   ),
+    //   width: "80px",
+    // },
+    // {
+    //   name: "Description",
+    //   selector: (row) => row.description,
+    //   exportValue: (row) => row.description || "N/A",
+    //   export: true,
+    //   grow: 2,
+    // },
   ];
 
   return (
@@ -176,7 +274,7 @@ const TournamentContests = () => {
                   <strong>Prize Pool:</strong> {viewContest?.prize_pool}
                 </p>
                 <p>
-                  <strong>Status:</strong> {viewContest?.tournament_id.status }
+                  <strong>Status:</strong> {viewContest?.tournament_id.status}
                 </p>
               </div>
 

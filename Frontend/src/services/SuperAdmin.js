@@ -62,11 +62,15 @@ export async function StatusChange(token, status, id) {
 
 export async function UpdatePermissions(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}user/update-permissions`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}user/update-permissions`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -134,11 +138,15 @@ export async function ChangePassword(token, data) {
 
 export async function UpdateProfile(token, data) {
   try {
-    const response = await axios.put(`${config.base_url}user/update-profile`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.put(
+      `${config.base_url}user/update-profile`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -147,11 +155,15 @@ export async function UpdateProfile(token, data) {
 
 export async function ForgotPassword(token, email) {
   try {
-    const response = await axios.post(`${config.base_url}user/forgot-password`, email, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}user/forgot-password`,
+      email,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -160,11 +172,15 @@ export async function ForgotPassword(token, email) {
 
 export async function ResetPassword(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}user/reset-password`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}user/reset-password`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -342,11 +358,14 @@ export async function UpdateSMSTemplate(token, data) {
 
 export async function GetSMSTemplateDetails(token, id) {
   try {
-    const response = await axios.get(`${config.base_url}smstemplate/detail/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${config.base_url}smstemplate/detail/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -431,11 +450,14 @@ export async function GetContentDetails(token, contentId) {
 
 export async function GetActiveContent(token) {
   try {
-    const response = await axios.get(`${config.base_url}content/activecontent`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${config.base_url}content/activecontent`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -963,11 +985,15 @@ export async function DeleteCoupons(token, couponId) {
 
 export async function ShowChangeStatus(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}coupon/show-change-status`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}coupon/show-change-status`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -976,7 +1002,7 @@ export async function ShowChangeStatus(token, data) {
 
 //Coupons API Ends Here
 
-//Client API Start here 
+//Client API Start here
 
 export async function AddClient(token, data) {
   try {
@@ -993,11 +1019,15 @@ export async function AddClient(token, data) {
 
 export async function GetClientsWithFilter(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}client/listwithfilter`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}client/listwithfilter`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -1006,11 +1036,15 @@ export async function GetClientsWithFilter(token, data) {
 
 export async function DeleteClientsWithFilter(token, filters) {
   try {
-    const response = await axios.post(`${config.base_url}client/deletelistwithfilter`, filters, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}client/deletelistwithfilter`,
+      filters,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -1019,11 +1053,14 @@ export async function DeleteClientsWithFilter(token, filters) {
 
 export async function GetClientDetails(token, clientId) {
   try {
-    const response = await axios.get(`${config.base_url}client/detail/${clientId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${config.base_url}client/detail/${clientId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -1032,11 +1069,14 @@ export async function GetClientDetails(token, clientId) {
 
 export async function DeleteClient(token, clientId) {
   try {
-    const response = await axios.get(`${config.base_url}client/delete/${clientId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${config.base_url}client/delete/${clientId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -1045,11 +1085,15 @@ export async function DeleteClient(token, clientId) {
 
 export async function UpdateClientStatus(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}client/change-status`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}client/change-status`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -1071,7 +1115,6 @@ export async function UpdateClient(token, data) {
 
 // Client API Ends Here
 
-
 //Contest API Start Here
 
 export async function AddContest(token, data) {
@@ -1087,7 +1130,10 @@ export async function AddContest(token, data) {
   }
 }
 
-export async function GetContestsList(token, { page = 1, limit = 10, filter = "" } = {}) {
+export async function GetContestsList(
+  token,
+  { page = 1, limit = 10, filter = "" } = {}
+) {
   try {
     const response = await axios.get(
       `${config.base_url}contest/list?page=${page}&limit=${limit}&filter=${filter}`,
@@ -1103,14 +1149,16 @@ export async function GetContestsList(token, { page = 1, limit = 10, filter = ""
   }
 }
 
-
 export async function GetContestDetails(token, contestId) {
   try {
-    const response = await axios.get(`${config.base_url}contest/detail/${contestId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${config.base_url}contest/detail/${contestId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -1119,11 +1167,15 @@ export async function GetContestDetails(token, contestId) {
 
 export async function UpdateContest(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}contest/update`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}contest/update`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -1132,11 +1184,14 @@ export async function UpdateContest(token, data) {
 
 export async function DeleteContest(token, contestId) {
   try {
-    const response = await axios.get(`${config.base_url}contest/delete/${contestId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${config.base_url}contest/delete/${contestId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -1145,11 +1200,15 @@ export async function DeleteContest(token, contestId) {
 
 export async function UpdateContestStatus(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}contest/change-status`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}contest/change-status`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -1158,11 +1217,15 @@ export async function UpdateContestStatus(token, data) {
 
 export async function UpdateContestStatusActive(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}contest/change-status-active`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}contest/change-status-active`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -1191,7 +1254,7 @@ export async function GetTournament(token) {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    })
+    });
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -1200,18 +1263,22 @@ export async function GetTournament(token) {
 
 export async function addTournament(data, token) {
   try {
-    const response = await axios.post(`${config.base_url}tournament/add`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    return response?.data
+    const response = await axios.post(
+      `${config.base_url}tournament/add`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
   } catch (error) {
     return error?.response?.data;
   }
 }
 
-// Upadate tournament 
+// Upadate tournament
 export async function UpdateTournament(data, token) {
   try {
     const response = await axios.post(
@@ -1229,30 +1296,35 @@ export async function UpdateTournament(data, token) {
   }
 }
 
-
 // delete tournament
 
 export async function DeleteTournament(_id, token) {
   try {
-    const response = await axios.get(`${config.base_url}tournament/delete/${_id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${config.base_url}tournament/delete/${_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
   }
 }
 
-
 export async function UpdateTournamentStatus(data, token) {
   try {
-    const response = await axios.post(`${config.base_url}tournament/change-status`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}tournament/change-status`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
@@ -1261,17 +1333,37 @@ export async function UpdateTournamentStatus(data, token) {
 
 export async function UpdateTournamentStatusActive(data, token) {
   try {
-    const response = await axios.post(`${config.base_url}tournament/change-status-active`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}tournament/change-status-active`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data;
   }
 }
 
+export async function GetTournamentById(token, id) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}tournament/detail/${id}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
 
 // ChangePassword
 export async function PassWordChange(token, data) {
@@ -1296,32 +1388,42 @@ export async function PassWordChange(token, data) {
 // Tickes
 
 // GetTicket
-export async function GetTicketsuper(token, clientId, { page = 1, limit = 10, filter = "" } = {}) {
+export async function GetTicketsuper(
+  token,
+  clientId,
+  { page = 1, limit = 10, filter = "" } = {}
+) {
   try {
     const response = await axios.post(
       `${config.base_url}ticket/listwithfilter`,
       { clientId, page, limit, filter },
       {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       }
     );
     return response.data;
   } catch (error) {
-    return error.response?.data || { status: false, message: "Something went wrong" };
+    return (
+      error.response?.data || { status: false, message: "Something went wrong" }
+    );
   }
 }
-
-
 
 // getdetailsticket
 export async function getticketDetailAdmin(token, ticketId) {
   try {
-    const response = await axios.get(`${config.base_url}ticket/detail/${ticketId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await axios.get(
+      `${config.base_url}ticket/detail/${ticketId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
@@ -1337,19 +1439,17 @@ export async function TicketReplyadmin(token, data) {
     formData.append("message", data.message);
     formData.append("adminname", data.adminname);
 
-
     const response = await axios.post(
       `${config.base_url}ticket/reply`,
       formData,
       {
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       }
     );
     return response?.data;
-
   } catch (error) {
     console.log(error.response?.data);
     return error?.response?.data || { status: false, message: "Unknown error" };
@@ -1360,12 +1460,16 @@ export async function TicketReplyadmin(token, data) {
 
 export async function ticketstatus(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}ticket/change-status`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await axios.post(
+      `${config.base_url}ticket/change-status`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
@@ -1375,15 +1479,18 @@ export async function ticketstatus(token, data) {
 // withdrawalPayoutrequest
 export async function withdrawalPayoutrequest(token, data) {
   try {
-
-    const response = await axios.post(`${config.base_url}client/process-payout-request`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`
+    const response = await axios.post(
+      `${config.base_url}client/process-payout-request`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    })
+    );
     return response?.data;
   } catch (error) {
-    return error?.response?.data || { status: false, message: "Unkmown error" }
+    return error?.response?.data || { status: false, message: "Unkmown error" };
   }
 }
 
@@ -1408,17 +1515,17 @@ export async function stocklist(token) {
     const response = await axios.get(`${config.base_url}contest/stocklist`, {
       headers: {
         Authorization: `Bearer ${token}`,
-      }
-    })
+      },
+    });
     return response?.data;
   } catch (error) {
     return error?.response?.data;
   }
 }
 
-
 export async function getContestsByTournamentId(token, tournament_id) {
-  if (!tournament_id) return { status: false, message: "Tournament ID missing" };
+  if (!tournament_id)
+    return { status: false, message: "Tournament ID missing" };
 
   try {
     const response = await axios.get(
@@ -1431,21 +1538,19 @@ export async function getContestsByTournamentId(token, tournament_id) {
   }
 }
 
-
 // get state client
 export async function getState(token) {
   try {
     const response = await axios.get(`${config.base_url}api/list/getstates`, {
       headers: {
         Authorization: `Bearer ${token}`,
-      }
-    })
-    return response?.data
+      },
+    });
+    return response?.data;
   } catch (error) {
-    return error?.response?.data || { status: false, message: "Network Error" }
+    return error?.response?.data || { status: false, message: "Network Error" };
   }
 }
-
 
 export async function getStateByCity(stateName, token) {
   try {
@@ -1468,45 +1573,43 @@ export async function getStateByCity(stateName, token) {
 
 export async function getBankdetails(token, client_id) {
   try {
-    const response = await axios.get(`${config.base_url}client/listbankdetails`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params: { client_id }
-    });
+    const response = await axios.get(
+      `${config.base_url}client/listbankdetails`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: { client_id },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Server error" };
   }
 }
 
-
 //get Kyc details
 
-export async function kyc_verification(token,data){
+export async function kyc_verification(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}client/kycverificationupdate`,data,{
-      headers:{
-        Authorization:`Bearer ${token}`,
+    const response = await axios.post(
+      `${config.base_url}client/kycverificationupdate`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    })
+    );
     return response?.data;
   } catch (error) {
-    return error?.response?.data || {status:false, message:"Server Error"}
+    return error?.response?.data || { status: false, message: "Server Error" };
   }
 }
-
-
-
-
-
-
-
-
 
 // Contest API Ends Here
 
 const logout = () => {
   localStorage.clear();
   window.location.href = "/superadminlogin";
-}; 
+};

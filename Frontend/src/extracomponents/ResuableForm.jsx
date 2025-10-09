@@ -1,9 +1,11 @@
 import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import Select from "react-select";
-
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 const renderField = (field) => {
-  const baseInputClasses = "w-full rounded-lg  placeholder-gray-400 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400";
+  const baseInputClasses =
+    "w-full rounded-lg  placeholder-gray-400 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400";
 
   switch (field.type) {
     case "textarea":
@@ -62,7 +64,9 @@ const renderField = (field) => {
               onChange={(selectedOptions) =>
                 form.setFieldValue(
                   field.name,
-                  selectedOptions ? selectedOptions.map((option) => option.value) : []
+                  selectedOptions
+                    ? selectedOptions.map((option) => option.value)
+                    : []
                 )
               }
               onBlur={() => form.setFieldTouched(field.name, true)}
@@ -158,7 +162,10 @@ const renderField = (field) => {
               className={`${baseInputClasses} file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100`}
               onChange={(event) => {
                 const files = event.currentTarget.files;
-                form.setFieldValue(field.name, field.multiple ? files : files[0]);
+                form.setFieldValue(
+                  field.name,
+                  field.multiple ? files : files[0]
+                );
                 if (field.onChange) {
                   field.onChange(event, form.setFieldValue);
                 }
@@ -184,6 +191,24 @@ const renderField = (field) => {
           autoComplete={field.autoComplete}
           {...field.fieldProps}
         />
+      );
+
+    case "ckeditor":
+      return (
+        <Field name={field.name}>
+          {({ field: formikField, form }) => (
+            <CKEditor
+              editor={ClassicEditor}
+              data={formikField.value}
+              onChange={(event, editor) => {
+                const data = editor.getData();
+                form.setFieldValue(field.name, data);
+              }}
+              onBlur={() => form.setFieldTouched(field.name, true)}
+              {...field.fieldProps}
+            />
+          )}
+        </Field>
       );
 
     case "date":
@@ -232,7 +257,14 @@ const ReusableForm = ({
       onSubmit={onSubmit}
       enableReinitialize={enableReinitialize}
     >
-      {({ handleSubmit, validateForm, setTouched, isSubmitting, errors, touched }) => (
+      {({
+        handleSubmit,
+        validateForm,
+        setTouched,
+        isSubmitting,
+        errors,
+        touched,
+      }) => (
         <Form
           className={`grid grid-cols-1 md:grid-cols-4 gap-4 p-4 Form_style  ${formClassName}`}
           encType="multipart/form-data"
@@ -268,14 +300,23 @@ const ReusableForm = ({
                 {field.type !== "checkbox" && field.type !== "radio" && (
                   <label
                     htmlFor={field.name}
-                    className={`text-sm font-medium   ${field.required ? "after:content-['*'] after:text-red-500 after:ml-1" : ""
-                      }`}
+                    className={`text-sm font-medium   ${
+                      field.required
+                        ? "after:content-['*'] after:text-red-500 after:ml-1"
+                        : ""
+                    }`}
                   >
                     {field.label}
                   </label>
                 )}
 
-                <div className={`relative    ${errors[field.name] && touched[field.name] ? "border-red-300" : ""}`}>
+                <div
+                  className={`relative    ${
+                    errors[field.name] && touched[field.name]
+                      ? "border-red-300"
+                      : ""
+                  }`}
+                >
                   {renderField(field)}
                 </div>
 
@@ -286,9 +327,7 @@ const ReusableForm = ({
                 />
 
                 {field.helpText && (
-                  <div className=" text-xs mt-1 ">
-                    {field.helpText}
-                  </div>
+                  <div className=" text-xs mt-1 ">{field.helpText}</div>
                 )}
               </div>
             </div>
@@ -298,16 +337,17 @@ const ReusableForm = ({
             <button
               type="submit"
               disabled={loading || isSubmitting || submitButtonProps.disabled}
-              className={` px-4 py-3 mt-4 bg-blue-500 font-semibold rounded-lg shadow-md  transition disabled:opacity-50 disabled:cursor-not-allowed ${submitButtonProps.className || ""}`}
+              className={` px-4 py-3 mt-4 bg-blue-500 font-semibold rounded-lg shadow-md  transition disabled:opacity-50 disabled:cursor-not-allowed ${
+                submitButtonProps.className || ""
+              }`}
               {...submitButtonProps}
             >
               {loading || isSubmitting
-                ? (submitButtonProps.loadingText || "Processing...")
-                : (SubmitBtn || submitButtonProps.label || "Submit")}
+                ? submitButtonProps.loadingText || "Processing..."
+                : SubmitBtn || submitButtonProps.label || "Submit"}
             </button>
           </div>
         </Form>
-
       )}
     </Formik>
   );

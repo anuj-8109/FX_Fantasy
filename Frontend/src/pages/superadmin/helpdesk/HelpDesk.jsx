@@ -87,7 +87,7 @@ function HelpDesk() {
       exportValue: (row) => row.Email || "N/A",
       export: true,
       sortable: true,
-      width: "250px",
+      width: "150px",
     },
     {
       name: "Phone No",
@@ -113,20 +113,68 @@ function HelpDesk() {
       sortable: true,
       width: "120px",
     },
-    {
-      name: "Message",
-      selector: (row) => row.message || "N/A",
-      exportValue: (row) => row.message || "N/A",
-      export: true,
-      wrap: true,
-      width: "120px",
-    },
+    // {
+    //   name: "Message",
+    //   selector: (row) => row.message || "N/A",
+    //   exportValue: (row) => row.message || "N/A",
+    //   export: true,
+    //   wrap: true,
+    //   width: "120px",
+    // },
     {
       name: "Status",
-      selector: (row) => statusMap[row.status] || "N/A",
-      exportValue: (row) => statusMap[row.status] || "N/A",
-      sortable: true,
+      selector: (row) => row.status,
+      exportValue: (row) => {
+        switch (row.status) {
+          case 1:
+            return "Active";
+          case 2:
+            return "Closed";
+          case 0:
+            return "Pending";
+          default:
+            return "N/A";
+        }
+      },
+      export: true,
+      width: "100px",
+      cell: (row) => {
+        let bgColor = "";
+        let textColor = "text-white";
+        let label = "";
+
+        switch (row.status) {
+          case 1:
+            bgColor = "bg-green-300"; // light green for Active
+            textColor = "text-black";
+            label = "Active";
+            break;
+          case 2:
+            bgColor = "bg-green-700"; // dark green for Closed
+            textColor = "text-white";
+            label = "Closed";
+            break;
+          case 0:
+            bgColor = "bg-yellow-400"; // yellow for Pending
+            textColor = "text-black";
+            label = "Pending";
+            break;
+          default:
+            bgColor = "bg-gray-300";
+            textColor = "text-black";
+            label = "Unknown";
+        }
+
+        return (
+          <span
+            className={`px-2 py-1 rounded-full text-sm font-medium ${bgColor} ${textColor}`}
+          >
+            {label}
+          </span>
+        );
+      },
     },
+
     {
       name: "Action",
       cell: (row) => (
@@ -137,6 +185,7 @@ function HelpDesk() {
           <Eye size={20} />
         </button>
       ),
+      width: "90px",
       export: false,
     },
   ];

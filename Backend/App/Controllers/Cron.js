@@ -1,12 +1,15 @@
 const db = require("../Models");
 const axios = require('axios');
 var dateTime = require('node-datetime');
+const mongoose = require("mongoose");
+
 const Tournament_Model = db.Tournament;
 const Contestjoin_Modal = db.Contestjoin;
 const Contesttrade_Modal = db.Contesttrade;
 const Contest_Model = db.Contest;
 
 const Stock_Modal = db.Stock;
+const returnstockcloseprice = require("../api/Controllers/List");
 
 async function AddBulkStockCron(req, res) {
     try {
@@ -381,6 +384,130 @@ async function updateContestRanks(req, res) {
   }
 }
 
+async function closeOpenPositionsForEndedTournaments() {
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+
+    const now = new Date();
+
+    // 1️⃣ Find tournaments that ended but not yet processed
+    const endedTournaments = await Tournament_Model.find({
+      enddate: { $lte: now },
+      closed_positions: { $ne: true } // Add this field to Tournament model
+    }).session(session);
+
+    for (const tour of endedTournaments) {
+      const contest_id = tour._id;
+
+      // 2️⃣ Get all participants
+      const participants = await Contestjoin_Modal.find({ contest_id }).session(session);
+
+      for (const join of participants) {
+        const client_id = join.client_id;
+
+        // 3️⃣ Aggregate open positions per stock
+        const positions = await Contesttrade_Modal.aggregate([
+          { $match: { contest_id, client_id } },
+          {
+            $group: {
+              _id: "$stock_symbol",
+              buyQty: { $sum: { $cond: [{ $eq: ["$trade_type", "BUY"] }, "$quantity", 0] } },
+              buyValue: { $sum: { $cond: [{ $eq: ["$trade_type", "BUY"] }, { $multiply: ["$quantity", "$price"] }, 0] } },
+              sellQty: { $sum: { $cond: [{ $eq: ["$trade_type", "SELL"] }, "$quantity", 0] } },
+              sellValue: { $sum: { $cond: [{ $eq: ["$trade_type", "SELL"] }, { $multiply: ["$quantity", "$price"] }, 0] } }
+            }
+          },
+          {
+            $project: {
+              stock_symbol: "$_id",
+              netQty: { $subtract: ["$buyQty", "$sellQty"] },
+              longAvg: { $cond: [{ $gt: ["$buyQty", 0] }, { $divide: ["$buyValue", "$buyQty"] }, null] },
+              shortAvg: { $cond: [{ $gt: ["$sellQty", 0] }, { $divide: ["$sellValue", "$sellQty"] }, null] }
+            }
+          },
+          { $match: { netQty: { $ne: 0 } } } // only open positions
+        ]).session(session);
+
+        let wallet = Number(join.wallet_balance || 0);
+        let locked = Number(join.locked_balance || 0);
+
+        for (const pos of positions) {
+          const { stock_symbol, netQty, longAvg, shortAvg } = pos;
+          const currentPrice = await returnstockcloseprice(stock_symbol);
+
+          const tradesToInsert = [];
+          let realizedPnL = 0;
+
+          if (netQty > 0) {
+            // Close long
+            const pnlClose = (currentPrice - longAvg) * netQty;
+            realizedPnL += pnlClose;
+
+            const release = longAvg * netQty;
+            locked -= release;
+            wallet += release;
+
+            tradesToInsert.push({
+              contest_id,
+              client_id,
+              stock_symbol,
+              trade_type: "SELL",
+              quantity: netQty,
+              price: currentPrice
+            });
+          } else if (netQty < 0) {
+            // Close short
+            const qtyAbs = Math.abs(netQty);
+            const pnlClose = (shortAvg - currentPrice) * qtyAbs;
+            realizedPnL += pnlClose;
+
+            const release = shortAvg * qtyAbs;
+            locked -= release;
+            wallet += release;
+
+            tradesToInsert.push({
+              contest_id,
+              client_id,
+              stock_symbol,
+              trade_type: "BUY",
+              quantity: qtyAbs,
+              price: currentPrice
+            });
+          }
+
+          // Apply realized P&L
+          wallet += realizedPnL;
+
+          // Save closing trades
+          if (tradesToInsert.length > 0) {
+            await Contesttrade_Modal.insertMany(tradesToInsert, { session });
+          }
+        }
+
+        // Update participant wallet and locked balance
+        join.wallet_balance = wallet;
+        join.locked_balance = locked;
+        await join.save({ session });
+      }
+
+      // Mark tournament as processed
+      tour.closed_positions = true;
+      await tour.save({ session });
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    console.log("✅ All open positions for ended tournaments closed successfully.");
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+    console.error("❌ Error closing positions for ended tournaments:", err);
+  }
+}
 
 
-  module.exports = { AddBulkStockCron,DeleteTokenAliceToken,TournamentStatusChange,updateContestRanks };
+
+
+  module.exports = { AddBulkStockCron,DeleteTokenAliceToken,TournamentStatusChange,updateContestRanks, closeOpenPositionsForEndedTournaments };

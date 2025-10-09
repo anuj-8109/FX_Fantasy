@@ -445,8 +445,21 @@ const Client = () => {
       export: false,
     },
     {
+      name: "Bank Details",
+      width: "120px",
+      cell: (row) => (
+        <button
+          className="px-2 py-1 bg-purple-600 text-white rounded-md text-sm"
+          onClick={() => fetchBankDetails(row._id)}
+        >
+          View Banks
+        </button>
+      ),
+      export: false,
+    },
+    {
       name: "KYC",
-      width: "110px",
+      width: "170px",
       exportValue: (row) => {
         if (row.kyc_verification === 1) return "Verified";
         if (row.kyc_verification === 2) return "Rejected";
@@ -490,20 +503,6 @@ const Client = () => {
         </div>
       ),
       export: true,
-    },
-
-    {
-      name: "Bank Details",
-      width: "120px",
-      cell: (row) => (
-        <button
-          className="px-2 py-1 bg-purple-600 text-white rounded-md text-sm"
-          onClick={() => fetchBankDetails(row._id)}
-        >
-          View Banks
-        </button>
-      ),
-      export: false,
     },
   ];
 

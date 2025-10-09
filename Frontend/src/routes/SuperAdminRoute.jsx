@@ -41,6 +41,10 @@ import Referearn from "../pages/superadmin/basicsettings/Referearn";
 import Kycapproval from "../pages/superadmin/kycapproval/Kycapproval";
 import Bankdetails from "../pages/superadmin/bankdetails/Bankdetails";
 import ViewContest from "../pages/superadmin/contest/ViewContest";
+import AddCoupon from "../pages/superadmin/coupons/AddCoupon";
+import AddEditFAQ from "../pages/superadmin/faqs/AddFAQs";
+import AddEditNews from "../pages/superadmin/news/AddNews";
+import AddEditBlog from "../pages/superadmin/blog/AddBlog";
 const SuperAdminRoutes = () => {
 
   return (
@@ -86,6 +90,10 @@ const SuperAdminRoutes = () => {
         <Route path="kycapproval" element={<Kycapproval/>}/>
         <Route path="bankdetail"  element={<Bankdetails/>}/>
         <Route path="viewcontest/:id" element={<ViewContest/>}/>
+        <Route path="add-coupon" element={<AddCoupon/>}/>
+        <Route path="add-faq" element={<AddEditFAQ/>}/>
+        <Route path="add-news" element={<AddEditNews/>}/>
+        <Route path="add-blog" element={<AddEditBlog/>}/>
       </Route>
     </>
   );

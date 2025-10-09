@@ -144,8 +144,8 @@ const EmailTemplates = () => {
         </div>
 
         {open && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
-            <div className="w-full max-w-xl rounded-2xl shadow-2xl p-6 animate-fadeIn bg-white">
+          <div className="fixed mt-5 inset-0 flex items-center justify-center z-50 bg-opacity-40">
+            <div className="w-lg max-h-[80vh] overflow-y-auto Add-client-style shadow-2xl p-6 hide-scrollbar client-style">
               <h2 className="text-2xl font-semibold mb-6 border-b pb-3">
                 ✉️ Edit Email Template
               </h2>
