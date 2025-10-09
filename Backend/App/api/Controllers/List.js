@@ -463,7 +463,7 @@ if (client.referwamount && client.referwamount > 0 && referPercent > 0) {
     });
   }
 }
-
+/*
 async  addTrade(req, res) {
   try {
     const { contest_id, client_id, stock_symbol, trade_type, quantity } = req.body;
@@ -558,7 +558,7 @@ async  addTrade(req, res) {
     return res.status(500).json({ status: false, message: "Server error", error: error.message });
   }
 }
-/*
+*/
 async addTrade(req, res) {
   try {
     const { contest_id, client_id, stock_symbol, trade_type, quantity } = req.body;
@@ -785,7 +785,7 @@ async addTrade(req, res) {
 }
 
 
-*/
+
 
 // 📌 My Contests List API
 async myContests(req, res) {
