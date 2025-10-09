@@ -909,6 +909,54 @@ const limit = 10;
 }
 
 
+
+async getOpenPositions(req, res) {
+  try {
+    const { client_id, contest_id, page = 1 } = req.body;
+    const limit = 10;
+
+    if (!client_id && !contest_id) {
+      return res.status(400).json({
+        status: false,
+        message: "Either client_id or contest_id is required",
+      });
+    }
+
+    const filter = { position_type: "OPEN" };
+    if (client_id) filter.client_id = client_id;
+    if (contest_id) filter.contest_id = contest_id;
+
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    const trades = await Contesttrade_Modal.find(filter)
+      .populate("contest_id", "name startdate enddate")
+      .populate("client_id", "FullName Email PhoneNo")
+      .sort({ trade_time: -1 })
+      .skip(skip)
+      .limit(limitNum);
+
+    const total = await Contesttrade_Modal.countDocuments(filter);
+
+    return res.status(200).json({
+      status: true,
+      message: "Trade history fetched successfully",
+      page: pageNum,
+      limit: limitNum,
+      total,
+      data: trades,
+    });
+  } catch (error) {
+    console.error("Error fetching trade history:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
 async getContestRanking(req, res) {
   try {
     const { contest_id, page = 1 } = req.body;
