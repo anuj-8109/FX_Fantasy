@@ -69,7 +69,7 @@ export async function JoinContest(
 }
 
 // get my contests
-export async function GetMyContests(token, clientId) {
+export async function GetMyContests(token, clientId, page = 1) {
   if (!token || !clientId) {
     throw new Error("Token and Client ID are required");
   }
@@ -77,7 +77,7 @@ export async function GetMyContests(token, clientId) {
   try {
     const response = await axios.post(
       `${config.base_url}api/list/mycontests`,
-      { client_id: clientId },
+      { client_id: clientId, page },
       {
         headers: {
           Authorization: `Bearer ${token}`,
