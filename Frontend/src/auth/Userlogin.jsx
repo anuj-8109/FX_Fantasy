@@ -161,7 +161,7 @@ const UserLogin = () => {
           navigate("/setname");
         }
       } else {
-        Swal.fire("Error", response?.message || "Invalid OTP");
+        Swal.fire("Error",  "Invalid OTP");
       }
     } catch (error) {
       Swal.fire(

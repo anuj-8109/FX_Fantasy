@@ -13,32 +13,53 @@ export default function AddBankForm() {
         ifsc: "",
         client_id: "",
     });
-
     const [loading, setLoading] = useState(false);
     const token = localStorage.getItem("token");
-    const client_id = localStorage.getItem("userId")
+    const client_id = localStorage.getItem("userId");
 
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        });
+        const { name, value } = e.target;
+
+        let newValue = value;
+        if (name === "name" || name === "branch") {
+            newValue = value.replace(/[^a-zA-Z\s]/g, ""); // letters only
+        } else if (name === "accountno") {
+            newValue = value.replace(/\D/g, ""); // digits only
+        } else if (name === "ifsc") {
+            newValue = value.toUpperCase().replace(/[^A-Z0-9]/g, ""); // alphanumeric uppercase
+        }
+
+        setFormData({ ...formData, [name]: newValue });
+    };
+
+    const validateForm = () => {
+        const { name, branch, accountno, ifsc } = formData;
+
+        if (!name) {
+            toast.error("Bank name is required and must contain letters only");
+            return false;
+        }
+        if (!branch) {
+            toast.error("Branch is required and must contain letters only");
+            return false;
+        }
+        if (!accountno) {
+            toast.error("Account number is required and must contain digits only");
+            return false;
+        }
+        if (!ifsc) {
+            toast.error("IFSC code is required");
+            return false;
+        }
+        return true;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateForm()) return;
+
         setLoading(true);
-
-        // Add client_id to formData
         const dataToSend = { ...formData, client_id };
-
-        // Basic validation
-        const { name, branch, accountno, ifsc } = formData;
-        if (!name || !branch || !accountno || !ifsc) {
-            toast.error("All fields are required");
-            setLoading(false);
-            return;
-        }
 
         try {
             const res = await addBank(token, dataToSend);
@@ -55,7 +76,6 @@ export default function AddBankForm() {
             setLoading(false);
         }
     };
-
 
     return (
         <div className="max-w-6xl mx-auto p-4 border rounded-md shadow-md">
@@ -97,8 +117,6 @@ export default function AddBankForm() {
                         placeholder="IFSC Code"
                         className="w-full border p-2 rounded"
                     />
-
-
                     <button
                         type="submit"
                         disabled={loading}
