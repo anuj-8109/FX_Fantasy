@@ -132,7 +132,7 @@ const UserLogin = () => {
       const payload = {
         PhoneNo: formData.UserName,
         otp: formData.otp,
-        refer_token: referToken || null, 
+        refer_token: referToken || null,
       };
 
       const response = await LoginWithOtpApi(payload);
@@ -199,9 +199,15 @@ const UserLogin = () => {
                 name="UserName"
                 placeholder="Enter Your Number"
                 value={formData.UserName}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                  const value = e.target.value; 
+                   if (/^\d{0,10}$/.test(value)) {
+                    setFormData({ ...formData, UserName: value });
+                  }
+                }}
                 className="bg-transparent flex-1 outline-none"
               />
+
             </div>
             {errors.UserName && (
               <p className="text-sm text-red-600 mb-2">{errors.UserName}</p>

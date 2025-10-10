@@ -6,16 +6,16 @@ import toast from "react-hot-toast";
 import * as config from "../../../utils/config";
 import Swal from "sweetalert2";
 
-
 const UserProfile = () => {
     const [userDetails, setUserDetails] = useState(null);
     const [activeTab, setActiveTab] = useState("profile");
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null); // For display
+    const [previewImage, setPreviewImage] = useState(null); // For temporary preview
     const [uploadFile, setUploadFile] = useState(null);
     const [name, setName] = useState(localStorage.getItem("playerName") || "");
     const [bankdetail, setBankDetail] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [edituser, setEdituser] = ([]);
+    const [edituser, setEdituser] = useState([]);
     const [isEditingName, setIsEditingName] = useState(false);
     const [updatedName, setUpdatedName] = useState(name);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -32,27 +32,36 @@ const UserProfile = () => {
     const id = localStorage.getItem("userId");
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchUserDetails = async () => {
-            try {
-                const response = await GetUserDetails(token, id);
-                setUserDetails(response?.data);
-                setName(response?.data?.FullName || "");
+    const fetchUserDetails = async () => {
+        try {
+            const response = await GetUserDetails(token, id);
+            if (response?.status) {
+                setUserDetails(response.data);
+                setName(response.data.FullName || "");
 
-                if (response?.data?.image) {
-                    setSelectedImage(response?.data?.image);
+                // Set image from backend with full URL
+                if (response.data.image) {
+                    const imageUrl = `${config.image_url}${response.data.image}`;
+                    console.log("Setting image URL:", imageUrl);
+                    setSelectedImage(imageUrl);
+                } else {
+                    setSelectedImage(null);
                 }
-            } catch (error) {
-                console.error("Error fetching user details:", error);
             }
-        };
+        } catch (error) {
+            console.error("Error fetching user details:", error);
+            toast.error("Failed to fetch user details");
+        }
+    };
+
+    useEffect(() => {
         fetchUserDetails();
     }, [token, id]);
 
     useEffect(() => {
         const fetchBankDetails = async () => {
             try {
-                const res = await getBankdetalis(token, id); // pass userId
+                const res = await getBankdetalis(token, id);
                 if (res?.status) setBankDetail(res.data || []);
             } catch (error) {
                 toast.error("Failed to fetch bank details");
@@ -61,12 +70,13 @@ const UserProfile = () => {
         fetchBankDetails();
     }, [token, id]);
 
-
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setUploadFile(file);
-            setSelectedImage(URL.createObjectURL(file));
+            // Show temporary preview
+            const previewUrl = URL.createObjectURL(file);
+            setPreviewImage(previewUrl);
         }
     };
 
@@ -89,7 +99,6 @@ const UserProfile = () => {
             if (res?.status) {
                 toast.success("Bank account deleted successfully");
                 setBankDetail((prev) => prev.filter((bank) => bank._id !== bankId));
-
             } else {
                 toast.error(res?.message || "Failed to delete bank account");
             }
@@ -98,77 +107,61 @@ const UserProfile = () => {
         }
     };
 
-
-
     const handleUploadImage = async () => {
         if (!uploadFile) {
             toast.error("Please select an image first.");
             return;
         }
+
         try {
             const formData = new FormData();
             formData.append("id", id);
             formData.append("image", uploadFile);
+
             const res = await updateClientImage(token, formData);
-            console.log(res);
+            console.log("Upload response:", res);
+
             if (res?.status === true) {
                 toast.success("Profile photo updated!");
                 setIsModalOpen(false);
-                setUserDetails((prev) => ({ ...prev, image: res.data.image }));
-                setSelectedImage(`${config.image_url}uploads/basicsetting/${res.data.image}?t=${Date.now()}`);
 
+                // Update with backend image URL
+                const newImageUrl = `${config.image_url}${res.data.image}`;
+                console.log("New image URL:", newImageUrl);
+                
+                setUserDetails(prev => ({ ...prev, image: res.data.image }));
+                setSelectedImage(newImageUrl);
+                setPreviewImage(null);
+                setUploadFile(null);
+
+                // Refresh user details to ensure sync
+                await fetchUserDetails();
             } else {
                 toast.error(res?.message || "Failed to update image");
             }
         } catch (error) {
+            console.error("Upload error:", error);
             toast.error("Error uploading image");
         }
     };
 
 
 
-    // const handleSaveName = async () => {
-    //     if (!updatedName.trim()) {
-    //         toast.error("Name cannot be empty");
-    //         return;
-    //     }
-
-    //     try {
-    //         // Send PUT request with updated name
-    //         const res = await EditUser(token, {
-    //             id,
-    //             FullName: updatedName,
-    //             Email: userDetails?.Email, // keep current email
-    //             PhoneNo: userDetails?.PhoneNo // keep current phone
-    //         });
-
-    //         if (res?.status) {
-    //             setUserDetails((prev) => ({ ...prev, FullName: updatedName }));
-    //             setName(updatedName);
-    //             setIsEditingName(false);
-    //             toast.success("Name updated successfully!");
-    //         } else {
-    //             toast.error(res?.message || "Failed to update name");
-    //         }
-    //     } catch (error) {
-    //         toast.error("Error updating name");
-    //     }
-    // };
-
-
     const handleupdateuser = async () => {
         const response = await EditUser(token);
         if (response?.status) {
             setEdituser(response?.data);
+        } else {
+            toast.error("can't fetch data");
         }
-        else {
-            toast.error("can't fatch data")
-        }
-    }
+    };
+
+    // Get display image (preview or actual)
+    const displayImage = previewImage || selectedImage;
 
     return (
         <div className="p-6 max-w-6xl mx-auto">
-            <div className="flex items-center bg-gray-100 justify-between border border-gray-200 rounded-lg p-4  shadow-sm">
+            <div className="flex items-center bg-gray-100 justify-between border border-gray-200 rounded-lg p-4 shadow-sm">
                 <BackButton />
 
                 <button
@@ -188,48 +181,32 @@ const UserProfile = () => {
                 </button>
             </div>
 
-            {/* Top Section: Profile Card */}
             <div className="grid lg:grid-cols-5 gap-8 mt-4">
                 <div className="lg:col-span-2 bg-white shadow rounded-xl p-6 text-center">
-                    <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden border border-gray-200 relative flex items-center justify-center text-4xl font-bold bg-gray-100 cursor-pointer">
-                        {selectedImage ? (
-                            <img
-                                src={selectedImage}
-                                alt="Profile"
-                                className="w-full h-full object-cover"
-                                onClick={() => setIsPreviewOpen(true)}
-                            />
-                        ) : (
-                            <span onClick={() => setIsPreviewOpen(true)}>
-                                {userDetails?.FullName?.charAt(0) || "U"}
-                            </span>
-                        )}
-
-                        {/* Edit overlay */}
-                        <label className="absolute bottom-1 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded cursor-pointer hover:bg-opacity-70">
+                    <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden border border-gray-200 relative flex items-center justify-center text-4xl font-bold bg-gray-100">
+                        <div 
+                            className="w-full h-full cursor-pointer"
+                            onClick={() => displayImage && setIsPreviewOpen(true)}
+                        >
+                            {displayImage ? (
+                                <img
+                                    src={displayImage}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <span>{userDetails?.FullName?.charAt(0) || "U"}</span>
+                            )}
+                        </div>
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="absolute bottom-1 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded hover:bg-opacity-70"
+                        >
                             Edit
-                            <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => {
-                                    const file = e.target.files[0];
-                                    if (file) {
-                                        const reader = new FileReader();
-                                        reader.onload = () => setSelectedImage(reader.result);
-                                        reader.readAsDataURL(file);
-                                    }
-                                }}
-                            />
-                        </label>
+                        </button>
                     </div>
-
-
-
                     <h2 className="text-xl font-semibold mb-2">{userDetails?.FullName || "User"}</h2>
                     <p className="text-sm text-gray-500">{userDetails?.Email || "Email not provided"}</p>
-
-
                 </div>
 
                 {/* Tabs Section */}
@@ -237,19 +214,21 @@ const UserProfile = () => {
                     <div className="flex border-b">
                         <button
                             onClick={() => setActiveTab("profile")}
-                            className={`flex-1 p-3 text-sm font-medium ${activeTab === "profile"
-                                ? "border-b-2 border-orange-600 text-orange-600"
-                                : "text-gray-500"
-                                }`}
+                            className={`flex-1 p-3 text-sm font-medium ${
+                                activeTab === "profile"
+                                    ? "border-b-2 border-orange-600 text-orange-600"
+                                    : "text-gray-500"
+                            }`}
                         >
                             Profile Info
                         </button>
                         <button
                             onClick={() => setActiveTab("management")}
-                            className={`flex-1 p-3 text-sm font-medium ${activeTab === "management"
-                                ? "border-b-2 border-orange-600 text-orange-600"
-                                : "text-gray-500"
-                                }`}
+                            className={`flex-1 p-3 text-sm font-medium ${
+                                activeTab === "management"
+                                    ? "border-b-2 border-orange-600 text-orange-600"
+                                    : "text-gray-500"
+                            }`}
                         >
                             Profile Management
                         </button>
@@ -260,38 +239,9 @@ const UserProfile = () => {
                             <div className="space-y-4">
                                 <div className="border p-3 rounded-lg bg-gray-50">
                                     <p className="text-xs text-gray-500">Username</p>
-                                    {isEditingName ? (
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="text"
-                                                value={updatedName}
-                                                onChange={(e) => setUpdatedName(e.target.value)}
-                                                className="border rounded-lg p-1 flex-1"
-                                            />
-                                            {/* <button
-                                                onClick={handleSaveName}
-                                                className="px-3 py-1 bg-orange-600 text-orange-500 rounded-lg"
-                                            >
-                                                Save
-                                            </button>
-                                            <button
-                                                onClick={() => { setIsEditingName(false); setUpdatedName(name); }}
-                                                className="px-3 py-1 bg-gray-300 rounded-lg"
-                                            >
-                                                Cancel
-                                            </button> */}
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center justify-between">
-                                            <span>{userDetails?.FullName || "Not provided"}</span>
-                                            {/* <button
-                                                onClick={() => setIsEditingName(true)}
-                                                className="text-blue-600 text-sm font-medium"
-                                            >
-                                                Edit
-                                            </button> */}
-                                        </div>
-                                    )}
+                                    <div className="flex items-center justify-between">
+                                        <span>{userDetails?.FullName || "Not provided"}</span>
+                                    </div>
                                 </div>
 
                                 <div className="border p-3 rounded-lg bg-gray-50">
@@ -301,14 +251,8 @@ const UserProfile = () => {
                             </div>
                         )}
 
-
-
                         {activeTab === "management" && (
                             <div className="space-y-4">
-
-
-
-
                                 <div className="border p-4 rounded-lg bg-gray-50">
                                     <p className="font-medium mb-2">KYC Verification</p>
                                     <p className="text-sm text-gray-600">Required for withdrawals.</p>
@@ -329,7 +273,6 @@ const UserProfile = () => {
                                         </button>
                                     )}
                                 </div>
-
 
                                 <div className="border p-4 rounded-lg bg-gray-50">
                                     <p className="font-medium mb-2">Bank / UPI Details</p>
@@ -372,14 +315,12 @@ const UserProfile = () => {
                                 </p>
                                 <p className="text-sm font-semibold text-gray-700">{bank.branch}</p>
 
-                                {/* Delete Button */}
                                 <button
                                     onClick={() => hendledelete(bank._id)}
                                     className="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600"
                                 >
                                     Delete
                                 </button>
-
                             </div>
                         ))}
                     </div>
@@ -389,34 +330,35 @@ const UserProfile = () => {
                     </p>
                 )}
             </div>
+
+            {/* Image Preview Modal */}
             {isPreviewOpen && (
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
                     onClick={() => setIsPreviewOpen(false)}
                 >
                     <img
-                        src={selectedImage || "https://via.placeholder.com/150"}
+                        src={displayImage || "https://via.placeholder.com/150"}
                         alt="Preview"
-                        className="w-80 h-58 object-cover rounded-full shadow-lg" // pill shape
-                        onClick={(e) => e.stopPropagation()} // prevent closing when clicking image
+                        className="w-80 h-80 object-cover rounded-full shadow-lg"
+                        onClick={(e) => e.stopPropagation()}
                     />
                 </div>
             )}
 
-
+            {/* Edit Profile Modal */}
             {isEditProfileModalOpen && (
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-                    onClick={() => setIsEditProfileModalOpen(false)} // Close when clicking outside
+                    onClick={() => setIsEditProfileModalOpen(false)}
                 >
                     <div
                         className="bg-white rounded-xl shadow-lg w-[700px] p-6 relative"
-                        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <h2 className="text-xl font-semibold mb-5 text-center">Update Profile</h2>
 
                         <div className="grid grid-cols-2 gap-4">
-                            {/* Full Name */}
                             <div>
                                 <label className="block text-sm font-medium mb-1">Full Name</label>
                                 <input
@@ -429,7 +371,6 @@ const UserProfile = () => {
                                 />
                             </div>
 
-                            {/* Email */}
                             <div>
                                 <label className="block text-sm font-medium mb-1">Email</label>
                                 <input
@@ -442,7 +383,6 @@ const UserProfile = () => {
                                 />
                             </div>
 
-                            {/* State */}
                             <div>
                                 <label className="block text-sm font-medium mb-1">State</label>
                                 <input
@@ -455,7 +395,6 @@ const UserProfile = () => {
                                 />
                             </div>
 
-                            {/* City */}
                             <div>
                                 <label className="block text-sm font-medium mb-1">City</label>
                                 <input
@@ -468,7 +407,6 @@ const UserProfile = () => {
                                 />
                             </div>
 
-                            {/* DOB */}
                             <div className="col-span-2">
                                 <label className="block text-sm font-medium mb-1">Date of Birth</label>
                                 <input
@@ -520,17 +458,15 @@ const UserProfile = () => {
                 </div>
             )}
 
-
-
-            {/* Profile Photo Modal */}
+            {/* Profile Photo Upload Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-xl shadow-lg w-96 p-6 relative">
                         <h2 className="text-lg font-semibold mb-4">Change Profile Photo</h2>
 
                         <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border">
-                            {selectedImage ? (
-                                <img src={selectedImage} alt="Preview" className="w-full h-full object-cover" />
+                            {previewImage ? (
+                                <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
                             ) : (
                                 <span className="flex items-center justify-center w-full h-full text-gray-400">
                                     No Image
@@ -547,7 +483,11 @@ const UserProfile = () => {
 
                         <div className="flex justify-end gap-3">
                             <button
-                                onClick={() => setIsModalOpen(false)}
+                                onClick={() => {
+                                    setIsModalOpen(false);
+                                    setPreviewImage(null);
+                                    setUploadFile(null);
+                                }}
                                 className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
                             >
                                 Cancel

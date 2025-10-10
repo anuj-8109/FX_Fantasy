@@ -17,7 +17,7 @@ const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("ongoing");
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [turnament, setTurnament] = useState([]);
-  console.log("turnament", turnament)
+  // console.log("turnament", turnament)
   const [banners, setBanners] = useState([]);
   const [now, setNow] = useState(new Date());
 
@@ -26,10 +26,22 @@ const UserDashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const getTimeLeft = (endDate) => {
-    const end = new Date(endDate);
-    const diff = end - now;
-    if (diff <= 0) return "Ended";
+  const getTimeLeft = (contest) => {
+    const nowTime = new Date();
+    const start = new Date(contest.start);
+    const end = new Date(contest.end);
+
+    let diff;
+    if (nowTime < start) {
+      // Upcoming tournament: time left to start
+      diff = start - nowTime;
+    } else if (nowTime >= start && nowTime <= end) {
+      // Ongoing tournament: time left to end
+      diff = end - nowTime;
+    } else {
+      // Ended
+      return "Ended";
+    }
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
@@ -42,11 +54,14 @@ const UserDashboard = () => {
     return `${seconds}s`;
   };
 
+
   const fetchTournament = async () => {
-    try {
-      const res = await GetTurnament(token);
-      if (res?.status && Array.isArray(res.data)) {
-        const mappedData = res.data.map((item) => {
+  try {
+    const res = await GetTurnament(token);
+    if (res?.status && Array.isArray(res.data)) {
+      const mappedData = res.data
+        .filter((item) => item.activestatus === true) // ✅ only include active tournaments
+        .map((item) => {
           const start = new Date(item.startdate);
           const end = new Date(item.enddate);
           let status;
@@ -67,15 +82,17 @@ const UserDashboard = () => {
             participants: item.participants || 0,
             prizePool: item.prizePool || "₹0",
             spots: item.spots || "N/A",
+            activestatus: item.activestatus, // ✅ still store it for reference
           };
-
         });
-        setTurnament(mappedData);
-      } else toast.error(res?.message || "Failed to fetch tournaments");
-    } catch {
-      toast.error("Error fetching tournaments");
-    }
-  };
+
+      setTurnament(mappedData);
+    } else toast.error(res?.message || "Failed to fetch tournaments");
+  } catch {
+    toast.error("Error fetching tournaments");
+  }
+};
+
 
   const fetchBanners = async () => {
     try {
@@ -90,6 +107,20 @@ const UserDashboard = () => {
     fetchTournament();
     fetchBanners();
   }, []);
+  useEffect(() => {
+  setTurnament((prev) =>
+    prev.map((item) => {
+      const start = new Date(item.start);
+      const end = new Date(item.end);
+      let status;
+      if (now < start) status = "upcoming";
+      else if (now >= start && now <= end) status = "ongoing";
+      else status = "completed";
+      return { ...item, status };
+    })
+  );
+}, [now]);
+
 
   const filteredContests = turnament.filter(
     (item) => activeTab !== "mycontests" && item.status === activeTab
@@ -179,90 +210,91 @@ const UserDashboard = () => {
 
       {/* Contest Cards */}
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
-  {filteredContests.length > 0 ? (
-    filteredContests.map((contest) => (
-      <div
-        key={contest.id}
-        onClick={() =>
-          navigate("/pricepol", {
-            state: { _id: contest.id, stocks: contest.stocks || [] },
-          })
-        }
-        className="bg-white rounded-2xl border border-gray-300 shadow-sm hover:shadow-lg hover:-translate-y-[3px] transition-all duration-200 cursor-pointer overflow-hidden"
-      >
-        {/* Tournament Header */}
-        <div className="px-5 pt-4 pb-3 border-b border-gray-200">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
-            Tournament:{" "}
-            <span className="font-semibold text-gray-700">{contest.name}</span>
-          </h2>
-        </div>
+        {filteredContests.length > 0 ? (
+          filteredContests.map((contest) => (
+            <div
+              key={contest.id}
+              onClick={() =>
+                navigate("/pricepol", {
+                  state: { _id: contest.id, stocks: contest.stocks || [] },
+                })
+              }
+              className="bg-white rounded-2xl border border-gray-300 shadow-sm hover:shadow-lg hover:-translate-y-[3px] transition-all duration-200 cursor-pointer overflow-hidden"
+            >
+              {/* Tournament Header */}
+              <div className="px-5 pt-4 pb-3 border-b border-gray-200">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
+                  Tournament:{" "}
+                  <span className="font-semibold text-gray-700">{contest.name}</span>
+                </h2>
+              </div>
 
-        {/* Company Info */}
-        <div className="px-5 py-3 border-b border-gray-100">
-          <div className="flex justify-between items-center flex-wrap gap-3">
-            {/* Primary Company */}
-            <div className="flex items-center gap-2">
-              {getCompanyIcon(contest.company, contest.companyColor)}
-              <div>
-                <p className="font-semibold text-gray-800 text-sm">
-                  {contest.company || "—"}
-                </p>
-                <p className="text-xs text-gray-500">Primary Stock</p>
+              {/* Company Info */}
+              <div className="px-5 py-3 border-b border-gray-100">
+                <div className="flex justify-between items-center flex-wrap gap-3">
+                  {/* Primary Company */}
+                  <div className="flex items-center gap-2">
+                    {getCompanyIcon(contest.company, contest.companyColor)}
+                    <div>
+                      <p className="font-semibold text-gray-800 text-sm">
+                        {contest.company || "—"}
+                      </p>
+                      <p className="text-xs text-gray-500">Primary Stock</p>
+                    </div>
+                  </div>
+
+                  {/* Partner Company */}
+                  {contest.partner && (
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <p className="font-semibold text-gray-800 text-sm">
+                          {contest.partner}
+                        </p>
+                        <p className="text-xs text-gray-500">Partner</p>
+                      </div>
+                      {getCompanyIcon(contest.partner, contest.partnerColor)}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Stats Section */}
+              <div className="px-5 py-4 grid grid-cols-3 gap-3">
+                <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
+                  <p className="text-gray-900 font-bold text-sm">{contest.prizePool}</p>
+                  <p className="text-gray-500 text-xs font-medium">Prize Pool</p>
+                </div>
+
+                <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
+                  <p className="text-gray-900 font-bold text-sm whitespace-nowrap overflow-hidden text-ellipsis">
+                    {getTimeLeft(contest)}
+
+                  </p>
+                  <p className="text-gray-500 text-xs font-medium">Time Left</p>
+                </div>
+
+                <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
+                  <p className="text-gray-900 font-bold text-sm flex items-center justify-center">
+                    <Users className="w-4 h-4 mr-1 text-gray-700 flex-shrink-0" />
+                    {contest.participants}
+                  </p>
+                  <p className="text-gray-500 text-xs font-medium">Participants</p>
+                </div>
               </div>
             </div>
-
-            {/* Partner Company */}
-            {contest.partner && (
-              <div className="flex items-center gap-2">
-                <div className="text-right">
-                  <p className="font-semibold text-gray-800 text-sm">
-                    {contest.partner}
-                  </p>
-                  <p className="text-xs text-gray-500">Partner</p>
-                </div>
-                {getCompanyIcon(contest.partner, contest.partnerColor)}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Stats Section */}
-        <div className="px-5 py-4 grid grid-cols-3 gap-3">
-          <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
-            <p className="text-gray-900 font-bold text-sm">{contest.prizePool}</p>
-            <p className="text-gray-500 text-xs font-medium">Prize Pool</p>
-          </div>
-
-          <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
-            <p className="text-gray-900 font-bold text-sm whitespace-nowrap overflow-hidden text-ellipsis">
-              {getTimeLeft(contest.end)}
+          ))
+        ) : (
+          <div className="text-center py-12 col-span-full">
+            <Trophy className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500 text-lg font-medium mb-2">
+              No contests available
             </p>
-            <p className="text-gray-500 text-xs font-medium">Time Left</p>
-          </div>
-
-          <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
-            <p className="text-gray-900 font-bold text-sm flex items-center justify-center">
-              <Users className="w-4 h-4 mr-1 text-gray-700 flex-shrink-0" />
-              {contest.participants}
+            <p className="text-gray-400 text-sm">
+              Check back soon for new contests!
             </p>
-            <p className="text-gray-500 text-xs font-medium">Participants</p>
           </div>
-        </div>
+        )}
       </div>
-    ))
-  ) : (
-    <div className="text-center py-12 col-span-full">
-      <Trophy className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-      <p className="text-gray-500 text-lg font-medium mb-2">
-        No contests available
-      </p>
-      <p className="text-gray-400 text-sm">
-        Check back soon for new contests!
-      </p>
-    </div>
-  )}
-</div>
 
 
     </div>
