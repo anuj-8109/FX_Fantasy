@@ -313,7 +313,7 @@ const resetForm = () => {
       is_guaranteed: isGuaranteed,
       is_private: isPrivate,
       contest_code: contestCode.trim(),
-      status,
+      status:"upcoming",
       tournament_id: tournamentId,
     };
 
@@ -569,7 +569,7 @@ const resetForm = () => {
               </label>
             </div>
 
-            <div className="mt-3">
+            {/* <div className="mt-3">
               <label className="text-sm font-medium">Status</label>
               <select
                 value={status}
@@ -578,7 +578,7 @@ const resetForm = () => {
               >
                 <option value="upcoming">Upcoming</option>
               </select>
-            </div>
+            </div> */}
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t">

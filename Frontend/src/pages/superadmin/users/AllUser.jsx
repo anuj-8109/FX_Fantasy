@@ -287,7 +287,7 @@ const AllUsers = () => {
           <Edit
             className="cursor-pointer text-blue-600"
             onClick={() =>
-              navigate(`/superadmin/EditUsers/${row._id}`, {
+              navigate(`/superadmin/addUser`, {
                 state: { userId: row._id },
               })
             }
