@@ -73,10 +73,10 @@ const UserHeader = () => {
         {/* Wallet Button */}
         <button
           onClick={() => navigate("/wallet")}
-          className="bg-black px-3 py-2 rounded-full flex items-center 
+          className="bg-black px-2 py-1 rounded-full flex items-center 
           text-white font-medium shadow-md hover:shadow-lg hover:scale-105 transition"
         >
-          <Wallet size={18} className="mr-1" />
+          <Wallet size={16} className="mr-1" />
           ₹{walletBalance.toLocaleString("en-IN")}
         </button>
 

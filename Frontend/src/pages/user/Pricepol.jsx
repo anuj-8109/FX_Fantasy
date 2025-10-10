@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { GetContestByTurnament, JoinContest, GetMyContests, ListPrivateContests, SharePrivateContest } from "../../services/User";
 import toast from "react-hot-toast";
 import BackButton from "../../pages/user/Backbutton";
+import Swal from "sweetalert2";
 
 function Pricepol() {
   const navigate = useNavigate();
@@ -25,7 +26,8 @@ function Pricepol() {
     maxParticipants: "",
   });
   const token = localStorage.getItem("token");
-  console.log("privateContests", privateContests)
+
+
 
   useEffect(() => {
     if (!tournamentId || !token) {
@@ -61,9 +63,17 @@ function Pricepol() {
       if (!token) return toast.error("Please login to join the contest");
       if (!clientId) return toast.error("Client ID missing!");
 
+      // ✅ Check if tournament has started
+      const now = new Date();
+      const startDate = new Date(contest.tournament_id?.startdate); // make sure startdate exists
+      if (now >= startDate) {
+        return toast.error("You cannot join a contest after the tournament has started!");
+      }
+
       if (!joinedContests.includes(contest._id)) {
         setJoinedContests((prev) => [...prev, contest._id]);
       }
+
       const entryFee = parseFloat(contest.entry_fee) || 0;
       const discount = parseFloat(contest.discount) || 0;
       const total = entryFee - discount;
@@ -87,6 +97,7 @@ function Pricepol() {
       toast.error("Error while joining contest");
     }
   };
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -180,10 +191,9 @@ function Pricepol() {
     const [progress, setProgress] = React.useState(0);
 
     useEffect(() => {
-      // Ensure filled is between 0 and total
+
       const safeFilled = Math.max(0, Math.min(filled, total));
       const percentage = total > 0 ? (safeFilled / total) * 100 : 0;
-
       const timer = setTimeout(() => setProgress(percentage), 150);
       return () => clearTimeout(timer);
     }, [filled, total]);
@@ -315,14 +325,19 @@ function Pricepol() {
                       </p>
                       <button
                         onClick={() => handleJoinNow(contest)}
-                        disabled={isJoined}
-                        className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-xs lg:text-[14px] font-semibold border border-gray-300 shadow-sm transition-all duration-300 ${isJoined
+                        disabled={isJoined || new Date() >= new Date(contest.tournament_id?.startdate)}
+                        className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-xs lg:text-[14px] font-semibold border border-gray-300 shadow-sm transition-all duration-300 ${isJoined || new Date() >= new Date(contest.tournament_id?.startdate)
                           ? "bg-gray-200 text-gray-600 cursor-not-allowed"
                           : "bg-white text-black hover:bg-gray-100"
                           }`}
                       >
-                        {isJoined ? "Joined" : "Join"}
+                        {isJoined
+                          ? "Joined"
+                          : new Date() >= new Date(contest.tournament_id?.startdate)
+                            ? "Live"
+                            : "Join"}
                       </button>
+
                     </div>
                   </div>
                 </div>
@@ -361,16 +376,22 @@ function Pricepol() {
                               navigate("/trade", {
                                 state: {
                                   contestId: contestWrapper?.contest_id?._id,
-                                  stocks:
-                                    contestWrapper?.contest_id?.tournament_id?.stocks || [],
+                                  stocks: contestWrapper?.contest_id?.tournament_id?.stocks || [],
                                   wallet_balance: contestWrapper?.wallet_balance || 0,
                                 },
                               })
                             }
-                            className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
+                            disabled={new Date(contestWrapper?.contest_id?.tournament_id?.startdate) > new Date()} // Disable if startdate is in the future
+                            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300
+                              ${new Date(contestWrapper?.contest_id?.tournament_id?.startdate) <= new Date()
+                                ? "bg-gradient-to-r from-orange-500 to-orange-400 text-white hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500 cursor-pointer"
+                                : "bg-gray-300 text-gray-600 cursor-not-allowed"}`
+                            }
                           >
                             Live
                           </button>
+
+
 
                           <button
                             onClick={() =>
@@ -469,35 +490,80 @@ function Pricepol() {
                               },
                             })
                           }
-                          className="px-3 py-1.5 bg-white text-black border border-gray-300 rounded-md text-xs sm:text-sm font-semibold shadow-sm hover:bg-gray-100 transition-all"
+                          disabled={new Date(contest?.tournament_id?.startdate) > new Date()} // Disable if startdate is in future
+                          className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300
+    ${new Date(contest?.tournament_id?.startdate) <= new Date()
+                              ? "bg-gradient-to-r from-orange-500 to-orange-400 text-white hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500 cursor-pointer"
+                              : "bg-gray-300 text-gray-600 cursor-not-allowed"}`
+                          }
                         >
                           Live
                         </button>
+
                         <button
                           onClick={() =>
                             navigate("/tradehistory", {
                               state: { contestId: contest?._id },
                             })
                           }
-                          className="px-3 py-1.5 bg-white text-black border border-gray-300 rounded-md text-xs sm:text-sm font-semibold shadow-sm hover:bg-gray-100 transition-all"
+                          className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
                         >
                           History
                         </button>
                         <button
                           onClick={async () => {
                             const token = localStorage.getItem("token");
-                            const clientId = localStorage.getItem("userId");
-                            const sharedWith = prompt("Enter client ID to share contest with:");
-                            if (!sharedWith) return;
+                            const shared_by_client_id = localStorage.getItem("userId"); // current user ID
 
-                            const res = await SharePrivateContest(token, contest._id, sharedWith, clientId);
-                            if (res?.status) toast.success("Contest shared successfully!");
-                            else toast.error(res?.message || "Failed to share contest");
+                            // SweetAlert to get phone number
+                            const { value: PhoneNo } = await Swal.fire({
+                              title: "🔗 Share Contest",
+                              html: `<p style="font-size:14px; color:#333;">Enter the phone number to share this contest with:</p>`,
+                              input: "text",
+                              inputPlaceholder: "Enter Phone Number",
+                              showCancelButton: true,
+                              confirmButtonText: "Share",
+                              cancelButtonText: "Cancel",
+                              inputValidator: (value) => {
+                                if (!value) return "Phone number is required!";
+                                // Optional: validate proper phone number format
+                                const phoneRegex = /^[0-9]{10,15}$/;
+                                if (!phoneRegex.test(value)) return "Enter a valid phone number!";
+                              },
+                              focusConfirm: false,
+                              allowOutsideClick: false,
+                              icon: "info",
+                              background: "#fefefe",
+                              color: "#062d40",
+                            });
+
+                            if (!PhoneNo) return; // User cancelled
+
+                            try {
+                              // Call API to share contest
+                              const res = await SharePrivateContest(
+                                token,
+                                contest._id,           // contest ID
+                                shared_by_client_id,   // your client ID
+                                PhoneNo                // recipient phone number
+                              );
+
+                              if (res?.status) {
+                                toast.success("Contest shared successfully!");
+                              } else {
+                                toast.error(res?.message || "Failed to share contest");
+                              }
+                            } catch (error) {
+                              toast.error("Something went wrong.");
+                            }
                           }}
-                          className="px-3 py-1.5 bg-white text-black border border-gray-300 rounded-md text-xs sm:text-sm font-semibold shadow-sm hover:bg-gray-100 transition-all"
+                          className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
                         >
                           Share
                         </button>
+
+
+
                       </div>
                     </div>
 

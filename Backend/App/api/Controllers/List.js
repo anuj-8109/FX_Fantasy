@@ -915,8 +915,7 @@ const limit = 10;
     });
   }
 }
-
-async  getOpenPositions(req, res) {
+async getOpenPositions(req, res) {
   try {
     const { client_id, contest_id, page = 1 } = req.body;
     const limit = 10;
@@ -928,22 +927,39 @@ async  getOpenPositions(req, res) {
       });
     }
 
+    // Build filter with ObjectId conversion
     const filter = {};
-    if (client_id) filter.client_id = client_id;
-    if (contest_id) filter.contest_id = contest_id;
+    if (client_id) filter.client_id = new mongoose.Types.ObjectId(client_id);
+    if (contest_id) filter.contest_id =  new mongoose.Types.ObjectId(contest_id);
 
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 10;
     const skip = (pageNum - 1) * limitNum;
 
-    // Aggregate net positions: group by client/contest/stock, sum buy and sell quantities
+    // Aggregate net positions
     const aggPipeline = [
       { $match: filter },
       {
         $group: {
           _id: { contest_id: "$contest_id", client_id: "$client_id", stock_symbol: "$stock_symbol" },
-          buyQty: { $sum: { $cond: [{ $eq: ["$trade_type", "buy"] }, "$quantity", 0] } },
-          sellQty: { $sum: { $cond: [{ $eq: ["$trade_type", "sell"] }, "$quantity", 0] } }
+          buyQty: {
+            $sum: {
+              $cond: [
+                { $eq: [{ $trim: { input: { $toLower: "$trade_type" } } }, "buy"] },
+                { $toDouble: "$quantity" },
+                0
+              ]
+            }
+          },
+          sellQty: {
+            $sum: {
+              $cond: [
+                { $eq: [{ $trim: { input: { $toLower: "$trade_type" } } }, "sell"] },
+                { $toDouble: "$quantity" },
+                0
+              ]
+            }
+          }
         }
       },
       {
@@ -954,29 +970,41 @@ async  getOpenPositions(req, res) {
           netQty: { $subtract: ["$buyQty", "$sellQty"] }
         }
       },
-      { $match: { netQty: { $ne: 0 } } }, // Only positions with non-zero net quantity
+      { $match: { netQty: { $ne: 0 } } }, // Only non-zero positions
+      { $sort: { stock_symbol: 1 } },      // Sort for pagination
       { $skip: skip },
-      { $limit: limitNum },
-      { $sort: { stock_symbol: 1 } }
+      { $limit: limitNum }
     ];
 
     const netPositions = await Contesttrade_Modal.aggregate(aggPipeline);
 
-    // Get total count for pagination
+    // Total count for pagination
     const countPipeline = [
       { $match: filter },
       {
         $group: {
           _id: { contest_id: "$contest_id", client_id: "$client_id", stock_symbol: "$stock_symbol" },
-          buyQty: { $sum: { $cond: [{ $eq: ["$trade_type", "buy"] }, "$quantity", 0] } },
-          sellQty: { $sum: { $cond: [{ $eq: ["$trade_type", "sell"] }, "$quantity", 0] } }
+          buyQty: {
+            $sum: {
+              $cond: [
+                { $eq: [{ $trim: { input: { $toLower: "$trade_type" } } }, "buy"] },
+                { $toDouble: "$quantity" },
+                0
+              ]
+            }
+          },
+          sellQty: {
+            $sum: {
+              $cond: [
+                { $eq: [{ $trim: { input: { $toLower: "$trade_type" } } }, "sell"] },
+                { $toDouble: "$quantity" },
+                0
+              ]
+            }
+          }
         }
       },
-      {
-        $project: {
-          netQty: { $subtract: ["$buyQty", "$sellQty"] }
-        }
-      },
+      { $project: { netQty: { $subtract: ["$buyQty", "$sellQty"] } } },
       { $match: { netQty: { $ne: 0 } } },
       { $count: "total" }
     ];
