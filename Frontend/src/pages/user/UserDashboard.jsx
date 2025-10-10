@@ -178,77 +178,92 @@ const UserDashboard = () => {
       </div>
 
       {/* Contest Cards */}
-      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-        {filteredContests.length > 0 ? (
-          filteredContests.map((contest) => (
-            <div
-              key={contest.id}
-              onClick={() =>
-                navigate("/pricepol", {
-                  state: { _id: contest.id, stocks: contest.stocks || [] },
-                })
-              }
-              className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
-            >
-              {/* Tournament Header */}
-              <div className="mb-3 border-b px-4 py-3 rounded-md">
-                <p className="text-start font-semibold text-base sm:text-lg text-gray-800 mb-2">
-                  {contest.name}
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
+  {filteredContests.length > 0 ? (
+    filteredContests.map((contest) => (
+      <div
+        key={contest.id}
+        onClick={() =>
+          navigate("/pricepol", {
+            state: { _id: contest.id, stocks: contest.stocks || [] },
+          })
+        }
+        className="bg-white rounded-2xl border border-gray-300 shadow-sm hover:shadow-lg hover:-translate-y-[3px] transition-all duration-200 cursor-pointer overflow-hidden"
+      >
+        {/* Tournament Header */}
+        <div className="px-5 pt-4 pb-3 border-b border-gray-200">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
+            Tournament:{" "}
+            <span className="font-semibold text-gray-700">{contest.name}</span>
+          </h2>
+        </div>
+
+        {/* Company Info */}
+        <div className="px-5 py-3 border-b border-gray-100">
+          <div className="flex justify-between items-center flex-wrap gap-3">
+            {/* Primary Company */}
+            <div className="flex items-center gap-2">
+              {getCompanyIcon(contest.company, contest.companyColor)}
+              <div>
+                <p className="font-semibold text-gray-800 text-sm">
+                  {contest.company || "—"}
                 </p>
-
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-2">
-                    {getCompanyIcon(contest.company, contest.companyColor)}
-                    <div>
-                      <p className="font-semibold text-gray-700 text-sm">
-                        {contest.company || "—"}
-                      </p>
-                      <p className="text-xs text-gray-500">Primary Stock</p>
-                    </div>
-                  </div>
-
-                  {contest.partner && (
-                    <div className="flex items-center space-x-2">
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-700 text-sm">
-                          {contest.partner}
-                        </p>
-                        <p className="text-xs text-gray-500">Partner</p>
-                      </div>
-                      {getCompanyIcon(contest.partner, contest.partnerColor)}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-2 px-4 pb-4">
-                <div className="text-center p-2 rounded-md border bg-gray-50">
-                  <p className="text-gray-800 font-bold text-sm">{contest.prizePool}</p>
-                  <p className="text-gray-500 text-xs">Prize Pool</p>
-                </div>
-                <div className="text-center p-2 rounded-md border bg-gray-50">
-                  <p className="text-gray-800 font-bold text-sm">{getTimeLeft(contest.end)}</p>
-                  <p className="text-gray-500 text-xs">Time Left</p>
-                </div>
-                <div className="text-center p-2 rounded-md border bg-gray-50">
-                  <p className="text-gray-800 font-bold flex items-center justify-center text-sm">
-                    <Users className="w-4 h-4 mr-1 text-gray-700" />
-                    {contest.participants}
-                  </p>
-                  <p className="text-gray-500 text-xs">Participants</p>
-                </div>
+                <p className="text-xs text-gray-500">Primary Stock</p>
               </div>
             </div>
-          ))
-        ) : (
-          <div className="text-center py-12 col-span-full">
-            <Trophy className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg font-medium mb-2">No contests available</p>
-            <p className="text-gray-400 text-sm">Check back soon for new contests!</p>
+
+            {/* Partner Company */}
+            {contest.partner && (
+              <div className="flex items-center gap-2">
+                <div className="text-right">
+                  <p className="font-semibold text-gray-800 text-sm">
+                    {contest.partner}
+                  </p>
+                  <p className="text-xs text-gray-500">Partner</p>
+                </div>
+                {getCompanyIcon(contest.partner, contest.partnerColor)}
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* Stats Section */}
+        <div className="px-5 py-4 grid grid-cols-3 gap-3">
+          <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
+            <p className="text-gray-900 font-bold text-sm">{contest.prizePool}</p>
+            <p className="text-gray-500 text-xs font-medium">Prize Pool</p>
+          </div>
+
+          <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
+            <p className="text-gray-900 font-bold text-sm whitespace-nowrap overflow-hidden text-ellipsis">
+              {getTimeLeft(contest.end)}
+            </p>
+            <p className="text-gray-500 text-xs font-medium">Time Left</p>
+          </div>
+
+          <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
+            <p className="text-gray-900 font-bold text-sm flex items-center justify-center">
+              <Users className="w-4 h-4 mr-1 text-gray-700 flex-shrink-0" />
+              {contest.participants}
+            </p>
+            <p className="text-gray-500 text-xs font-medium">Participants</p>
+          </div>
+        </div>
       </div>
+    ))
+  ) : (
+    <div className="text-center py-12 col-span-full">
+      <Trophy className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+      <p className="text-gray-500 text-lg font-medium mb-2">
+        No contests available
+      </p>
+      <p className="text-gray-400 text-sm">
+        Check back soon for new contests!
+      </p>
+    </div>
+  )}
+</div>
+
 
     </div>
 

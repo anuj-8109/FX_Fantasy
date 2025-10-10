@@ -58,6 +58,7 @@
     "nodemon": "^3.1.10",
     "npm": "^11.5.2",
     "outlet": "^0.1.5",
+    "papaparse": "^5.5.3",
     "react": "^18.3.1",
     "react-data-table-component": "^7.7.0",
     "react-day-picker": "^8.10.1",
