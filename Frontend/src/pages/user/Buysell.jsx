@@ -57,47 +57,42 @@ function TradeHistory() {
         <p className="text-center text-gray-500">Loading...</p>
       ) : history.length > 0 ? (
         <div className="space-y-4">
-          {history.map((trade) => {
-            const entryPrice = trade.price;
-            const exitPrice = trade.exit_price || 0; // You can compute or fetch actual exit price
-            const quantity = trade.quantity;
-            const avg = (entryPrice + exitPrice) / 2; // Example average
-            const LTP = trade.ltp || 1548; // Replace with actual LTP if available
-            return (
-              <div
-                key={trade._id}
-                className="p-4 border rounded-lg bg-gray-50"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <div className="font-semibold">{trade.stock_symbol}</div>
-                  <div className="text-sm text-gray-700">
-                    Qty: {quantity} | Avg: {avg.toFixed(2)}
-                  </div>
-                  <div
-                    className={`text-sm font-bold ${
-                      trade.trade_type === "buy" ? "text-green-600" : "text-red-600"
-                    }`}
-                  >
-                    {trade.trade_type.toUpperCase()}
-                  </div>
-                </div>
-                <div className="flex justify-between text-sm text-gray-600">
-                  <div>
-                    Entry price: <span className="text-red-500">{entryPrice}</span>
-                  </div>
-                  <div>
-                    Exit price: <span className="text-green-500">{exitPrice}</span>
-                  </div>
-                  <div>
-                    LTP: {LTP}
-                  </div>
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {trade.trade_time ? new Date(trade.trade_time).toLocaleString() : "N/A"}
-                </div>
-              </div>
-            );
-          })}
+         {history.map((trade) => {
+  const entryPrice = trade.price;
+  const exitPrice = trade.exit_price || trade.ltp || 0; // use live price if exit not set
+  const quantity = trade.quantity;
+  const avg = (entryPrice + exitPrice) / 2; 
+  const LTP = trade.ltp || 0; // replace with actual live price if available
+
+  return (
+    <div key={trade._id} className="p-4 border rounded-lg bg-gray-50">
+      <div className="flex justify-between items-center mb-2">
+        <div className="font-semibold">{trade.stock_symbol}</div>
+        <div className="text-sm text-gray-700">
+          Qty: {quantity} | Avg: {avg.toFixed(2)}
+        </div>
+        <div className={`text-sm font-bold ${trade.trade_type === "buy" ? "text-green-600" : "text-red-600"}`}>
+          {trade.trade_type.toUpperCase()}
+        </div>
+      </div>
+      <div className="flex justify-between text-sm text-gray-600">
+        <div>
+          Entry price: <span className="text-red-500">{entryPrice.toFixed(2)}</span>
+        </div>
+        <div>
+          Exit price: <span className="text-green-500">{exitPrice.toFixed(2)}</span>
+        </div>
+        <div>
+          LTP: {LTP.toFixed(2)}
+        </div>
+      </div>
+      <div className="text-xs text-gray-500 mt-1">
+        {trade.trade_time ? new Date(trade.trade_time).toLocaleString() : "N/A"}
+      </div>
+    </div>
+  );
+})}
+
         </div>
       ) : (
         <p className="text-center text-gray-500">

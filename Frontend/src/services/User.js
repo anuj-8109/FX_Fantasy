@@ -568,15 +568,13 @@ export async function ListPrivateContests(token, client_id, tournament_id) {
 
 
 // router.post("/api/client/shareprivatecontest", auth, SharePrivateContest);
-export async function SharePrivateContest(token, contest_id, shared_with_client_id, shared_by_client_id) {
+export async function SharePrivateContest(token, contest_id, shared_with_client_id, shared_by_client_id, PhoneNo) {
   try {
     const response = await axios.post(
       `${config.base_url}api/client/shareprivatecontest`,
-      { contest_id, shared_with_client_id, shared_by_client_id },
+      { contest_id, shared_with_client_id, shared_by_client_id, PhoneNo },
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       }
     );
     return response?.data;
@@ -584,6 +582,7 @@ export async function SharePrivateContest(token, contest_id, shared_with_client_
     return error?.response?.data || { status: false, message: "Network error" };
   }
 }
+
 
 
 export async function EditUser(token, data) {

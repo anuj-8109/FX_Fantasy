@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { GetContestByTurnament, JoinContest, GetMyContests, ListPrivateContests, SharePrivateContest } from "../../services/User";
 import toast from "react-hot-toast";
 import BackButton from "../../pages/user/Backbutton";
+import Swal from "sweetalert2";
 
 function Pricepol() {
   const navigate = useNavigate();
@@ -469,7 +470,7 @@ function Pricepol() {
                               },
                             })
                           }
-                          className="px-3 py-1.5 bg-white text-black border border-gray-300 rounded-md text-xs sm:text-sm font-semibold shadow-sm hover:bg-gray-100 transition-all"
+                          className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
                         >
                           Live
                         </button>
@@ -479,25 +480,60 @@ function Pricepol() {
                               state: { contestId: contest?._id },
                             })
                           }
-                          className="px-3 py-1.5 bg-white text-black border border-gray-300 rounded-md text-xs sm:text-sm font-semibold shadow-sm hover:bg-gray-100 transition-all"
+                          className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
                         >
                           History
                         </button>
                         <button
                           onClick={async () => {
                             const token = localStorage.getItem("token");
-                            const clientId = localStorage.getItem("userId");
-                            const sharedWith = prompt("Enter client ID to share contest with:");
-                            if (!sharedWith) return;
+                            const clientId = localStorage.getItem("userId"); // current user ID
 
-                            const res = await SharePrivateContest(token, contest._id, sharedWith, clientId);
-                            if (res?.status) toast.success("Contest shared successfully!");
-                            else toast.error(res?.message || "Failed to share contest");
+                            const { value: sharedWith } = await Swal.fire({
+                              title: "🔗 Share Contest",
+                              html: `<p style="font-size:14px; color:#333;">Enter Phone Number you want to share this contest with:</p>`,
+                              input: "text",
+                              inputPlaceholder: "Enter Phone Number",
+                              showCancelButton: true,
+                              confirmButtonText: "Share",
+                              cancelButtonText: "Cancel",
+                              focusConfirm: false,
+                              allowOutsideClick: false,
+                              icon: "info",
+                              background: "#fefefe",
+                              color: "#062d40",
+                              showClass: { popup: 'animate__animated animate__fadeInDown' },
+                              hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+                              inputValidator: (value) => {
+                                if (!value) return "Phone number is required!";
+                              },
+                            });
+
+                            if (!sharedWith) return; // user cancelled
+
+                            try {
+                              const res = await SharePrivateContest(
+                                token,
+                                contest._id,
+                                sharedWith, // shared_with_client_id
+                                clientId,   // shared_by_client_id
+                                sharedWith  // PhoneNo
+                              );
+
+                              if (res?.status) {
+                                toast.success("Contest shared successfully!");
+                              } else {
+                                toast.error(res?.message || "Failed to share contest");
+                              }
+                            } catch (error) {
+                              toast.error("Something went wrong.");
+                            }
                           }}
-                          className="px-3 py-1.5 bg-white text-black border border-gray-300 rounded-md text-xs sm:text-sm font-semibold shadow-sm hover:bg-gray-100 transition-all"
+                          className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
                         >
                           Share
                         </button>
+
                       </div>
                     </div>
 

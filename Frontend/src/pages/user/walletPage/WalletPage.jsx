@@ -257,17 +257,17 @@ const WalletPage = () => {
         <BackButton showText={true} />
       </div>
 
-      <div className="flex flex-wrap justify-between items-center gap-3 mb-8 mt-2 w-full">
-        {/* Add Money Button */}
-        <button
+      <div className="p-4 mt-4 mb-4 bg-gray-100 rounded-xl shadow-md w-full max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-2">
+        {/* Add Money Text */}
+        <span
           onClick={handleAddMoney}
-          className="flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl bg-orange-500 text-white font-medium shadow-md hover:scale-105 transition-transform duration-200 flex-1 min-w-[120px]"
+          className="cursor-pointer text-black font-medium text-sm hover:underline"
         >
-          <Plus size={20} /> Add Money
-        </button>
+          + Add Money
+        </span>
 
-        {/* Withdraw Button */}
-        <button
+        {/* Withdraw Text */}
+        <span
           onClick={() => {
             if (!kycVerified)
               return Swal.fire("KYC required", "Please complete KYC.", "warning").then(() =>
@@ -292,44 +292,35 @@ const WalletPage = () => {
             }
             handleWithdraw(selectedBank || bankDetails[0]);
           }}
-          className={`flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl font-medium shadow-md transition-transform duration-200 hover:scale-105 flex-1 min-w-[120px] ${kycVerified && bankDetails.length
-            ? "bg-orange-500 text-white"
-            : "bg-gray-400 text-gray-200 cursor-not-allowed"
-            }`}
+          className={`cursor-pointer text-sm font-medium ${kycVerified && bankDetails.length ? "text-black hover:underline" : "text-gray-400 cursor-not-allowed"}`}
         >
-          <Minus size={20} /> Withdraw
-        </button>
+          - Withdraw
+        </span>
 
         {/* Tab Dropdown */}
-        <div className="relative flex-1 min-w-[140px]">
-          <button
+        <div className="relative">
+          <span
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="w-full flex justify-between items-center px-4 py-2 bg-orange-500 text-white rounded-xl shadow-md hover:shadow-lg transition-transform"
+            className="cursor-pointer text-sm font-medium text-black flex items-center gap-1 hover:underline"
           >
-            <div className="flex items-center gap-2">
-              {React.createElement(tabs.find(t => t.key === activeTab).icon, { size: 18 })}
-              {tabs.find(t => t.key === activeTab).label}
-            </div>
-            <ChevronDown
-              size={18}
-              className={`transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
-            />
-          </button>
+            {React.createElement(tabs.find(t => t.key === activeTab).icon, { size: 16 })}
+            {tabs.find(t => t.key === activeTab).label}
+            <ChevronDown size={16} className={`transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
+          </span>
 
           {dropdownOpen && (
-            <div className="absolute w-full mt-2 bg-white border rounded-xl shadow-lg z-10">
+            <div className="absolute w-40 mt-1 bg-white border rounded-md shadow-lg z-10">
               {tabs.map(t => (
-                <button
+                <span
                   key={t.key}
                   onClick={() => {
                     setActiveTab(t.key);
                     setDropdownOpen(false);
                   }}
-                  className={`w-full px-4 py-3 text-left flex items-center gap-2 ${activeTab === t.key ? "bg-orange-100 text-orange-600" : "text-gray-700 hover:bg-orange-50"
-                    }`}
+                  className={`block px-3 py-2 text-sm cursor-pointer ${activeTab === t.key ? "bg-orange-100 text-orange-600" : "text-gray-700 hover:bg-orange-50"}`}
                 >
-                  {React.createElement(t.icon, { size: 16 })} {t.label}
-                </button>
+                  {React.createElement(t.icon, { size: 14 })} {t.label}
+                </span>
               ))}
             </div>
           )}
@@ -339,7 +330,8 @@ const WalletPage = () => {
       </div>
 
 
-      <div className="mb-6 p-4 rounded-xl border bg-gradient-to-r from-gray-50 to-gray-100 flex flex-wrap items-center justify-between shadow-sm gap-4">
+
+      <div className="mb-4 p-4 rounded-xl border bg-gradient-to-r from-gray-50 to-gray-100 flex flex-wrap items-center justify-between shadow-sm gap-4">
         {/* Bank Info */}
         <div className="flex items-center gap-3 min-w-[180px]">
           <img src="https://cdn-icons-png.flaticon.com/512/3094/3094830.png" alt="Bank" className="w-8 h-8" />
