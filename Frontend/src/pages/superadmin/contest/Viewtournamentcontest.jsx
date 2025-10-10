@@ -43,7 +43,9 @@ const TournamentContests = () => {
 
       if (response?.status) {
         setContests(response?.contests || []);
-        setTotalRows(response?.pagination?.total || response?.contests?.length || 0);
+        setTotalRows(
+          response?.pagination?.total || response?.contests?.length || 0
+        );
       } else {
         toast.error(response?.message || "Failed to load contests");
       }
@@ -225,6 +227,7 @@ const TournamentContests = () => {
         </div>
       ),
       width: "120px",
+      export: false,
     },
   ];
 
