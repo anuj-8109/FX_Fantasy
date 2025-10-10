@@ -122,27 +122,34 @@ function HistoryPage() {
 
       {/* Wallet Summary */}
       <div className="max-w-6xl mx-auto w-full mt-4">
-        <div className="bg-white shadow-md rounded-xl p-5 border border-gray-100">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-800">Wallet Summary</h2>
-            <span className="text-sm text-gray-500">Updated just now</span>
-          </div>
-          <div className="text-center mb-5">
-            <p className="text-sm text-gray-600">Total Balance</p>
-            <p className="text-2xl font-bold text-green-600">₹{walletBalance + pnl}</p>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-orange-50 border border-orange-100 p-4 rounded-lg text-center">
-              <p className="text-xs text-orange-700 font-medium">Unutilized Balance</p>
-              <p className="text-lg font-bold text-orange-600 mt-1">₹{walletBalance}</p>
-            </div>
-            <div className="bg-green-50 border border-green-100 p-4 rounded-lg text-center">
-              <p className="text-xs text-green-700 font-medium">Profit & Loss</p>
-              <p className="text-lg font-bold text-green-600 mt-1">₹{pnl}</p>
-            </div>
-          </div>
-        </div>
+  <div className="bg-white shadow-md rounded-xl p-5 border border-gray-100">
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-lg font-semibold text-gray-800">Wallet Summary</h2>
+      <span className="text-sm text-gray-500">Updated just now</span>
+    </div>
+    <div className="text-center mb-5">
+      <p className="text-sm text-gray-600">Total Balance</p>
+      <p className="text-2xl font-bold text-green-600">
+        ₹{(walletBalance + pnl).toFixed(2)}
+      </p>
+    </div>
+    <div className="grid grid-cols-2 gap-4">
+      <div className="bg-orange-50 border border-orange-100 p-4 rounded-lg text-center">
+        <p className="text-xs text-orange-700 font-medium">Unutilized Balance</p>
+        <p className="text-lg font-bold text-orange-600 mt-1">
+          ₹{walletBalance.toFixed(2)}
+        </p>
       </div>
+      <div className="bg-green-50 border border-green-100 p-4 rounded-lg text-center">
+        <p className="text-xs text-green-700 font-medium">Profit & Loss</p>
+        <p className="text-lg font-bold text-green-600 mt-1">
+          ₹{pnl.toFixed(2)}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
 
       {/* Stock Cards */}
       <div className="max-w-6xl mx-auto w-full mt-4 flex-1">
