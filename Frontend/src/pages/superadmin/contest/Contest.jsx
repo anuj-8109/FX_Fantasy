@@ -1,44 +1,26 @@
 import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/DatatablePagination";
-import { FileText, Edit, Eye, Trash2 } from "lucide-react";
+import { Edit, Eye, Trash2 } from "lucide-react";
 import {
   GetContestsList,
-  AddContest,
-  UpdateContest,
   DeleteContest,
-  UpdateContestStatus,
   UpdateContestStatusActive,
-  GetContestDetails,
 } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import Content from "../../../components/superadmin/Content";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { useNavigate } from "react-router-dom";
 
 const Contest = () => {
   const navigate = useNavigate();
   const [contests, setContests] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [selectedContest, setSelectedContest] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [viewOpen, setViewOpen] = useState(false);
-  const [viewContest, setViewContest] = useState(null);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [entryFee, setEntryFee] = useState("");
-  const [totalSpots, setTotalSpots] = useState("");
-  const [prizePool, setPrizePool] = useState("");
-  const [status, setStatus] = useState("upcoming");
-
   const [totalRows, setTotalRows] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterText, setFilterText] = useState("");
 
   const token = localStorage.getItem("token");
-  const add_by = localStorage.getItem("add_by");
 
   const fetchContests = async (
     page = currentPage,
@@ -51,7 +33,9 @@ const Contest = () => {
       if (response?.status) {
         setContests(response.data || []);
         setTotalRows(response.pagination?.total || 0);
-      } else toast.error(response?.message || "Failed to load contests");
+      } else {
+        toast.error(response?.message || "Failed to load contests");
+      }
     } catch (err) {
       toast.error("Something went wrong while fetching contests");
     }
@@ -79,18 +63,6 @@ const Contest = () => {
     fetchContests(currentPage, rowsPerPage, filterText);
   }, [currentPage, rowsPerPage, filterText]);
 
-  const handleOpen = (contest = null) => {
-    setSelectedContest(contest);
-    setName(contest?.name || "");
-    setDescription(contest?.description || "");
-    setEntryFee(contest?.entry_fee || "");
-    setTotalSpots(contest?.total_spots || "");
-    setPrizePool(contest?.prize_pool || "");
-    // setStatus(contest?.status || "upcoming");
-    setOpen(true);
-  };
-
-  // delete contest
   const handleDelete = async (contest) => {
     const confirm = await Swal.fire({
       title: "Are you sure?",
@@ -123,69 +95,8 @@ const Contest = () => {
     }
   };
 
-  // cancel form
-  const handleCancel = () => {
-    setOpen(false);
-    setSelectedContest(null);
-    setName("");
-    setDescription("");
-    setEntryFee("");
-    setTotalSpots("");
-    setPrizePool("");
-    // setStatus("upcoming");
-  };
-
-  // save contest
-  const handleSave = async (e) => {
-    e.preventDefault();
-
-    const confirm = await Swal.fire({
-      title: selectedContest ? "Update Contest?" : "Add Contest?",
-      text: selectedContest
-        ? "Are you sure you want to update this contest?"
-        : "Are you sure you want to add this contest?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Save",
-      cancelButtonText: "Cancel",
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    const payload = {
-      add_by,
-      name,
-      description,
-      entry_fee: entryFee,
-      total_spots: totalSpots,
-      prize_pool: prizePool,
-      // status,
-    };
-
-    if (selectedContest) payload.id = selectedContest._id;
-
-    setLoading(true);
-    let response;
-    if (selectedContest) {
-      response = await UpdateContest(token, payload);
-    } else {
-      response = await AddContest(token, payload);
-    }
-
-    if (response?.status) {
-      toast.success(response?.message || "Saved successfully");
-      fetchContests();
-      handleCancel();
-    } else {
-      toast.error(response?.message || "Failed to save");
-    }
-
-    setLoading(false);
-  };
-
-  // toggle status
   const handleStatusChange = async (contest) => {
-    const actionText = contest.status === "live" ? "Deactivate" : "Activate";
+    const actionText = contest.activestatus ? "Deactivate" : "Activate";
 
     const confirm = await Swal.fire({
       title: `Are you sure?`,
@@ -200,13 +111,13 @@ const Contest = () => {
 
     const payload = {
       id: contest._id,
-      status: contest.status === "live" ? "false" : "live",
+      status: contest.activestatus ? "false" : "true",
     };
 
-    const res = await UpdateContestStatus(token, payload);
+    const res = await UpdateContestStatusActive(token, payload);
 
     if (res?.status) {
-      toast.success(res?.message || `Contest ${actionText}d`);
+      toast.success(res?.message || `Contest ${actionText}d successfully`);
       fetchContests();
     } else {
       toast.error(res?.message || "Failed to change status");
@@ -214,11 +125,10 @@ const Contest = () => {
   };
 
   const columns = [
-    // { name: "S.No", selector: (row, i) => i + 1, width: "70px" },
     {
       name: "Tournament Name",
-      selector: (row) => row.tournament_id.name,
-      exportValue: (row) => row.tournament_id.name || "N/A",
+      selector: (row) => row.tournament_id?.name || "N/A",
+      exportValue: (row) => row.tournament_id?.name || "N/A",
       export: true,
       sortable: true,
       width: "160px",
@@ -232,13 +142,6 @@ const Contest = () => {
       width: "160px",
     },
     {
-      name: "Type",
-      selector: (row) => row.contest_type,
-      exportValue: (row) => row.contest_type || "N/A",
-      export: true,
-      width: "70px",
-    },
-    {
       name: "Entry Fee",
       selector: (row) => row.entry_fee,
       exportValue: (row) => row.entry_fee || "N/A",
@@ -246,39 +149,17 @@ const Contest = () => {
       width: "90px",
     },
     {
-      name: "Spots",
+      name: "Total Spots",
       selector: (row) => `${row.filled_spots || 0}/${row.total_spots || 0}`,
       exportValue: (row) => `${row.filled_spots || 0}/${row.total_spots || 0}`,
       export: true,
-      width: "70px",
       cell: (row) => (
         <span>
           {row.filled_spots || 0}/{row.total_spots || 0}
         </span>
       ),
+      width: "110px",
     },
-
-    // {
-    //   name: "Total Spots",
-    //   selector: (row) => row.total_spots,
-    //   exportValue: (row) => row.total_spots || "N/A",
-    //   export: true,
-    //   width: "100px",
-    // },
-    // {
-    //   name: "Filld Spots",
-    //   selector: (row) => row.filled_spots,
-    //   exportValue: (row) => row.filled_spots || "N/A",
-    //   export: true,
-    //   width: "100px",
-    // },
-    // {
-    //   name: "Max/User",
-    //   selector: (row) => row.max_entry_per_user,
-    //   exportValue: (row) => row.max_entry_per_user || "N/A",
-    //   export: true,
-    //   width: "90px",
-    // },
     {
       name: "Prize Pool",
       selector: (row) => row.prize_pool,
@@ -286,78 +167,6 @@ const Contest = () => {
       export: true,
       width: "90px",
     },
-
-    // {
-    //   name: "Prize Dist.",
-    //   selector: (row) => {
-    //     // Return a string for proper Excel export
-    //     if (
-    //       Array.isArray(row.prize_distribution) &&
-    //       row.prize_distribution.length > 0
-    //     ) {
-    //       return row.prize_distribution
-    //         .map((p) => `#${p.rank}: ${p.amount}`)
-    //         .join(", ");
-    //     }
-    //     return "N/A";
-    //   },
-    //   exportValue: (row) => {
-    //     // Same logic for export
-    //     if (
-    //       Array.isArray(row.prize_distribution) &&
-    //       row.prize_distribution.length > 0
-    //     ) {
-    //       return row.prize_distribution
-    //         .map((p) => `#${p.rank}: ₹${p.amount}`)
-    //         .join(", ");
-    //     }
-    //     return "N/A";
-    //   },
-    //   export: true,
-    //   cell: (row) => (
-    //     <div className="text-xs">
-    //       {Array.isArray(row.prize_distribution) &&
-    //       row.prize_distribution.length > 0 ? (
-    //         row.prize_distribution.map((p, idx) => (
-    //           <div key={idx}>
-    //             #{p.rank}: ₹{p.amount}
-    //           </div>
-    //         ))
-    //       ) : (
-    //         <span>N/A</span>
-    //       )}
-    //     </div>
-    //   ),
-    //   width: "120px",
-    // },
-    // {
-    //   name: "Stocks",
-    //   cell: (row) => (
-    //     <div className="text-xs">
-    //       {row.stocks?.map((s, idx) => (
-    //         <div key={idx}>{s.stock_name}</div>
-    //       ))}
-    //     </div>
-    //   ),
-    //   width: "120px",
-    // },
-
-    // {
-    //   name: "Guaranteed",
-    //   selector: (row) => (row.is_guaranteed ? " Yes" : " No"),
-    //   exportValue: (row) => (row.is_guaranteed ? " Yes" : " No") || "N/A",
-    //   export: true,
-    //   width: "100px",
-    // },
-
-    // {
-    //   name: "Private",
-    //   selector: (row) => (row.is_private ? " Yes" : " No"),
-    //   exportValue: (row) => (row.is_private ? " Yes" : " No") || "N/A",
-    //   export: true,
-    //   width: "100px",
-    // },
-
     {
       name: "Type",
       selector: (row) => {
@@ -375,37 +184,6 @@ const Contest = () => {
       export: true,
       width: "150px",
     },
-    // { name: "Code", selector: (row) => row.contest_code||"-", width: "120px" },
-
-    // {
-    //   name: "Start Date",
-    //   selector: (row) =>
-    //     row.startdate ? new Date(row.startdate).toLocaleString() : "-",
-    //   width: "180px",
-    // },
-    // {
-    //   name: "End Date",
-    //   selector: (row) =>
-    //     row.enddate ? new Date(row.enddate).toLocaleString() : "-",
-    //   width: "180px",
-    // },
-
-    // {
-    //   name: "Status",
-    //   cell: (row) => (
-    //     <label className="relative inline-flex items-center cursor-pointer">
-    //       <input
-    //         type="checkbox"
-    //         checked={row.activestatus === "true"}
-    //         onChange={() => handleStatusChange(row)}
-    //         className="sr-only peer"
-    //       />
-    //       <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
-    //       <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border bg-white peer-checked:translate-x-full transition-transform"></div>
-    //     </label>
-    //   ),
-    //   width: "120px",
-    // },
     {
       name: "Status",
       selector: (row) => (row.activestatus === true ? "Active" : "Inactive"),
@@ -419,7 +197,7 @@ const Contest = () => {
             className="sr-only peer"
           />
           <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
-          <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border peer-checked:translate-x-full transition-transform"></div>
+          <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full border peer-checked:translate-x-full transition-transform"></div>
         </label>
       ),
       width: "100px",
@@ -438,39 +216,23 @@ const Contest = () => {
           />
           <Edit
             className="cursor-pointer text-blue-600"
-            onClick={() => handleOpen(row)}
+            size={25}
+            onClick={() =>
+              navigate("/superadmin/add-contest", {
+                state: { contest: row },
+              })
+            }
           />
           <Trash2
             className="cursor-pointer text-red-600"
+            size={25}
             onClick={() => handleDelete(row)}
           />
         </div>
       ),
       export: false,
-      width: "100px",
+      width: "120px",
     },
-
-    // {
-    //   name: "View",
-    //   cell: (row) => (
-    //     <Eye
-    //       className="cursor-pointer text-green-600"
-    //       size={20}
-    //       onClick={() => {
-    //         setViewContest(row);
-    //         setViewOpen(true);
-    //       }}
-    //     />
-    //   ),
-    //   width: "80px",
-    // },
-    // {
-    //   name: "Description",
-    //   selector: (row) => row.description,
-    //   exportValue: (row) => row.description || "N/A",
-    //   export: true,
-    //   grow: 2,
-    // },
   ];
 
   return (
@@ -479,9 +241,10 @@ const Contest = () => {
       button_title="Back"
       button_status={true}
       route="/superadmin/dashboard"
-      // extra_button="Add Contest" extra_button_action={"/superadmin/add-contest"}
+      // extra_button="+ Add Contest"
+      extra_button_action={() => navigate("/superadmin/add-contest")}
     >
-      <div className="p-2 ">
+      <div className="p-2">
         <div className="shadow-lg rounded-xl p-4">
           <Datatable
             columns={columns}
@@ -502,121 +265,6 @@ const Contest = () => {
             }
           />
         </div>
-
-        {open && (
-          <div
-            className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40"
-            onClick={handleCancel} // overlay pe click karte hi close
-          >
-            <div
-              className="w-full max-w-xl rounded-2xl bg-white shadow-2xl p-6 mt-10"
-              onClick={(e) => e.stopPropagation()} // andar click karne se band na ho
-            >
-              <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
-                <span>
-                  {selectedContest ? "✏️ Edit Contest" : "➕ Add Contest"}
-                </span>
-                <button
-                  onClick={handleCancel}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✖
-                </button>
-              </h2>
-
-              {/* Form */}
-              <form onSubmit={handleSave} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium">Name</label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full border rounded-md p-2"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium">
-                    Description
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="w-full border rounded-md p-2"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium">
-                      Entry Fee
-                    </label>
-                    <input
-                      type="number"
-                      value={entryFee}
-                      onChange={(e) => setEntryFee(e.target.value)}
-                      className="w-full border rounded-md p-2"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium">
-                      Total Spots
-                    </label>
-                    <input
-                      type="number"
-                      value={totalSpots}
-                      onChange={(e) => setTotalSpots(e.target.value)}
-                      className="w-full border rounded-md p-2"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium">
-                    Prize Pool
-                  </label>
-                  <input
-                    type="number"
-                    value={prizePool}
-                    onChange={(e) => setPrizePool(e.target.value)}
-                    className="w-full border rounded-md p-2"
-                  />
-                </div>
-
-                {/* <div>
-                  <label className="block text-sm font-medium">Status</label>
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    className="w-full border rounded-md p-2"
-                  >
-                    <option value="upcoming">Upcoming</option>
-                    <option value="live">Live</option>
-                    <option value="completed">Completed</option>
-                  </select>
-                </div> */}
-
-                <div className="flex justify-end gap-3 mt-4">
-                  <button
-                    type="button"
-                    onClick={handleCancel}
-                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md"
-                  >
-                    {selectedContest ? "Update" : "Save"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
     </Content>
   );

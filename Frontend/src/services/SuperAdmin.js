@@ -1165,6 +1165,18 @@ export async function GetContestDetails(token, contestId) {
   }
 }
 
+export async function GetContestRanking(token ,data){
+  try{
+    const response= await axios.post(`${config.base_url}client/getcontestranking`,
+      data,
+      {headers:{Authorization:`Bearer ${token}`}}
+    );
+      return response?.data;
+    }catch(error){
+      return error?.response?.data;
+    }
+  }
+
 export async function UpdateContest(token, data) {
   try {
     const response = await axios.post(

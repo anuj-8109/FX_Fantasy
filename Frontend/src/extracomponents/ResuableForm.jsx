@@ -1,11 +1,12 @@
 import React from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import Select from "react-select";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-const renderField = (field) => {
+
+const renderField = (field, form, values) => {
   const baseInputClasses =
-    "w-full rounded-lg  placeholder-gray-400 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400";
+    "w-full rounded-lg placeholder-gray-400 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400";
 
   switch (field.type) {
     case "textarea":
@@ -224,6 +225,87 @@ const renderField = (field) => {
         />
       );
 
+    case "prizeDistribution":
+      return (
+        <FieldArray name={field.name}>
+          {({ push, remove }) => (
+            <div className="space-y-3">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="font-medium text-gray-700">🏆 Prize Distribution</h3>
+                <button
+                  type="button"
+                  onClick={() => push({ from: "", to: "", amount: "" })}
+                  className="px-3 py-1 text-sm bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+                >
+                  + Add Row
+                </button>
+              </div>
+
+              {values[field.name]?.map((prize, idx) => (
+                <div key={idx} className="flex gap-2 items-center bg-gray-50 p-2 rounded-md">
+                  <div className="flex-1">
+                    <Field
+                      type="number"
+                      name={`${field.name}.${idx}.from`}
+                      placeholder="From Rank"
+                      min="1"
+                      className="w-full border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <ErrorMessage
+                      name={`${field.name}.${idx}.from`}
+                      component="div"
+                      className="text-xs text-red-500 mt-1"
+                    />
+                  </div>
+
+                  <div className="flex-1">
+                    <Field
+                      type="number"
+                      name={`${field.name}.${idx}.to`}
+                      placeholder="To Rank"
+                      min="1"
+                      className="w-full border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <ErrorMessage
+                      name={`${field.name}.${idx}.to`}
+                      component="div"
+                      className="text-xs text-red-500 mt-1"
+                    />
+                  </div>
+
+                  <div className="flex-1">
+                    <Field
+                      type="number"
+                      name={`${field.name}.${idx}.amount`}
+                      placeholder="Amount"
+                      min="0"
+                      step="0.01"
+                      className="w-full border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <ErrorMessage
+                      name={`${field.name}.${idx}.amount`}
+                      component="div"
+                      className="text-xs text-red-500 mt-1"
+                    />
+                  </div>
+
+                  {values[field.name].length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => remove(idx)}
+                      className="text-red-600 hover:text-red-800 font-bold text-lg px-2"
+                      title="Remove row"
+                    >
+                      ✖
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </FieldArray>
+      );
+
     case "custom":
       return (
         <Field name={field.name}>
@@ -275,9 +357,10 @@ const ReusableForm = ({
         isSubmitting,
         errors,
         touched,
+        values,
       }) => (
         <Form
-          className={`grid grid-cols-1 md:grid-cols-4 gap-4 p-4 Form_style  ${formClassName}`}
+          className={`grid grid-cols-1 md:grid-cols-4 gap-4 p-4 Form_style ${formClassName}`}
           encType="multipart/form-data"
           onSubmit={async (e) => {
             e.preventDefault();
@@ -303,11 +386,13 @@ const ReusableForm = ({
         >
           {fields.map((field) => (
             <div key={field.name} className={field.colClass || "col-span-2"}>
-              <div className="flex flex-col space-y-1 ">
-                {field.type !== "checkbox" && field.type !== "radio" && (
+              <div className="flex flex-col space-y-1">
+                {field.type !== "checkbox" && 
+                 field.type !== "radio" && 
+                 field.type !== "prizeDistribution" && (
                   <label
                     htmlFor={field.name}
-                    className={`text-sm font-medium   ${
+                    className={`text-sm font-medium ${
                       field.required
                         ? "after:content-['*'] after:text-red-500 after:ml-1"
                         : ""
@@ -318,23 +403,25 @@ const ReusableForm = ({
                 )}
 
                 <div
-                  className={`relative    ${
+                  className={`relative ${
                     errors[field.name] && touched[field.name]
                       ? "border-red-300"
                       : ""
                   }`}
                 >
-                  {renderField(field)}
+                  {renderField(field, null, values)}
                 </div>
 
-                <ErrorMessage
-                  name={field.name}
-                  component="div"
-                  className=" text-xs mt-1 font-medium text-red-500 "
-                />
+                {field.type !== "prizeDistribution" && (
+                  <ErrorMessage
+                    name={field.name}
+                    component="div"
+                    className="text-xs mt-1 font-medium text-red-500"
+                  />
+                )}
 
                 {field.helpText && (
-                  <div className=" text-xs mt-1 ">{field.helpText}</div>
+                  <div className="text-xs mt-1">{field.helpText}</div>
                 )}
               </div>
             </div>
@@ -344,7 +431,7 @@ const ReusableForm = ({
             <button
               type="submit"
               disabled={loading || isSubmitting || submitButtonProps.disabled}
-              className={` px-4 py-3 mt-4 bg-blue-500 font-semibold rounded-lg shadow-md  transition disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`px-4 py-3 mt-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed ${
                 submitButtonProps.className || ""
               }`}
               {...submitButtonProps}

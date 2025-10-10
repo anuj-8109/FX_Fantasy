@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
-import { GetContestDetails } from "../../../services/SuperAdmin";
-import { getContestRanking } from "../../../services/User";
+import {
+  GetContestDetails,
+  GetContestRanking,
+} from "../../../services/SuperAdmin";
 import Content from "../../../components/superadmin/Content";
 import toast from "react-hot-toast";
 
@@ -45,14 +47,31 @@ const ViewContest = () => {
   const fetchMemberRank = async () => {
     setLoading(true);
     try {
-      const res = await getContestRanking(token, { contest_id: id });
+      const res = await GetContestRanking(token, { contest_id: id });
       if (res?.status) {
-        setMemberRanks(res.data || []);
+        const formattedData = res.data?.map((item) => ({
+          member_name: item?.client_id?.FullName || "-",
+          email: item?.client_id?.Email || "-",
+          phone: item?.client_id?.PhoneNo || "-",
+          rank: item?.rank || "-",
+          points: item?.points || 0,
+          wallet_balance: item?.wallet_balance || 0,
+          joined_at: item?.joined_at
+            ? new Date(item.joined_at).toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "N/A",
+        }));
+        setMemberRanks(formattedData);
       } else {
-        toast.error(res?.message || "Failed to fetch contest details");
+        toast.error(res?.message || "Failed to fetch contest ranking");
       }
     } catch (err) {
-      toast.error("Something went wrong while fetching contest details");
+      toast.error("Something went wrong while fetching contest ranking");
     }
     setLoading(false);
   };
@@ -217,17 +236,29 @@ const ViewContest = () => {
               <table className="min-w-full border text-sm">
                 <thead className="bg-gray-100">
                   <tr>
+                    <th className="border px-3 py-2 text-left">#</th>
                     <th className="border px-3 py-2 text-left">Member Name</th>
+                    <th className="border px-3 py-2 text-left">Email</th>
+                    <th className="border px-3 py-2 text-left">Phone</th>
                     <th className="border px-3 py-2 text-left">Rank</th>
                     <th className="border px-3 py-2 text-left">Points</th>
+                    <th className="border px-3 py-2 text-left">
+                      Wallet Balance
+                    </th>
+                    <th className="border px-3 py-2 text-left">Joined At</th>
                   </tr>
                 </thead>
                 <tbody>
                   {memberRanks.map((m, i) => (
                     <tr key={i}>
+                      <td className="border px-3 py-2">{i + 1}</td>
                       <td className="border px-3 py-2">{m.member_name}</td>
+                      <td className="border px-3 py-2">{m.email}</td>
+                      <td className="border px-3 py-2">{m.phone}</td>
                       <td className="border px-3 py-2">{m.rank}</td>
                       <td className="border px-3 py-2">{m.points}</td>
+                      <td className="border px-3 py-2">₹{m.wallet_balance}</td>
+                      <td className="border px-3 py-2">{m.joined_at}</td>
                     </tr>
                   ))}
                 </tbody>
