@@ -487,37 +487,39 @@ function Pricepol() {
                         <button
                           onClick={async () => {
                             const token = localStorage.getItem("token");
-                            const clientId = localStorage.getItem("userId"); // current user ID
+                            const shared_by_client_id = localStorage.getItem("userId"); // current user ID
 
-                            const { value: sharedWith } = await Swal.fire({
+                            // SweetAlert to get phone number
+                            const { value: PhoneNo } = await Swal.fire({
                               title: "🔗 Share Contest",
-                              html: `<p style="font-size:14px; color:#333;">Enter Phone Number you want to share this contest with:</p>`,
+                              html: `<p style="font-size:14px; color:#333;">Enter the phone number to share this contest with:</p>`,
                               input: "text",
                               inputPlaceholder: "Enter Phone Number",
                               showCancelButton: true,
                               confirmButtonText: "Share",
                               cancelButtonText: "Cancel",
+                              inputValidator: (value) => {
+                                if (!value) return "Phone number is required!";
+                                // Optional: validate proper phone number format
+                                const phoneRegex = /^[0-9]{10,15}$/;
+                                if (!phoneRegex.test(value)) return "Enter a valid phone number!";
+                              },
                               focusConfirm: false,
                               allowOutsideClick: false,
                               icon: "info",
                               background: "#fefefe",
                               color: "#062d40",
-                              showClass: { popup: 'animate__animated animate__fadeInDown' },
-                              hideClass: { popup: 'animate__animated animate__fadeOutUp' },
-                              inputValidator: (value) => {
-                                if (!value) return "Phone number is required!";
-                              },
                             });
 
-                            if (!sharedWith) return; // user cancelled
+                            if (!PhoneNo) return; // User cancelled
 
                             try {
+                              // Call API to share contest
                               const res = await SharePrivateContest(
                                 token,
-                                contest._id,
-                                sharedWith, // shared_with_client_id
-                                clientId,   // shared_by_client_id
-                                sharedWith  // PhoneNo
+                                contest._id,           // contest ID
+                                shared_by_client_id,   // your client ID
+                                PhoneNo                // recipient phone number
                               );
 
                               if (res?.status) {
@@ -533,6 +535,8 @@ function Pricepol() {
                         >
                           Share
                         </button>
+
+
 
                       </div>
                     </div>
