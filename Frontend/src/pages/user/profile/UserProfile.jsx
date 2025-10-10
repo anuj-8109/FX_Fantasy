@@ -41,7 +41,7 @@ const UserProfile = () => {
 
                 // Set image from backend with full URL
                 if (response.data.image) {
-                    const imageUrl = `${config.image_url}${response.data.image}`;
+                    const imageUrl = `${response?.data?.image}`;
                     console.log("Setting image URL:", imageUrl);
                     setSelectedImage(imageUrl);
                 } else {
@@ -126,7 +126,7 @@ const UserProfile = () => {
                 setIsModalOpen(false);
 
                 // Update with backend image URL
-                const newImageUrl = `${config.image_url}${res.data.image}`;
+                const newImageUrl = `${res.data.image}`;
                 console.log("New image URL:", newImageUrl);
                 
                 setUserDetails(prev => ({ ...prev, image: res.data.image }));
