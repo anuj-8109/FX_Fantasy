@@ -1770,58 +1770,69 @@ async deleteBank(req, res) {
 
 // Share Private Contest
 async SharePrivateContest(req, res) {
-  try {
-    const { contest_id, shared_by_client_id,PhoneNo } = req.body;
 
-    if (!contest_id  || !shared_by_client_id || PhoneNo) {
-      return res.status(400).json({
-        status: false,
-        message: "contest_id, shared_with_client_id and shared_by_client_id are required"
-      });
-    }
+try {
 
- const recipient = await Clients_Modal.findOne({
-    PhoneNo: PhoneNo
-  });
+const { contest_id, shared_by_client_id,PhoneNo } = req.body;
 
-  if (!recipient) {
-    return res.status(404).json({
-      status: false,
-      message: "Recipient not found for provided PhoneNo"
-    });
-  }
+if (!contest_id || !shared_by_client_id || PhoneNo) {
+return res.status(400).json({
+status: false,
+message: "contest_id, shared_with_client_id and shared_by_client_id are required"
 
-  const shared_with_client_id = recipient._id;
+});
+
+}
 
 
-    // Check contest exists
-    const contest = await Contest_Model.findOne({ _id: contest_id, is_private: true });
-    if (!contest) {
-      return res.status(404).json({ status: false, message: "Private contest not found" });
-    }
+const recipient = await Clients_Modal.findOne({
+PhoneNo: PhoneNo
+});
 
-    // Save share entry
-    const shareEntry = new ContestShare_Model({
-      contest_id,
-      shared_with_client_id,
-      shared_by_client_id,
-      PhoneNo,
-    });
 
-    await shareEntry.save();
+if (!recipient) {
+return res.status(404).json({
+status: false,
+message: "Recipient not found for provided PhoneNo"
+});
+}
 
-    return res.status(200).json({
-      status: true,
-      message: "Contest shared successfully"
-    });
 
-  } catch (error) {
-    return res.status(500).json({
-      status: false,
-      message: "Server error",
-      error: error.message
-    });
-  }
+const shared_with_client_id = recipient._id;
+
+const contest = await Contest_Model.findOne({ _id: contest_id, is_private: true });
+if (!contest) {
+return res.status(404).json({ status: false, message: "Private contest not found" });
+}
+
+
+// Save share entry
+
+const shareEntry = new ContestShare_Model({
+contest_id,
+shared_with_client_id,
+shared_by_client_id,
+PhoneNo,
+});
+
+
+await shareEntry.save();
+
+return res.status(200).json({
+status: true,
+message: "Contest shared successfully"
+});
+
+} catch (error) {
+
+return res.status(500).json({
+status: false,
+message: "Server error",
+error: error.message
+});
+
+}
+
 }
 
 // 📌 List Private Contests API
