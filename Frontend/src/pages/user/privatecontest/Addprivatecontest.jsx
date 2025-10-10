@@ -3,15 +3,16 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { addprivatecontent } from "../../../services/User";
 import toast from "react-hot-toast";
+import BackButton from "../Backbutton";
 
 const AddContest = () => {
   const token = localStorage.getItem("token");
   const client_id = localStorage.getItem("userId");
   const location = useLocation();
-const tournament_id = location.state?.tournament_id; 
+  const tournament_id = location.state?.tournament_id;
 
   const initialForm = {
-    add_by:"",
+    add_by: "",
     name: "",
     description: "",
     contest_type: "",
@@ -77,8 +78,12 @@ const tournament_id = location.state?.tournament_id;
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow rounded mt-6">
-      <h2 className="text-2xl font-bold mb-6">Add Contest</h2>
+    <div className="max-w-4xl mx-auto p-4 bg-white shadow rounded ">
+      <div className="flex items-center justify-between border p-2 mb-6 rounded bg-gray-100">
+
+        <h2 className="text-2xl font-bold">Add Contest</h2>
+        <BackButton />
+      </div>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Name & Type */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -121,7 +126,7 @@ const tournament_id = location.state?.tournament_id;
         </label>
 
         {/* Submit */}
-        <button type="submit" disabled={loading} className="w-full p-3 bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold transition">
+        <button type="submit" disabled={loading} className="w-full p-3 bg-orange-600 hover:bg-orange-700 text-white rounded font-semibold transition">
           {loading ? "Saving..." : "Add Contest"}
         </button>
       </form>

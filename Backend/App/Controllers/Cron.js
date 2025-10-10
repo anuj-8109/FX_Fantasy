@@ -384,24 +384,21 @@ async function updateContestRanks(req, res) {
   }
 }
 
-async function closeOpenPositionsForEndedTournaments() {
-  const session = await mongoose.startSession();
+async function closeOpenPositionsForEndedTournaments(req, res) {
   try {
-    session.startTransaction();
-
     const now = new Date();
 
     // 1️⃣ Find tournaments that ended but not yet processed
     const endedTournaments = await Tournament_Model.find({
       enddate: { $lte: now },
-      closed_positions: { $ne: true } // Add this field to Tournament model
-    }).session(session);
+      closed_positions: { $ne: true } 
+    });
 
     for (const tour of endedTournaments) {
       const contest_id = tour._id;
 
       // 2️⃣ Get all participants
-      const participants = await Contestjoin_Modal.find({ contest_id }).session(session);
+      const participants = await Contestjoin_Modal.find({ contest_id });
 
       for (const join of participants) {
         const client_id = join.client_id;
@@ -412,10 +409,10 @@ async function closeOpenPositionsForEndedTournaments() {
           {
             $group: {
               _id: "$stock_symbol",
-              buyQty: { $sum: { $cond: [{ $eq: ["$trade_type", "BUY"] }, "$quantity", 0] } },
-              buyValue: { $sum: { $cond: [{ $eq: ["$trade_type", "BUY"] }, { $multiply: ["$quantity", "$price"] }, 0] } },
-              sellQty: { $sum: { $cond: [{ $eq: ["$trade_type", "SELL"] }, "$quantity", 0] } },
-              sellValue: { $sum: { $cond: [{ $eq: ["$trade_type", "SELL"] }, { $multiply: ["$quantity", "$price"] }, 0] } }
+              buyQty: { $sum: { $cond: [{ $eq: ["$trade_type", "buy"] }, "$quantity", 0] } },
+              buyValue: { $sum: { $cond: [{ $eq: ["$trade_type", "buy"] }, { $multiply: ["$quantity", "$price"] }, 0] } },
+              sellQty: { $sum: { $cond: [{ $eq: ["$trade_type", "sell"] }, "$quantity", 0] } },
+              sellValue: { $sum: { $cond: [{ $eq: ["$trade_type", "sell"] }, { $multiply: ["$quantity", "$price"] }, 0] } }
             }
           },
           {
@@ -427,7 +424,7 @@ async function closeOpenPositionsForEndedTournaments() {
             }
           },
           { $match: { netQty: { $ne: 0 } } } // only open positions
-        ]).session(session);
+        ]);
 
         let wallet = Number(join.wallet_balance || 0);
         let locked = Number(join.locked_balance || 0);
@@ -440,7 +437,7 @@ async function closeOpenPositionsForEndedTournaments() {
           let realizedPnL = 0;
 
           if (netQty > 0) {
-            // Close long
+            // Close long positions
             const pnlClose = (currentPrice - longAvg) * netQty;
             realizedPnL += pnlClose;
 
@@ -452,12 +449,14 @@ async function closeOpenPositionsForEndedTournaments() {
               contest_id,
               client_id,
               stock_symbol,
-              trade_type: "SELL",
+              trade_type: "sell",
               quantity: netQty,
-              price: currentPrice
+              price: currentPrice,
+              position_type: "CLOSE",
+              realizedPnL
             });
           } else if (netQty < 0) {
-            // Close short
+            // Close short positions
             const qtyAbs = Math.abs(netQty);
             const pnlClose = (shortAvg - currentPrice) * qtyAbs;
             realizedPnL += pnlClose;
@@ -470,9 +469,11 @@ async function closeOpenPositionsForEndedTournaments() {
               contest_id,
               client_id,
               stock_symbol,
-              trade_type: "BUY",
+              trade_type: "buy",
               quantity: qtyAbs,
-              price: currentPrice
+              price: currentPrice,
+              position_type: "CLOSE",
+              realizedPnL
             });
           }
 
@@ -481,29 +482,27 @@ async function closeOpenPositionsForEndedTournaments() {
 
           // Save closing trades
           if (tradesToInsert.length > 0) {
-            await Contesttrade_Modal.insertMany(tradesToInsert, { session });
+            await Contesttrade_Modal.insertMany(tradesToInsert);
           }
         }
 
         // Update participant wallet and locked balance
         join.wallet_balance = wallet;
         join.locked_balance = locked;
-        await join.save({ session });
+        await join.save();
       }
 
       // Mark tournament as processed
       tour.closed_positions = true;
-      await tour.save({ session });
+      await tour.save({ validateBeforeSave: false }); // Skip validation for required fields
     }
 
-    await session.commitTransaction();
-    session.endSession();
-
     console.log("✅ All open positions for ended tournaments closed successfully.");
+     return res.status(200).json({ status: true, message: "Positions closed successfully" });
+
   } catch (err) {
-    await session.abortTransaction();
-    session.endSession();
     console.error("❌ Error closing positions for ended tournaments:", err);
+     return res.status(500).json({ status: false, message: "Server error", error: err.message });
   }
 }
 

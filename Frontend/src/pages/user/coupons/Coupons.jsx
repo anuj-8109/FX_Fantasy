@@ -36,7 +36,7 @@ function Coupons() {
 
   return (
     <div className="p-4 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 border p-3 bg-gray-50 rounded-xl shadow-sm border-blue-200">
         <h2 className="text-2xl font-bold">Coupons</h2>
         <BackButton />
       </div>

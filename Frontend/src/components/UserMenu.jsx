@@ -55,7 +55,7 @@ const UserMenu = () => {
   return (
     <div className="fixed bottom-0 left-0 right-0 
       footer 
-     shadow-lg backdrop-blur-md z-50 rounded-t-2xl">
+     shadow-lg bg-white z-50 rounded-t-2xl">
       
       <div className="flex justify-around items-center h-16">
         

@@ -82,23 +82,25 @@ function HelpDesk() {
     <div className="flex bg-gray-100 min-h-screen">
 
       <div className="flex-1 p-6">
-        <div className="flex justify-between items-center mb-6">
-          {/* Left: Heading */}
-          <h1 className="text-xl font-semibold flex items-center gap-2">
-            <Ticket size={24} /> Help Desk
-          </h1>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 border p-3 bg-gray-50 rounded-xl shadow-sm border-blue-200 gap-3 sm:gap-0">
+  {/* Left: Heading */}
+  <h1 className="text-lg sm:text-xl font-semibold flex items-center gap-2 text-gray-800">
+    <Ticket size={22} className="text-orange-500" /> Help Desk
+  </h1>
 
-          {/* Right: Back button + New Request */}
-          <div className="flex items-center gap-3">
-            <BackButton />
-            <button
-              onClick={openModal}
-              className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 flex items-center gap-1"
-            >
-              <span>+</span> New Request
-            </button>
-          </div>
-        </div>
+  {/* Right: Back button + New Request */}
+  <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto">
+    <BackButton />
+
+    <button
+      onClick={openModal}
+      className="bg-orange-500 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-orange-600 transition-all flex items-center gap-1 text-sm sm:text-base font-medium"
+    >
+      <span className="text-lg font-bold">+</span> New Request
+    </button>
+  </div>
+</div>
+
 
 
         <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 min-h-[60vh]">

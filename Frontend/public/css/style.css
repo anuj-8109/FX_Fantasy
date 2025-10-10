@@ -304,15 +304,16 @@ aside .w-16 .anuj{
 }
 .header,footer
 {
-    background-image: linear-gradient(to right, #022f40,#08516b, #38aacc) !important;
-
+    /* background-image: linear-gradient(to right, #022f40,#08516b, #38aacc) !important; */
+    /* background-color: #f54c01 !important; */
+ background-image: linear-gradient(81deg, #E8411D 0%, #FAAC52 100%) !important;
 }
 
 
-.heading_style{
+/* .heading_style{
     background-color: rgb(16 121 159 / 16%);
-}
+} */
 
-.button_style{
+/* .button_style{
      background-color: rgb(6 71 94);
-}
+} */

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sun, Moon, Bell, Wallet } from "lucide-react";
+import { Sun, Moon, Bell, Wallet, ArrowLeft } from "lucide-react";
 import { GetUserDetails } from "../services/User";
 
 const UserHeader = () => {
@@ -44,11 +44,14 @@ const UserHeader = () => {
   };
 
   return (
-    <header className="header
- text-white flex items-center justify-between px-4 py-3 shadow-lg">
-      
-      {/* Left Section - Avatar + Name */}
+    <header className="header text-white flex items-center justify-between px-4 py-3 shadow-lg bg-gradient-to-r from-[#001f3f] to-[#003f5c]">
+      {/* Left Section - Back Button + Avatar + Name */}
       <div className="flex items-center space-x-3">
+
+    
+
+
+        {/* User Avatar */}
         <div className="w-11 h-11 rounded-full border-2 border-white overflow-hidden transform hover:scale-110 transition duration-300 shadow-md">
           <img
             src={
@@ -65,35 +68,33 @@ const UserHeader = () => {
         </h1>
       </div>
 
-      {/* Right Section - Actions */}
+      {/* Right Section - Wallet + Notifications */}
       <div className="flex items-center space-x-3">
-        {/* Theme Toggle */}
-        {/* <button
-          onClick={toggleTheme}
-          className="bg-[#053e53] p-2 rounded-full text-white-500 hover:bg-gray-100 
-          transition-transform duration-500 transform hover:rotate-180 shadow-md"
-          title="Toggle Theme"
-        >
-          {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-        </button> */}
-
         {/* Wallet Button */}
         <button
           onClick={() => navigate("/wallet")}
-          className="bg-[#053e53] px-3 py-2 rounded-full flex items-center 
-          text-white-500 font-medium shadow-md hover:shadow-lg hover:scale-105 transition"
+          className="bg-black px-3 py-2 rounded-full flex items-center 
+          text-white font-medium shadow-md hover:shadow-lg hover:scale-105 transition"
         >
           <Wallet size={18} className="mr-1" />
           ₹{walletBalance.toLocaleString("en-IN")}
         </button>
 
         {/* Notifications */}
-        <button className="bg-[#053e53] p-2 rounded-full text-white-500 hover:bg-gray-100 relative shadow-md">
+        <button className="bg-black p-2 rounded-full text-white relative shadow-md hover:scale-110 transition">
           <Bell size={20} />
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1 animate-pulse">
             3
           </span>
+          
         </button>
+            {/* <button
+          onClick={() => navigate(-1)}
+          className="bg-orange-600 text-white text-xs rounded-full px-2"
+          title="Go Back"
+        >
+          <i className="fa fa-angle-left text-white text-xl"></i>
+        </button> */}
       </div>
     </header>
   );

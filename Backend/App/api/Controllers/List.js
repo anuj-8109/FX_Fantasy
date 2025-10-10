@@ -17,7 +17,7 @@ const States = db.States;
 const City = db.City;
 
 
-mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 class List {
 
@@ -463,7 +463,7 @@ if (client.referwamount && client.referwamount > 0 && referPercent > 0) {
     });
   }
 }
-
+/*
 async  addTrade(req, res) {
   try {
     const { contest_id, client_id, stock_symbol, trade_type, quantity } = req.body;
@@ -558,25 +558,19 @@ async  addTrade(req, res) {
     return res.status(500).json({ status: false, message: "Server error", error: error.message });
   }
 }
-
-/*
+*/
 async addTrade(req, res) {
-  const session = await mongoose.startSession();
   try {
-    session.startTransaction();
-
     const { contest_id, client_id, stock_symbol, trade_type, quantity } = req.body;
 
+    // Validate input
     if (!contest_id || !client_id || !stock_symbol || !trade_type || !quantity) {
-      await session.abortTransaction();
-      session.endSession();
       return res.status(400).json({ status: false, message: "All fields are required" });
     }
 
-    const joinData = await Contestjoin_Modal.findOne({ contest_id, client_id }).session(session);
+    // Check if user joined contest
+    const joinData = await Contestjoin_Modal.findOne({ contest_id, client_id });
     if (!joinData) {
-      await session.abortTransaction();
-      session.endSession();
       return res.status(404).json({ status: false, message: "Client has not joined this contest" });
     }
 
@@ -588,7 +582,7 @@ async addTrade(req, res) {
     const contestObjId = new mongoose.Types.ObjectId(contest_id);
     const clientObjId = new mongoose.Types.ObjectId(client_id);
 
-    // Current aggregated position for this stock
+    // Aggregate existing trades for this stock
     const agg = await Contesttrade_Modal.aggregate([
       {
         $match: {
@@ -606,19 +600,21 @@ async addTrade(req, res) {
           sellValue: { $sum: { $cond: [{ $eq: [{ $toUpper: "$trade_type" }, "SELL"] }, { $multiply: ["$quantity", "$price"] }, 0] } }
         }
       }
-    ]).session(session);
+    ]);
 
     const stats = agg[0] || { buyQty: 0, buyValue: 0, sellQty: 0, sellValue: 0 };
     const boughtQty = stats.buyQty || 0;
     const soldQty = stats.sellQty || 0;
     const netQty = boughtQty - soldQty; // positive => long, negative => short
 
-    let longAvg = boughtQty > 0 ? stats.buyValue / boughtQty : null;
-    let shortAvg = soldQty > 0 ? stats.sellValue / soldQty : null;
+    const longAvg = boughtQty > 0 ? stats.buyValue / boughtQty : null;
+    const shortAvg = soldQty > 0 ? stats.sellValue / soldQty : null;
     let realizedPnL = 0;
-
     const tradesToInsert = [];
 
+    // ==========================
+    // BUY Trade Handling
+    // ==========================
     if (trade_type.toUpperCase() === "BUY") {
       if (netQty < 0) {
         // Cover existing short
@@ -635,23 +631,20 @@ async addTrade(req, res) {
           contest_id,
           client_id,
           stock_symbol,
-          trade_type: "BUY",
+          trade_type: "buy",
           quantity: closeQty,
           price,
           position_type: "CLOSE",
           realizedPnL: pnlClose,
           wallet_balance_after_trade: wallet,
-          locked_balance_after_trade: locked,
-          trade_reference: null
+          locked_balance_after_trade: locked
         });
 
         const remainingQty = qty - closeQty;
         if (remainingQty > 0) {
           const amtRem = price * remainingQty;
           if (wallet < amtRem) {
-            await session.abortTransaction();
-            session.endSession();
-            return res.status(400).json({ status: false, message: "Insufficient wallet to open new long after covering" });
+            return res.status(400).json({ status: false, message: "Insufficient wallet to open new long after covering short" });
           }
           wallet -= amtRem;
           locked += amtRem;
@@ -660,21 +653,19 @@ async addTrade(req, res) {
             contest_id,
             client_id,
             stock_symbol,
-            trade_type: "BUY",
+            trade_type: "buy", // ✅ corrected (was SELL before)
             quantity: remainingQty,
             price,
             position_type: "OPEN",
             realizedPnL: 0,
             wallet_balance_after_trade: wallet,
-            locked_balance_after_trade: locked,
-            trade_reference: null
+            locked_balance_after_trade: locked
           });
         }
       } else {
+        // Open new long position
         const tradeAmount = price * qty;
         if (wallet < tradeAmount) {
-          await session.abortTransaction();
-          session.endSession();
           return res.status(400).json({ status: false, message: "Insufficient wallet balance for BUY" });
         }
         wallet -= tradeAmount;
@@ -684,16 +675,19 @@ async addTrade(req, res) {
           contest_id,
           client_id,
           stock_symbol,
-          trade_type: "BUY",
+          trade_type: "buy",
           quantity: qty,
           price,
           position_type: "OPEN",
           realizedPnL: 0,
           wallet_balance_after_trade: wallet,
-          locked_balance_after_trade: locked,
-          trade_reference: null
+          locked_balance_after_trade: locked
         });
       }
+
+    // ==========================
+    // SELL Trade Handling
+    // ==========================
     } else if (trade_type.toUpperCase() === "SELL") {
       if (netQty > 0) {
         // Close existing long
@@ -709,22 +703,19 @@ async addTrade(req, res) {
           contest_id,
           client_id,
           stock_symbol,
-          trade_type: "SELL",
+          trade_type: "sell",
           quantity: closeQty,
           price,
           position_type: "CLOSE",
           realizedPnL: pnlClose,
           wallet_balance_after_trade: wallet,
-          locked_balance_after_trade: locked,
-          trade_reference: null
+          locked_balance_after_trade: locked
         });
 
         const remainingQty = qty - closeQty;
         if (remainingQty > 0) {
           const amtRem = price * remainingQty;
           if (wallet < amtRem) {
-            await session.abortTransaction();
-            session.endSession();
             return res.status(400).json({ status: false, message: "Insufficient wallet to open short after closing long" });
           }
           wallet -= amtRem;
@@ -734,22 +725,20 @@ async addTrade(req, res) {
             contest_id,
             client_id,
             stock_symbol,
-            trade_type: "SELL",
+            trade_type: "sell",
             quantity: remainingQty,
             price,
             position_type: "OPEN",
             realizedPnL: 0,
             wallet_balance_after_trade: wallet,
-            locked_balance_after_trade: locked,
-            trade_reference: null
+            locked_balance_after_trade: locked
           });
         }
       } else {
+        // Open new short position
         const tradeAmount = price * qty;
         if (wallet < tradeAmount) {
-          await session.abortTransaction();
-          session.endSession();
-          return res.status(400).json({ status: false, message: "Insufficient wallet balance to open short (reserve required)" });
+          return res.status(400).json({ status: false, message: "Insufficient wallet balance to open short" });
         }
         wallet -= tradeAmount;
         locked += tradeAmount;
@@ -758,56 +747,53 @@ async addTrade(req, res) {
           contest_id,
           client_id,
           stock_symbol,
-          trade_type: "SELL",
+          trade_type: "buy",
           quantity: qty,
           price,
           position_type: "OPEN",
           realizedPnL: 0,
           wallet_balance_after_trade: wallet,
-          locked_balance_after_trade: locked,
-          trade_reference: null
+          locked_balance_after_trade: locked
         });
       }
+
     } else {
-      await session.abortTransaction();
-      session.endSession();
       return res.status(400).json({ status: false, message: "Invalid trade type" });
     }
 
     // Apply realized P&L
     if (realizedPnL !== 0) wallet += realizedPnL;
 
-    // Save all trades
-    await Contesttrade_Modal.insertMany(tradesToInsert, { session });
+    // Save trades
+    await Contesttrade_Modal.insertMany(tradesToInsert);
 
-    // Update joinData balances
+    // Update balances in joinData
     joinData.wallet_balance = wallet;
     joinData.locked_balance = locked;
-    await joinData.save({ session });
-
-    await session.commitTransaction();
-    session.endSession();
+    await joinData.save();
 
     return res.status(200).json({
       status: true,
-      message: "Trade executed",
+      message: "Trade executed successfully",
       data: {
         trades: tradesToInsert,
-        wallet_balance: joinData.wallet_balance,
-        locked_balance: joinData.locked_balance,
+        wallet_balance: wallet,
+        locked_balance: locked,
         realizedPnL
       }
     });
 
   } catch (err) {
-    await session.abortTransaction();
-    session.endSession();
-    return res.status(500).json({ status: false, message: "Server error", error: err.message });
+    console.error("Error in addTrade:", err);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: err.message
+    });
   }
 }
 
 
-*/
 
 // 📌 My Contests List API
 async myContests(req, res) {
@@ -930,6 +916,92 @@ const limit = 10;
   }
 }
 
+async  getOpenPositions(req, res) {
+  try {
+    const { client_id, contest_id, page = 1 } = req.body;
+    const limit = 10;
+
+    if (!client_id && !contest_id) {
+      return res.status(400).json({
+        status: false,
+        message: "Either client_id or contest_id is required",
+      });
+    }
+
+    const filter = {};
+    if (client_id) filter.client_id = client_id;
+    if (contest_id) filter.contest_id = contest_id;
+
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    // Aggregate net positions: group by client/contest/stock, sum buy and sell quantities
+    const aggPipeline = [
+      { $match: filter },
+      {
+        $group: {
+          _id: { contest_id: "$contest_id", client_id: "$client_id", stock_symbol: "$stock_symbol" },
+          buyQty: { $sum: { $cond: [{ $eq: ["$trade_type", "buy"] }, "$quantity", 0] } },
+          sellQty: { $sum: { $cond: [{ $eq: ["$trade_type", "sell"] }, "$quantity", 0] } }
+        }
+      },
+      {
+        $project: {
+          contest_id: "$_id.contest_id",
+          client_id: "$_id.client_id",
+          stock_symbol: "$_id.stock_symbol",
+          netQty: { $subtract: ["$buyQty", "$sellQty"] }
+        }
+      },
+      { $match: { netQty: { $ne: 0 } } }, // Only positions with non-zero net quantity
+      { $skip: skip },
+      { $limit: limitNum },
+      { $sort: { stock_symbol: 1 } }
+    ];
+
+    const netPositions = await Contesttrade_Modal.aggregate(aggPipeline);
+
+    // Get total count for pagination
+    const countPipeline = [
+      { $match: filter },
+      {
+        $group: {
+          _id: { contest_id: "$contest_id", client_id: "$client_id", stock_symbol: "$stock_symbol" },
+          buyQty: { $sum: { $cond: [{ $eq: ["$trade_type", "buy"] }, "$quantity", 0] } },
+          sellQty: { $sum: { $cond: [{ $eq: ["$trade_type", "sell"] }, "$quantity", 0] } }
+        }
+      },
+      {
+        $project: {
+          netQty: { $subtract: ["$buyQty", "$sellQty"] }
+        }
+      },
+      { $match: { netQty: { $ne: 0 } } },
+      { $count: "total" }
+    ];
+
+    const totalCountArr = await Contesttrade_Modal.aggregate(countPipeline);
+    const total = totalCountArr.length > 0 ? totalCountArr[0].total : 0;
+
+    return res.status(200).json({
+      status: true,
+      message: "Open positions fetched successfully",
+      page: pageNum,
+      limit: limitNum,
+      total,
+      data: netPositions,
+    });
+
+  } catch (error) {
+    console.error("Error fetching open positions:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
 
 async getContestRanking(req, res) {
   try {

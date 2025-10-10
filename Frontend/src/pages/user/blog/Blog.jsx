@@ -32,8 +32,8 @@ function Blog() {
 
   return (
     <div className="max-w-4xl max-h-4xl mx-auto px-4 py-4">
-      <div className="flex justify-between items-center mb-6">
-        {/* Left: Back button */}
+      <div className="flex justify-between items-center mb-6 border p-1 rounded-xl shadow-sm bg-gray-50">
+        
         <h2 className="text-3xl font-bold text-gray-800">Latest Blogs</h2>
 
 

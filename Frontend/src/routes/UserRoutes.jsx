@@ -55,6 +55,7 @@ const UserRoutes = () => {
         <Route path="addprivatecontest" element={<AddprivateContest/>}/>
         <Route path="listprivatecontest" element={<Getprivatecontest/>}/>
         <Route path="referral" element={<Refer />} />
+   
 
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
 
