@@ -39,31 +39,30 @@ export default function AddEditClient() {
   }, []);
 
   useEffect(() => {
-  if (clientData) {
-    setInitialValues({
-      FullName: clientData.FullName || "",
-      Email: clientData.Email || "",
-      PhoneNo: clientData.PhoneNo || "",
-      state: clientData.state || "",
-      city: clientData.city || "",
-      dob: clientData.dob || "",
-    });
-    setOriginalData({
-      FullName: clientData.FullName || "",
-      Email: clientData.Email || "",
-      PhoneNo: clientData.PhoneNo || "",
-      state: clientData.state || "",
-      city: clientData.city || "",
-      dob: clientData.dob || "",
-    });
+    if (clientData) {
+      setInitialValues({
+        FullName: clientData.FullName || "",
+        Email: clientData.Email || "",
+        PhoneNo: clientData.PhoneNo || "",
+        state: clientData.state || "",
+        city: clientData.city || "",
+        dob: clientData.dob || "",
+      });
+      setOriginalData({
+        FullName: clientData.FullName || "",
+        Email: clientData.Email || "",
+        PhoneNo: clientData.PhoneNo || "",
+        state: clientData.state || "",
+        city: clientData.city || "",
+        dob: clientData.dob || "",
+      });
 
-    // 🧠 Fetch city list for existing state when editing
-    if (clientData.state) {
-      fetchCities(clientData.state);
+      // 🧠 Fetch city list for existing state when editing
+      if (clientData.state) {
+        fetchCities(clientData.state);
+      }
     }
-  }
-}, [clientData]);
-
+  }, [clientData]);
 
   const fetchStates = async () => {
     try {
@@ -92,7 +91,12 @@ export default function AddEditClient() {
       .required("Phone number is required"),
     state: Yup.string().required("State is required"),
     city: Yup.string().required("City is required"),
-    dob: Yup.date().required("Date of Birth is required"),
+    dob: Yup.date()
+      .max(
+        new Date(new Date().setDate(new Date().getDate() - 1)),
+        "Date of Birth cannot be today or a future date"
+      )
+      .required("Date of Birth is required"),
   });
 
   const isFormChanged = (values) => {
@@ -150,7 +154,7 @@ export default function AddEditClient() {
 
       if (res?.status) {
         toast.success(res?.message || "Client saved successfully");
-        navigate("/superadmin/client");
+        navigate("/superadmin/clients");
       } else {
         toast.error(res?.message || "Failed to save client");
       }

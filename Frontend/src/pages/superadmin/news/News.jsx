@@ -91,19 +91,19 @@ const News = () => {
 
   const columns = [
     {
-         name: "Image",
-         cell: (row) =>
-           row?.image ? (
-             <img
-               src={`${config?.image_url}uploads/news/${row.image}`}
-               alt={row.title}
-               className="w-16 h-16 object-cover rounded"
-             />
-           ) : (
-             <span className="text-gray-400 italic">No Image</span>
-           ),
-         export: false,
-       },
+      name: "Image",
+      cell: (row) =>
+        row?.image ? (
+          <img
+            src={`${config?.image_url}uploads/news/${row.image}`}
+            alt={row.title}
+            className="w-16 h-16 object-cover rounded"
+          />
+        ) : (
+          <span className="text-gray-400 italic">No Image</span>
+        ),
+      export: false,
+    },
     {
       name: "Title",
       selector: (row) => row?.title,
@@ -223,7 +223,7 @@ const News = () => {
                   <div>
                     <h3 className="font-semibold text-gray-800">Image:</h3>
                     <img
-                      src={viewNews?.image}
+                      src={`${config?.image_url}uploads/news/${viewNews.image}`}
                       alt={viewNews?.title}
                       className="w-full max-h-64 object-contain rounded-md border"
                     />

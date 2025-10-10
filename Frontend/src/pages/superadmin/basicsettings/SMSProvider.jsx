@@ -53,43 +53,65 @@ const SMSProviders = () => {
     setOpen(true);
   };
 
-  const handleSave = async (e) => {
-    e.preventDefault();
+ const handleSave = async (e) => {
+  e.preventDefault();
 
-    const confirm = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to update this SMS Provider?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Update",
-      cancelButtonText: "Cancel",
+  // ✅ Compare with the original (selectedProvider)
+  const hasChanges =
+    name !== (selectedProvider?.name || "") ||
+    apikey !== (selectedProvider?.apikey || "") ||
+    username !== (selectedProvider?.username || "") ||
+    password !== (selectedProvider?.password || "") ||
+    route !== (selectedProvider?.route || "") ||
+    entityId !== (selectedProvider?.entity_id || "") ||
+    sender !== (selectedProvider?.sender || "") ||
+    url !== (selectedProvider?.url || "");
+
+  if (!hasChanges) {
+    Swal.fire({
+      icon: "info",
+      title: "No changes made",
+      text: "You haven’t modified any fields in this provider.",
+      confirmButtonText: "OK",
     });
+    return;
+  }
 
-    if (!confirm.isConfirmed) return;
+  const confirm = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to update this SMS Provider?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Update",
+    cancelButtonText: "Cancel",
+  });
 
-    const data = {
-      id: selectedProvider._id,
-      name,
-      apikey,
-      username,
-      password,
-      route,
-      entity_id: entityId,
-      sender,
-      url,
-    };
+  if (!confirm.isConfirmed) return;
 
-    setLoading(true);
-    const response = await UpdateSmsProvider(token, data);
-    if (response?.status) {
-      toast.success(response?.message || "Provider updated successfully");
-      fetchProviders();
-      setOpen(false);
-    } else {
-      toast.error(response?.message || "Failed to update provider");
-    }
-    setLoading(false);
+  const data = {
+    id: selectedProvider._id,
+    name,
+    apikey,
+    username,
+    password,
+    route,
+    entity_id: entityId,
+    sender,
+    url,
   };
+
+  setLoading(true);
+  const response = await UpdateSmsProvider(token, data);
+
+  if (response?.status) {
+    toast.success(response?.message || "Provider updated successfully");
+    fetchProviders();
+    setOpen(false);
+  } else {
+    toast.error(response?.message || "Failed to update provider");
+  }
+  setLoading(false);
+};
 
   const handleStatusChange = async (provider) => {
     const actionText = provider.status === 1 ? "Deactivate" : "Activate";

@@ -40,30 +40,51 @@ const KycInformation = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleUpdate = async () => {
-    const confirm = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to update KYC settings?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Update",
-      cancelButtonText: "Cancel",
+const handleUpdate = async () => {
+  // ✅ Get original data for comparison
+  const originalData = await GetBasicSettingDetails(token);
+  const original = originalData?.data || {};
+
+  // ✅ Check if any field actually changed
+  const hasChanges =
+    formData.digio_client_id !== (original.digio_client_id || "") ||
+    formData.digio_client_secret !== (original.digio_client_secret || "") ||
+    formData.digio_template_name !== (original.digio_template_name || "KYC_AGREEMENT");
+
+  if (!hasChanges) {
+    Swal.fire({
+      icon: "info",
+      title: "No changes made",
+      text: "You haven’t modified any fields in the KYC settings.",
+      confirmButtonText: "OK",
     });
+    return;
+  }
 
-    if (!confirm.isConfirmed) return;
+  const confirm = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to update KYC settings?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Update",
+    cancelButtonText: "Cancel",
+  });
 
-    setUpdateLoading(true);
-    try {
-      const response = await UpdateBasicSettings(token, formData);
-      toast.success(response?.message || "KYC settings updated successfully");
-      fetchKycSettings();
-    } catch (error) {
-      toast.error("Error updating KYC settings: " + (error?.message || error));
-      console.error(error);
-    } finally {
-      setUpdateLoading(false);
-    }
-  };
+  if (!confirm.isConfirmed) return;
+
+  setUpdateLoading(true);
+  try {
+    const response = await UpdateBasicSettings(token, formData);
+    toast.success(response?.message || "KYC settings updated successfully");
+    fetchKycSettings();
+  } catch (error) {
+    toast.error("Error updating KYC settings: " + (error?.message || error));
+    console.error(error);
+  } finally {
+    setUpdateLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchKycSettings();

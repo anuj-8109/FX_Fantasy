@@ -52,42 +52,57 @@ const SMSTemplates = () => {
   };
 
   const handleSave = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const confirm = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to update this SMS Template?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Update",
-      cancelButtonText: "Cancel",
+  // ✅ Check if any changes were made
+  const hasChanges =
+    templateid !== (selectedTemplate?.templateid || "") ||
+    smsBody !== (selectedTemplate?.sms_body || "");
+
+  if (!hasChanges) {
+    Swal.fire({
+      icon: "info",
+      title: "No changes made",
+      text: "You haven’t modified any fields in this template.",
+      confirmButtonText: "OK",
     });
+    return;
+  }
 
-    if (!confirm.isConfirmed) return;
+  const confirm = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to update this SMS Template?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Update",
+    cancelButtonText: "Cancel",
+  });
 
-    const payload = {
-      id: selectedTemplate._id,
-      templateid,
-      sms_body: smsBody,
-    };
+  if (!confirm.isConfirmed) return;
 
-    try {
-      setLoading(true);
-      const response = await UpdateSMSTemplate(token, payload);
-      if (response?.status) {
-        toast.success(response?.message || "Template updated successfully");
-        fetchTemplates();
-        setOpen(false);
-      } else {
-        toast.error(response?.message || "Failed to update template");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Error updating SMS Template");
-    } finally {
-      setLoading(false);
-    }
+  const payload = {
+    id: selectedTemplate._id,
+    templateid,
+    sms_body: smsBody,
   };
+
+  try {
+    setLoading(true);
+    const response = await UpdateSMSTemplate(token, payload);
+    if (response?.status) {
+      toast.success(response?.message || "Template updated successfully");
+      fetchTemplates();
+      setOpen(false);
+    } else {
+      toast.error(response?.message || "Failed to update template");
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Error updating SMS Template");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <Content

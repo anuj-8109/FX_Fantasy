@@ -58,35 +58,50 @@ const EmailTemplates = () => {
     fetchTemplateDetails(template._id);
   };
 
-  const handleSave = async () => {
-    const confirm = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to save changes to this template?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Save",
-      cancelButtonText: "Cancel",
+ const handleSave = async () => {
+  // Check if any changes were made
+  if (
+    subject === selectedTemplate.mail_subject &&
+    body === selectedTemplate.mail_body
+  ) {
+    Swal.fire({
+      icon: "info",
+      title: "No changes made",
+      text: "You haven’t made any changes to this template.",
+      confirmButtonText: "OK",
     });
+    return;
+  }
 
-    if (!confirm.isConfirmed) return;
+  const confirm = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to save changes to this template?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Save",
+    cancelButtonText: "Cancel",
+  });
 
-    const data = {
-      mail_subject: subject,
-      mail_body: body,
-      id: selectedTemplate._id,
-    };
+  if (!confirm.isConfirmed) return;
 
-    const response = await UpdateMailTemplate(token, data);
-
-    if (response?.status) {
-      toast.success(response?.message || "Template updated successfully");
-      fetchTemplates();
-    } else {
-      toast.error(response?.message || "Failed to update template");
-    }
-
-    setOpen(false);
+  const data = {
+    mail_subject: subject,
+    mail_body: body,
+    id: selectedTemplate._id,
   };
+
+  const response = await UpdateMailTemplate(token, data);
+
+  if (response?.status) {
+    toast.success(response?.message || "Template updated successfully");
+    fetchTemplates();
+  } else {
+    toast.error(response?.message || "Failed to update template");
+  }
+
+  setOpen(false);
+};
+
 
   const handleCancel = () => {
     setOpen(false);

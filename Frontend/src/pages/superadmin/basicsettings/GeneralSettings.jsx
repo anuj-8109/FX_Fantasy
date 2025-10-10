@@ -72,6 +72,22 @@ const GeneralSettings = () => {
   };
 
   const updateBasicSettings = async () => {
+    // ✅ Compare old settings with current form data
+    const original = settings?.[0] || {};
+    const hasChanges = Object.keys(formData).some(
+      (key) => formData[key] !== (original[key] || "")
+    );
+
+    if (!hasChanges) {
+      Swal.fire({
+        icon: "info",
+        title: "No changes made",
+        text: "You haven’t made any changes to the settings.",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
     const confirm = await Swal.fire({
       title: "Are you sure?",
       text: "Do you want to update the basic settings?",
@@ -314,24 +330,23 @@ const GeneralSettings = () => {
                 />
               </div>
             </div>
-          
 
-          <div className="text-center mt-4 ">
-            <button
-              type="submit"
-              disabled={updateLoading}
-              className={`px-8 py-3 rounded-md text-sm font-medium transition-colors duration-300  ${updateLoading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            <div className="text-center mt-4 ">
+              <button
+                type="submit"
+                disabled={updateLoading}
+                className={`px-8 py-3 rounded-md text-sm font-medium transition-colors duration-300  ${
+                  updateLoading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 } text-white`}
-            >
-              {updateLoading ? "Updating..." : "Update Settings"}
-            </button>
-          </div>
+              >
+                {updateLoading ? "Updating..." : "Update Settings"}
+              </button>
+            </div>
           </div>
         </form>
       </div>
-      
     </Content>
   );
 };
