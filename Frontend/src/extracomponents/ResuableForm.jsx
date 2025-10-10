@@ -224,6 +224,17 @@ const renderField = (field) => {
         />
       );
 
+    case "custom":
+      return (
+        <Field name={field.name}>
+          {({ form, field: formikField }) =>
+            field.render
+              ? field.render(field, form, form.values, form.setFieldValue)
+              : null
+          }
+        </Field>
+      );
+
     default:
       return (
         <Field
@@ -270,27 +281,23 @@ const ReusableForm = ({
           encType="multipart/form-data"
           onSubmit={async (e) => {
             e.preventDefault();
-            const formErrors = await validateForm();
-
+            const formErrors = errors;
             if (Object.keys(formErrors).length > 0) {
-              const touchedFields = {};
-              Object.keys(formErrors).forEach((key) => {
-                touchedFields[key] = true;
-              });
-              setTouched(touchedFields);
-
-              setTimeout(() => {
-                const errorElement = document.querySelector("");
+              const firstErrorKey = Object.keys(formErrors)[0];
+              if (firstErrorKey) {
+                const errorElement = document.querySelector(
+                  `[name="${firstErrorKey}"]`
+                );
                 if (errorElement) {
                   errorElement.scrollIntoView({
                     behavior: "smooth",
                     block: "center",
                   });
+                  errorElement.focus();
                 }
-              }, 100);
-
-              return;
+              }
             }
+
             handleSubmit(e);
           }}
         >

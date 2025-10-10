@@ -14,7 +14,6 @@ import Wallet from "../pages/superadmin/Wallet";
 import AllUsers from "../pages/superadmin/users/AllUser";
 import ActiveUser from "../pages/superadmin/users/ActiveUser";
 import AddUser from "../pages/superadmin/users/AddUser";
-import EditUsers from "../pages/superadmin/users/EditUser";
 import MyProfile from "../pages/superadmin/profile/MyProfile";
 import ChangePassword from "../pages/superadmin/profile/ChangePassword";
 import EmailTemplates from "../pages/superadmin/basicsettings/EmailTemplates";
@@ -45,6 +44,9 @@ import AddCoupon from "../pages/superadmin/coupons/AddCoupon";
 import AddEditFAQ from "../pages/superadmin/faqs/AddFAQs";
 import AddEditNews from "../pages/superadmin/news/AddNews";
 import AddEditBlog from "../pages/superadmin/blog/AddBlog";
+import AddEditContent from "../pages/superadmin/content/AddContent";
+import AddEditBanner from "../pages/superadmin/banner/AddBanner";
+import AddEditClient from "../pages/superadmin/clients/AddClient";
 const SuperAdminRoutes = () => {
 
   return (
@@ -63,7 +65,6 @@ const SuperAdminRoutes = () => {
         <Route path="alluser" element={<AllUsers />} />
         <Route path="activeuser" element={<ActiveUser />} />
         <Route path="AddUser" element={<AddUser />} />
-        <Route path="EditUsers/:id" element={<EditUsers />} />
         <Route path="myprofile" element={<MyProfile />} />
         <Route path="changepassword" element={<ChangePassword />} />
         <Route path="email-templates" element={<EmailTemplates />} />
@@ -94,6 +95,9 @@ const SuperAdminRoutes = () => {
         <Route path="add-faq" element={<AddEditFAQ/>}/>
         <Route path="add-news" element={<AddEditNews/>}/>
         <Route path="add-blog" element={<AddEditBlog/>}/>
+        <Route path="add-content" element={<AddEditContent/>}/>
+        <Route path="add-banner" element={<AddEditBanner/>}/>
+        <Route path="add-client" element={<AddEditClient/>}/>
       </Route>
     </>
   );

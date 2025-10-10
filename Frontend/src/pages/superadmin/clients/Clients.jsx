@@ -15,6 +15,7 @@ import {
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import Content from "../../../components/superadmin/Content";
+import { useNavigate } from "react-router-dom";
 
 const Client = () => {
   const [clients, setClients] = useState([]);
@@ -37,6 +38,7 @@ const Client = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterText, setFilterText] = useState("");
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
@@ -434,7 +436,9 @@ const Client = () => {
         <div className="flex gap-3">
           <Edit
             className="cursor-pointer text-blue-600"
-            onClick={() => handleOpen(row)}
+            onClick={() =>
+              navigate("/superadmin/add-client", { state: { client: row } })
+            }
           />
           <Trash2
             className="cursor-pointer text-red-600"
@@ -513,7 +517,7 @@ const Client = () => {
       button_status={true}
       route={"/superadmin/dashboard"}
       extra_button="Add client"
-      extra_button_action={() => handleOpen(null)}
+      extra_button_action={() => navigate("/superadmin/add-client")}
     >
       <div className="p-2">
         <div className="shadow-lg rounded-xl p-4">
@@ -531,6 +535,7 @@ const Client = () => {
             onRowsPerPageChange={handleRowsPerPageChange}
             filterText={filterText}
             onFilterChange={handleFilterChange}
+            onRefresh={fetchClients}
           />
         </div>
 
