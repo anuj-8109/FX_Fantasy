@@ -62,7 +62,7 @@ export default function AddEditTournament() {
     }
   };
 
-  // Validation schema
+  // Validation schema - FIXED: No nested object validation
   const validationSchema = Yup.object({
     name: Yup.string().required("Tournament name is required"),
     description: Yup.string().required("Description is required"),
@@ -74,14 +74,12 @@ export default function AddEditTournament() {
       .min(Yup.ref("startdate"), "End date cannot be before start date"),
     useamount: Yup.string().required("Use amount is required"),
     stocks: Yup.array()
-      .of(
-        Yup.object().shape({
-          stock_id: Yup.string().required("Select a valid stock"),
-          stock_name: Yup.string().required("Stock name required"),
-        })
-      )
       .min(1, "At least one stock is required")
-      .max(2, "You can add maximum 2 stocks only"),
+      .max(2, "You can add maximum 2 stocks only")
+      .test('valid-stocks', 'All stocks must be selected', function(value) {
+        if (!value || value.length === 0) return false;
+        return value.every(stock => stock.stock_id && stock.stock_name);
+      }),
   });
 
   const isFormChanged = (values) => {
@@ -90,6 +88,13 @@ export default function AddEditTournament() {
   };
 
   const handleSubmit = async (values) => {
+    // Validate stocks manually
+    const invalidStocks = values.stocks.filter(s => !s.stock_id || !s.stock_name);
+    if (invalidStocks.length > 0) {
+      toast.error("Please select valid stocks for all entries");
+      return;
+    }
+
     if (tournamentData && !isFormChanged(values)) {
       toast("No changes made", { icon: "ℹ️" });
       return;
@@ -161,6 +166,7 @@ export default function AddEditTournament() {
       type: "custom",
       required: true,
       colClass: "col-span-4",
+      hideError: true, // Hide automatic error rendering
       render: (field, form, values, setFieldValue) => (
         <div className="space-y-4">
           {values.stocks.map((s, idx) => {
@@ -172,16 +178,17 @@ export default function AddEditTournament() {
                     st.symbol.toLowerCase().includes(searchTerm) ||
                     st.tradesymbol?.toLowerCase().includes(searchTerm)
                 )
-              : stocklistData.slice(0, 50); // Show first 50 stocks when no search
+              : stocklistData.slice(0, 50);
 
-            // Show dropdown when focused or typing
             const shouldShowDropdown =
               showDropdown[idx] && filtered.length > 0 && !s.stock_id;
+
+            const hasError = form.submitCount > 0 && (!s.stock_id || !s.stock_name);
 
             return (
               <div key={idx} className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Stock {idx + 1}
+                  Stock {idx + 1} <span className="text-red-500">*</span>
                 </label>
                 <div className="flex gap-2 items-center">
                   <input
@@ -198,13 +205,16 @@ export default function AddEditTournament() {
                       setShowDropdown({ ...showDropdown, [idx]: true });
                     }}
                     onBlur={() => {
-                      // Delay to allow click on dropdown
                       setTimeout(() => {
                         setShowDropdown({ ...showDropdown, [idx]: false });
                       }, 200);
                     }}
                     placeholder="Search stock by symbol or name"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 ${
+                      hasError 
+                        ? 'border-red-500 focus:ring-red-500' 
+                        : 'border-gray-300 focus:ring-blue-500'
+                    }`}
                   />
                   {values.stocks.length > 1 && (
                     <button
@@ -229,6 +239,13 @@ export default function AddEditTournament() {
                   </div>
                 )}
 
+                {/* Error message */}
+                {hasError && (
+                  <div className="text-red-500 text-sm mt-1">
+                    Please select a valid stock
+                  </div>
+                )}
+
                 {/* Suggestions dropdown */}
                 {shouldShowDropdown && (
                   <div className="absolute z-10 bg-white border border-gray-300 rounded-md shadow-lg mt-1 w-full max-h-[240px] overflow-y-scroll">
@@ -238,7 +255,7 @@ export default function AddEditTournament() {
                           <li
                             key={stock._id}
                             onMouseDown={(e) => {
-                              e.preventDefault(); // Prevent input blur
+                              e.preventDefault();
                               const updated = [...values.stocks];
                               updated[idx] = {
                                 stock_id: stock._id,
@@ -270,14 +287,6 @@ export default function AddEditTournament() {
                     </ul>
                   </div>
                 )}
-
-                {/* Validation error */}
-                {form.touched.stocks?.[idx]?.stock_id &&
-                  form.errors.stocks?.[idx]?.stock_id && (
-                    <div className="text-red-500 text-sm mt-1">
-                      {form.errors.stocks[idx].stock_id}
-                    </div>
-                  )}
               </div>
             );
           })}
@@ -301,6 +310,13 @@ export default function AddEditTournament() {
           {values.stocks.length >= 2 && (
             <div className="text-sm text-gray-500 italic">
               Maximum 2 stocks can be added
+            </div>
+          )}
+
+          {/* General array validation error */}
+          {form.submitCount > 0 && form.errors.stocks && typeof form.errors.stocks === 'string' && (
+            <div className="text-red-500 text-sm mt-2">
+              {form.errors.stocks}
             </div>
           )}
         </div>
