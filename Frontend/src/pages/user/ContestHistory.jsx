@@ -7,7 +7,7 @@ import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import {useSheetData} from '../../utils/data';
 
 function HistoryPage() {
-   const sheetCSVUrl = "https://docs.google.com/spreadsheets/d/1CZoeoUXH__2UrFfldIMvczrMuKDIU5ZYdoTrjPplTLI/edit?gid=0#gid=0";
+  const sheetCSVUrl = "https://docs.google.com/spreadsheets/d/1CZoeoUXH__2UrFfldIMvczrMuKDIU5ZYdoTrjPplTLI/edit?gid=0#gid=0";
   const location = useLocation();
   const navigate = useNavigate();
   const contestId = location?.state?.contestId;
@@ -52,10 +52,15 @@ function HistoryPage() {
     try {
       const data = { client_id: clientId, contest_id: contestId, page, limit: 10 };
       const res = await getOpenTrades(token, data);
+
       if (res.status) {
+        // Update table data
         setOpenTrades(res.data || []);
         setTradesPage(res.page || 1);
         setTotalTradePages(Math.ceil(res.total / res.limit) || 1);
+
+        // Optional: scroll to table top
+        window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         toast.error(res.message || "Failed to fetch open trades");
       }
@@ -252,20 +257,16 @@ function HistoryPage() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Qty</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contest</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {openTrades.map((trade) => (
-                                 <tr key={trade._id} className="hover:bg-gray-50">
+                  <tr key={trade._id} className="hover:bg-gray-50">
                     <td className="px-4 py-2 text-gray-800 font-medium">{trade.stock_symbol}</td>
-                    <td className="px-4 py-2 text-gray-600">{trade.trade_type.toUpperCase()}</td>
-                    <td className="px-4 py-2 text-gray-600">{trade.quantity}</td>
-                    <td className="px-4 py-2 text-gray-600">₹{trade.price}</td>
+                    <td className={`px-4 py-2 font-medium ${trade.netQty >= 0 ? 'text-green-600' : 'text-red-600'}`}>{trade.netQty}</td>
                     <td className="px-4 py-2 text-gray-600">{trade.contest_id?.name || "-"}</td>
                     <td className="px-4 py-2 text-gray-600">{trade.client_id?.FullName || "-"}</td>
                   </tr>
@@ -303,4 +304,3 @@ function HistoryPage() {
 }
 
 export default HistoryPage;
-
