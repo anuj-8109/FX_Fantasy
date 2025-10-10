@@ -26,7 +26,8 @@ function Pricepol() {
     maxParticipants: "",
   });
   const token = localStorage.getItem("token");
-  console.log("privateContests", privateContests)
+
+
 
   useEffect(() => {
     if (!tournamentId || !token) {
@@ -62,9 +63,17 @@ function Pricepol() {
       if (!token) return toast.error("Please login to join the contest");
       if (!clientId) return toast.error("Client ID missing!");
 
+      // ✅ Check if tournament has started
+      const now = new Date();
+      const startDate = new Date(contest.tournament_id?.startdate); // make sure startdate exists
+      if (now >= startDate) {
+        return toast.error("You cannot join a contest after the tournament has started!");
+      }
+
       if (!joinedContests.includes(contest._id)) {
         setJoinedContests((prev) => [...prev, contest._id]);
       }
+
       const entryFee = parseFloat(contest.entry_fee) || 0;
       const discount = parseFloat(contest.discount) || 0;
       const total = entryFee - discount;
@@ -88,6 +97,7 @@ function Pricepol() {
       toast.error("Error while joining contest");
     }
   };
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -181,10 +191,9 @@ function Pricepol() {
     const [progress, setProgress] = React.useState(0);
 
     useEffect(() => {
-      // Ensure filled is between 0 and total
+
       const safeFilled = Math.max(0, Math.min(filled, total));
       const percentage = total > 0 ? (safeFilled / total) * 100 : 0;
-
       const timer = setTimeout(() => setProgress(percentage), 150);
       return () => clearTimeout(timer);
     }, [filled, total]);
@@ -316,14 +325,19 @@ function Pricepol() {
                       </p>
                       <button
                         onClick={() => handleJoinNow(contest)}
-                        disabled={isJoined}
-                        className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-xs lg:text-[14px] font-semibold border border-gray-300 shadow-sm transition-all duration-300 ${isJoined
+                        disabled={isJoined || new Date() >= new Date(contest.tournament_id?.startdate)}
+                        className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-xs lg:text-[14px] font-semibold border border-gray-300 shadow-sm transition-all duration-300 ${isJoined || new Date() >= new Date(contest.tournament_id?.startdate)
                           ? "bg-gray-200 text-gray-600 cursor-not-allowed"
                           : "bg-white text-black hover:bg-gray-100"
                           }`}
                       >
-                        {isJoined ? "Joined" : "Join"}
+                        {isJoined
+                          ? "Joined"
+                          : new Date() >= new Date(contest.tournament_id?.startdate)
+                            ? "Live"
+                            : "Join"}
                       </button>
+
                     </div>
                   </div>
                 </div>
@@ -362,16 +376,22 @@ function Pricepol() {
                               navigate("/trade", {
                                 state: {
                                   contestId: contestWrapper?.contest_id?._id,
-                                  stocks:
-                                    contestWrapper?.contest_id?.tournament_id?.stocks || [],
+                                  stocks: contestWrapper?.contest_id?.tournament_id?.stocks || [],
                                   wallet_balance: contestWrapper?.wallet_balance || 0,
                                 },
                               })
                             }
-                            className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
+                            disabled={new Date(contestWrapper?.contest_id?.tournament_id?.startdate) > new Date()} // Disable if startdate is in the future
+                            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300
+                              ${new Date(contestWrapper?.contest_id?.tournament_id?.startdate) <= new Date()
+                                ? "bg-gradient-to-r from-orange-500 to-orange-400 text-white hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500 cursor-pointer"
+                                : "bg-gray-300 text-gray-600 cursor-not-allowed"}`
+                            }
                           >
                             Live
                           </button>
+
+
 
                           <button
                             onClick={() =>
@@ -470,10 +490,16 @@ function Pricepol() {
                               },
                             })
                           }
-                          className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
+                          disabled={new Date(contest?.tournament_id?.startdate) > new Date()} // Disable if startdate is in future
+                          className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300
+    ${new Date(contest?.tournament_id?.startdate) <= new Date()
+                              ? "bg-gradient-to-r from-orange-500 to-orange-400 text-white hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500 cursor-pointer"
+                              : "bg-gray-300 text-gray-600 cursor-not-allowed"}`
+                          }
                         >
                           Live
                         </button>
+
                         <button
                           onClick={() =>
                             navigate("/tradehistory", {

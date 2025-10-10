@@ -64,12 +64,12 @@ const AddContest = () => {
       const response = await addprivatecontent(token, payload);
       setLoading(false);
 
-      if (response.status) {
-        toast.success(response.message || "Contest added successfully!");
+      if (response?.status) {
+        toast.success(response?.message || "Contest added successfully!");
         setFormData(initialForm);
         setPrizeDist([{ rank: 1, amount: "" }]);
       } else {
-        toast.error(response.message || "Failed to add contest");
+        toast.error(response?.message || "Failed to add contest");
       }
     } catch (err) {
       setLoading(false);
