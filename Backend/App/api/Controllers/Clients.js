@@ -1771,14 +1771,28 @@ async deleteBank(req, res) {
 // Share Private Contest
 async SharePrivateContest(req, res) {
   try {
-    const { contest_id, shared_with_client_id, shared_by_client_id,PhoneNo } = req.body;
+    const { contest_id, shared_by_client_id,PhoneNo } = req.body;
 
-    if (!contest_id || !shared_with_client_id || !shared_by_client_id || PhoneNo) {
+    if (!contest_id  || !shared_by_client_id || PhoneNo) {
       return res.status(400).json({
         status: false,
         message: "contest_id, shared_with_client_id and shared_by_client_id are required"
       });
     }
+
+ const recipient = await Clients_Modal.findOne({
+    PhoneNo: PhoneNo
+  });
+
+  if (!recipient) {
+    return res.status(404).json({
+      status: false,
+      message: "Recipient not found for provided PhoneNo"
+    });
+  }
+
+  const shared_with_client_id = recipient._id;
+
 
     // Check contest exists
     const contest = await Contest_Model.findOne({ _id: contest_id, is_private: true });
