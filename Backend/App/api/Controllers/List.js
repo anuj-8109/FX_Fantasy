@@ -916,9 +916,7 @@ const limit = 10;
   }
 }
 
-
-
-async getOpenPositions(req, res) {
+async  getOpenPositions(req, res) {
   try {
     const { client_id, contest_id, page = 1 } = req.body;
     const limit = 10;
@@ -930,7 +928,7 @@ async getOpenPositions(req, res) {
       });
     }
 
-    const filter = { position_type: "OPEN" };
+    const filter = {};
     if (client_id) filter.client_id = client_id;
     if (contest_id) filter.contest_id = contest_id;
 
@@ -938,25 +936,65 @@ async getOpenPositions(req, res) {
     const limitNum = parseInt(limit) || 10;
     const skip = (pageNum - 1) * limitNum;
 
-    const trades = await Contesttrade_Modal.find(filter)
-      .populate("contest_id", "name startdate enddate")
-      .populate("client_id", "FullName Email PhoneNo")
-      .sort({ trade_time: -1 })
-      .skip(skip)
-      .limit(limitNum);
+    // Aggregate net positions: group by client/contest/stock, sum buy and sell quantities
+    const aggPipeline = [
+      { $match: filter },
+      {
+        $group: {
+          _id: { contest_id: "$contest_id", client_id: "$client_id", stock_symbol: "$stock_symbol" },
+          buyQty: { $sum: { $cond: [{ $eq: ["$trade_type", "buy"] }, "$quantity", 0] } },
+          sellQty: { $sum: { $cond: [{ $eq: ["$trade_type", "sell"] }, "$quantity", 0] } }
+        }
+      },
+      {
+        $project: {
+          contest_id: "$_id.contest_id",
+          client_id: "$_id.client_id",
+          stock_symbol: "$_id.stock_symbol",
+          netQty: { $subtract: ["$buyQty", "$sellQty"] }
+        }
+      },
+      { $match: { netQty: { $ne: 0 } } }, // Only positions with non-zero net quantity
+      { $skip: skip },
+      { $limit: limitNum },
+      { $sort: { stock_symbol: 1 } }
+    ];
 
-    const total = await Contesttrade_Modal.countDocuments(filter);
+    const netPositions = await Contesttrade_Modal.aggregate(aggPipeline);
+
+    // Get total count for pagination
+    const countPipeline = [
+      { $match: filter },
+      {
+        $group: {
+          _id: { contest_id: "$contest_id", client_id: "$client_id", stock_symbol: "$stock_symbol" },
+          buyQty: { $sum: { $cond: [{ $eq: ["$trade_type", "buy"] }, "$quantity", 0] } },
+          sellQty: { $sum: { $cond: [{ $eq: ["$trade_type", "sell"] }, "$quantity", 0] } }
+        }
+      },
+      {
+        $project: {
+          netQty: { $subtract: ["$buyQty", "$sellQty"] }
+        }
+      },
+      { $match: { netQty: { $ne: 0 } } },
+      { $count: "total" }
+    ];
+
+    const totalCountArr = await Contesttrade_Modal.aggregate(countPipeline);
+    const total = totalCountArr.length > 0 ? totalCountArr[0].total : 0;
 
     return res.status(200).json({
       status: true,
-      message: "Trade history fetched successfully",
+      message: "Open positions fetched successfully",
       page: pageNum,
       limit: limitNum,
       total,
-      data: trades,
+      data: netPositions,
     });
+
   } catch (error) {
-    console.error("Error fetching trade history:", error);
+    console.error("Error fetching open positions:", error);
     return res.status(500).json({
       status: false,
       message: "Server error",
