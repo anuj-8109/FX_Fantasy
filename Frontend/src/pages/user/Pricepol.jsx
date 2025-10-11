@@ -355,43 +355,51 @@ function Pricepol() {
                   return (
                     <div
                       key={contestWrapper._id}
-                      className="bg-white-900 backdrop-blur-md shadow-md rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full"
+                      className="bg-white backdrop-blur-md shadow-md rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-full"
                     >
-                      <div className="heading_style border-b border-black-100 px-3 py-3 flex sm:flex-row justify-between items-start sm:items-center gap-2">
+                      {/* Header */}
+                      <div className="border-b border-black/10 px-3 py-3 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
                         <div>
-                          <h2 className="font-bold text-base sm:text-lg lg:text-2xl text-[rgba(8, 8, 8, 1)] tracking-wide">
+                          <h2 className="font-bold text-base sm:text-lg lg:text-2xl text-gray-900 tracking-wide">
                             {contest?.name}
                           </h2>
-                          <p className="text-[10px] sm:text-xs lg:text-lg text-[rgba(5, 5, 5, 1)] mt-1">
+                          <p className="text-xs sm:text-sm text-gray-700 mt-1">
                             Tournament:{" "}
-                            <span className="text-[rgba(7, 7, 7, 1)] font-semibold">
+                            <span className="font-semibold text-gray-900">
                               {contest?.tournament_id?.name}
                             </span>
                           </p>
                         </div>
 
-                        <div className="flex gap-2 mt-2 sm:mt-0">
+                        {/* Buttons */}
+                        <div className="flex flex-wrap sm:flex-nowrap gap-2 mt-2 sm:mt-0">
                           <button
                             onClick={() =>
                               navigate("/trade", {
                                 state: {
                                   contestId: contestWrapper?.contest_id?._id,
-                                  stocks: contestWrapper?.contest_id?.tournament_id?.stocks || [],
+                                  stocks:
+                                    contestWrapper?.contest_id?.tournament_id?.stocks ||
+                                    [],
                                   wallet_balance: contestWrapper?.wallet_balance || 0,
                                 },
                               })
                             }
-                            disabled={new Date(contestWrapper?.contest_id?.tournament_id?.startdate) > new Date()} // Disable if startdate is in the future
-                            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300
-                              ${new Date(contestWrapper?.contest_id?.tournament_id?.startdate) <= new Date()
-                                ? "bg-gradient-to-r from-orange-500 to-orange-400 text-white hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500 cursor-pointer"
-                                : "bg-gray-300 text-gray-600 cursor-not-allowed"}`
+                            disabled={
+                              new Date(
+                                contestWrapper?.contest_id?.tournament_id?.startdate
+                              ) > new Date()
                             }
+                            className={`flex-1 sm:flex-none px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300
+                    ${new Date(
+                              contestWrapper?.contest_id?.tournament_id?.startdate
+                            ) <= new Date()
+                                ? "bg-gradient-to-r from-orange-500 to-orange-400 text-white hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500 cursor-pointer"
+                                : "bg-gray-300 text-gray-600 cursor-not-allowed"
+                              }`}
                           >
                             Live
                           </button>
-
-
 
                           <button
                             onClick={() =>
@@ -399,7 +407,7 @@ function Pricepol() {
                                 state: { contestId: contestWrapper?.contest_id?._id },
                               })
                             }
-                            className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
+                            className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
                           >
                             History
                           </button>
@@ -410,35 +418,35 @@ function Pricepol() {
                                 state: { _id: contestWrapper?.contest_id?._id },
                               })
                             }
-                            className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
+                            className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
                           >
                             View Rank
                           </button>
                         </div>
-
                       </div>
 
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 sm:p-4 text-[10px] sm:text-sm">
+                      {/* Contest Info Grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-2 sm:p-4 text-[11px] sm:text-sm">
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
-                          <p className="text-black text-[10px] sm:text-xs">Prize Pool</p>
-                          <p className="font-bold text-sm sm:text-base text-black">
+                          <p className="text-gray-600 text-[10px] sm:text-xs">Prize Pool</p>
+                          <p className="font-bold text-sm sm:text-base text-gray-900">
                             ₹{contest.prize_pool}
                           </p>
                         </div>
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
-                          <p className="text-black text-[10px] sm:text-xs">Entry Fee</p>
-                          <p className="font-bold text-sm sm:text-base text-black">
+                          <p className="text-gray-600 text-[10px] sm:text-xs">Entry Fee</p>
+                          <p className="font-bold text-sm sm:text-base text-gray-900">
                             ₹{contest.entry_fee}
                           </p>
                         </div>
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
-                          <p className="text-black text-[10px] sm:text-xs">Joined At</p>
-                          <p className="font-bold text-[10px] sm:text-sm text-black">
+                          <p className="text-gray-600 text-[10px] sm:text-xs">Joined At</p>
+                          <p className="font-bold text-[10px] sm:text-sm text-gray-900 break-all">
                             {new Date(contestWrapper.joined_at).toLocaleString()}
                           </p>
                         </div>
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
-                          <p className="text-black text-[10px] sm:text-xs">Status</p>
+                          <p className="text-gray-600 text-[10px] sm:text-xs">Status</p>
                           <span className="inline-block px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-green-100 text-green-700">
                             Joined
                           </span>
@@ -458,6 +466,7 @@ function Pricepol() {
           )}
 
 
+
           {/* Private Contests */}
           {activeTab === "myTeam" && (
             <div className="space-y-4 sm:space-y-6">
@@ -465,21 +474,25 @@ function Pricepol() {
                 privateContests.map((contest) => (
                   <div
                     key={contest._id}
-                    className="bg-gray-50 shadow-md rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300"
+                    className="bg-gray-50 shadow-md rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 w-full"
                   >
-                    <div className="heading_style border-b border-black-100 px-3 py-3 flex sm:flex-row justify-between items-start sm:items-center gap-2">
+                    {/* Header */}
+                    <div className="border-b border-gray-200 px-3 py-3 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
                       <div>
                         <h2 className="font-bold text-base sm:text-lg lg:text-2xl text-[rgb(6,69,91)] tracking-wide">
                           {contest?.name}
                         </h2>
-                        <p className="text-[10px] sm:text-xs lg:text-lg text-[rgb(6,69,91)] mt-1">
+                        <p className="text-[11px] sm:text-sm text-[rgb(6,69,91)] mt-1">
                           Tournament:{" "}
-                          <span className="text-[rgb(6,69,91)] font-semibold">
+                          <span className="font-semibold text-[rgb(6,69,91)]">
                             {contest?.tournament_id?.name || contest?.tournament_id}
                           </span>
                         </p>
                       </div>
-                      <div className="flex gap-2 mt-2 sm:mt-0">
+
+                      {/* Buttons Section */}
+                      <div className="flex flex-wrap sm:flex-nowrap gap-2 mt-2 sm:mt-0 w-full sm:w-auto">
+                        {/* Live Button */}
                         <button
                           onClick={() =>
                             navigate("/trade", {
@@ -490,32 +503,34 @@ function Pricepol() {
                               },
                             })
                           }
-                          disabled={new Date(contest?.tournament_id?.startdate) > new Date()} // Disable if startdate is in future
-                          className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300
-    ${new Date(contest?.tournament_id?.startdate) <= new Date()
+                          disabled={new Date(contest?.tournament_id?.startdate) > new Date()}
+                          className={`flex-1 sm:flex-none px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300
+                  ${new Date(contest?.tournament_id?.startdate) <= new Date()
                               ? "bg-gradient-to-r from-orange-500 to-orange-400 text-white hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500 cursor-pointer"
-                              : "bg-gray-300 text-gray-600 cursor-not-allowed"}`
-                          }
+                              : "bg-gray-300 text-gray-600 cursor-not-allowed"
+                            }`}
                         >
                           Live
                         </button>
 
+                        {/* History Button */}
                         <button
                           onClick={() =>
                             navigate("/tradehistory", {
                               state: { contestId: contest?._id },
                             })
                           }
-                          className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
+                          className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
                         >
                           History
                         </button>
+
+                        {/* Share Button */}
                         <button
                           onClick={async () => {
                             const token = localStorage.getItem("token");
-                            const shared_by_client_id = localStorage.getItem("userId"); // current user ID
+                            const shared_by_client_id = localStorage.getItem("userId");
 
-                            // SweetAlert to get phone number
                             const { value: PhoneNo } = await Swal.fire({
                               title: "🔗 Share Contest",
                               html: `<p style="font-size:14px; color:#333;">Enter the phone number to share this contest with:</p>`,
@@ -526,9 +541,9 @@ function Pricepol() {
                               cancelButtonText: "Cancel",
                               inputValidator: (value) => {
                                 if (!value) return "Phone number is required!";
-                                // Optional: validate proper phone number format
                                 const phoneRegex = /^[0-9]{10,15}$/;
-                                if (!phoneRegex.test(value)) return "Enter a valid phone number!";
+                                if (!phoneRegex.test(value))
+                                  return "Enter a valid phone number!";
                               },
                               focusConfirm: false,
                               allowOutsideClick: false,
@@ -537,15 +552,14 @@ function Pricepol() {
                               color: "#062d40",
                             });
 
-                            if (!PhoneNo) return; // User cancelled
+                            if (!PhoneNo) return;
 
                             try {
-                              // Call API to share contest
                               const res = await SharePrivateContest(
                                 token,
-                                contest._id,           // contest ID
-                                shared_by_client_id,   // your client ID
-                                PhoneNo                // recipient phone number
+                                contest._id,
+                                shared_by_client_id,
+                                PhoneNo
                               );
 
                               if (res?.status) {
@@ -557,17 +571,15 @@ function Pricepol() {
                               toast.error("Something went wrong.");
                             }
                           }}
-                          className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
+                          className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
                         >
                           Share
                         </button>
-
-
-
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 sm:p-4 text-[10px] sm:text-sm">
+                    {/* Contest Info Grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-2 sm:p-4 text-[11px] sm:text-sm">
                       <div className="bg-white border rounded-md p-2 text-center">
                         <p className="text-gray-500 text-[10px] sm:text-xs">Prize Pool</p>
                         <p className="font-bold text-sm sm:text-base text-gray-800">
@@ -582,7 +594,7 @@ function Pricepol() {
                       </div>
                       <div className="bg-white border rounded-md p-2 text-center">
                         <p className="text-gray-500 text-[10px] sm:text-xs">Created At</p>
-                        <p className="font-bold text-[10px] sm:text-sm text-gray-800">
+                        <p className="font-bold text-[10px] sm:text-sm text-gray-800 break-all">
                           {new Date(contest.created_at).toLocaleString()}
                         </p>
                       </div>
@@ -604,6 +616,7 @@ function Pricepol() {
               )}
             </div>
           )}
+
         </div>
       )}
     </div>
