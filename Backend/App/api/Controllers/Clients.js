@@ -1563,7 +1563,7 @@ async getWalletHistory(req, res) {
     }
 
     client.kyc_type = 1; // Manual KYC
-
+    client.kyc_verification=0;
     await client.save();
 
     return res.json({
