@@ -89,7 +89,9 @@ const UserMenu = () => {
         {/* Profile */}
         <div className="relative" ref={profileRef}>
           <button
-            onClick={() => setShowProfile(!showProfile)}
+            // onClick={() => setShowProfile(!showProfile)}
+              onClick={() => navigate("/profile")}
+
             className="flex flex-col items-center hover:scale-110 transition"
           >
             <div className="h-7 w-7 rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 text-white flex items-center justify-center text-xs shadow-md">
@@ -109,11 +111,11 @@ const UserMenu = () => {
               {/* Menu Links */}
               {[
                 ["Profile Management", "/profile"],
-                ["Help Desk", "/helpdesk"],
-                ["Coupons", "/coupon"],
-                ["FAQ", "/faq"],
-                ["Blog", "/blog"],
-                ["Content", "/content"],
+                // ["Help Desk", "/helpdesk"],
+                // ["Coupons", "/coupon"],
+                // ["FAQ", "/faq"],
+                // ["Blog", "/blog"],
+                // ["Content", "/content"],
                 // ["Contest Tracking", "/contesttracking"],
               ].map(([label, path]) => (
                 <button

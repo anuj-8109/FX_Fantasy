@@ -161,7 +161,7 @@ const UserProfile = () => {
 
     // Menu items with icons
     const menuItems = [
-        { label: "Profile Management", path: "/profile", icon: Home, active: true },
+        // { label: "Profile Management", path: "/profile", icon: Home, active: true },
         { label: "Help Desk", path: "/helpdesk", icon: HelpCircle },
         { label: "Coupons", path: "/coupon", icon: Ticket },
         { label: "FAQ", path: "/faq", icon: FileQuestion },
