@@ -19,12 +19,31 @@ const Datatable = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const filteredData = data?.filter((item) =>
-    Object.values(item)
-      .join(" ")
-      .toLowerCase()
-      .includes(filterText.toLowerCase())
-  );
+  // 🧠 Recursive function to collect all values, including nested objects
+  const flattenValues = (obj) => {
+    let values = [];
+    for (const key in obj) {
+      if (typeof obj[key] === "object" && obj[key] !== null) {
+        values = values.concat(flattenValues(obj[key]));
+      } else {
+        values.push(String(obj[key]));
+      }
+    }
+    return values;
+  };
+
+  // 🔍 Filter with deep search
+  const filteredData = data?.filter((item) => {
+    const allValues = flattenValues(item).join(" ").toLowerCase();
+    return allValues.includes(filterText.toLowerCase());
+  });
+
+  // const filteredData = data?.filter((item) =>
+  //   Object.values(item)
+  //     .join(" ")
+  //     .toLowerCase()
+  //     .includes(filterText.toLowerCase())
+  // );
 
   const handleRefresh = async () => {
     if (onRefresh) {
@@ -34,45 +53,44 @@ const Datatable = ({
     }
   };
 
-const handleExport = () => {
-  const exportableColumns = columns.filter((col) => col.export !== false);
+  const handleExport = () => {
+    const exportableColumns = columns.filter((col) => col.export !== false);
 
-  const csvContent = [
-    ["S.No", ...exportableColumns.map((col) => col.name)].join(","), // header including S.No
-    ...filteredData.map((row, index) => {
-      const serialNumber = (currentPage - 1) * rowsPerPage + index + 1; // same S.No logic
+    const csvContent = [
+      ["S.No", ...exportableColumns.map((col) => col.name)].join(","), // header including S.No
+      ...filteredData.map((row, index) => {
+        const serialNumber = (currentPage - 1) * rowsPerPage + index + 1; // same S.No logic
 
-      const rowValues = exportableColumns.map((col) => {
-        let value = "";
-        if (col.exportValue) {
-          value = col.exportValue(row);
-        } else if (col.selector) {
-          value = col.selector(row);
-        } else {
-          value = row[col.id] || "";
-        }
+        const rowValues = exportableColumns.map((col) => {
+          let value = "";
+          if (col.exportValue) {
+            value = col.exportValue(row);
+          } else if (col.selector) {
+            value = col.selector(row);
+          } else {
+            value = row[col.id] || "";
+          }
 
-        // Phone numbers as string to prevent Excel formatting
-        if (col.name.toLowerCase().includes("phone")) {
-          value = `\t${String(value)}`;
-        }
+          // Phone numbers as string to prevent Excel formatting
+          if (col.name.toLowerCase().includes("phone")) {
+            value = `\t${String(value)}`;
+          }
 
-        return `"${String(value).replace(/"/g, '""')}"`;
-      });
+          return `"${String(value).replace(/"/g, '""')}"`;
+        });
 
-      return [serialNumber, ...rowValues].join(","); // prepend S.No
-    }),
-  ].join("\n");
+        return [serialNumber, ...rowValues].join(","); // prepend S.No
+      }),
+    ].join("\n");
 
-  const blob = new Blob([csvContent], { type: "text/csv" });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${title || "data"}.csv`;
-  a.click();
-  window.URL.revokeObjectURL(url);
-};
-
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title || "data"}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
 
   const paginationComponentOptions = {
     rowsPerPageText: "Rows per page:",
