@@ -7,12 +7,12 @@ import Content from "../../../components/superadmin/Content";
 import ReusableForm from "../../../extracomponents/ResuableForm";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { AddNews, UpdateNews } from "../../../services/SuperAdmin";
+import { AddBlog, UpdateBlog } from "../../../services/SuperAdmin";
 
-export default function AddEditNews() {
+export default function AddEditBlog() {
   const navigate = useNavigate();
   const location = useLocation();
-  const newsData = location.state?.news || null;
+  const blogData = location.state?.blog || null;
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
 
@@ -25,21 +25,21 @@ export default function AddEditNews() {
   const [originalData, setOriginalData] = useState(null);
 
   useEffect(() => {
-    if (newsData) {
+    if (blogData) {
       const data = {
-        title: newsData.title || "",
-        description: newsData.description || "",
+        title: blogData.title || "",
+        description: blogData.description || "",
         image: null, // existing image handled separately
       };
       setInitialValues(data);
       setOriginalData(data);
     }
-  }, [newsData]);
+  }, [blogData]);
 
   const validationSchema = Yup.object({
     title: Yup.string().required("Title is required"),
     description: Yup.string().required("Description is required"),
-    image: newsData
+    image: blogData
       ? Yup.mixed() // optional on edit
       : Yup.mixed().required("Image is required"), // required on add
   });
@@ -47,18 +47,21 @@ export default function AddEditNews() {
   const isFormChanged = (values) => {
     if (!originalData) return true;
     const formCopy = { ...values, image: null }; // ignore image for comparison
-    return JSON.stringify(formCopy) !== JSON.stringify({ ...originalData, image: null });
+    return (
+      JSON.stringify(formCopy) !==
+      JSON.stringify({ ...originalData, image: null })
+    );
   };
 
   const handleSubmit = async (values) => {
-    if (newsData && !isFormChanged(values)) {
+    if (blogData && !isFormChanged(values)) {
       toast("No changes made", { icon: "ℹ️" });
       return;
     }
 
     const confirm = await Swal.fire({
-      title: newsData ? "Update News?" : "Add News?",
-      text: "Do you want to save this news?",
+      title: blogData ? "Update Blog?" : "Add Blog?",
+      text: "Do you want to save this blog?",
       icon: "question",
       showCancelButton: true,
       confirmButtonText: "Yes, Save",
@@ -80,18 +83,18 @@ export default function AddEditNews() {
       formData.append("description", values.description);
       formData.append("add_by", add_by);
       if (values.image instanceof File) formData.append("image", values.image);
-      if (newsData) formData.append("id", newsData._id);
+      if (blogData) formData.append("id", blogData._id);
 
       setLoading(true);
-      const res = newsData
-        ? await UpdateNews(token, formData)
-        : await AddNews(token, formData);
+      const res = blogData
+        ? await UpdateBlog(token, formData)
+        : await AddBlog(token, formData);
 
       if (res?.status) {
-        toast.success(res?.message || "News saved successfully");
-        navigate("/superadmin/news");
+        toast.success(res?.message || "Blog saved successfully");
+        navigate("/superadmin/blog");
       } else {
-        toast.error(res?.message || "Failed to save news");
+        toast.error(res?.message || "Failed to save blog");
       }
     } catch (err) {
       toast.error("Something went wrong");
@@ -100,30 +103,35 @@ export default function AddEditNews() {
     }
   };
 
-  const newsFields = [
+  const blogFields = [
     { name: "title", label: "Title", type: "text", required: true },
-    { name: "description", label: "Description", type: "ckeditor", required: true },
+    {
+      name: "description",
+      label: "Description",
+      type: "ckeditor",
+      required: true,
+    },
     { name: "image", label: "Image", type: "file" }, // optional on edit
   ];
 
   return (
     <Content
-      Page_title={newsData ? "Edit News" : "Add News"}
+      Page_title={blogData ? "Edit Blog" : "Add Blog"}
       button_status={true}
       button_title="Back"
-      route="/superadmin/news"
+      route="/superadmin/blog"
     >
       <div className="bg-white p-6 rounded-xl shadow-md">
         <h2 className="text-xl font-semibold mb-4 border-b pb-2">
-          {newsData ? "Edit News" : "Add News"}
+          {blogData ? "Edit Blog" : "Add Blog"}
         </h2>
 
         <ReusableForm
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
-          fields={newsFields}
-          SubmitBtn={newsData ? "Update News" : "Save News"}
+          fields={blogFields}
+          SubmitBtn={blogData ? "Update Blog" : "Save Blog"}
           enableReinitialize={true}
           loading={loading}
         />

@@ -189,18 +189,41 @@ const Contest = () => {
       selector: (row) => (row.activestatus === true ? "Active" : "Inactive"),
       exportValue: (row) => (row.activestatus === true ? "Active" : "Inactive"),
       cell: (row) => (
-        <label className="relative inline-flex items-center cursor-pointer">
+        <label
+          className={`relative inline-flex items-center ${
+            row.filled_spots > 0
+              ? "cursor-not-allowed opacity-60"
+              : "cursor-pointer"
+          }`}
+          onClick={(e) => {
+            // Stop checkbox default toggle behavior
+            e.preventDefault();
+
+            if (row.filled_spots > 0) {
+              toast.error(
+                "Cannot change status. Some spots are already filled."
+              );
+              return;
+            }
+
+            handleStatusChange(row);
+          }}
+        >
           <input
             type="checkbox"
             checked={row?.activestatus === true}
-            onChange={() => handleStatusChange(row)}
+            readOnly
             className="sr-only peer"
           />
-          <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
+          <div
+            className={`w-11 h-6 rounded-full transition-colors ${
+              row.activestatus ? "bg-green-600" : "bg-gray-300"
+            }`}
+          ></div>
           <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full border peer-checked:translate-x-full transition-transform"></div>
         </label>
       ),
-      width: "100px",
+      width: "120px",
       export: true,
     },
     {
