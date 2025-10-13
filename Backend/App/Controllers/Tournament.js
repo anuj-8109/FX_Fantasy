@@ -257,7 +257,7 @@ class TournamentController {
     // ❗ If tournament made inactive => refund everyone (before live)
     let totalRefunded = 0;
     if (status === false) {
-      totalRefunded = await processTournamentRefund(id);
+    //  totalRefunded = await processTournamentRefund(id);
     }
 
 

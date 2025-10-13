@@ -330,7 +330,7 @@ async statusChangeActive(req, res) {
 
     // 🔕 If contest is being deactivated, refund users
     if (!isActive) {
-      totalRefunded = await processContestRefund(id);
+   //   totalRefunded = await processContestRefund(id);
     }
 
     const result = await Contest_Model.findByIdAndUpdate(
