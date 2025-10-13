@@ -301,7 +301,7 @@ const WalletPage = () => {
         <div className="relative">
           <span
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="cursor-pointer text-sm font-medium text-black flex items-center gap-1 hover:underline"
+            className="cursor-pointer text-xs font-medium text-black flex items-center gap-1 hover:underline"
           >
             {React.createElement(tabs.find(t => t.key === activeTab).icon, { size: 16 })}
             {tabs.find(t => t.key === activeTab).label}
@@ -317,7 +317,7 @@ const WalletPage = () => {
                     setActiveTab(t.key);
                     setDropdownOpen(false);
                   }}
-                  className={`block px-3 py-2 text-sm cursor-pointer ${activeTab === t.key ? "bg-orange-100 text-orange-600" : "text-gray-700 hover:bg-orange-50"}`}
+                  className={`block px-3 py-2 text-sm flex gap-3 cursor-pointer ${activeTab === t.key ? "bg-orange-100 text-orange-600" : "text-gray-700 hover:bg-orange-50"}`}
                 >
                   {React.createElement(t.icon, { size: 14 })} {t.label}
                 </span>

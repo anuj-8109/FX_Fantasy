@@ -530,6 +530,9 @@ function Pricepol() {
                           onClick={async () => {
                             const token = localStorage.getItem("token");
                             const shared_by_client_id = localStorage.getItem("userId");
+                            if (!token || !shared_by_client_id) {
+                              return toast.error("Missing token or client ID");
+                            }
 
                             const { value: PhoneNo } = await Swal.fire({
                               title: "🔗 Share Contest",

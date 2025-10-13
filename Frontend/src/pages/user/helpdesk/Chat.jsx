@@ -73,7 +73,7 @@ function Chat() {
     if (!ticketDetail) return <div className="p-6">Loading ticket details...</div>;
 
     const ticket = ticketDetail.ticket;
-    const showInput = ticket?.status === 1; // input और बटन सिर्फ open होने पर दिखेंगे
+    const showInput = ticket?.status === 1; 
 
     const getStatusLabel = (status) => {
         switch (status) {
@@ -125,7 +125,7 @@ function Chat() {
         <div className="p-4 flex flex-col h-[80vh] bg-gray-100 relative">
             <h1 className="text-xl font-bold mb-4">Chat for Ticket #{ticket.ticketnumber}</h1>
 
-            <div className="border rounded p-4 mb-4 bg-white shadow-sm">
+            <div className="border rounded p-4 mb-4 bg-white shadow-xs">
                 <h2 className="font-semibold">Subject: {ticket.subject}</h2>
                 <p>Message: {ticket.message}</p>
                 <p>Status: {getStatusLabel(ticket.status)}</p>
@@ -172,10 +172,10 @@ function Chat() {
                                             </div>
                                         )}
 
-                                        <div className={`max-w-[70%] px-4 py-2 rounded-lg shadow ${isAdmin ? "bg-blue-100" : "bg-green-100"} break-words`}>
-                                            <p className="text-sm font-semibold mb-1">{name}</p>
+                                        <div className={`max-w-[80%] px-2 py-1 rounded-lg text-xs shadow ${isAdmin ? "bg-blue-100" : "bg-green-100"} break-words`}>
+                                            {/* <p className="text-sm font-semibold mb-1">{name}</p> */}
                                             <p>{msg.message}</p>
-                                            <p className="text-xs text-gray-500 text-right mt-1">{formatTime(msg.created_at)}</p>
+                                            <p className="text-xs text-gray-500 text-right ">{formatTime(msg.created_at)}</p>
                                             {msg.attachment && (
                                                 <a href={msg.attachment} target="_blank" className="text-blue-500 hover:underline text-xs block mt-1" rel="noreferrer">
                                                     Attachment

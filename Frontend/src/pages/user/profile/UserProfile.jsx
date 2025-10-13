@@ -195,7 +195,7 @@ const UserProfile = () => {
 
                 <div className="grid lg:grid-cols-5 gap-6">
                     {/* Left Sidebar - Profile Card */}
-                    <div className="lg:col-span-2 bg-white shadow-md rounded-xl p-6 text-center">
+                    <div className="lg:col-span-2 bg-white shadow-md rounded-xl p-2 text-center">
                         <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden border-4 border-gray-100 relative flex items-center justify-center text-4xl font-bold bg-gradient-to-br from-blue-500 to-cyan-400 text-white">
                             <div 
                                 className="w-full h-full cursor-pointer"
@@ -280,7 +280,7 @@ const UserProfile = () => {
                             </button>
                         </div>
 
-                        <div className="p-6 space-y-4">
+                        <div className="p-2 space-y-4">
                             {activeTab === "profile" && (
                                 <div className="space-y-4">
                                     <div className="border rounded-lg p-4 bg-gray-50 hover:shadow-sm transition">
@@ -353,7 +353,7 @@ const UserProfile = () => {
                 </div>
 
                 {/* Bank Details Section */}
-                <div className="mt-8 bg-white shadow-md rounded-xl p-6">
+                <div className="mt-8 bg-white shadow-md rounded-xl p-2">
                     <h2 className="text-2xl font-bold mb-4 text-gray-800">Bank Details</h2>
                     {bankdetail.length > 0 ? (
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

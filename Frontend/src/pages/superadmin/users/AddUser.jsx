@@ -25,7 +25,7 @@ export default function User() {
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
 
-  // ✅ Validation Schema
+  
   const validationSchema = Yup.object({
     FullName: Yup.string()
       .required("Full Name is required")
@@ -59,7 +59,6 @@ export default function User() {
         }),
   });
 
-  // ✅ Fetch user details if editing
   useEffect(() => {
     const fetchUser = async () => {
       if (!userId) return;
@@ -146,7 +145,7 @@ export default function User() {
             label: "Password",
             type: "password",
             className: "w-full",
-      required: true,
+            required: true,
 
           },
           {
@@ -154,7 +153,8 @@ export default function User() {
             label: "Confirm Password",
             type: "password",
             className: "w-full",
-      required: true,
+             required: true,
+             
 
           },
         ]
