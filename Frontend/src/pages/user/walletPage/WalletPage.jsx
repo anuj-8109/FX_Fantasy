@@ -257,26 +257,30 @@ const WalletPage = () => {
         <BackButton showText={true} />
       </div>
 
-      <div className="p-4 mt-4 mb-4 bg-gray-100 rounded-xl shadow-md w-full max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-2">
-        {/* Add Money Text */}
+      <div className="p-3 sm:p-4 mt-4 mb-4 bg-gray-100 rounded-xl shadow-md w-full max-w-6xl mx-auto 
+  flex flex-wrap items-center justify-between gap-2 sm:gap-4">
+
+        {/* Add Money */}
         <span
           onClick={handleAddMoney}
-          className="cursor-pointer text-black font-medium text-sm hover:underline"
+          className="cursor-pointer text-black font-medium text-sm sm:text-base hover:underline whitespace-nowrap"
         >
           + Add Money
         </span>
 
-        {/* Withdraw Text */}
+        {/* Withdraw */}
         <span
           onClick={() => {
             if (!kycVerified)
-              return Swal.fire("KYC required", "Please complete KYC.", "warning").then(() =>
+              return Swal.fire("KYC Required", "Please complete your KYC.", "warning").then(() =>
                 navigate("/kycdetail")
               );
+
             if (!bankDetails.length)
-              return Swal.fire("Bank Missing", "Add bank details.", "warning").then(() =>
+              return Swal.fire("Bank Missing", "Please add your bank details.", "warning").then(() =>
                 navigate("/bankdetail")
               );
+
             if (bankDetails.length > 1 && !selectedBank) {
               Swal.fire({
                 title: "Select Bank",
@@ -290,34 +294,44 @@ const WalletPage = () => {
               }).then((res) => res.isConfirmed && handleWithdraw(bankDetails[res.value]));
               return;
             }
+
             handleWithdraw(selectedBank || bankDetails[0]);
           }}
-          className={`cursor-pointer text-sm font-medium ${kycVerified && bankDetails.length ? "text-black hover:underline" : "text-gray-400 cursor-not-allowed"}`}
+          className={`cursor-pointer text-sm sm:text-base font-medium whitespace-nowrap ${kycVerified && bankDetails.length
+            ? "text-black hover:underline transition-all duration-200"
+            : "text-gray-400 cursor-not-allowed"
+            }`}
         >
           - Withdraw
         </span>
 
-        {/* Tab Dropdown */}
+        {/* Dropdown */}
         <div className="relative">
           <span
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="cursor-pointer text-xs font-medium text-black flex items-center gap-1 hover:underline"
+            className="cursor-pointer text-sm sm:text-base font-medium text-black flex items-center gap-1 hover:underline whitespace-nowrap"
           >
-            {React.createElement(tabs.find(t => t.key === activeTab).icon, { size: 16 })}
-            {tabs.find(t => t.key === activeTab).label}
-            <ChevronDown size={16} className={`transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
+            {React.createElement(tabs.find((t) => t.key === activeTab).icon, { size: 16 })}
+            {tabs.find((t) => t.key === activeTab).label}
+            <ChevronDown
+              size={16}
+              className={`transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
+            />
           </span>
 
           {dropdownOpen && (
-            <div className="absolute w-40 mt-1 bg-white border rounded-md shadow-lg z-10">
-              {tabs.map(t => (
+            <div className="absolute right-0 w-44 mt-2 bg-white border rounded-lg shadow-lg z-10">
+              {tabs.map((t) => (
                 <span
                   key={t.key}
                   onClick={() => {
                     setActiveTab(t.key);
                     setDropdownOpen(false);
                   }}
-                  className={`block px-3 py-2 text-sm flex gap-3 cursor-pointer ${activeTab === t.key ? "bg-orange-100 text-orange-600" : "text-gray-700 hover:bg-orange-50"}`}
+                  className={`block px-3 py-2 text-sm flex gap-2 items-center cursor-pointer ${activeTab === t.key
+                    ? "bg-orange-100 text-orange-600"
+                    : "text-gray-700 hover:bg-orange-50"
+                    }`}
                 >
                   {React.createElement(t.icon, { size: 14 })} {t.label}
                 </span>
@@ -325,9 +339,12 @@ const WalletPage = () => {
             </div>
           )}
 
-          {dropdownOpen && <div className="fixed inset-0 z-0" onClick={() => setDropdownOpen(false)} />}
+          {dropdownOpen && (
+            <div className="fixed inset-0 z-0" onClick={() => setDropdownOpen(false)} />
+          )}
         </div>
       </div>
+
 
 
 
@@ -383,21 +400,31 @@ const WalletPage = () => {
         </div>
 
         {/* Date Inputs */}
-        <div className="flex gap-2 flex-1 min-w-[0] w-full sm:w-auto">
-          <input
-            type="date"
-            value={startDate}
-            onChange={e => setStartDate(e.target.value)}
-            className="border px-3 py-2 rounded-lg w-full sm:w-auto flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-orange-500"
-          />
-          <span className="text-gray-500 flex-shrink-0 self-center">to</span>
-          <input
-            type="date"
-            value={endDate}
-            onChange={e => setEndDate(e.target.value)}
-            className="border px-3 py-2 rounded-lg w-full sm:w-auto flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-orange-500"
-          />
+        <div className="flex flex-row gap-4 w-full">
+          {/* From Date */}
+          <div className="flex flex-col flex-1 min-w-[140px]">
+            <label className="text-gray-600 text-sm font-medium mb-1">From</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="border px-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+
+          {/* To Date */}
+          <div className="flex flex-col flex-1 min-w-[140px]">
+            <label className="text-gray-600 text-sm font-medium mb-1">To</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="border px-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
         </div>
+
+
 
         {/* Clear Button */}
         {(startDate || endDate) && (
