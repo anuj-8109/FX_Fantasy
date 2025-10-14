@@ -749,7 +749,7 @@ async addTrade(req, res) {
           contest_id,
           client_id,
           stock_symbol,
-          trade_type: "buy",
+          trade_type: "sell",
           quantity: qty,
           price,
           position_type: "OPEN",
