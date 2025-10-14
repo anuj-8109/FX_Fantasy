@@ -30,8 +30,8 @@ const jwt = require('jsonwebtoken');
 const otpStore = new Map();
 
 
-const ioSocket = require("../../Utils/ioSocketReturn");
-const io = ioSocket.getIO();
+//const ioSocket = require("../../Utils/ioSocketReturn");
+//const io = ioSocket.getIO();
 
 class Clients {
 
