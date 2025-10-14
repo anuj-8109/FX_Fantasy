@@ -60,13 +60,20 @@ const WithdrawalRequest = () => {
 
     const confirm = await Swal.fire({
       title: `${actionText} Transaction?`,
-      text: `Do you want to ${actionText.toLowerCase()} this transaction of ₹${
-        transaction.amount
-      }?`,
+      text: `Do you want to ${actionText.toLowerCase()} this transaction of ₹${transaction.amount
+        }?`,
       icon: "question",
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+
+      },
     });
 
     if (!confirm.isConfirmed) return;
@@ -187,11 +194,10 @@ const WithdrawalRequest = () => {
             <button
               key={tab.label}
               onClick={() => setActiveTab(tab.label)}
-              className={`px-4 py-2 font-medium ${
-                activeTab === tab.label
+              className={`px-4 py-2 font-medium ${activeTab === tab.label
                   ? "text-white bg-sky-600 rounded-t-lg"
                   : "text-gray-600 hover:text-gray-800"
-              }`}
+                }`}
             >
               {tab.label}
             </button>

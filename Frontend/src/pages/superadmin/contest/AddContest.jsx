@@ -130,7 +130,7 @@ export default function AddEditContest() {
     prizes.forEach((p) => {
       if (p.from && p.amount) {
         const from = parseInt(p.from, 10);
-        const to = p.to ? parseInt(p.to, 10) : from; // 🟢 if "to" empty, use "from"
+        const to = p.to ? parseInt(p.to, 10) : from; 
         for (let r = from; r <= to; r++) {
           expanded.push({ rank: r, amount: Number(p.amount) });
         }
@@ -243,10 +243,12 @@ export default function AddEditContest() {
       cancelButtonText: "Cancel",
       buttonsStyling: false,
       customClass: {
-        confirmButton:
-          "px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition mr-2",
-        cancelButton:
-          "px-4 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+
       },
     });
 
@@ -379,7 +381,7 @@ export default function AddEditContest() {
                 onChange={(e) => setContestTypeSelection(e.target.value)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500"
               />
-              <span>Private Contest</span>
+              <span>Flexible  Contest</span>
             </label>
           </div>
           {contestTypeSelection === "private" && (

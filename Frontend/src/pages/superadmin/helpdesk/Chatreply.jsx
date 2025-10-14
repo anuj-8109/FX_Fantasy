@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { getticketDetailAdmin, TicketReplyadmin, ticketstatus } from "../../../services/SuperAdmin";
+import Swal from "sweetalert2";
 
 function Chatreply() {
   const { ticketId } = useParams();
@@ -31,23 +32,54 @@ function Chatreply() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [ticketDetail]);
 
+
   const handleCloseTicket = async () => {
-    if (!window.confirm("Are you sure you want to close this ticket?")) return;
+    const result = await Swal.fire({
+      title: "Close Ticket?",
+      text: "Are you sure you want to close this ticket?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, close it",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+         customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+        
+      },
+
+    });
+
+    if (!result.isConfirmed) return;
 
     const data = {
       id: ticketId,
-      status: 2
+      status: 2,
     };
 
     const res = await ticketstatus(token, data);
 
     if (res.status) {
-      alert("Ticket closed successfully.");
+      await Swal.fire({
+        title: "Closed!",
+        text: "Ticket closed successfully.",
+        icon: "success",
+        confirmButtonColor: "#2563eb",
+      });
       fetchTicket();
     } else {
-      alert("Failed to close ticket: " + res.message);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to close ticket: " + res.message,
+        icon: "error",
+        confirmButtonColor: "#dc2626",
+      });
     }
   };
+
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
@@ -181,7 +213,7 @@ function Chatreply() {
                   key={msg._id}
                   className={`flex ${isAdmin ? "justify-end" : "justify-start"} mb-2`}
                 >
-               <div className={`flex ${isAdmin ? "flex-row-reverse" : "flex-row"} items-end gap-1`}>
+                  <div className={`flex ${isAdmin ? "flex-row-reverse" : "flex-row"} items-end gap-1`}>
 
                     {/* Profile Image or Initial */}
                     {msg.profileImage ? (

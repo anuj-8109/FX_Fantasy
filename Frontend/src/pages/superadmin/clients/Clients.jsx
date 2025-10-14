@@ -225,11 +225,11 @@ const Client = () => {
           confirmButtonColor: "#3085d6",
           customClass: {
             popup: "custom-swal-popup",
-            title: "text-xl font-semibold text-white-800",
-            confirmButton:
-              "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
-            cancelButton:
-              "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+            title: "custom-swal-title",
+            htmlContainer: "custom-swal-text",
+            confirmButton: "custom-swal-confirm",
+            cancelButton: "custom-swal-cancel",
+
           },
         });
         return; // exit without making API call
@@ -245,6 +245,14 @@ const Client = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, Save",
       cancelButtonText: "Cancel",
+         customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+        
+      },
     });
 
     if (!confirm.isConfirmed) return;
@@ -286,6 +294,14 @@ const Client = () => {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+
+      },
     });
 
     if (!confirm.isConfirmed) return;
@@ -309,6 +325,14 @@ const Client = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, Delete",
       cancelButtonText: "Cancel",
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+
+      },
     });
     if (!confirm.isConfirmed) return;
 
@@ -329,6 +353,13 @@ const Client = () => {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
+         customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+      },
     });
 
     if (!confirm.isConfirmed) return;
@@ -751,7 +782,7 @@ const Client = () => {
                 <p>
                   <strong>Status:</strong>{" "}
                   {viewClient?.ActiveStatus === 1 ||
-                  viewClient?.ActiveStatus === "1"
+                    viewClient?.ActiveStatus === "1"
                     ? "Active"
                     : "Inactive"}
                 </p>

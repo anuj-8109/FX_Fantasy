@@ -41,12 +41,20 @@ const AllUsers = () => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+
+      },
     }).then(async (result) => {
       if (result?.isConfirmed) {
         try {
           const token = localStorage.getItem("token");
           const res = await DeleteUser(token, row._id);
-          console.log("res", res);
+
 
           if (res?.status) {
             toast.success(
@@ -73,19 +81,18 @@ const AllUsers = () => {
         : "Do you really want to deactivate this user?",
       icon: "question",
       showCancelButton: true,
-      confirmButtonColor: "#2563eb",
-      cancelButtonColor: "#6b7280",
       confirmButtonText: isEnabling ? "Yes, Activate" : "Yes, Deactivate",
       cancelButtonText: "Cancel",
       customClass: {
         popup: "custom-swal-popup",
-        title: "text-xl font-semibold text-white-800",
-        confirmButton:
-          "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
-        cancelButton:
-          "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+
       },
     });
+
 
     if (!confirm.isConfirmed) return;
 
@@ -111,6 +118,14 @@ const AllUsers = () => {
           title: "Error",
           text: response?.message || "Failed to update status",
           confirmButtonColor: "#dc2626",
+          customClass: {
+            popup: "custom-swal-popup",
+            title: "custom-swal-title",
+            htmlContainer: "custom-swal-text",
+            confirmButton: "custom-swal-confirm",
+            cancelButton: "custom-swal-cancel",
+
+          },
         });
       }
     } catch (error) {
@@ -119,6 +134,14 @@ const AllUsers = () => {
         title: "Error",
         text: error?.message || "Unexpected error",
         confirmButtonColor: "#dc2626",
+        customClass: {
+          popup: "custom-swal-popup",
+          title: "custom-swal-title",
+          htmlContainer: "custom-swal-text",
+          confirmButton: "custom-swal-confirm",
+          cancelButton: "custom-swal-cancel",
+
+        },
       });
     }
   };
@@ -147,11 +170,11 @@ const AllUsers = () => {
       showCancelButton: true,
       customClass: {
         popup: "custom-swal-popup",
-        title: "text-xl font-semibold text-white-800",
-        confirmButton:
-          "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
-        cancelButton:
-          "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+
       },
     });
 
