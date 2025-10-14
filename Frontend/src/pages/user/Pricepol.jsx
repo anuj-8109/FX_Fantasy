@@ -307,10 +307,22 @@ function Pricepol() {
                         ₹{contest.prize_pool}
                       </p>
                     </div>
-                    <span className="text-[11px] sm:text-xs lg:text-[14px] text-orange-600 font-medium flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                      Guaranteed
-                    </span>
+                    <div className="flex flex-wrap items-center gap-3">
+                      {contest.is_guaranteed && (
+                        <span className="text-[11px] sm:text-xs lg:text-[14px] text-orange-600 font-medium flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                          Guaranteed
+                        </span>
+                      )}
+
+                      {contest.is_private && (
+                        <span className="text-[11px] sm:text-xs lg:text-[14px] text-blue-600 font-medium flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+                          Private
+                        </span>
+                      )}
+                    </div>
+
                   </div>
 
                   <AnimatedProgressBar filled={contest.filled_spots} total={contest.total_spots} />

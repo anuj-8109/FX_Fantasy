@@ -128,7 +128,7 @@ const WalletPage = () => {
   const handleWithdraw = async (bank) => {
     const { value: formValues } = await Swal.fire({
       title: "Withdraw Money",
-      html: `<input id="swal-amount" type="number" class="swal2-input" placeholder="Amount (₹)">`,
+      input: "number",
       focusConfirm: false,
       showCancelButton: true,
       confirmButtonText: "Submit",

@@ -317,3 +317,7 @@ aside .w-16 .anuj{
 /* .button_style{
      background-color: rgb(6 71 94);
 } */
+
+.ck-powered-by {
+  display: none !important;
+}
