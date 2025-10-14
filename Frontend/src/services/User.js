@@ -573,11 +573,20 @@ export async function SharePrivateContest(token, contest_id, shared_by_client_id
     const response = await axios.post(
       `${config.base_url}api/client/shareprivatecontest`,
       { contest_id, shared_by_client_id, PhoneNo },
-      { headers: { Authorization: `Bearer ${token}` } }
+      { 
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        } 
+      }
     );
     return response?.data;
   } catch (error) {
-    return error?.response?.data || { status: false, message: "Network error" };
+    console.error("SharePrivateContest API Error:", error);
+    return error?.response?.data || { 
+      status: false, 
+      message: error?.message || "Network error" 
+    };
   }
 }
 

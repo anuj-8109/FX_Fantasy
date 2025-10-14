@@ -29,6 +29,10 @@ const { generatePDF } = require('../../Utils/pdfGenerator');
 const jwt = require('jsonwebtoken');
 const otpStore = new Map();
 
+
+const ioSocket = require("../../Utils/ioSocketReturn");
+const io = ioSocket.getIO();
+
 class Clients {
 
 
@@ -1775,7 +1779,7 @@ try {
 
 const { contest_id, shared_by_client_id,PhoneNo } = req.body;
 
-if (!contest_id || !shared_by_client_id || PhoneNo) {
+if (!contest_id || !shared_by_client_id || !PhoneNo) {
 return res.status(400).json({
 status: false,
 message: "contest_id, shared_with_client_id and shared_by_client_id are required"

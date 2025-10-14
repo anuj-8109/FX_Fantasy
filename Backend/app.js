@@ -10,8 +10,29 @@ const socketio = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server, { cors: { origin: '*' } });
+const io = socketio(server, {
+  cors: {
+    origin: "*", // Allow all origins
+    credentials: true
+  }
+});
+
 global.io = io;
+
+
+
+io.on("connection", (socket) => {
+
+  socket.on("disconnect", () => {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
+
+});
+
+require("./App/Utils/ioSocketReturn.js")(app, io);
+
+
+
 
 app.use(cors());
 app.use(express.json());

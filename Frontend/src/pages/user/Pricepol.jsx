@@ -307,10 +307,22 @@ function Pricepol() {
                         ₹{contest.prize_pool}
                       </p>
                     </div>
-                    <span className="text-[11px] sm:text-xs lg:text-[14px] text-orange-600 font-medium flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                      Guaranteed
-                    </span>
+                    <div className="flex flex-wrap items-center gap-3">
+                      {contest.is_guaranteed && (
+                        <span className="text-[11px] sm:text-xs lg:text-[14px] text-orange-600 font-medium flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                          Guaranteed
+                        </span>
+                      )}
+
+                      {contest.is_private && (
+                        <span className="text-[11px] sm:text-xs lg:text-[14px] text-blue-600 font-medium flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+                          Private
+                        </span>
+                      )}
+                    </div>
+
                   </div>
 
                   <AnimatedProgressBar filled={contest.filled_spots} total={contest.total_spots} />
@@ -531,11 +543,15 @@ function Pricepol() {
                             const token = localStorage.getItem("token");
                             const shared_by_client_id = localStorage.getItem("userId");
 
+                            if (!token || !shared_by_client_id) {
+                              return toast.error("Missing token or client ID");
+                            }
+
                             const { value: PhoneNo } = await Swal.fire({
                               title: "🔗 Share Contest",
                               html: `<p style="font-size:14px; color:#333;">Enter the phone number to share this contest with:</p>`,
                               input: "text",
-                              inputPlaceholder: "Enter Phone Number",
+                              inputPlaceholder: "Enter Phone Number (10-15 digits)",
                               showCancelButton: true,
                               confirmButtonText: "Share",
                               cancelButtonText: "Cancel",
@@ -543,7 +559,7 @@ function Pricepol() {
                                 if (!value) return "Phone number is required!";
                                 const phoneRegex = /^[0-9]{10,15}$/;
                                 if (!phoneRegex.test(value))
-                                  return "Enter a valid phone number!";
+                                  return "Enter a valid phone number (10-15 digits)!";
                               },
                               focusConfirm: false,
                               allowOutsideClick: false,
@@ -555,6 +571,9 @@ function Pricepol() {
                             if (!PhoneNo) return;
 
                             try {
+                              // Show loading toast
+                              const loadingToast = toast.loading("Sharing contest...");
+
                               const res = await SharePrivateContest(
                                 token,
                                 contest._id,
@@ -562,13 +581,16 @@ function Pricepol() {
                                 PhoneNo
                               );
 
+                              toast.dismiss(loadingToast);
+
                               if (res?.status) {
-                                toast.success("Contest shared successfully!");
+                                toast.success("Contest shared successfully! 🎉");
                               } else {
                                 toast.error(res?.message || "Failed to share contest");
                               }
                             } catch (error) {
-                              toast.error("Something went wrong.");
+                              console.error("Share error:", error);
+                              toast.error("Something went wrong while sharing.");
                             }
                           }}
                           className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"

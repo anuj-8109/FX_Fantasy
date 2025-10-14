@@ -137,19 +137,55 @@ const renderField = (field, form, values) => {
         />
       );
 
-    case "password":
+    case "password": {
+      const [showPassword, setShowPassword] = React.useState(false);
       return (
-        <Field
-          type="password"
-          name={field.name}
-          placeholder={field.placeholder || `Enter ${field.label}`}
-          id={field.name}
-          autoComplete={field.autoComplete || "current-password"}
-          className={baseInputClasses}
-          disabled={field.disabled}
-          {...field.fieldProps}
-        />
+        <div className="relative">
+          <Field
+            type={showPassword ? "text" : "password"}
+            name={field.name}
+            placeholder={field.placeholder || `Enter ${field.label}`}
+            id={field.name}
+            autoComplete={field.autoComplete || "current-password"}
+            className={`${baseInputClasses} pr-10`} // add padding for the icon
+            disabled={field.disabled}
+            {...field.fieldProps}
+          />
+
+          {/* 👁 Eye icon toggle */}
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+          >
+            {showPassword ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 3C5 3 1.73 7.11 1 10c.73 2.89 4 7 9 7s8.27-4.11 9-7c-.73-2.89-4-7-9-7zm0 11a4 4 0 110-8 4 4 0 010 8z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path d="M4.03 3.97a.75.75 0 011.06 0l10.94 10.94a.75.75 0 11-1.06 1.06l-1.53-1.53A8.01 8.01 0 0110 17c-5 0-8.27-4.11-9-7 .44-1.72 1.72-3.92 3.7-5.44L4.03 3.97zM10 5c1.66 0 3.09.7 4.15 1.79l-1.42 1.42A4 4 0 006.8 9.58l-1.45-1.45C6.53 6.5 8.14 5 10 5z" />
+              </svg>
+            )}
+          </button>
+        </div>
       );
+    }
+
 
     case "file":
       return (
@@ -387,27 +423,25 @@ const ReusableForm = ({
           {fields.map((field) => (
             <div key={field.name} className={field.colClass || "col-span-2"}>
               <div className="flex flex-col space-y-1">
-                {field.type !== "checkbox" && 
-                 field.type !== "radio" && 
-                 field.type !== "prizeDistribution" && (
-                  <label
-                    htmlFor={field.name}
-                    className={`text-sm font-medium ${
-                      field.required
-                        ? "after:content-['*'] after:text-red-500 after:ml-1"
-                        : ""
-                    }`}
-                  >
-                    {field.label}
-                  </label>
-                )}
+                {field.type !== "checkbox" &&
+                  field.type !== "radio" &&
+                  field.type !== "prizeDistribution" && (
+                    <label
+                      htmlFor={field.name}
+                      className={`text-sm font-medium ${field.required
+                          ? "after:content-['*'] after:text-red-500 after:ml-1"
+                          : ""
+                        }`}
+                    >
+                      {field.label}
+                    </label>
+                  )}
 
                 <div
-                  className={`relative ${
-                    errors[field.name] && touched[field.name]
+                  className={`relative ${errors[field.name] && touched[field.name]
                       ? "border-red-300"
                       : ""
-                  }`}
+                    }`}
                 >
                   {renderField(field, null, values)}
                 </div>
@@ -431,9 +465,8 @@ const ReusableForm = ({
             <button
               type="submit"
               disabled={loading || isSubmitting || submitButtonProps.disabled}
-              className={`px-4 py-3 mt-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed ${
-                submitButtonProps.className || ""
-              }`}
+              className={`px-4 py-3 mt-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed ${submitButtonProps.className || ""
+                }`}
               {...submitButtonProps}
             >
               {loading || isSubmitting

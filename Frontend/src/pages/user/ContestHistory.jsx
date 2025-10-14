@@ -184,20 +184,21 @@ function HistoryPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-3 mt-5">
+                <div className="flex justify-between items-center mt-3">
                   <button
                     onClick={() => setShowQuantityBox({ id: s._id, type: "buy" })}
-                    className="flex-1 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-all shadow-sm hover:scale-105"
+                    className="w-[30%] py-1 px-2 text-xs bg-green-500 text-white font-medium rounded-md hover:bg-green-600 transition-all shadow-sm hover:scale-105"
                   >
                     BUY
                   </button>
                   <button
                     onClick={() => setShowQuantityBox({ id: s._id, type: "sell" })}
-                    className="flex-1 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-all shadow-sm hover:scale-105"
+                    className="w-[30%] py-1 px-2 text-xs bg-red-500 text-white font-medium rounded-md hover:bg-red-600 transition-all shadow-sm hover:scale-105"
                   >
                     SELL
                   </button>
                 </div>
+
 
                 {/* Quantity Box */}
                 {showQuantityBox?.id === s._id && (
