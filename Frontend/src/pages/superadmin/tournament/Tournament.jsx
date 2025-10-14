@@ -460,30 +460,49 @@ function Tournament() {
       width: "80px",
       export: true,
     },
-    {
-      name: "Action",
-      cell: (row) => (
-        <div className="flex gap-3">
-          <Eye
-            className="text-green-600 cursor-pointer"
-            onClick={() => openViewModal(row)}
-          />
-          <Edit
-            className={`cursor-pointer ${
-              row.status === "live" || row.status === "completed"
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-blue-600"
-            }`}
-            onClick={() => {
-              if (row.status === "live" || row.status === "completed") return; // Disable click
-              openModal(row);
-            }}
-          />
-        </div>
-      ),
-      export: false,
-      width: "90px",
-    },
+   {
+  name: "Action",
+  cell: (row) => (
+    <div className="flex gap-3 items-center">
+      {/* View */}
+      <Eye
+        className="text-green-600 cursor-pointer"
+        onClick={() => openViewModal(row)}
+      />
+
+      {/* Edit */}
+      <Edit
+        className={`cursor-pointer ${
+          row.status === "live" || row.status === "completed"
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-blue-600"
+        }`}
+        onClick={() => {
+          if (row.status === "live" || row.status === "completed") return;
+          openModal(row);
+        }}
+      />
+
+      {/* Cancel (instead of Delete) */}
+      <button
+        className={`px-3 py-1 rounded text-white text-sm transition ${
+          row.status === "upcoming"
+            ? "bg-red-600 hover:bg-red-700"
+            : "bg-gray-400 cursor-not-allowed"
+        }`}
+        disabled={row.status !== "upcoming"}
+        onClick={() => {
+          if (row.status === "upcoming") handleCancel(row);
+        }}
+      >
+        Cancel
+      </button>
+    </div>
+  ),
+  export: false,
+  width: "170px",
+}
+,
     {
       name: "Contest",
       cell: (row) => (
