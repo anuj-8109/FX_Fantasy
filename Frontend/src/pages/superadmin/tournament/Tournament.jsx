@@ -492,7 +492,7 @@ function Tournament() {
         }`}
         disabled={row.status !== "upcoming"}
         onClick={() => {
-          if (row.status === "upcoming") handleCancel(row);
+          if (row.status === "upcoming") handleDelete(row);
         }}
       >
         Cancel
