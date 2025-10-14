@@ -68,10 +68,12 @@ export default function AddEditBlog() {
       cancelButtonText: "Cancel",
       buttonsStyling: false,
       customClass: {
-        confirmButton:
-          "px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
-        cancelButton:
-          "px-4 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+
       },
     });
 

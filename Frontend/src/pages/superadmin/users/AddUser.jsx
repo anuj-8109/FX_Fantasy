@@ -25,7 +25,7 @@ export default function User() {
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
 
-  
+
   const validationSchema = Yup.object({
     FullName: Yup.string()
       .required("Full Name is required")
@@ -46,17 +46,17 @@ export default function User() {
     ...(userId
       ? {} // edit mode: no password required
       : {
-          password: Yup.string()
-            .min(8, "Password must be at least 8 characters")
-            .matches(/[A-Z]/, "Password must have at least one uppercase letter")
-            .matches(/[a-z]/, "Password must have at least one lowercase letter")
-            .matches(/\d/, "Password must have at least one number")
-            .matches(/[@$!%*?&#]/, "Password must have at least one special character")
-            .required("Password is required"),
-          confirmPassword: Yup.string()
-            .oneOf([Yup.ref("password"), null], "Passwords must match")
-            .required("Confirm Password is required"),
-        }),
+        password: Yup.string()
+          .min(8, "Password must be at least 8 characters")
+          .matches(/[A-Z]/, "Password must have at least one uppercase letter")
+          .matches(/[a-z]/, "Password must have at least one lowercase letter")
+          .matches(/\d/, "Password must have at least one number")
+          .matches(/[@$!%*?&#]/, "Password must have at least one special character")
+          .required("Password is required"),
+        confirmPassword: Yup.string()
+          .oneOf([Yup.ref("password"), null], "Passwords must match")
+          .required("Confirm Password is required"),
+      }),
   });
 
   useEffect(() => {
@@ -121,7 +121,8 @@ export default function User() {
         },
       },
     },
-    { name: "Email", label: "Email", type: "email", className: "w-full" ,
+    {
+      name: "Email", label: "Email", type: "email", className: "w-full",
       required: true,
 
     },
@@ -140,24 +141,24 @@ export default function User() {
     },
     ...(!userId
       ? [
-          {
-            name: "password",
-            label: "Password",
-            type: "password",
-            className: "w-full",
-            required: true,
+        {
+          name: "password",
+          label: "Password",
+          type: "password",
+          className: "w-full",
+          required: true,
 
-          },
-          {
-            name: "confirmPassword",
-            label: "Confirm Password",
-            type: "password",
-            className: "w-full",
-             required: true,
-             
+        },
+        {
+          name: "confirmPassword",
+          label: "Confirm Password",
+          type: "password",
+          className: "w-full",
+          required: true,
 
-          },
-        ]
+
+        },
+      ]
       : []),
   ];
 
@@ -187,6 +188,14 @@ export default function User() {
       cancelButtonText: "Cancel",
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+
+      },
     });
 
     if (!confirm.isConfirmed) return;
@@ -239,8 +248,8 @@ export default function User() {
                 ? "Updating..."
                 : "Adding..."
               : userId
-              ? "Update User"
-              : "Add User",
+                ? "Update User"
+                : "Add User",
             className:
               "col-span-6 mt-4 py-2 rounded-lg font-semibold shadow-lg transition disabled:opacity-50 w-1/3 mx-auto block",
             disabled: loading,

@@ -265,14 +265,14 @@ function Tournament() {
         showCancelButton: true,
         confirmButtonText: "Yes, update it!",
         cancelButtonText: "Cancel",
-        customClass: {
-          popup: "custom-swal-popup",
-          title: "text-xl font-semibold text-white-800",
-          confirmButton:
-            "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
-          cancelButton:
-            "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
-        },
+           customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+        
+      },
       });
 
       if (result.isConfirmed) {
@@ -306,6 +306,14 @@ function Tournament() {
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
       cancelButtonText: "Cancel",
+         customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+        
+      },
     });
 
     if (result.isConfirmed) {
@@ -335,6 +343,14 @@ function Tournament() {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
+       customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+        
+      },
     });
 
     if (!confirm.isConfirmed) return;

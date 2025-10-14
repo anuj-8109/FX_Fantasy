@@ -76,7 +76,7 @@ export default function AddEditTournament() {
     stocks: Yup.array()
       .min(1, "At least one stock is required")
       .max(2, "You can add maximum 2 stocks only")
-      .test('valid-stocks', 'All stocks must be selected', function(value) {
+      .test('valid-stocks', 'All stocks must be selected', function (value) {
         if (!value || value.length === 0) return false;
         return value.every(stock => stock.stock_id && stock.stock_name);
       }),
@@ -109,10 +109,12 @@ export default function AddEditTournament() {
       cancelButtonText: "Cancel",
       buttonsStyling: false,
       customClass: {
-        confirmButton:
-          "px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
-        cancelButton:
-          "px-4 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+
       },
     });
 
@@ -174,10 +176,10 @@ export default function AddEditTournament() {
             const searchTerm = s.stock_name?.trim().toLowerCase();
             const filtered = searchTerm
               ? stocklistData.filter(
-                  (st) =>
-                    st.symbol.toLowerCase().includes(searchTerm) ||
-                    st.tradesymbol?.toLowerCase().includes(searchTerm)
-                )
+                (st) =>
+                  st.symbol.toLowerCase().includes(searchTerm) ||
+                  st.tradesymbol?.toLowerCase().includes(searchTerm)
+              )
               : stocklistData.slice(0, 50);
 
             const shouldShowDropdown =
@@ -210,11 +212,10 @@ export default function AddEditTournament() {
                       }, 200);
                     }}
                     placeholder="Search stock by symbol or name"
-                    className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 ${
-                      hasError 
-                        ? 'border-red-500 focus:ring-red-500' 
+                    className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 ${hasError
+                        ? 'border-red-500 focus:ring-red-500'
                         : 'border-gray-300 focus:ring-blue-500'
-                    }`}
+                      }`}
                   />
                   {values.stocks.length > 1 && (
                     <button
