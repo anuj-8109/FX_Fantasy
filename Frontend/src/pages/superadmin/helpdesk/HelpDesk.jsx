@@ -150,7 +150,7 @@ function HelpDesk() {
             label = "Active";
             break;
           case 2:
-            bgColor = "bg-green-700"; // dark green for Closed
+            bgColor = "bg-red-700"; // dark green for Closed
             textColor = "text-white";
             label = "Closed";
             break;

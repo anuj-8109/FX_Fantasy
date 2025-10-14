@@ -58,12 +58,12 @@ const ViewContest = () => {
           wallet_balance: item?.wallet_balance || 0,
           joined_at: item?.joined_at
             ? new Date(item.joined_at).toLocaleString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
             : "N/A",
         }));
         setMemberRanks(formattedData);
@@ -88,31 +88,28 @@ const ViewContest = () => {
         <div className="flex border-b mb-4">
           <button
             onClick={() => setActiveTab("details")}
-            className={`px-4 py-2 font-medium ${
-              activeTab === "details"
+            className={`px-4 py-2 font-medium ${activeTab === "details"
                 ? "border-b-2 border-blue-600 text-blue-600"
                 : "text-gray-600"
-            }`}
+              }`}
           >
             View Details
           </button>
           <button
             onClick={() => setActiveTab("ranks")}
-            className={`px-4 py-2 font-medium ${
-              activeTab === "ranks"
+            className={`px-4 py-2 font-medium ${activeTab === "ranks"
                 ? "border-b-2 border-blue-600 text-blue-600"
                 : "text-gray-600"
-            }`}
+              }`}
           >
             View Ranks
           </button>
           <button
             onClick={() => setActiveTab("members")}
-            className={`px-4 py-2 font-medium ${
-              activeTab === "members"
+            className={`px-4 py-2 font-medium ${activeTab === "members"
                 ? "border-b-2 border-blue-600 text-blue-600"
                 : "text-gray-600"
-            }`}
+              }`}
           >
             Member Ranks
           </button>
@@ -163,14 +160,14 @@ const ViewContest = () => {
               </div>
 
               <div>
-                <strong>Type Flags:</strong>{" "}
+                <strong>Contest Type:</strong>{" "}
                 {contest?.is_guaranteed && contest?.is_private
                   ? "Guaranteed, Private"
                   : contest?.is_guaranteed
-                  ? "Guaranteed"
-                  : contest?.is_private
-                  ? "Private"
-                  : "-"}
+                    ? "Guaranteed"
+                    : contest?.is_private
+                      ? "Private"
+                      : "-"}
               </div>
 
               <div>
@@ -178,12 +175,12 @@ const ViewContest = () => {
                 <p className="text-gray-700 mt-1">
                   {contest?.created_at
                     ? new Date(contest.created_at).toLocaleString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
                     : "N/A"}
                 </p>
               </div>
@@ -236,7 +233,7 @@ const ViewContest = () => {
               <table className="min-w-full border text-sm">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="border px-3 py-2 text-left">#</th>
+                    <th className="border px-3 py-2 text-left">S.No.</th>
                     <th className="border px-3 py-2 text-left">Member Name</th>
                     <th className="border px-3 py-2 text-left">Email</th>
                     <th className="border px-3 py-2 text-left">Phone</th>
@@ -256,7 +253,8 @@ const ViewContest = () => {
                       <td className="border px-3 py-2">{m.email}</td>
                       <td className="border px-3 py-2">{m.phone}</td>
                       <td className="border px-3 py-2">{m.rank}</td>
-                      <td className="border px-3 py-2">{m.points}</td>
+                      <td className="border px-3 py-2">{Number(m.points).toFixed(2)}</td>
+
                       <td className="border px-3 py-2">₹{m.wallet_balance}</td>
                       <td className="border px-3 py-2">{m.joined_at}</td>
                     </tr>

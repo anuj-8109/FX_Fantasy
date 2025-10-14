@@ -72,7 +72,7 @@ export default function AddEditTournament() {
     enddate: Yup.date()
       .required("End date is required")
       .min(Yup.ref("startdate"), "End date cannot be before start date"),
-    useamount: Yup.string().required("Use amount is required"),
+    useamount: Yup.string().required("Virtual amount is required"),
     stocks: Yup.array()
       .min(1, "At least one stock is required")
       .max(2, "You can add maximum 2 stocks only")
@@ -325,7 +325,7 @@ export default function AddEditTournament() {
     },
     {
       name: "useamount",
-      label: "Use Amount",
+      label: "Virtual Amount",
       type: "number",
       required: true,
       colClass: "col-span-2",
