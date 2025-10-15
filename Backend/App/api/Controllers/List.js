@@ -842,9 +842,9 @@ async myContests(req, res) {
         },
       })
       .populate("client_id") // client detail
-      .sort({ created_at: -1 })
-      .skip(skip)
-      .limit(limitNum);
+      .sort({ created_at: -1 });
+      // .skip(skip)
+      // .limit(limitNum);
 
     const totalCount = await Contestjoin_Modal.countDocuments({ client_id });
 
