@@ -352,6 +352,7 @@
 // export default SuperAdminDashboard;
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   FaUsers, 
   FaUserCheck, 
@@ -363,16 +364,18 @@ import {
 } from 'react-icons/fa';
 
 function SuperAdminDashboard() {
+  const navigate = useNavigate();
+
   const stats = [
-    { title: 'Total Clients', value: 1200, icon: <FaUsers />, trend: '+12%' },
-    { title: 'Active Clients', value: 950, icon: <FaUserCheck />, trend: '+8%' },
-    { title: 'Inactive Clients', value: 250, icon: <FaUserTimes />, trend: '-5%' },
-    { title: 'Total Tournaments', value: 45, icon: <FaTrophy />, trend: '+20%' },
-    { title: 'Contests (Live)', value: 12, icon: <FaClipboardList />, trend: '+3%' },
-    { title: 'Contests (Completed)', value: 28, icon: <FaClipboardList />, trend: '+15%' },
-    { title: 'Contests (Upcoming)', value: 5, icon: <FaClipboardList />, trend: '+10%' },
-    { title: 'Revenue', value: '$45,000', icon: <FaDollarSign />, trend: '+25%' },
-    { title: 'Winnings', value: '$12,500', icon: <FaCoins />, trend: '+18%' },
+    { title: 'Total Clients', value: 1200, icon: <FaUsers />, trend: '+12%', route: '/superadmin/clients' },
+    { title: 'Active Clients', value: 950, icon: <FaUserCheck />, trend: '+8%',  },
+    { title: 'Inactive Clients', value: 250, icon: <FaUserTimes />, trend: '-5%',},
+    { title: 'Total Tournaments', value: 45, icon: <FaTrophy />, trend: '+20%',  },
+    { title: 'Contests (Live)', value: 12, icon: <FaClipboardList />, trend: '+3%',  },
+    { title: 'Contests (Completed)', value: 28, icon: <FaClipboardList />, trend: '+15%',},
+    { title: 'Contests (Upcoming)', value: 5, icon: <FaClipboardList />, trend: '+10%',  },
+    { title: 'Revenue', value: '$45,000', icon: <FaDollarSign />, trend: '+25%',  },
+    { title: 'Winnings', value: '$12,500', icon: <FaCoins />, trend: '+18%',},
   ];
 
   return (
@@ -383,6 +386,7 @@ function SuperAdminDashboard() {
         {stats.map((stat, index) => (
           <div
             key={index}
+            onClick={() => navigate(stat.route)}
             className="bg-gray-200 text-black rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform cursor-pointer"
           >
             <div className="flex items-center justify-between">
@@ -403,6 +407,7 @@ function SuperAdminDashboard() {
 }
 
 export default SuperAdminDashboard;
+
 
 
 
