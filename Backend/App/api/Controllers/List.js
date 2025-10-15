@@ -18,8 +18,8 @@ const City = db.City;
 
 
 const mongoose = require('mongoose');
-const ioSocket = require("../../Utils/ioSocketReturn");
-const io = ioSocket.getIO();
+//const ioSocket = require("../../Utils/ioSocketReturn");
+//const io = ioSocket.getIO();
 
 class List {
 
@@ -749,7 +749,7 @@ async addTrade(req, res) {
           contest_id,
           client_id,
           stock_symbol,
-          trade_type: "buy",
+          trade_type: "sell",
           quantity: qty,
           price,
           position_type: "OPEN",
@@ -842,9 +842,9 @@ async myContests(req, res) {
         },
       })
       .populate("client_id") // client detail
-      .sort({ created_at: -1 })
-      .skip(skip)
-      .limit(limitNum);
+      .sort({ created_at: -1 });
+      // .skip(skip)
+      // .limit(limitNum);
 
     const totalCount = await Contestjoin_Modal.countDocuments({ client_id });
 
