@@ -24,7 +24,9 @@ import {
   LifeBuoy,
   Trophy ,
   Share2 ,
-  CreditCard , 
+  CreditCard ,
+  DollarSign, 
+   
 
 } from "lucide-react";
 
@@ -86,6 +88,16 @@ const menuItems = [
     title: "Withdrawal ",
     url: "/superadmin/withdrawal",
     icon: <Banknote />,
+  },
+    {
+    title: "Revenue",
+    url: "/superadmin/revenue",
+    icon: <DollarSign />,
+  },
+  {
+    title: "Winnings",
+    url: "/superadmin/winning",
+    icon: <Award />,
   },
   //  {
   //   title: "Kyc Approval",

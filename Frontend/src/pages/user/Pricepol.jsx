@@ -301,12 +301,12 @@ function Pricepol() {
                   </p>
 
                   <div className="flex justify-between items-center mb-3">
-                    <div className="flex flex-row items-center gap-3">
+                    {/* <div className="flex flex-row items-center gap-3">
                       <p className="text-[11px] sm:text-xs lg:text-[14px] text-black-600">Prize Pool</p>
                       <p className="text-sm sm:text-lg lg:text-[14px] font-bold text-black-600 bg-clip-text">
                         ₹{contest.prize_pool}
                       </p>
-                    </div>
+                    </div> */}
                     <div className="flex flex-wrap items-center gap-3">
                       {contest.is_guaranteed && (
                         <span className="text-[11px] sm:text-xs lg:text-[14px] text-orange-600 font-medium flex items-center gap-1">

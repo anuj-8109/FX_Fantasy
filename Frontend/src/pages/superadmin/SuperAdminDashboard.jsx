@@ -370,38 +370,61 @@ function SuperAdminDashboard() {
     { title: 'Total Clients', value: 1200, icon: <FaUsers />, trend: '+12%', route: '/superadmin/clients' },
     { title: 'Active Clients', value: 950, icon: <FaUserCheck />, trend: '+8%',  },
     { title: 'Inactive Clients', value: 250, icon: <FaUserTimes />, trend: '-5%',},
-    { title: 'Total Tournaments', value: 45, icon: <FaTrophy />, trend: '+20%',  },
+    { title: 'Total Tournaments', value: 45, icon: <FaTrophy />, trend: '+20%', route:"/superadmin/tournament"  },
     { title: 'Contests (Live)', value: 12, icon: <FaClipboardList />, trend: '+3%',  },
     { title: 'Contests (Completed)', value: 28, icon: <FaClipboardList />, trend: '+15%',},
     { title: 'Contests (Upcoming)', value: 5, icon: <FaClipboardList />, trend: '+10%',  },
-    { title: 'Revenue', value: '$45,000', icon: <FaDollarSign />, trend: '+25%',  },
-    { title: 'Winnings', value: '$12,500', icon: <FaCoins />, trend: '+18%',},
+    { title: 'Revenue', value: '$45,000', icon: <FaDollarSign />, trend: '+25%', route: "/superadmin/revenue"  },
+    { title: 'Winnings', value: '$12,500', icon: <FaCoins />, trend: '+18%', route:"/superadmin/winning"},
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+     <div className="min-h-screen bg-gray-100 p-6">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Dashboard</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {stats.map((stat, index) => (
           <div
             key={index}
             onClick={() => navigate(stat.route)}
-            className="bg-gray-200 text-black rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform cursor-pointer"
+            className="group bg-gray-200 text-black rounded-2xl shadow-xl p-8 cursor-pointer
+                       transform transition-all duration-300 ease-out hover:-translate-y-2 
+                       hover:rotate-1 hover:shadow-2xl"
+            style={{
+              animation: `fadeInUp 0.6s ease ${index * 0.1}s both`,
+            }}
           >
             <div className="flex items-center justify-between">
-              <div className="text-3xl">{stat.icon}</div>
+              <div className="p-4 bg-gray-300 rounded-full group-hover:scale-110 transition-transform duration-300">
+                {stat.icon}
+              </div>
               <div className="text-right">
                 <h2 className="text-sm font-medium">{stat.title}</h2>
-                <p className="text-2xl font-bold mt-1">{stat.value}</p>
+                <p className="text-3xl font-bold mt-1">{stat.value}</p>
               </div>
             </div>
-            <div className="mt-2 text-sm text-black">
+            <div className="mt-4 text-sm">
               Trend: <span className="font-semibold">{stat.trend}</span>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Custom Animations */}
+      <style>
+        {`
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}
+      </style>
     </div>
   );
 }
