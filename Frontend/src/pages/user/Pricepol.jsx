@@ -187,14 +187,18 @@ function Pricepol() {
   }, [activeTab, tournamentId]);
 
 
-  const AnimatedProgressBar = ({ filled, total }) => {
+  const AnimatedProgressBar = ({ filled = 0, total = 0 }) => {
     const [progress, setProgress] = React.useState(0);
 
     useEffect(() => {
+      const safeTotal = total > 0 ? total : 1;
+      const safeFilled = Math.min(Math.max(filled, 0), safeTotal);
+      const percentage = (safeFilled / safeTotal) * 100;
 
-      const safeFilled = Math.max(0, Math.min(filled, total));
-      const percentage = total > 0 ? (safeFilled / total) * 100 : 0;
-      const timer = setTimeout(() => setProgress(percentage), 150);
+      const timer = setTimeout(() => {
+        setProgress(percentage);
+      }, 100);
+
       return () => clearTimeout(timer);
     }, [filled, total]);
 
@@ -203,13 +207,13 @@ function Pricepol() {
 
     return (
       <div>
-        <div className="w-full bg-gray-100 rounded-full h-1.5 sm:h-2 overflow-hidden">
+        <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
           <div
-            className="h-1.5 sm:h-2 rounded-full bg-gradient-to-r from-black-400 to-black-600 transition-all duration-700 ease-in-out"
+            className="h-2 rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-700 ease-in-out"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="flex justify-between text-[11px] sm:text-xs text-[rgba(4,53,71,1)] mt-1">
+        <div className="flex justify-between text-[11px] sm:text-xs text-gray-700 mt-1">
           <span className={lowSpots ? "text-red-500 font-semibold" : ""}>
             {safeLeft} left
           </span>
@@ -325,7 +329,8 @@ function Pricepol() {
 
                   </div>
 
-                  <AnimatedProgressBar filled={contest.filled_spots} total={contest.total_spots} />
+                  <AnimatedProgressBar filled={contest.filled_spots || 0} total={contest.total_spots || 1} />
+
 
                   <div className="flex justify-between items-center mt-3">
                     <span className="text-xs sm:text-sm lg:text-[14px] text-black-600">
