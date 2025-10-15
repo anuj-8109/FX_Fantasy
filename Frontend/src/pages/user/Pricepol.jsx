@@ -441,15 +441,15 @@ function Pricepol() {
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-2 sm:p-4 text-[11px] sm:text-sm">
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
                           <p className="text-gray-600 text-[10px] sm:text-xs">Prize Pool</p>
-                          <p className="font-bold text-sm sm:text-base text-gray-900">
+                          {/* <p className="font-bold text-sm sm:text-base text-gray-900">
                             ₹{contest.prize_pool}
-                          </p>
+                          </p> */}
                         </div>
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
                           <p className="text-gray-600 text-[10px] sm:text-xs">Entry Fee</p>
-                          <p className="font-bold text-sm sm:text-base text-gray-900">
+                          {/* <p className="font-bold text-sm sm:text-base text-gray-900">
                             ₹{contest.entry_fee}
-                          </p>
+                          </p> */}
                         </div>
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
                           <p className="text-gray-600 text-[10px] sm:text-xs">Joined At</p>
