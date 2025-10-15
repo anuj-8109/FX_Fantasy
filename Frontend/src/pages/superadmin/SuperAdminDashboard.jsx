@@ -364,26 +364,26 @@ import {
 
 function SuperAdminDashboard() {
   const stats = [
-    { title: 'Total Clients', value: 1200, icon: <FaUsers />, color: 'from-blue-400 to-blue-600', trend: '+12%' },
-    { title: 'Active Clients', value: 950, icon: <FaUserCheck />, color: 'from-green-400 to-green-600', trend: '+8%' },
-    { title: 'Inactive Clients', value: 250, icon: <FaUserTimes />, color: 'from-red-400 to-red-600', trend: '-5%' },
-    { title: 'Total Tournaments', value: 45, icon: <FaTrophy />, color: 'from-yellow-400 to-yellow-500', trend: '+20%' },
-    { title: 'Contests (Live)', value: 12, icon: <FaClipboardList />, color: 'from-indigo-400 to-indigo-600', trend: '+3%' },
-    { title: 'Contests (Completed)', value: 28, icon: <FaClipboardList />, color: 'from-gray-400 to-gray-500', trend: '+15%' },
-    { title: 'Contests (Upcoming)', value: 5, icon: <FaClipboardList />, color: 'from-purple-400 to-purple-600', trend: '+10%' },
-    { title: 'Revenue', value: '$45,000', icon: <FaDollarSign />, color: 'from-green-600 to-green-800', trend: '+25%' },
-    { title: 'Winnings', value: '$12,500', icon: <FaCoins />, color: 'from-yellow-600 to-yellow-800', trend: '+18%' },
+    { title: 'Total Clients', value: 1200, icon: <FaUsers />, trend: '+12%' },
+    { title: 'Active Clients', value: 950, icon: <FaUserCheck />, trend: '+8%' },
+    { title: 'Inactive Clients', value: 250, icon: <FaUserTimes />, trend: '-5%' },
+    { title: 'Total Tournaments', value: 45, icon: <FaTrophy />, trend: '+20%' },
+    { title: 'Contests (Live)', value: 12, icon: <FaClipboardList />, trend: '+3%' },
+    { title: 'Contests (Completed)', value: 28, icon: <FaClipboardList />, trend: '+15%' },
+    { title: 'Contests (Upcoming)', value: 5, icon: <FaClipboardList />, trend: '+10%' },
+    { title: 'Revenue', value: '$45,000', icon: <FaDollarSign />, trend: '+25%' },
+    { title: 'Winnings', value: '$12,500', icon: <FaCoins />, trend: '+18%' },
   ];
 
   return (
-    <div className=" bg-gray-100 p-4">
-      <h1 className="text-3xl font-bold mb-6"> Dashboard</h1>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Dashboard</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {stats.map((stat, index) => (
           <div
             key={index}
-            className={`bg-gradient-to-r ${stat.color} text-white rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform cursor-pointer`}
+            className="bg-gray-200 text-black rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform cursor-pointer"
           >
             <div className="flex items-center justify-between">
               <div className="text-3xl">{stat.icon}</div>
@@ -392,7 +392,7 @@ function SuperAdminDashboard() {
                 <p className="text-2xl font-bold mt-1">{stat.value}</p>
               </div>
             </div>
-            <div className="mt-2 text-sm text-white/80">
+            <div className="mt-2 text-sm text-black">
               Trend: <span className="font-semibold">{stat.trend}</span>
             </div>
           </div>
@@ -405,4 +405,4 @@ function SuperAdminDashboard() {
 export default SuperAdminDashboard;
 
 
-//Show static data Total client  Active client Inactive client incard total tournament total contest (live completed upcoming) Revenue andwining card 
+
