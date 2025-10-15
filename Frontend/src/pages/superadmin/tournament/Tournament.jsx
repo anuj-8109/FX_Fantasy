@@ -265,14 +265,13 @@ function Tournament() {
         showCancelButton: true,
         confirmButtonText: "Yes, update it!",
         cancelButtonText: "Cancel",
-           customClass: {
-        popup: "custom-swal-popup",
-        title: "custom-swal-title",
-        htmlContainer: "custom-swal-text",
-        confirmButton: "custom-swal-confirm",
-        cancelButton: "custom-swal-cancel",
-        
-      },
+        customClass: {
+          popup: "custom-swal-popup",
+          title: "custom-swal-title",
+          htmlContainer: "custom-swal-text",
+          confirmButton: "custom-swal-confirm",
+          cancelButton: "custom-swal-cancel",
+        },
       });
 
       if (result.isConfirmed) {
@@ -306,13 +305,12 @@ function Tournament() {
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
       cancelButtonText: "Cancel",
-         customClass: {
+      customClass: {
         popup: "custom-swal-popup",
         title: "custom-swal-title",
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-        
       },
     });
 
@@ -343,13 +341,12 @@ function Tournament() {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
-       customClass: {
+      customClass: {
         popup: "custom-swal-popup",
         title: "custom-swal-title",
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-        
       },
     });
 
@@ -388,10 +385,13 @@ function Tournament() {
       selector: (row) => row.status,
       exportValue: (row) => row.status || "N/A",
       export: true,
-      width: "100px",
+      width: "140px",
       cell: (row) => {
         let bgColor = "";
         let textColor = "text-white";
+        const status =
+          row.status?.charAt(0).toUpperCase() +
+          row.status?.slice(1).toLowerCase();
 
         switch (row.status) {
           case "live":
@@ -415,12 +415,12 @@ function Tournament() {
           <span
             className={`px-2 py-1 rounded-full text-sm font-medium ${bgColor} ${textColor}`}
           >
-            {row.status}
+            {status || "N/A"}
           </span>
         );
       },
-      width: "140px",
     },
+
     {
       name: "Stock",
       selector: (row) =>
@@ -476,49 +476,48 @@ function Tournament() {
       width: "80px",
       export: true,
     },
-   {
-  name: "Action",
-  cell: (row) => (
-    <div className="flex gap-3 items-center">
-      {/* View */}
-      <Eye
-        className="text-green-600 cursor-pointer"
-        onClick={() => openViewModal(row)}
-      />
+    {
+      name: "Action",
+      cell: (row) => (
+        <div className="flex gap-3 items-center">
+          {/* View */}
+          <Eye
+            className="text-green-600 cursor-pointer"
+            onClick={() => openViewModal(row)}
+          />
 
-      {/* Edit */}
-      <Edit
-        className={`cursor-pointer ${
-          row.status === "live" || row.status === "completed"
-            ? "text-gray-400 cursor-not-allowed"
-            : "text-blue-600"
-        }`}
-        onClick={() => {
-          if (row.status === "live" || row.status === "completed") return;
-          openModal(row);
-        }}
-      />
+          {/* Edit */}
+          <Edit
+            className={`cursor-pointer ${
+              row.status === "live" || row.status === "completed"
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-blue-600"
+            }`}
+            onClick={() => {
+              if (row.status === "live" || row.status === "completed") return;
+              openModal(row);
+            }}
+          />
 
-      {/* Cancel (instead of Delete) */}
-      <button
-        className={`px-3 py-1 rounded text-white text-sm transition ${
-          row.status === "upcoming"
-            ? "bg-red-600 hover:bg-red-700"
-            : "bg-gray-400 cursor-not-allowed"
-        }`}
-        disabled={row.status !== "upcoming"}
-        onClick={() => {
-          if (row.status === "upcoming") handleDelete(row);
-        }}
-      >
-        Cancel
-      </button>
-    </div>
-  ),
-  export: false,
-  width: "170px",
-}
-,
+          {/* Cancel (instead of Delete) */}
+          <button
+            className={`px-3 py-1 rounded text-white text-sm transition ${
+              row.status === "upcoming"
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
+            disabled={row.status !== "upcoming"}
+            onClick={() => {
+              if (row.status === "upcoming") handleDelete(row);
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      ),
+      export: false,
+      width: "170px",
+    },
     {
       name: "Contest",
       cell: (row) => (
