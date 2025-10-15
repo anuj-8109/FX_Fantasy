@@ -190,80 +190,117 @@ const Contest = () => {
         return types.length > 0 ? types.join(", ") : "-";
       },
       export: true,
-      width: "150px",
+      width: "100px",
     },
-    {
-      name: "Status",
-      selector: (row) => (row.activestatus === true ? "Active" : "Inactive"),
-      exportValue: (row) => (row.activestatus === true ? "Active" : "Inactive"),
-      cell: (row) => (
-        <label
-          className={`relative inline-flex items-center ${
-            row.filled_spots > 0
-              ? "cursor-not-allowed opacity-60"
-              : "cursor-pointer"
+   {
+  name: "Status",
+  selector: (row) => (row.activestatus === true ? "Active" : "Inactive"),
+  exportValue: (row) => (row.activestatus === true ? "Active" : "Inactive"),
+  cell: (row) => {
+    const now = new Date();
+    const startDate = new Date(row.tournament_id?.startdate);
+    const endDate = new Date(row.tournament_id?.enddate);
+    const isLive = now >= startDate && now <= endDate;
+    const isCompleted = now > endDate;
+
+    return (
+      <label
+        className={`relative inline-flex items-center ${
+          row.filled_spots > 0 || isLive || isCompleted
+            ? "cursor-not-allowed opacity-60"
+            : "cursor-pointer"
+        }`}
+        onClick={(e) => {
+          e.preventDefault();
+
+          if (row.filled_spots > 0) {
+            toast.error("Cannot change status. Some spots are already filled.");
+            return;
+          }
+          if (isLive || isCompleted) {
+            toast.error(
+              "Cannot change status for a live or completed tournament's contest."
+            );
+            return;
+          }
+
+          handleStatusChange(row);
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={row?.activestatus === true}
+          readOnly
+          className="sr-only peer"
+        />
+        <div
+          className={`w-11 h-6 rounded-full transition-colors ${
+            row.activestatus ? "bg-green-600" : "bg-gray-300"
           }`}
-          onClick={(e) => {
-            // Stop checkbox default toggle behavior
-            e.preventDefault();
+        ></div>
+        <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full border peer-checked:translate-x-full transition-transform"></div>
+      </label>
+    );
+  },
+  width: "70px",
+  export: true,
+},
+{
+  name: "Action",
+  cell: (row) => {
+    const now = new Date();
+    const startDate = new Date(row.tournament_id?.startdate);
+    const endDate = new Date(row.tournament_id?.enddate);
+    const isLive = now >= startDate && now <= endDate;
+    const isCompleted = now > endDate;
+    const isUpcoming = now < startDate;
 
-            if (row.filled_spots > 0) {
-              toast.error(
-                "Cannot change status. Some spots are already filled."
-              );
-              return;
-            }
+    return (
+      <div className="flex gap-3 items-center">
+        {/* View */}
+        <Eye
+          className="text-green-600 cursor-pointer"
+          size={25}
+          onClick={() =>
+            navigate(`/superadmin/viewcontest/${row._id}`, { state: row })
+          }
+        />
 
-            handleStatusChange(row);
+        {/* Edit */}
+        <Edit
+          className={`${
+            isLive || isCompleted
+              ? "text-gray-400 cursor-not-allowed"
+              : "text-blue-600 cursor-pointer"
+          }`}
+          size={25}
+          onClick={() => {
+            if (isLive || isCompleted) return;
+            navigate("/superadmin/add-contest", { state: { contest: row } });
+          }}
+        />
+
+        {/* Cancel (instead of Delete) */}
+        <button
+          className={`px-3 py-1 rounded text-white text-sm transition ${
+            isUpcoming
+              ? "bg-red-600 hover:bg-red-700"
+              : "bg-gray-400 cursor-not-allowed"
+          }`}
+          disabled={!isUpcoming}
+          onClick={() => {
+            if (isUpcoming) handleDelete(row);
           }}
         >
-          <input
-            type="checkbox"
-            checked={row?.activestatus === true}
-            readOnly
-            className="sr-only peer"
-          />
-          <div
-            className={`w-11 h-6 rounded-full transition-colors ${
-              row.activestatus ? "bg-green-600" : "bg-gray-300"
-            }`}
-          ></div>
-          <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full border peer-checked:translate-x-full transition-transform"></div>
-        </label>
-      ),
-      width: "120px",
-      export: true,
-    },
-    {
-      name: "Action",
-      cell: (row) => (
-        <div className="flex gap-3">
-          <Eye
-            className="cursor-pointer text-green-600"
-            size={25}
-            onClick={() =>
-              navigate(`/superadmin/viewcontest/${row._id}`, { state: row })
-            }
-          />
-          <Edit
-            className="cursor-pointer text-blue-600"
-            size={25}
-            onClick={() =>
-              navigate("/superadmin/add-contest", {
-                state: { contest: row },
-              })
-            }
-          />
-          <Trash2
-            className="cursor-pointer text-red-600"
-            size={25}
-            onClick={() => handleDelete(row)}
-          />
-        </div>
-      ),
-      export: false,
-      width: "120px",
-    },
+          Cancel
+        </button>
+      </div>
+    );
+  },
+  export: false,
+  width: "180px",
+},
+
   ];
 
   return (

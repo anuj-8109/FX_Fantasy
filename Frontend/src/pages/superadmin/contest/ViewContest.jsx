@@ -124,9 +124,9 @@ const ViewContest = () => {
                 <strong>Name:</strong> {contest?.name || "-"}
               </div>
 
-              <div>
+              {/* <div>
                 <strong>Type:</strong> {contest?.contest_type || "-"}
-              </div>
+              </div> */}
 
               <div>
                 <strong>Entry Fee:</strong> ₹{contest?.entry_fee || 0}
@@ -149,10 +149,10 @@ const ViewContest = () => {
                 <strong>Prize Pool:</strong> ₹{contest?.prize_pool || 0}
               </div>
 
-              <div>
+              {/* <div>
                 <strong>Max Entry/User:</strong>{" "}
                 {contest?.max_entry_per_user || 0}
-              </div>
+              </div> */}
 
               <div>
                 <strong>Status:</strong>{" "}
