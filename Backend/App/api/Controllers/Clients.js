@@ -9,7 +9,7 @@ const fs = require('fs');
 const Mailtemplate_Modal = db.Mailtemplate;
 const Refer_Modal = db.Refer;
 const Payout_Modal = db.Payout;
-const Adminnotification_Modal = db.Adminnotification;
+
 const Smstemplate_Modal = db.Smstemplate;
 const Ticket_Modal = db.Ticket;
 const Ticketmessage_Modal = db.Ticketmessage;
@@ -21,6 +21,8 @@ const Contest_Model = db.Contest
 const Tournament_Model = db.Tournament;
 const Contestjoin_Modal = db.Contestjoin;
 const Contesttrade_Modal = db.Contesttrade;
+const Adminnotification_Modal = db.Adminnotification;
+const Notification_Modal = db.Notification;
 
 const { sendSMS } = require('../../Utils/smsHelper');
 const upload = require('../../Utils/multerHelper');
@@ -211,6 +213,59 @@ class Clients {
       });
 
       await payoutRequest.save();
+
+
+
+      
+const titles = 'Important Update';
+      const message = `User  ${client.FullName} requested withdrawal of ₹${amount}`;
+      const resultnm = new Adminnotification_Modal({
+        clientid: client._id,
+        type: 'withdrawal',
+        title: titles,
+        message: message
+      });
+
+
+      await resultnm.save();
+
+      /*io.emit("adminnotification", {
+        clientid: client._id,
+        title: titles,
+        message: message,
+        type: 'kyc Upload',
+      });
+	  */
+	  
+
+
+
+      
+        
+   const notificationTitle = 'Important Update';
+   const notificationBody =`Withdrawal request of ₹${amount} submitted for approval`;
+   
+ const resultn = new Notification_Modal({
+        clientid: client._id,
+        type: 'withdrawal',
+        title: notificationTitle,
+        message: notificationBody
+      });
+
+      await resultn.save();
+   
+           const clientIds = [client._id];
+       /*           
+const socketData = {
+  title: notificationTitle,
+  message: notificationBody,
+  type: 'kyc Upload',
+  from: 'admin',
+  clientIds: clientIds
+};
+
+ io.emit('clientnotification', socketData);  // ✅ Correct
+*/
 
       return res.status(201).json({
         status: true,
@@ -727,6 +782,36 @@ async otpSubmitWithPhone(req, res) {
     if (client.ActiveStatus !== 1) {
       client.ActiveStatus = 1;
       isNewSignup = true;
+
+
+
+
+const titles = 'Important Update';
+      const message = `New user ${client.FullName} has signed up`;
+      const resultnm = new Adminnotification_Modal({
+        clientid: client._id,
+        type: 'signed up',
+        title: titles,
+        message: message
+      });
+
+
+      await resultnm.save();
+
+      /*io.emit("adminnotification", {
+        clientid: client._id,
+        title: titles,
+        message: message,
+        type: 'kyc Upload',
+      });
+	  */
+	  
+
+
+
+
+
+
     }
 
     await client.save();
@@ -1007,12 +1092,75 @@ async  addMoneyInWallet(req, res) {
           client.referwamount+= receiveramount;
           client.wamount += receiveramount;
           await client.save();
+
+
+
+   const notificationTitle = 'Important Update';
+   const  notificationBody =`₹${receiveramount} bonus credited to your Bonus`;
+   
+ const resultn = new Notification_Modal({
+        clientid: client._id,
+        type: 'bonus',
+        title: notificationTitle,
+        message: notificationBody
+      });
+
+      await resultn.save();
+   
+           const clientIds = [client._id];
+       /*           
+const socketData = {
+  title: notificationTitle,
+  message: notificationBody,
+  type: 'kyc Upload',
+  from: 'admin',
+  clientIds: clientIds
+};
+
+ io.emit('clientnotification', socketData);  // ✅ Correct
+*/
+
+
+
+
+
           const sender = await Clients_Modal.findOne({ refer_token: client.token, del: 0, ActiveStatus: 1 });
 
           if (sender) {
             sender.referwamount+= senderamount;
             sender.wamount += senderamount;
             await sender.save();
+
+
+
+   const notificationTitleSender = 'Important Update';
+   const  notificationBodySender =`₹${senderamount} bonus credited to your Bonus`;
+   
+ const resultn = new Notification_Modal({
+        clientid: sender._id,
+        type: 'bonus',
+        title: notificationTitleSender,
+        message: notificationBodySender
+      });
+
+      await resultn.save();
+   
+           const clientIds = [sender._id];
+       /*           
+const socketData = {
+  title: notificationTitle,
+  message: notificationBody,
+  type: 'kyc Upload',
+  from: 'admin',
+  clientIds: clientIds
+};
+
+ io.emit('clientnotification', socketData);  // ✅ Correct
+*/
+
+
+
+
           } else {
             // console.error(`Sender not found or inactive for user_id: ${refertoken.user_id}`);
           }
@@ -1037,6 +1185,33 @@ async  addMoneyInWallet(req, res) {
           client.wamount += receiveramount;
           await client.save();
 
+   const notificationTitle = 'Important Update';
+   const  notificationBody =`₹${receiveramount} bonus credited to your Bonus`;
+   
+ const resultn = new Notification_Modal({
+        clientid: client._id,
+        type: 'bonus',
+        title: notificationTitle,
+        message: notificationBody
+      });
+
+      await resultn.save();
+   
+           const clientIds = [client._id];
+       /*           
+const socketData = {
+  title: notificationTitle,
+  message: notificationBody,
+  type: 'kyc Upload',
+  from: 'admin',
+  clientIds: clientIds
+};
+
+ io.emit('clientnotification', socketData);  // ✅ Correct
+*/
+
+
+
           // Update sender's wallet amount
           const sender = await Clients_Modal.findOne({ refer_token: refertoken.token, del: 0, ActiveStatus: 1 });
 
@@ -1044,6 +1219,35 @@ async  addMoneyInWallet(req, res) {
               sender.referwamount+= senderamount;
             sender.wamount += senderamount;
             await sender.save();
+
+
+   const notificationTitleSender = 'Important Update';
+   const  notificationBodySender =`₹${senderamount} bonus credited to your Bonus`;
+   
+ const resultn = new Notification_Modal({
+        clientid: sender._id,
+        type: 'bonus',
+        title: notificationTitleSender,
+        message: notificationBodySender
+      });
+
+      await resultn.save();
+   
+           const clientIds = [sender._id];
+       /*           
+const socketData = {
+  title: notificationTitle,
+  message: notificationBody,
+  type: 'kyc Upload',
+  from: 'admin',
+  clientIds: clientIds
+};
+
+ io.emit('clientnotification', socketData);  // ✅ Correct
+*/
+
+
+
           } else {
             // console.error(`Sender not found or inactive for user_id: ${refertoken.user_id}`);
           }
@@ -1053,6 +1257,34 @@ async  addMoneyInWallet(req, res) {
       }
 
     
+
+
+
+   const notificationTitle = 'Important Update';
+ 
+    const notificationBody =`₹${amount} added to your wallet successfully`;
+  
+ const resultn = new Notification_Modal({
+        clientid: client_id,
+        type: 'addmoney',
+        title: notificationTitle,
+        message: notificationBody
+      });
+
+      await resultn.save();
+   
+           const clientIds = [client_id];
+       /*           
+const socketData = {
+  title: notificationTitle,
+  message: notificationBody,
+  type: 'kyc Upload',
+  from: 'admin',
+  clientIds: clientIds
+};
+
+ io.emit('clientnotification', socketData);  // ✅ Correct
+*/
 
 
 
@@ -1570,6 +1802,59 @@ async getWalletHistory(req, res) {
     client.kyc_verification=0;
     await client.save();
 
+
+
+
+   const notificationTitle = 'Important Update';
+const notificationBody = `Your KYC documents are under review.`;
+ const resultn = new Notification_Modal({
+        clientid: client._id,
+        type: 'kyc Upload',
+        title: notificationTitle,
+        message: notificationBody
+      });
+
+      await resultn.save();
+   
+           const clientIds = [client._id];
+       /*           
+const socketData = {
+  title: notificationTitle,
+  message: notificationBody,
+  type: 'kyc Upload',
+  from: 'admin',
+  clientIds: clientIds
+};
+
+ io.emit('clientnotification', socketData);  // ✅ Correct
+*/
+        
+
+
+const titles = 'Important Update';
+      const message = `User ${client.FullName} submitted KYC for verification`;
+      const resultnm = new Adminnotification_Modal({
+        clientid: client._id,
+        type: 'kyc Upload',
+        title: titles,
+        message: message
+      });
+
+
+      await resultnm.save();
+
+      /*io.emit("adminnotification", {
+        clientid: client._id,
+        title: titles,
+        message: message,
+        type: 'kyc Upload',
+      });
+	  */
+	  
+
+
+
+
     return res.json({
       status: true,
       message: "Client documents updated successfully",
@@ -1733,6 +2018,17 @@ async deleteBank(req, res) {
         });
       }
 
+
+         // Fetch tournament
+    const tournament = await Tournament_Model.findOne({ _id: tournament_id });
+    if (!tournament) {
+      return res.json({
+        status: false,
+        message: "Tournament not found",
+      });
+    }
+
+
             // Convert prize_distribution from JSON string if needed
             let prizeDist = prize_distribution;
             if (typeof prize_distribution === "string") {
@@ -1761,6 +2057,31 @@ async deleteBank(req, res) {
             });
 
             await contest.save();
+
+
+
+             
+const titles = 'Important Update';
+      const message = `New Private contest ‘${name}’ created in tournament ‘${tournament.name}’`;
+      const resultnm = new Adminnotification_Modal({
+        clientid: client._id,
+        type: 'contest',
+        title: titles,
+        message: message
+      });
+
+
+      await resultnm.save();
+
+      /*io.emit("adminnotification", {
+        clientid: client._id,
+        title: titles,
+        message: message,
+        type: 'kyc Upload',
+      });
+	  */
+	  
+
 
             return res.status(200).json({
                 status: true,
@@ -1821,6 +2142,59 @@ PhoneNo,
 
 
 await shareEntry.save();
+
+
+
+             
+const titles = 'Important Update';
+      const message = `Private contest ‘${contest.name}’ invitation sent/accepted`;
+      const resultnm = new Adminnotification_Modal({
+        clientid: shared_by_client_id,
+        type: 'contest',
+        title: titles,
+        message: message
+      });
+
+
+      await resultnm.save();
+
+      /*io.emit("adminnotification", {
+        clientid: client._id,
+        title: titles,
+        message: message,
+        type: 'kyc Upload',
+      });
+	  */
+
+
+
+        
+   const notificationTitle = 'Important Update';
+   const notificationBody =`You are invited to join private contest ‘${contest.name}’`;
+   
+ const resultn = new Notification_Modal({
+        clientid: shared_with_client_id,
+        type: 'contest',
+        title: notificationTitle,
+        message: notificationBody
+      });
+
+      await resultn.save();
+   
+           const clientIds = [shared_with_client_id];
+       /*           
+const socketData = {
+  title: notificationTitle,
+  message: notificationBody,
+  type: 'kyc Upload',
+  from: 'admin',
+  clientIds: clientIds
+};
+
+ io.emit('clientnotification', socketData);  // ✅ Correct
+*/
+        
+	  
 
 return res.status(200).json({
 status: true,

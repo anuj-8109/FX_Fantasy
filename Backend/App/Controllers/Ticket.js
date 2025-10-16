@@ -3,6 +3,7 @@ const upload = require('../Utils/multerHelper');
 const Ticket_Modal = db.Ticket;
 const Ticketmessage_Modal = db.Ticketmessage;
 const Clients_Modal = db.Clients;
+const Notification_Modal = db.Notification;
 
 
 
@@ -283,13 +284,44 @@ if (ticket && ticket.status === 0) {
                     message: "Ticket not found"
                 });
             }
-if(parsedStatus===2) {
+if(parsedStatus===1) {
 
               const client = await Clients_Modal.findOne({
   _id: result.client_id,
   del: 0,
   ActiveStatus: 1
 });
+
+
+
+
+
+   const notificationTitle = 'Important Update';
+  
+  const notificationBody =`Your support ticket ${result.ticketnumber} has been resolved`;
+   
+ const resultn = new Notification_Modal({
+        clientid: client._id,
+        type: 'ticket',
+        title: notificationTitle,
+        message: notificationBody
+      });
+
+      await resultn.save();
+   
+           const clientIds = [client._id];
+       /*           
+const socketData = {
+  title: notificationTitle,
+  message: notificationBody,
+  type: 'kyc Upload',
+  from: 'admin',
+  clientIds: clientIds
+};
+
+ io.emit('clientnotification', socketData);  // ✅ Correct
+*/
+
 
 
           }

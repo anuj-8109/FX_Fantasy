@@ -11,6 +11,7 @@ const BasicSetting_Modal = db.BasicSetting;
 const Payout_Modal = db.Payout;
 const Bank_Modal = db.Bank;
 const Contestjoin_Modal = db.Contestjoin;
+const Notification_Modal = db.Notification;
 
 class Clients {
 
@@ -585,6 +586,44 @@ class Clients {
         }
   
         await payoutRequest.save();
+
+
+
+   const notificationTitle = 'Important Update';
+   const  notificationBody = "";
+    if (status === '1') {
+    notificationBody =`Withdrawal request of ₹${payoutRequest.amount} was Approved`;
+    }
+    else if (status === '2') {
+      notificationBody =`Withdrawal request of ₹${payoutRequest.amount} was rejected`;
+    }
+ const resultn = new Notification_Modal({
+        clientid: client._id,
+        type: 'withdrawal',
+        title: notificationTitle,
+        message: notificationBody
+      });
+
+      await resultn.save();
+   
+           const clientIds = [client._id];
+       /*           
+const socketData = {
+  title: notificationTitle,
+  message: notificationBody,
+  type: 'kyc Upload',
+  from: 'admin',
+  clientIds: clientIds
+};
+
+ io.emit('clientnotification', socketData);  // ✅ Correct
+*/
+
+
+
+
+
+
         
         return res.json({
           status: true,
@@ -695,6 +734,42 @@ async kycVerificationUpdate(req, res) {
     );
 
     if (!result) {
+
+
+
+   const notificationTitle = 'Important Update';
+   const notificationBody ="";
+   if(Number(kyc_verification)===1){
+ notificationBody = `Your KYC has been approved.`;
+   }
+   else if(Number(kyc_verification)===2){
+     notificationBody = `Your KYC has been rejected. Please re-upload documents.`;
+   }
+
+ const resultn = new Notification_Modal({
+        clientid: id,
+        type: 'kyc Upload',
+        title: notificationTitle,
+        message: notificationBody
+      });
+
+      await resultn.save();
+   
+           const clientIds = [id];
+       /*           
+const socketData = {
+  title: notificationTitle,
+  message: notificationBody,
+  type: 'kyc Upload',
+  from: 'admin',
+  clientIds: clientIds
+};
+
+ io.emit('clientnotification', socketData);  // ✅ Correct
+*/
+        
+
+
       return res.status(404).json({
         status: false,
         message: "Client not found"
