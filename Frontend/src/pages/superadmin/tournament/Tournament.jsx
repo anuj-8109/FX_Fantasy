@@ -67,34 +67,72 @@ function Tournament() {
     }
   };
 
-  const openModal = (data) => {
-    setEditData(data);
-    const stocks =
-      data?.stocks && data.stocks.length > 0
-        ? data.stocks
-        : [{ stock_id: "", stock_name: "" }];
+  // const openModal = (data) => {
+  //   setEditData(data);
+  //   const stocks =
+  //     data?.stocks && data.stocks.length > 0
+  //       ? data.stocks
+  //       : [{ stock_id: "", stock_name: "" }];
 
-    setFormData({
-      name: data?.name || "",
-      description: data?.description || "",
-      useamount: data?.useamount || "",
-      startdate: data
-        ? new Date(data.startdate).toISOString().slice(0, 16)
-        : "",
-      enddate: data ? new Date(data.enddate).toISOString().slice(0, 16) : "",
-      status: data?.status || "upcoming",
-      stocks: stocks,
-    });
+  //   setFormData({
+  //     name: data?.name || "",
+  //     description: data?.description || "",
+  //     useamount: data?.useamount || "",
+  //     startdate: data
+  //       ? new Date(data.startdate).toISOString().slice(0, 16)
+  //       : "",
+  //     enddate: data ? new Date(data.enddate).toISOString().slice(0, 16) : "",
+  //     status: data?.status || "upcoming",
+  //     stocks: stocks,
+  //   });
 
-    // Initialize input values with stock names
-    const initialInputs = {};
-    stocks.forEach((stock, idx) => {
-      initialInputs[idx] = stock.stock_name || "";
-    });
-    setInputValues(initialInputs);
-    setSearchResults({});
-    setIsModalOpen(true);
+  //   // Initialize input values with stock names
+  //   const initialInputs = {};
+  //   stocks.forEach((stock, idx) => {
+  //     initialInputs[idx] = stock.stock_name || "";
+  //   });
+  //   setInputValues(initialInputs);
+  //   setSearchResults({});
+  //   setIsModalOpen(true);
+  // };
+
+
+const openModal = (data) => {
+  setEditData(data);
+
+  const stocks =
+    data?.stocks && data.stocks.length > 0
+      ? data.stocks
+      : [{ stock_id: "", stock_name: "" }];
+
+  // ✅ Convert UTC → Local for datetime-local input
+  const toLocalDateTime = (dateStr) => {
+    const date = new Date(dateStr);
+    const tzOffset = date.getTimezoneOffset() * 60000; // offset in ms
+    const localISOTime = new Date(date - tzOffset).toISOString().slice(0, 16);
+    return localISOTime;
   };
+
+  setFormData({
+    name: data?.name || "",
+    description: data?.description || "",
+    useamount: data?.useamount || "",
+    startdate: data ? toLocalDateTime(data.startdate) : "",
+    enddate: data ? toLocalDateTime(data.enddate) : "",
+    status: data?.status || "upcoming",
+    stocks: stocks,
+  });
+
+  // Initialize input values with stock names
+  const initialInputs = {};
+  stocks.forEach((stock, idx) => {
+    initialInputs[idx] = stock.stock_name || "";
+  });
+  setInputValues(initialInputs);
+  setSearchResults({});
+  setIsModalOpen(true);
+};
+
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -454,25 +492,55 @@ function Tournament() {
       sortable: true,
       width: "155px",
     },
+    // {
+    //   name: "Status",
+    //   selector: (row) => (row.activestatus ? "Active" : "Inactive"),
+    //   exportValue: (row) => (row.activestatus ? "Active" : "Inactive"),
+    //   cell: (row) => (
+    //     <label className="relative inline-flex items-center cursor-pointer">
+    //       <input
+    //         type="checkbox"
+    //         checked={row?.activestatus === true}
+    //         onChange={() => handleStatusChange(row)}
+    //         className="sr-only peer"
+    //       />
+    //       {/* Background track */}
+    //       <div className="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-600 transition-colors"></div>
+
+    //       {/* Toggle knob */}
+    //       <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full border border-gray-300 peer-checked:translate-x-full peer-checked:border-green-600 transition-transform"></div>
+    //     </label>
+    //   ),
+    //   width: "80px",
+    //   export: true,
+    // },
     {
       name: "Status",
       selector: (row) => (row.activestatus ? "Active" : "Inactive"),
       exportValue: (row) => (row.activestatus ? "Active" : "Inactive"),
-      cell: (row) => (
-        <label className="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            checked={row?.activestatus === true}
-            onChange={() => handleStatusChange(row)}
-            className="sr-only peer"
-          />
-          {/* Background track */}
-          <div className="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-600 transition-colors"></div>
+      cell: (row) => {
+        const isDisabled = row.status === "live" || row.status === "completed";
 
-          {/* Toggle knob */}
-          <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full border border-gray-300 peer-checked:translate-x-full peer-checked:border-green-600 transition-transform"></div>
-        </label>
-      ),
+        return (
+          <label
+            className={`relative inline-flex items-center ${
+              isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={row?.activestatus === true}
+              onChange={() => {
+                if (!isDisabled) handleStatusChange(row);
+              }}
+              className="sr-only peer"
+              disabled={isDisabled}
+            />
+            <div className="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-600 transition-colors"></div>
+            <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full border border-gray-300 peer-checked:translate-x-full peer-checked:border-green-600 transition-transform"></div>
+          </label>
+        );
+      },
       width: "80px",
       export: true,
     },
