@@ -54,45 +54,43 @@ const UserDashboard = () => {
     return `${seconds}s`;
   };
 
-
   const fetchTournament = async () => {
-  try {
-    const res = await GetTurnament(token);
-    if (res?.status && Array.isArray(res.data)) {
-      const mappedData = res.data
-        .filter((item) => item.activestatus === true) // ✅ only include active tournaments
-        .map((item) => {
-          const start = new Date(item.startdate);
-          const end = new Date(item.enddate);
-          let status;
-          if (now < start) status = "upcoming";
-          else if (now >= start && now <= end) status = "ongoing";
-          else status = "completed";
+    try {
+      const res = await GetTurnament(token);
+      if (res?.status && Array.isArray(res.data)) {
+        const mappedData = res.data
+          .filter((item) => item.activestatus === true) // ✅ only include active tournaments
+          .map((item) => {
+            const start = new Date(item.startdate);
+            const end = new Date(item.enddate);
+            let status;
+            if (now < start) status = "upcoming";
+            else if (now >= start && now <= end) status = "ongoing";
+            else status = "completed";
 
-          return {
-            id: item._id,
-            name: item.name,
-            company: item.stocks?.[0]?.stock_name || "",
-            companyColor: "#2563eb",
-            partner: item.stocks?.[1]?.stock_name || "",
-            partnerColor: "#dc2626",
-            start,
-            end,
-            status,
-            participants: item.participants || 0,
-            prizePool: item.prizePool || "₹0",
-            spots: item.spots || "N/A",
-            activestatus: item.activestatus, // ✅ still store it for reference
-          };
-        });
+            return {
+              id: item._id,
+              name: item.name,
+              company: item.stocks?.[0]?.stock_name || "",
+              companyColor: "#2563eb",
+              partner: item.stocks?.[1]?.stock_name || "",
+              partnerColor: "#dc2626",
+              start,
+              end,
+              status,
+              participants: item.participants || 0,
+              prizePool: item.prizePool || "₹0",
+              spots: item.spots || "N/A",
+              activestatus: item.activestatus, // ✅ still store it for reference
+            };
+          });
 
-      setTurnament(mappedData);
-    } else toast.error(res?.message || "Failed to fetch tournaments");
-  } catch {
-    toast.error("Error fetching tournaments");
-  }
-};
-
+        setTurnament(mappedData);
+      } else toast.error(res?.message || "Failed to fetch tournaments");
+    } catch {
+      toast.error("Error fetching tournaments");
+    }
+  };
 
   const fetchBanners = async () => {
     try {
@@ -108,19 +106,18 @@ const UserDashboard = () => {
     fetchBanners();
   }, []);
   useEffect(() => {
-  setTurnament((prev) =>
-    prev.map((item) => {
-      const start = new Date(item.start);
-      const end = new Date(item.end);
-      let status;
-      if (now < start) status = "upcoming";
-      else if (now >= start && now <= end) status = "ongoing";
-      else status = "completed";
-      return { ...item, status };
-    })
-  );
-}, [now]);
-
+    setTurnament((prev) =>
+      prev.map((item) => {
+        const start = new Date(item.start);
+        const end = new Date(item.end);
+        let status;
+        if (now < start) status = "upcoming";
+        else if (now >= start && now <= end) status = "ongoing";
+        else status = "completed";
+        return { ...item, status };
+      })
+    );
+  }, [now]);
 
   const filteredContests = turnament.filter(
     (item) => activeTab !== "mycontests" && item.status === activeTab
@@ -129,7 +126,9 @@ const UserDashboard = () => {
   const nextBanner = () =>
     setCurrentBannerIndex((prev) => (prev + 1) % banners.length);
   const prevBanner = () =>
-    setCurrentBannerIndex((prev) => (prev - 1 + banners.length) % banners.length);
+    setCurrentBannerIndex(
+      (prev) => (prev - 1 + banners.length) % banners.length
+    );
 
   const getCompanyIcon = (name, color) => (
     <div
@@ -142,7 +141,6 @@ const UserDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 ">
-
       <div className="relative w-full p-1 ">
         <div className="overflow-hidden rounded-2xl shadow-md relative  h-40 sm:h-48">
           <div
@@ -180,8 +178,9 @@ const UserDashboard = () => {
               <button
                 key={idx}
                 onClick={() => setCurrentBannerIndex(idx)}
-                className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-colors ${currentBannerIndex === idx ? "bg-white" : "bg-white/50"
-                  }`}
+                className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-colors ${
+                  currentBannerIndex === idx ? "bg-white" : "bg-white/50"
+                }`}
               />
             ))}
           </div>
@@ -197,8 +196,11 @@ const UserDashboard = () => {
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`flex-1 py-3 sm:py-4 px-2 font-medium transition-all duration-200 ${activeTab === key ? "text-orange-600 border-b-2 border-orange-600" : "text-gray-600"
-              }`}
+            className={`flex-1 py-3 sm:py-4 px-2 font-medium transition-all duration-200 ${
+              activeTab === key
+                ? "text-orange-600 border-b-2 border-orange-600"
+                : "text-gray-600"
+            }`}
           >
             <div className="flex flex-col items-center space-y-1">
               <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -225,7 +227,9 @@ const UserDashboard = () => {
               <div className="px-5 pt-4 pb-3 border-b border-gray-200">
                 <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
                   Tournament:{" "}
-                  <span className="font-semibold text-gray-700">{contest.name}</span>
+                  <span className="font-semibold text-gray-700">
+                    {contest.name}
+                  </span>
                 </h2>
               </div>
 
@@ -261,14 +265,25 @@ const UserDashboard = () => {
               {/* Stats Section */}
               <div className="px-5 py-4 grid grid-cols-3 gap-3">
                 <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
-                  <p className="text-gray-900 font-bold text-sm">{contest.prizePool}</p>
-                  <p className="text-gray-500 text-xs font-medium">Prize Pool</p>
+                  <p className="text-gray-900 font-bold text-sm">
+                    {contest.prizePool}
+                  </p>
+                  <p className="text-gray-500 text-xs font-medium">
+                    Prize Pool
+                  </p>
                 </div>
 
-                <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
+                {/* <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
                   <p className="text-gray-900 font-bold text-sm whitespace-nowrap overflow-hidden text-ellipsis">
                     {getTimeLeft(contest)}
 
+                  </p>
+                  <p className="text-gray-500 text-xs font-medium">Time Left</p>
+                </div> */}
+
+                <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
+                  <p className="text-red-600 font-bold text-sm whitespace-nowrap overflow-hidden text-ellipsis">
+                    {getTimeLeft(contest)}
                   </p>
                   <p className="text-gray-500 text-xs font-medium">Time Left</p>
                 </div>
@@ -278,7 +293,9 @@ const UserDashboard = () => {
                     <Users className="w-4 h-4 mr-1 text-gray-700 flex-shrink-0" />
                     {contest.participants}
                   </p>
-                  <p className="text-gray-500 text-xs font-medium">Participants</p>
+                  <p className="text-gray-500 text-xs font-medium">
+                    Participants
+                  </p>
                 </div>
               </div>
             </div>
@@ -295,10 +312,7 @@ const UserDashboard = () => {
           </div>
         )}
       </div>
-
-
     </div>
-
   );
 };
 

@@ -108,16 +108,35 @@ function Pricepol() {
       setLoading(true);
       try {
         const data = await GetMyContests(token, clientId);
-        if (data.status && data.data.length > 0) {
-          setMyContests(data.data);
+        // if (data.status && data.data.length > 0) {
+        //   setMyContests(data.data);
 
-          // ✅ update joinedContests also
-          const joinedIds = data.data.map((c) => c.contest_id?._id);
-          setJoinedContests(joinedIds);
-        } else {
-          setMyContests([]);
-          setJoinedContests([]);
-        }
+        //   // ✅ update joinedContests also
+        //   const joinedIds = data.data.map((c) => c.contest_id?._id);
+        //   setJoinedContests(joinedIds);
+        // }
+        //  else {
+        //   setMyContests([]);
+        //   setJoinedContests([]);
+        // }
+
+if (data.status && data.data.length > 0) {
+  // ✅ Filter only those contests that belong to the current tournament
+  const filteredContests = data.data.filter(
+    (c) => c?.contest_id?.tournament_id?._id === tournamentId
+  );
+
+  setMyContests(filteredContests);
+
+  // ✅ update joinedContests also
+  const joinedIds = filteredContests.map((c) => c.contest_id?._id);
+  setJoinedContests(joinedIds);
+} else {
+  setMyContests([]);
+  setJoinedContests([]);
+}
+
+
       } catch (err) {
         console.error(err);
         setError("Error fetching my contests");

@@ -9,6 +9,8 @@ import {
   FaClipboardList,
   FaDollarSign,
   FaCoins,
+  FaRupeeSign,
+  FaMedal,
 } from "react-icons/fa";
 import { GetDashboardCount } from "../../services/SuperAdmin";
 import Swal from "sweetalert2";
@@ -132,6 +134,18 @@ function SuperAdminDashboard() {
       value: dashboardData.contestInactive,
       icon: <FaClipboardList />,
       route: "/superadmin/contest",
+    },
+    {
+      title: "Total Revenue",
+      value: dashboardData.totalRevenue || 0, // 👈 API se total revenue aayega
+      icon: <FaRupeeSign />, // from react-icons/fa
+      route: "/superadmin/revenue", // ya jaha revenue details dikhte ho
+    },
+    {
+      title: "Total Winnings",
+      value: dashboardData.totalWinnings || 0, // 👈 API se total winnings aayega
+      icon: <FaMedal />, // from react-icons/fa
+      route: "/superadmin/winning", // ya jaha winnings details dikhte ho
     },
   ];
 
