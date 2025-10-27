@@ -32,8 +32,8 @@ const jwt = require('jsonwebtoken');
 const otpStore = new Map();
 
 
-//const ioSocket = require("../../Utils/ioSocketReturn");
-//const io = ioSocket.getIO();
+const ioSocket = require("../../Utils/ioSocketReturn");
+const io = ioSocket.getIO();
 
 class Clients {
 
@@ -137,26 +137,6 @@ class Clients {
         });
       }
 
-/*
-      const titles = 'Important Update';
-      const message = `${client.FullName} ,has successfully deleted the account.`;
-      const resultnm = new Adminnotification_Modal({
-        clientid: id,
-        type: 'delete client',
-        title: titles,
-        message: message
-      });
-
-
-      await resultnm.save();
-
-      io.emit("adminnotification", {
-        clientid: id,
-        title: titles,
-        message: message,
-        type: 'delete client',
-      });
-*/
 
       return res.json({
         status: true,
@@ -229,13 +209,13 @@ const titles = 'Important Update';
 
       await resultnm.save();
 
-      /*io.emit("adminnotification", {
+      io.emit("adminnotification", {
         clientid: client._id,
         title: titles,
         message: message,
         type: 'kyc Upload',
       });
-	  */
+	  
 	  
 
 

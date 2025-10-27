@@ -39,7 +39,7 @@ io.on("connection", (socket) => {
 
 });
 
-// global.io = io;
+global.io = io;
 
 
 app.get("/test", async (req, res) => {
@@ -55,6 +55,9 @@ app.use(express.urlencoded({ extended: true }));
 
 connectDB();
 // connectRedis();
+
+
+require("./App/Utils/ioSocketReturn")(app, io);
 
 routes(app);
 app.use(errorHandler);
