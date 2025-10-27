@@ -89,16 +89,16 @@ const menuItems = [
     url: "/superadmin/withdrawal",
     icon: <Banknote />,
   },
-    {
-    title: "Revenue",
-    url: "/superadmin/revenue",
-    icon: <DollarSign />,
-  },
-  {
-    title: "Winnings",
-    url: "/superadmin/winning",
-    icon: <Award />,
-  },
+  //   {
+  //   title: "Revenue",
+  //   url: "/superadmin/revenue",
+  //   icon: <DollarSign />,
+  // },
+  // {
+  //   title: "Winnings",
+  //   url: "/superadmin/winning",
+  //   icon: <Award />,
+  // },
   //  {
   //   title: "Kyc Approval",
   //   url: "/superadmin/kycapproval",

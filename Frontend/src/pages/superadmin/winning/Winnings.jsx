@@ -5,37 +5,64 @@ import Content from "../../../components/superadmin/Content";
 function Winnings() {
   // Static data
   const data = [
-    { id: 1, player: "Rohit Sharma", amount: "₹25,000", game: "Fantasy Cricket", date: "2025-09-01", status: "Paid" },
-    { id: 2, player: "Virat Kohli", amount: "₹15,000", game: "Fantasy Football", date: "2025-09-10", status: "Pending" },
-    { id: 3, player: "Hardik Pandya", amount: "₹40,000", game: "Fantasy Cricket", date: "2025-09-18", status: "Paid" },
-    { id: 4, player: "KL Rahul", amount: "₹10,000", game: "Fantasy Basketball", date: "2025-09-20", status: "Overdue" },
-    { id: 5, player: "MS Dhoni", amount: "₹50,000", game: "Fantasy Cricket", date: "2025-09-25", status: "Paid" },
-  ];
+  {
+    id: 1,
+    date: "2025-09-01",
+    contestName: "Super Sixers League",
+    type: "Fantasy Cricket",
+    userName: "Rohit Sharma",
+    winningAmount: "₹25,000",
+    rank: 1,
+  },
+  {
+    id: 2,
+    date: "2025-09-10",
+    contestName: "Football Kings Cup",
+    type: "Fantasy Football",
+    userName: "Virat Kohli",
+    winningAmount: "₹15,000",
+    rank: 3,
+  },
+  {
+    id: 3,
+    date: "2025-09-18",
+    contestName: "All-Rounder Challenge",
+    type: "Fantasy Cricket",
+    userName: "Hardik Pandya",
+    winningAmount: "₹40,000",
+    rank: 2,
+  },
+  {
+    id: 4,
+    date: "2025-09-20",
+    contestName: "Slam Dunk Showdown",
+    type: "Fantasy Basketball",
+    userName: "KL Rahul",
+    winningAmount: "₹10,000",
+    rank: 4,
+  },
+  {
+    id: 5,
+    date: "2025-09-25",
+    contestName: "Legends Trophy",
+    type: "Fantasy Cricket",
+    userName: "MS Dhoni",
+    winningAmount: "₹50,000",
+    rank: 1,
+  },
+];
+
 
   // Table columns
   const columns = [
-    { name: "ID", selector: (row) => row.id, sortable: true, width: "80px" },
-    { name: "Player", selector: (row) => row.player, sortable: true },
-    { name: "Game", selector: (row) => row.game, sortable: true },
-    { name: "Amount", selector: (row) => row.amount, sortable: true },
-    { name: "Date", selector: (row) => row.date, sortable: true },
-    {
-      name: "Status",
-      selector: (row) => row.status,
-      cell: (row) => (
-        <span
-          className={`px-3 py-1 rounded-full text-white ${row.status === "Paid"
-              ? "bg-green-500"
-              : row.status === "Pending"
-                ? "bg-yellow-500"
-                : "bg-red-500"
-            }`}
-        >
-          {row.status}
-        </span>
-      ),
-    },
-  ];
+  { name: "Date", selector: (row) => row.date, sortable: true, width: "130px" },
+  { name: "Contest Name", selector: (row) => row.contestName, sortable: true },
+  { name: "Type", selector: (row) => row.type, sortable: true },
+  { name: "User Name", selector: (row) => row.userName, sortable: true },
+  { name: "Winning Amount", selector: (row) => row.winningAmount, sortable: true },
+  { name: "Rank", selector: (row) => row.rank, sortable: true, width: "100px" },
+];
+
 
   // Custom style
   const customStyles = {

@@ -1165,17 +1165,18 @@ export async function GetContestDetails(token, contestId) {
   }
 }
 
-export async function GetContestRanking(token ,data){
-  try{
-    const response= await axios.post(`${config.base_url}client/getcontestranking`,
+export async function GetContestRanking(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}client/getcontestranking`,
       data,
-      {headers:{Authorization:`Bearer ${token}`}}
+      { headers: { Authorization: `Bearer ${token}` } }
     );
-      return response?.data;
-    }catch(error){
-      return error?.response?.data;
-    }
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
   }
+}
 
 export async function UpdateContest(token, data) {
   try {
@@ -1616,6 +1617,22 @@ export async function kyc_verification(token, data) {
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Server Error" };
+  }
+}
+
+export async function GetDashboardCount(token) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}dashboard/getcount`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Server error" };
   }
 }
 

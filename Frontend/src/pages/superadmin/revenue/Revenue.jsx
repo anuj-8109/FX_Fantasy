@@ -3,39 +3,59 @@ import DataTable from "react-data-table-component";
 import Content from "../../../components/superadmin/Content";
 
 function Revenue() {
-  // Static data
-  const data = [
-    { id: 1, client: "ABC Pvt Ltd", revenue: "₹50,000", month: "January", status: "Paid" },
-    { id: 2, client: "XYZ Corp", revenue: "₹30,000", month: "February", status: "Pending" },
-    { id: 3, client: "TechVision", revenue: "₹70,000", month: "March", status: "Paid" },
-    { id: 4, client: "FinEdge", revenue: "₹20,000", month: "April", status: "Overdue" },
-    { id: 5, client: "InnovaSoft", revenue: "₹45,000", month: "May", status: "Paid" },
-    
-  ];
+ // Static data
+const data = [
+  {
+    id: 1,
+    date: "2025-09-01",
+    contestName: "Super Sixers League",
+    type: "Fantasy Cricket",
+    userName: "Rohit Sharma",
+    entryFee: "₹500",
+  },
+  {
+    id: 2,
+    date: "2025-09-05",
+    contestName: "Goal Masters Cup",
+    type: "Fantasy Football",
+    userName: "Virat Kohli",
+    entryFee: "₹300",
+  },
+  {
+    id: 3,
+    date: "2025-09-10",
+    contestName: "All-Rounder Challenge",
+    type: "Fantasy Cricket",
+    userName: "Hardik Pandya",
+    entryFee: "₹700",
+  },
+  {
+    id: 4,
+    date: "2025-09-15",
+    contestName: "Hoop Kings Tournament",
+    type: "Fantasy Basketball",
+    userName: "KL Rahul",
+    entryFee: "₹400",
+  },
+  {
+    id: 5,
+    date: "2025-09-20",
+    contestName: "Legends Trophy",
+    type: "Fantasy Cricket",
+    userName: "MS Dhoni",
+    entryFee: "₹600",
+  },
+];
 
-  // Table columns
-  const columns = [
-    { name: "ID", selector: (row) => row.id, sortable: true, width: "80px" },
-    { name: "Client", selector: (row) => row.client, sortable: true },
-    { name: "Revenue", selector: (row) => row.revenue, sortable: true },
-    { name: "Month", selector: (row) => row.month, sortable: true },
-    {
-      name: "Status",
-      selector: (row) => row.status,
-      cell: (row) => (
-        <span
-          className={`px-3 py-1 rounded-full text-white ${row.status === "Paid"
-              ? "bg-green-500"
-              : row.status === "Pending"
-                ? "bg-yellow-500"
-                : "bg-red-500"
-            }`}
-        >
-          {row.status}
-        </span>
-      ),
-    },
-  ];
+// Table columns
+const columns = [
+  { name: "Date", selector: (row) => row.date, sortable: true, width: "130px" },
+  { name: "Contest Name", selector: (row) => row.contestName, sortable: true },
+  { name: "Type", selector: (row) => row.type, sortable: true },
+  { name: "User Name", selector: (row) => row.userName, sortable: true },
+  { name: "Entry Fee", selector: (row) => row.entryFee, sortable: true },
+];
+
 
   // Table custom style
   const customStyles = {
