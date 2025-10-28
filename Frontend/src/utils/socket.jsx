@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const SOCKET_URL = "https://fx.tradestreet.in:1001";
+const SOCKET_URL = "http://fx.tradestreet.in:1001";
 
 export default function SocketToast() {
   const socketRef = useRef(null);

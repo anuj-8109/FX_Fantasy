@@ -1,10 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { connectDB } = require('./App/connection/db');
-const { connectRedis } = require('./App/connection/redis');
-const routes = require('./App/Routes');
-const { errorHandler } = require('./App/Middleware/errorHandler');
+const { connectDB } = require('./App/connection/db.js');
+const { connectRedis } = require('./App/connection/redis.js');
+const routes = require('./App/Routes/index.js');
+const { errorHandler } = require('./App/Middleware/errorHandler.js');
 const http = require('http');
 const socketio = require('socket.io');
 
@@ -50,15 +50,15 @@ require('./App/api/Routes/index')(app)
 
 const mongoose = require("mongoose");
 
-const seedBasicSetting = require('./App/Scripts/seedBasicSetting');
-const seedMailTemplates = require('./App/Scripts/seedMailTemplates');
-const seedRoles = require('./App/Scripts/seedRoles');
-const seedUsers = require('./App/Scripts/seedUsers');
-const seedStates = require('./App/Scripts/seedStates');
-const seedCities = require('./App/Scripts/seedCities');
-const seedContent = require('./App/Scripts/seedContent');
-const seedSmsProviders = require('./App/Scripts/seedSmsProviders');
-const seedSmsTemplates = require('./App/Scripts/seedSmsTemplates');
+const seedBasicSetting = require('./App/Scripts/seedBasicSetting.js');
+const seedMailTemplates = require('./App/Scripts/seedMailTemplates.js');
+const seedRoles = require('./App/Scripts/seedRoles.js');
+const seedUsers = require('./App/Scripts/seedUsers.js');
+const seedStates = require('./App/Scripts/seedStates.js');
+const seedCities = require('./App/Scripts/seedCities.js');
+const seedContent = require('./App/Scripts/seedContent.js');
+const seedSmsProviders = require('./App/Scripts/seedSmsProviders.js');
+const seedSmsTemplates = require('./App/Scripts/seedSmsTemplates.js');
 async function runSeeds() {
   await seedRoles();
   await seedBasicSetting();
