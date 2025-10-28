@@ -5,6 +5,7 @@ import AuthRoute from "./routes/AuthRoute";
 import UserRoutes from "./routes/UserRoutes";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "./components/context/ThemeContext.jsx";
+import SocketToast from "./utils/socket.jsx";
 
 // ✅ This wrapper ensures useNavigate works
 const RouteManager = () => {
@@ -33,10 +34,12 @@ const RouteManager = () => {
 function App() {
   return (
     <ThemeProvider>
+       <SocketToast/>
       <div className="wrapper">
         <Router>
           <RouteManager />
           <Toaster position="top-right" reverseOrder={false} />
+         
         </Router>
       </div>
     </ThemeProvider>
