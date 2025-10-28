@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const SOCKET_URL = "http://fx.tradestreet.in:1001";
+const SOCKET_URL = "https://fx.tradestreet.in:1001";
 
 export default function SocketToast() {
   const socketRef = useRef(null);
@@ -22,41 +22,54 @@ export default function SocketToast() {
     });
 
     socket.on("adminnotification", (data) => {
-      console.log("data",data)
+      console.log("Received data:", data);
       if (!data) return;
+
+      // If data is string, show simple toast
       if (typeof data === "string") {
         toast.info(data);
         return;
       }
 
-      const { title, message, type } = data;
+      const { title, message, type, clientid } = data;
 
-      switch (type) {
+      // Custom formatted toast content
+      const toastContent = (
+        <div>
+          <strong>{title}</strong>
+          <div>{message}</div>
+          <small style={{ color: "#888" }}>
+          </small>
+          <div style={{ marginTop: "4px", fontStyle: "italic", color: "#007bff" }}>
+            Type: {type}
+          </div>
+        </div>
+      );
+
+      // Show toast based on type
+      switch (type?.toLowerCase()) {
         case "success":
-          toast.success(message || title);
+          toast.success(toastContent);
           break;
         case "error":
-          toast.error(message || title);
+          toast.error(toastContent);
           break;
         case "warning":
-          toast.warn(message || title);
+          toast.warn(toastContent);
           break;
         default:
-          toast.info(message || title);
+          toast.info(toastContent);
       }
     });
 
     socket.on("disconnect", (reason) => {
       console.log("Socket disconnected:", reason);
-      // optional: toast.warn("Disconnected from server");
     });
 
     socket.on("connect_error", (err) => {
       console.error("Socket connect error:", err);
-      // optional: toast.error("Socket connection error");
     });
 
-    // cleanup on unmount
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
