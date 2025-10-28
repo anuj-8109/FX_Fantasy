@@ -326,6 +326,7 @@ async getContestsByTournamentId(req, res) {
 
         const contests = await Contest_Model.find({ 
             del: false, 
+            is_private: false,
             tournament_id: tournament_id 
         })
         .populate("tournament_id")  // tournament का पूरा object ले आएगा
