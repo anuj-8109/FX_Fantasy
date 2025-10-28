@@ -130,7 +130,7 @@ export default function AddEditContest() {
     prizes.forEach((p) => {
       if (p.from && p.amount) {
         const from = parseInt(p.from, 10);
-        const to = p.to ? parseInt(p.to, 10) : from; 
+        const to = p.to ? parseInt(p.to, 10) : from;
         for (let r = from; r <= to; r++) {
           expanded.push({ rank: r, amount: Number(p.amount) });
         }
@@ -248,7 +248,6 @@ export default function AddEditContest() {
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-
       },
     });
 
@@ -351,6 +350,48 @@ export default function AddEditContest() {
       required: true,
       colClass: "col-span-4",
     },
+    // {
+    //   name: "contest_type_selector",
+    //   label: "Contest Type",
+    //   type: "custom",
+    //   colClass: "col-span-4",
+    //   required: true,
+    //   render: () => (
+    //     <div className="space-y-2">
+    //       <div className="space-y-2">
+    //         <label className="flex items-center gap-2 text-sm cursor-pointer">
+    //           <input
+    //             type="radio"
+    //             name="contestTypeRadio"
+    //             value="guaranteed"
+    //             checked={contestTypeSelection === "guaranteed"}
+    //             onChange={(e) => setContestTypeSelection(e.target.value)}
+    //             className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+    //           />
+    //           <span>Guaranteed Contest</span>
+    //         </label>
+
+    //         <label className="flex items-center gap-2 text-sm cursor-pointer">
+    //           <input
+    //             type="radio"
+    //             name="contestTypeRadio"
+    //             value="private"
+    //             checked={contestTypeSelection === "private"}
+    //             onChange={(e) => setContestTypeSelection(e.target.value)}
+    //             className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+    //           />
+    //           <span>Flexible  Contest</span>
+    //         </label>
+    //       </div>
+    //       {contestTypeSelection === "private" && (
+    //         <p className="text-xs text-gray-500 mt-2">
+    //           Contest code will be auto-generated for private contests
+    //         </p>
+    //       )}
+    //     </div>
+    //   ),
+    // },
+
     {
       name: "contest_type_selector",
       label: "Contest Type",
@@ -368,6 +409,7 @@ export default function AddEditContest() {
                 checked={contestTypeSelection === "guaranteed"}
                 onChange={(e) => setContestTypeSelection(e.target.value)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                disabled={!!contestData} // 🟢 Disable in edit mode
               />
               <span>Guaranteed Contest</span>
             </label>
@@ -380,15 +422,17 @@ export default function AddEditContest() {
                 checked={contestTypeSelection === "private"}
                 onChange={(e) => setContestTypeSelection(e.target.value)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                disabled={!!contestData} // 🟢 Disable in edit mode
               />
-              <span>Flexible  Contest</span>
+              <span>Flexible Contest</span>
             </label>
           </div>
-          {contestTypeSelection === "private" && (
+
+          {/* {contestTypeSelection === "private" && (
             <p className="text-xs text-gray-500 mt-2">
               Contest code will be auto-generated for private contests
             </p>
-          )}
+          )} */}
         </div>
       ),
     },

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/DatatablePagination";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, Edit } from "lucide-react";
 import {
   getContestsByTournamentId,
   DeleteContest,
@@ -26,7 +26,7 @@ const TournamentContests = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterText, setFilterText] = useState("");
 
-  // ✅ Fetch contests for this tournament
+  // ✅ Fetch contests by tournament
   const fetchContests = async (
     page = currentPage,
     limit = rowsPerPage,
@@ -43,9 +43,7 @@ const TournamentContests = () => {
 
       if (response?.status) {
         setContests(response?.contests || []);
-        setTotalRows(
-          response?.pagination?.total || response?.contests?.length || 0
-        );
+        setTotalRows(response?.pagination?.total || 0);
       } else {
         toast.error(response?.message || "Failed to load contests");
       }
@@ -56,22 +54,25 @@ const TournamentContests = () => {
   };
 
   useEffect(() => {
-    if (tournament_id) fetchContests(currentPage, rowsPerPage, filterText);
-  }, [tournament_id, currentPage, rowsPerPage, filterText]);
+    fetchContests(currentPage, rowsPerPage, filterText);
+  }, [currentPage, rowsPerPage, filterText]);
 
-  // ✅ Handle pagination and filters
+  // ✅ Pagination and Filters
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    fetchContests(page, rowsPerPage, filterText);
   };
 
   const handleRowsPerPageChange = (newPerPage) => {
     setRowsPerPage(newPerPage);
     setCurrentPage(1);
+    fetchContests(1, newPerPage, filterText);
   };
 
   const handleFilterChange = (text) => {
     setFilterText(text);
     setCurrentPage(1);
+    fetchContests(1, rowsPerPage, text);
   };
 
   // ✅ Delete Contest
@@ -84,10 +85,11 @@ const TournamentContests = () => {
       confirmButtonText: "Yes, Delete",
       cancelButtonText: "Cancel",
       customClass: {
-        confirmButton:
-          "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
-        cancelButton:
-          "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
       },
     });
 
@@ -105,7 +107,7 @@ const TournamentContests = () => {
     }
   };
 
-  // ✅ Change Active/Inactive Status
+  // ✅ Update Active/Inactive Status (with restrictions)
   const handleStatusChange = async (contest) => {
     const actionText = contest.activestatus ? "Deactivate" : "Activate";
 
@@ -116,6 +118,13 @@ const TournamentContests = () => {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+      },
     });
 
     if (!confirm.isConfirmed) return;
@@ -181,67 +190,117 @@ const TournamentContests = () => {
         if (row.is_private) types.push("Private");
         return types.length > 0 ? types.join(", ") : "-";
       },
-      width: "150px",
+      width: "130px",
     },
     {
       name: "Status",
-      selector: (row) => (row.activestatus === true ? "Active" : "Inactive"),
-      exportValue: (row) => (row.activestatus === true ? "Active" : "Inactive"),
-      cell: (row) => (
-        <label className="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            checked={row?.activestatus === true}
-            onChange={() => handleStatusChange(row)}
-            className="sr-only peer"
-          />
-          <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
-          <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full border peer-checked:translate-x-full transition-transform"></div>
-        </label>
-      ),
-      width: "100px",
+      selector: (row) => (row.activestatus ? "Active" : "Inactive"),
+      exportValue: (row) => (row.activestatus ? "Active" : "Inactive"),
+      cell: (row) => {
+        const now = new Date();
+        const startDate = new Date(row.tournament_id?.startdate);
+        const endDate = new Date(row.tournament_id?.enddate);
+        const isLive = now >= startDate && now <= endDate;
+        const isCompleted = now > endDate;
+
+        return (
+          <label
+            className={`relative inline-flex items-center ${
+              row.filled_spots > 0 || isLive || isCompleted
+                ? "cursor-not-allowed opacity-60"
+                : "cursor-pointer"
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+              if (row.filled_spots > 0) {
+                toast.error("Cannot change status. Some spots are already filled.");
+                return;
+              }
+              if (isLive || isCompleted) {
+                toast.error("Cannot change status for a live or completed tournament's contest.");
+                return;
+              }
+              handleStatusChange(row);
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={row?.activestatus === true}
+              readOnly
+              className="sr-only peer"
+            />
+            <div
+              className={`w-11 h-6 rounded-full transition-colors ${
+                row.activestatus ? "bg-green-600" : "bg-gray-300"
+              }`}
+            ></div>
+            <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full border peer-checked:translate-x-full transition-transform"></div>
+          </label>
+        );
+      },
+      width: "80px",
     },
     {
       name: "Action",
-      cell: (row) => (
-        <div className="flex gap-3">
-          <Eye
-            className="cursor-pointer text-green-600"
-            size={25}
-            onClick={() =>
-              navigate(`/superadmin/viewcontest/${row._id}`, { state: row })
-            }
-          />
-          <Edit
-            className="cursor-pointer text-blue-600"
-            size={25}
-            onClick={() =>
-              navigate("/superadmin/add-contest", { state: { contest: row } })
-            }
-          />
-          <Trash2
-            className="cursor-pointer text-red-600"
-            size={25}
-            onClick={() => handleDelete(row)}
-          />
-        </div>
-      ),
-      width: "120px",
+      cell: (row) => {
+        const now = new Date();
+        const startDate = new Date(row.tournament_id?.startdate);
+        const endDate = new Date(row.tournament_id?.enddate);
+        const isLive = now >= startDate && now <= endDate;
+        const isCompleted = now > endDate;
+        const isUpcoming = now < startDate;
+
+        return (
+          <div className="flex gap-3 items-center">
+            <Eye
+              className="text-green-600 cursor-pointer"
+              size={25}
+              onClick={() =>
+                navigate(`/superadmin/viewcontest/${row._id}`, { state: row })
+              }
+            />
+            <Edit
+              className={`${
+                isLive || isCompleted
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 cursor-pointer"
+              }`}
+              size={25}
+              onClick={() => {
+                if (isLive || isCompleted) return;
+                navigate("/superadmin/add-contest", { state: { contest: row } });
+              }}
+            />
+            <button
+              className={`px-3 py-1 rounded text-white text-sm transition ${
+                isUpcoming
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
+              disabled={!isUpcoming}
+              onClick={() => {
+                if (isUpcoming) handleDelete(row);
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        );
+      },
+      width: "180px",
       export: false,
     },
   ];
 
   return (
     <Content
-      Page_title={`${tournament_name} Contests`}
+      Page_title="Tournament Contests"
       button_title="Back"
       button_status={true}
       route="/superadmin/tournament"
       extra_button="+ Add Contest"
       extra_button_action={() =>
-        navigate("/superadmin/add-contest", {
-          state: { tournament_id },
-        })
+        navigate("/superadmin/add-contest", { state: { tournament_id } })
       }
     >
       <div className="p-2">
@@ -256,9 +315,7 @@ const TournamentContests = () => {
             onRowsPerPageChange={handleRowsPerPageChange}
             filterText={filterText}
             onFilterChange={handleFilterChange}
-            onRefresh={() =>
-              fetchContests(currentPage, rowsPerPage, filterText)
-            }
+            onRefresh={() => fetchContests(currentPage, rowsPerPage, filterText)}
           />
         </div>
       </div>
