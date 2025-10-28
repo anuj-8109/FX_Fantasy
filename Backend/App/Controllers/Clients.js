@@ -13,12 +13,10 @@ const Bank_Modal = db.Bank;
 const Contestjoin_Modal = db.Contestjoin;
 const Notification_Modal = db.Notification;
 
-
-const ioSocket = require("../../Utils/ioSocketReturn");
+const ioSocket = require("../Utils/ioSocketReturn");
 const io = ioSocket.getIO();
 
 class Clients {
-
 
   async AddClient(req, res) {
 
