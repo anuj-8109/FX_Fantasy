@@ -758,7 +758,7 @@ async kycVerificationUpdate(req, res) {
       await resultn.save();
    
            const clientIds = [id];
-       /*           
+                 
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
@@ -768,7 +768,7 @@ const socketData = {
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-*/
+
         
 
 
