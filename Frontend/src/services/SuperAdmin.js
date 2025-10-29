@@ -1655,6 +1655,72 @@ export async function GetDashboardCount(token) {
   }
 }
 
+
+
+// ✅ 1️⃣ Get latest 20 notifications with unread count
+export const getNotification = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.get(`${config.base_url}dashboard/notification`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    return { status: false, message: "Error fetching notifications" };
+  }
+};
+
+// ✅ 2️⃣ Get paginated notification list
+export const getNotificationList = async (page) => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.post(
+      `${config.base_url}dashboard/notificationlist`,
+      { page },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching notification list:", error);
+    return { status: false, message: "Error fetching notification list" };
+  }
+};
+
+// ✅ 3️⃣ Change single notification status
+export const changeNotificationStatus = async (id, status) => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.post(
+      `${config.base_url}dashboard/statuschangenotifiction`,
+      { id, status },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Error changing notification status:", error);
+    return { status: false, message: "Error changing status" };
+  }
+};
+
+// ✅ 4️⃣ Change all unread (status:0) notifications to read (status:1)
+export const changeAllNotificationStatus = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.get(`${config.base_url}dashboard/allstatuschangenotifiction`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error changing all notifications:", error);
+    return { status: false, message: "Error updating all statuses" };
+  }
+};
+
 // Contest API Ends Here
 
 const logout = () => {

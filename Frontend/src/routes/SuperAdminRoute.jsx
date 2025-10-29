@@ -49,6 +49,7 @@ import AddEditBanner from "../pages/superadmin/banner/AddBanner";
 import AddEditClient from "../pages/superadmin/clients/AddClient";
 import Revenue from "../pages/superadmin/revenue/Revenue"
 import Winnings from "../pages/superadmin/winning/Winnings"
+import Notifications from "../pages/superadmin/notification/Notifiaction"
 
 const SuperAdminRoutes = () => {
 
@@ -103,6 +104,7 @@ const SuperAdminRoutes = () => {
         <Route path="add-client" element={<AddEditClient/>}/>
         <Route path="revenue" element={<Revenue/>}/>
          <Route path="winning" element={<Winnings/>}/>
+          <Route path="notifications" element={<Notifications/>}/>
       </Route>
     </>
   );

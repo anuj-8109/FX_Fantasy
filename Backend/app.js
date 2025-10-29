@@ -1,10 +1,16 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+// const { connectDB } = require('./App/connection/db.js');
+// const { connectRedis } = require('./App/connection/redis.js');
+// const routes = require('./App/Routes/index.js');
+// const { errorHandler } = require('./App/Middleware/errorHandler.js');
 const { connectDB } = require('./App/connection/db');
 const { connectRedis } = require('./App/connection/redis');
 const routes = require('./App/Routes');
 const { errorHandler } = require('./App/Middleware/errorHandler');
+const db = require("./App/Models");
+
 const http = require('http');
 const socketio = require('socket.io');
 const WebSocket = require('ws');
