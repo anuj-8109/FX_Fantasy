@@ -79,13 +79,13 @@ function SuperAdminDashboard() {
       title: "Active Clients",
       value: dashboardData.clientCountActive,
       icon: <FaUserCheck />,
-      route: "/superadmin/clients",
+      route: "/superadmin/activeclient",
     },
     {
       title: "Inactive Clients",
       value: dashboardData.clientCountInactive,
       icon: <FaUserTimes />,
-      route: "/superadmin/clients",
+      route: "/superadmin/inactiveclient",
     },
     {
       title: "Total Tournaments",
@@ -97,19 +97,19 @@ function SuperAdminDashboard() {
       title: "Upcoming Tournaments",
       value: dashboardData.tournamentUpcoming,
       icon: <FaCalendarAlt />,
-      route: "/superadmin/tournament",
+      route: "/superadmin/upcomingtournament",
     },
     {
       title: "Live Tournaments",
       value: dashboardData.tournamentLive,
       icon: <FaClipboardList />,
-      route: "/superadmin/tournament",
+      route: "/superadmin/livetournament",
     },
     {
       title: "Completed Tournaments",
       value: dashboardData.tournamentCompleted,
       icon: <FaClipboardList />,
-      route: "/superadmin/tournament",
+      route: "/superadmin/completedtournamnet",
     },
     {
       title: "Cancelled Tournaments",
