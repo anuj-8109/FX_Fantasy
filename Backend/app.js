@@ -14,7 +14,6 @@ const db = require("./App/Models");
 const http = require('http');
 const socketio = require('socket.io');
 const WebSocket = require('ws');
-const db = require("./App/Models");
 
 const app = express();
 const server = http.createServer(app);
