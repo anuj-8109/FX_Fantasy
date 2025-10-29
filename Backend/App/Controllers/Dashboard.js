@@ -4,6 +4,7 @@ const Clients_Modal = db.Clients;
 const Tournament_Model = db.Tournament;
 const Contest_Model = db.Contest
 const Adminnotification_Modal = db.Adminnotification;
+const Contestjoin_Modal = db.Contestjoin;
 
 
 
@@ -29,6 +30,68 @@ class Dashboard {
       const contestActive = await Contest_Model.countDocuments({ del: false, activestatus: true });
       const contestInactive = await Contest_Model.countDocuments({ del: false, activestatus: false });
      
+// ✅ Step 1: Completed tournaments निकालना
+const completedTournaments = await Tournament_Model.find(
+  { status: "completed", del: false },
+  { _id: 1 }
+);
+
+const completedTournamentIds = completedTournaments.map(t => t._id);
+
+if (completedTournamentIds.length === 0) {
+  return res.json({
+    status: true,
+    message: "No completed tournaments found",
+    data: {
+      completedTournamentCount: 0,
+      contestCount: 0,
+      totalPrizePool: 0,
+      totalJoinAmount: 0
+    }
+  });
+}
+
+// ✅ Step 2: उन tournaments के contests का prize pool निकालना
+const prizePoolData = await Contest_Model.aggregate([
+  {
+    $match: {
+      del: false,
+      tournament_id: { $in: completedTournamentIds }
+    }
+  },
+  {
+    $group: {
+      _id: null,
+      totalPrizePool: { $sum: "$prize_pool" },
+      contestIds: { $addToSet: "$_id" },
+      contestCount: { $sum: 1 }
+    }
+  }
+]);
+
+const totalPrizePool = prizePoolData?.[0]?.totalPrizePool || 0;
+const contestIds = prizePoolData?.[0]?.contestIds || [];
+
+// ✅ Step 3: उन्हीं contests के join amount (Contestjoin_Modal.total) का sum निकालना
+let totalJoinAmount = 0;
+if (contestIds.length > 0) {
+  const joinSum = await Contestjoin_Modal.aggregate([
+    {
+      $match: {
+        contest_id: { $in: contestIds }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        totalJoinAmount: { $sum: "$total" }
+      }
+    }
+  ]);
+
+  totalJoinAmount = joinSum?.[0]?.totalJoinAmount || 0;
+}
+
       return res.json({
         status: true,
         message: "Count retrieved successfully",
@@ -44,6 +107,9 @@ class Dashboard {
           contestTotal: contestTotal,
           contestActive: contestActive,
           contestInactive: contestInactive,
+          contestJoinTotalAmount: totalJoinAmount,
+          prizePoolTotalAmount: totalPrizePool,
+
         
         }
       });

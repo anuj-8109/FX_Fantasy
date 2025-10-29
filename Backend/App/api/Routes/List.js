@@ -23,6 +23,6 @@ router.post('/api/list/getopenpositions', auth, getOpenPositions);
 router.post('/api/list/getcontestranking', auth, getContestRanking); 
 router.get('/api/list/getstates', getAllStates);
 router.get('/api/list/getcitybystates/:stateName', getCityByStates);
-router.get("/api/list//notification/:id", auth, NotificationList);
+router.get("/api/list/notification/:id", auth, NotificationList);
 
 module.exports = router;
