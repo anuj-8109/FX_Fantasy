@@ -15,6 +15,7 @@ const Contestjoin_Modal = db.Contestjoin;
 const Contesttrade_Modal = db.Contesttrade;
 const States = db.States;
 const City = db.City;
+const Notification_Modal = db.Notification;
 
 
 const mongoose = require('mongoose');
@@ -1119,6 +1120,59 @@ async getContestRanking(req, res) {
       res.status(500).json({ error: "Something went wrong" });
     }
   }
+
+
+  async NotificationList(req, res) {
+  try {
+    const { id } = req.params; // clientid (या user id)
+    const { page = 1, limit = 10 } = req.query;
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // अगर id नहीं मिला तो error return करें
+    if (!id) {
+      return res.status(400).json({
+        status: false,
+        message: "Client ID is required"
+      });
+    }
+
+    // Match condition बनाएं
+    const matchCondition = {
+      clientid: id
+    };
+
+    // Notification list fetch करें
+    const notifications = await Notification_Modal.find(matchCondition)
+      .sort({ createdAt: -1 }) // Latest first
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // कुल count भी निकाल लें
+    const total = await Notification_Modal.countDocuments(matchCondition);
+
+    return res.status(200).json({
+      status: true,
+      message: "Notification list fetched successfully",
+      data: notifications,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+
+  } catch (error) {
+    console.error("Error in notificationList:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+}
+
 
 
 

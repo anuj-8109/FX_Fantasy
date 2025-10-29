@@ -2,6 +2,9 @@ const db = require("../Models");
 const Coupon_Modal = db.Coupon;
 
 const upload = require('../Utils/multerHelper'); 
+const ioSocket = require("../Utils/ioSocketReturn");
+const io = ioSocket.getIO();
+
 
 class Coupon {
 

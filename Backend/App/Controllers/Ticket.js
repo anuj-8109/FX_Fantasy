@@ -5,6 +5,8 @@ const Ticketmessage_Modal = db.Ticketmessage;
 const Clients_Modal = db.Clients;
 const Notification_Modal = db.Notification;
 
+const ioSocket = require("../Utils/ioSocketReturn");
+const io = ioSocket.getIO();
 
 
 class TicketController {
@@ -310,7 +312,7 @@ if(parsedStatus===1) {
       await resultn.save();
    
            const clientIds = [client._id];
-       /*           
+             
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
@@ -320,7 +322,7 @@ const socketData = {
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-*/
+
 
 
 
