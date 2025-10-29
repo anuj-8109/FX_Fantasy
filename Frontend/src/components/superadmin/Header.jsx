@@ -2,29 +2,57 @@ import React, { useState, useEffect, useRef } from "react";
 import { Sun, Moon, Bell, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
-
-
+import {
+  getNotification,
+  changeNotificationStatus,
+} from "../../services/SuperAdmin";
 
 const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const navigate = useNavigate();
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user"));
-
   const notifRef = useRef();
   const profileRef = useRef();
 
-  const notifications = [
-    { id: 1, title: "New user registered", message: "John Doe just joined", time: "2 min ago", unread: true },
-    { id: 2, title: "Contest finished", message: "Weekly Trading Challenge ended", time: "1 hour ago", unread: true },
-    { id: 3, title: "System maintenance", message: "Scheduled maintenance done", time: "3 hours ago", unread: false },
-  ];
+  // ✅ Fetch notifications
+  const fetchNotifications = async () => {
+    try {
+      const res = await getNotification();
+      if (res.status) {
+        setNotifications(res.data || []);
+        setUnreadCount(res.unreadCount || 0);
+      }
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+    }
+  };
 
-  const unreadCount = notifications.filter((n) => n.unread).length;
+  // ✅ Mark notification as read
+  const handleReadNotification = async (id) => {
+    try {
+      await changeNotificationStatus(id, 1);
+      fetchNotifications(); // refresh list
+    } catch (err) {
+      console.error("Error updating notification:", err);
+    }
+  };
 
-  // Theme Toggle
+  // ✅ Toggle dropdown
+  const handleNotificationToggle = () => {
+    setShowNotifications((prev) => !prev);
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  // ✅ Theme toggle
   const toggleTheme = () => {
     setIsDarkMode((prev) => {
       const newMode = !prev;
@@ -42,8 +70,6 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
     const roleId = localStorage.getItem("roleId");
     localStorage.removeItem("token");
     localStorage.removeItem("roleId");
-    // localStorage.removeItem("user");
-    // localStorage.removeItem("isLoggedIn");
     if (roleId === "1") {
       navigate("/superadminlogin");
     } else {
@@ -52,6 +78,8 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
   };
 
   const toggleSidebar = () => setCollapsed(!collapsed);
+
+  // ✅ SweetAlert logout
   const Logout = async () => {
     const confirm = await Swal.fire({
       title: "Logout Confirmation",
@@ -63,17 +91,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
       confirmButtonColor: "#2563eb",
       cancelButtonColor: "#6b7280",
       reverseButtons: true,
-      customClass: {
-        popup: "custom-swal-popup",
-        title: "text-xl font-semibold text-gray-800",
-        htmlContainer: "text-gray-600 text-base",
-        confirmButton:
-          "px-5 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
-        cancelButton:
-          "px-5 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
-      },
     });
-
 
     if (confirm.isConfirmed) {
       localStorage.clear();
@@ -83,22 +101,18 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
         icon: "success",
         timer: 2000,
         showConfirmButton: false,
-        customClass: {
-          popup: "custom-swal-popup",
-          title: "text-lg font-medium text-gray-800",
-          htmlContainer: "text-gray-600",
-        },
       });
       navigate("/superadminlogin");
     }
-
   };
 
-  // Close dropdowns on outside click
+  // ✅ Close dropdowns when clicked outside
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (notifRef.current && !notifRef.current.contains(e.target)) setShowNotifications(false);
-      if (profileRef.current && !profileRef.current.contains(e.target)) setShowProfile(false);
+      if (notifRef.current && !notifRef.current.contains(e.target))
+        setShowNotifications(false);
+      if (profileRef.current && !profileRef.current.contains(e.target))
+        setShowProfile(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -109,8 +123,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
   }, [location.pathname]);
 
   return (
-    <header className="sticky top-0 z-50 w-full shadow-sm backdrop-blur-lg transition-colors Main-Header ">
-
+    <header className="sticky top-0 z-50 w-full shadow-sm backdrop-blur-lg transition-colors Main-Header">
       <div className="max-w-8xl mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo + Sidebar Toggle */}
         <div className="flex items-center gap-3">
@@ -128,7 +141,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
           </button>
         </div>
 
-        {/* Right Side: Theme, Notifications, Profile */}
+        {/* Right Side */}
         <div className="flex items-center gap-4">
           {/* Theme Toggle */}
           <button
@@ -142,8 +155,8 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
           {/* Notifications */}
           <div className="relative" ref={notifRef}>
             <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2 rounded-full  relative"
+              onClick={handleNotificationToggle}
+              className="p-2 rounded-full relative"
             >
               <Bell size={20} />
               {unreadCount > 0 && (
@@ -154,24 +167,41 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80  shadow-lg rounded-lg border z-50 Notification_dropdown">
-                <div className="p-3 font-medium text-sm border-b ">
+              <div className="absolute right-0 mt-2 w-80 shadow-lg rounded-lg border z-50 bg-white dark:bg-gray-800">
+                <div className="p-3 font-medium text-sm border-b dark:border-gray-700">
                   Notifications ({unreadCount} new)
                 </div>
                 <div className="max-h-60 overflow-y-auto">
-                  {notifications.map((n) => (
-                    <div
-                      key={n.id}
-                      className={`p-3 border-b  text-sm ${n.unread ? "font-medium" : ""
+                  {notifications.length > 0 ? (
+                    notifications.map((n) => (
+                      <div
+                        key={n._id}
+                        onClick={() => handleReadNotification(n._id)}
+                        className={`p-3 border-b text-sm cursor-pointer transition ${
+                          n.status === 0
+                            ? "font-medium bg-blue-50"
+                            : "bg-transparent"
                         }`}
-                    >
-                      <p>{n.title}</p>
-                      <p className="text-xs ">{n.message}</p>
-                      <p className="text-xs ">{n.time}</p>
+                      >
+                        <p>{n.title}</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-300">
+                          {n.message}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(n.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-3 text-sm text-gray-500 text-center">
+                      No notifications found
                     </div>
-                  ))}
+                  )}
                 </div>
-                <button className="w-full text-center py-2 text-xs">
+                <button
+                  onClick={() => navigate("/superadmin/notifications")}
+                  className="w-full text-center py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
                   View all
                 </button>
               </div>
@@ -190,21 +220,23 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
             </button>
 
             {showProfile && (
-              <div className="absolute right-0 mt-2 w-56 shadow-lg rounded-lg border z-50 profile_dropdown">
-                <div className="p-3 border-b text-sm">
-                  <p className="font-medium">{user?.FullName}</p>
+              <div className="absolute right-0 mt-2 w-56 shadow-lg rounded-lg border z-50 bg-white dark:bg-gray-800">
+                <div className="p-3 border-b text-sm dark:border-gray-700">
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {user?.FullName}
+                  </p>
                   <p className="text-xs text-gray-500">{user?.Email}</p>
                 </div>
 
                 <button
                   onClick={() => navigate("/superadmin/myprofile")}
-                  className="block w-full text-left px-4 py-2 text-sm"
+                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   Profile Management
                 </button>
 
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm text-red-600"
+                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
                   onClick={handleLogout}
                 >
                   Log Out

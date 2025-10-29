@@ -1,10 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { connectDB } = require('./App/connection/db.js');
-const { connectRedis } = require('./App/connection/redis.js');
-const routes = require('./App/Routes/index.js');
-const { errorHandler } = require('./App/Middleware/errorHandler.js');
+// const { connectDB } = require('./App/connection/db.js');
+// const { connectRedis } = require('./App/connection/redis.js');
+// const routes = require('./App/Routes/index.js');
+// const { errorHandler } = require('./App/Middleware/errorHandler.js');
 const { connectDB } = require('./App/connection/db');
 const { connectRedis } = require('./App/connection/redis');
 const routes = require('./App/Routes');

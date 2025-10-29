@@ -684,3 +684,18 @@ export async function getOpenTrades(token, data) {
   }
 }
 
+export async function getNotificationList(token, userId, page = 1, limit = 10) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}api/list/notification/${userId}?page=${page}&limit=${limit}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    console.error("Error fetching notifications:", error?.response?.data || error.message);
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
