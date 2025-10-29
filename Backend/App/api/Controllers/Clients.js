@@ -235,7 +235,7 @@ const titles = 'Important Update';
       await resultn.save();
    
            const clientIds = [client._id];
-       /*           
+         
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
@@ -245,7 +245,7 @@ const socketData = {
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-*/
+
 
       return res.status(201).json({
         status: true,
@@ -778,13 +778,13 @@ const titles = 'Important Update';
 
       await resultnm.save();
 
-      /*io.emit("adminnotification", {
+      io.emit("adminnotification", {
         clientid: client._id,
         title: titles,
         message: message,
         type: 'kyc Upload',
       });
-	  */
+	  
 	  
 
 
@@ -1088,7 +1088,7 @@ async  addMoneyInWallet(req, res) {
       await resultn.save();
    
            const clientIds = [client._id];
-       /*           
+                
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
@@ -1098,7 +1098,7 @@ const socketData = {
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-*/
+
 
 
 
@@ -1126,7 +1126,7 @@ const socketData = {
       await resultn.save();
    
            const clientIds = [sender._id];
-       /*           
+               
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
@@ -1136,7 +1136,7 @@ const socketData = {
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-*/
+
 
 
 
@@ -1178,7 +1178,7 @@ const socketData = {
       await resultn.save();
    
            const clientIds = [client._id];
-       /*           
+               
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
@@ -1188,7 +1188,7 @@ const socketData = {
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-*/
+
 
 
 
@@ -1214,7 +1214,7 @@ const socketData = {
       await resultn.save();
    
            const clientIds = [sender._id];
-       /*           
+                
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
@@ -1224,7 +1224,7 @@ const socketData = {
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-*/
+
 
 
 
@@ -1254,7 +1254,7 @@ const socketData = {
       await resultn.save();
    
            const clientIds = [client_id];
-       /*           
+               
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
@@ -1264,7 +1264,7 @@ const socketData = {
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-*/
+
 
 
 
@@ -1797,7 +1797,7 @@ const notificationBody = `Your KYC documents are under review.`;
       await resultn.save();
    
            const clientIds = [client._id];
-       /*           
+              
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
@@ -1807,7 +1807,7 @@ const socketData = {
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-*/
+
         
 
 
@@ -2162,7 +2162,7 @@ const titles = 'Important Update';
       await resultn.save();
    
            const clientIds = [shared_with_client_id];
-       /*           
+              
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
@@ -2172,7 +2172,7 @@ const socketData = {
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-*/
+
         
 	  
 
