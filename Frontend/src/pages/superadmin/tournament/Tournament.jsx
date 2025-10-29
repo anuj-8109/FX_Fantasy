@@ -4,7 +4,6 @@ import {
   GetTournament,
   UpdateTournament,
   DeleteTournament,
-  UpdateTournamentStatus,
   UpdateTournamentStatusActive,
   stocklist,
 } from "../../../services/SuperAdmin";
@@ -41,14 +40,13 @@ function Tournament() {
 
   const [stocklistData, setStocklistData] = useState([]);
   const [searchResults, setSearchResults] = useState({});
-  const [inputValues, setInputValues] = useState({}); // Separate state for input display
+  const [inputValues, setInputValues] = useState({});
 
   const [totalRows, setTotalRows] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterText, setFilterText] = useState("");
 
-  // Fetch stock list on component mount
   useEffect(() => {
     fetchStockList();
   }, []);
@@ -67,72 +65,39 @@ function Tournament() {
     }
   };
 
-  // const openModal = (data) => {
-  //   setEditData(data);
-  //   const stocks =
-  //     data?.stocks && data.stocks.length > 0
-  //       ? data.stocks
-  //       : [{ stock_id: "", stock_name: "" }];
+  const openModal = (data) => {
+    setEditData(data);
 
-  //   setFormData({
-  //     name: data?.name || "",
-  //     description: data?.description || "",
-  //     useamount: data?.useamount || "",
-  //     startdate: data
-  //       ? new Date(data.startdate).toISOString().slice(0, 16)
-  //       : "",
-  //     enddate: data ? new Date(data.enddate).toISOString().slice(0, 16) : "",
-  //     status: data?.status || "upcoming",
-  //     stocks: stocks,
-  //   });
+    const stocks =
+      data?.stocks && data.stocks.length > 0
+        ? data.stocks
+        : [{ stock_id: "", stock_name: "" }];
 
-  //   // Initialize input values with stock names
-  //   const initialInputs = {};
-  //   stocks.forEach((stock, idx) => {
-  //     initialInputs[idx] = stock.stock_name || "";
-  //   });
-  //   setInputValues(initialInputs);
-  //   setSearchResults({});
-  //   setIsModalOpen(true);
-  // };
+    const toLocalDateTime = (dateStr) => {
+      const date = new Date(dateStr);
+      const tzOffset = date.getTimezoneOffset() * 60000;
+      const localISOTime = new Date(date - tzOffset).toISOString().slice(0, 16);
+      return localISOTime;
+    };
 
+    setFormData({
+      name: data?.name || "",
+      description: data?.description || "",
+      useamount: data?.useamount || "",
+      startdate: data ? toLocalDateTime(data.startdate) : "",
+      enddate: data ? toLocalDateTime(data.enddate) : "",
+      status: data?.status || "upcoming",
+      stocks: stocks,
+    });
 
-const openModal = (data) => {
-  setEditData(data);
-
-  const stocks =
-    data?.stocks && data.stocks.length > 0
-      ? data.stocks
-      : [{ stock_id: "", stock_name: "" }];
-
-  // ✅ Convert UTC → Local for datetime-local input
-  const toLocalDateTime = (dateStr) => {
-    const date = new Date(dateStr);
-    const tzOffset = date.getTimezoneOffset() * 60000; // offset in ms
-    const localISOTime = new Date(date - tzOffset).toISOString().slice(0, 16);
-    return localISOTime;
+    const initialInputs = {};
+    stocks.forEach((stock, idx) => {
+      initialInputs[idx] = stock.stock_name || "";
+    });
+    setInputValues(initialInputs);
+    setSearchResults({});
+    setIsModalOpen(true);
   };
-
-  setFormData({
-    name: data?.name || "",
-    description: data?.description || "",
-    useamount: data?.useamount || "",
-    startdate: data ? toLocalDateTime(data.startdate) : "",
-    enddate: data ? toLocalDateTime(data.enddate) : "",
-    status: data?.status || "upcoming",
-    stocks: stocks,
-  });
-
-  // Initialize input values with stock names
-  const initialInputs = {};
-  stocks.forEach((stock, idx) => {
-    initialInputs[idx] = stock.stock_name || "";
-  });
-  setInputValues(initialInputs);
-  setSearchResults({});
-  setIsModalOpen(true);
-};
-
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -156,7 +121,6 @@ const openModal = (data) => {
     setViewData(null);
   };
 
-  // Stock management functions
   const addStockRow = () => {
     if (formData.stocks.length >= 2) {
       toast.error("You can add maximum 2 stocks only");
@@ -178,7 +142,6 @@ const openModal = (data) => {
     setInputValues((prev) => {
       const updated = { ...prev };
       delete updated[i];
-      // Reindex remaining inputs
       const newInputs = {};
       Object.keys(updated).forEach((key, idx) => {
         if (parseInt(key) > i) {
@@ -197,10 +160,8 @@ const openModal = (data) => {
   };
 
   const handleInputChange = (i, value) => {
-    // Update input display value
     setInputValues((prev) => ({ ...prev, [i]: value }));
 
-    // Filter suggestions
     let filtered = stocklistData;
     if (value.length > 0) {
       filtered = stocklistData.filter((s) =>
@@ -211,7 +172,6 @@ const openModal = (data) => {
   };
 
   const handleInputFocus = (i) => {
-    // Show all stocks on focus
     setSearchResults((prev) => ({ ...prev, [i]: stocklistData }));
   };
 
@@ -229,15 +189,18 @@ const openModal = (data) => {
   };
 
   const handleUpdate = async () => {
-    // Check if any change is made
+    const toLocalDateTime = (dateStr) => {
+      const date = new Date(dateStr);
+      const tzOffset = date.getTimezoneOffset() * 60000;
+      return new Date(date - tzOffset).toISOString().slice(0, 16);
+    };
+
     const isChanged =
       formData.name !== editData.name ||
       formData.description !== editData.description ||
       formData.useamount !== editData.useamount ||
-      formData.startdate !==
-        new Date(editData.startdate).toISOString().slice(0, 16) ||
-      formData.enddate !==
-        new Date(editData.enddate).toISOString().slice(0, 16) ||
+      formData.startdate !== toLocalDateTime(editData.startdate) ||
+      formData.enddate !== toLocalDateTime(editData.enddate) ||
       JSON.stringify(formData.stocks) !== JSON.stringify(editData.stocks);
 
     if (!isChanged) {
@@ -249,7 +212,6 @@ const openModal = (data) => {
       return;
     }
 
-    // Validate start date
     const now = new Date();
     if (new Date(formData.startdate) < now) {
       Swal.fire({
@@ -260,7 +222,6 @@ const openModal = (data) => {
       return;
     }
 
-    // Validate end date
     if (new Date(formData.enddate) < new Date(formData.startdate)) {
       Swal.fire({
         icon: "error",
@@ -270,10 +231,8 @@ const openModal = (data) => {
       return;
     }
 
-    // Validate stocks - check if input value matches selected stock
     const hasInvalidStock = formData.stocks.some((s, idx) => {
       const inputVal = inputValues[idx] || "";
-      // If input value doesn't match stock_name OR stock_id is empty
       return !s.stock_id || inputVal !== s.stock_name;
     });
 
@@ -314,12 +273,10 @@ const openModal = (data) => {
 
       if (result.isConfirmed) {
         const token = localStorage.getItem("token");
-
         const payload = {
           ...formData,
           id: editData._id,
         };
-
         const response = await UpdateTournament(payload, token);
 
         if (response?.status) {
@@ -366,8 +323,6 @@ const openModal = (data) => {
 
   const handleStatusChange = async (tournament) => {
     const token = localStorage.getItem("token");
-    // const actionText = tournament.status === "true" ? "Deactivate" : "Activate";
-
     const isActive =
       tournament.activestatus === true || tournament.activestatus === 1;
     const actionText = isActive ? "Deactivate" : "Activate";
@@ -433,15 +388,15 @@ const openModal = (data) => {
 
         switch (row.status) {
           case "live":
-            bgColor = "bg-green-300"; // light green
+            bgColor = "bg-green-300";
             textColor = "text-black";
             break;
           case "completed":
-            bgColor = "bg-green-700"; // dark green
+            bgColor = "bg-green-700";
             textColor = "text-white";
             break;
           case "upcoming":
-            bgColor = "bg-yellow-400"; // yellow
+            bgColor = "bg-yellow-400";
             textColor = "text-black";
             break;
           default:
@@ -458,7 +413,6 @@ const openModal = (data) => {
         );
       },
     },
-
     {
       name: "Stock",
       selector: (row) =>
@@ -492,28 +446,6 @@ const openModal = (data) => {
       sortable: true,
       width: "155px",
     },
-    // {
-    //   name: "Status",
-    //   selector: (row) => (row.activestatus ? "Active" : "Inactive"),
-    //   exportValue: (row) => (row.activestatus ? "Active" : "Inactive"),
-    //   cell: (row) => (
-    //     <label className="relative inline-flex items-center cursor-pointer">
-    //       <input
-    //         type="checkbox"
-    //         checked={row?.activestatus === true}
-    //         onChange={() => handleStatusChange(row)}
-    //         className="sr-only peer"
-    //       />
-    //       {/* Background track */}
-    //       <div className="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-600 transition-colors"></div>
-
-    //       {/* Toggle knob */}
-    //       <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full border border-gray-300 peer-checked:translate-x-full peer-checked:border-green-600 transition-transform"></div>
-    //     </label>
-    //   ),
-    //   width: "80px",
-    //   export: true,
-    // },
     {
       name: "Status",
       selector: (row) => (row.activestatus ? "Active" : "Inactive"),
@@ -548,13 +480,10 @@ const openModal = (data) => {
       name: "Action",
       cell: (row) => (
         <div className="flex gap-3 items-center">
-          {/* View */}
           <Eye
             className="text-green-600 cursor-pointer"
             onClick={() => openViewModal(row)}
           />
-
-          {/* Edit */}
           <Edit
             className={`cursor-pointer ${
               row.status === "live" || row.status === "completed"
@@ -566,8 +495,6 @@ const openModal = (data) => {
               openModal(row);
             }}
           />
-
-          {/* Cancel (instead of Delete) */}
           <button
             className={`px-3 py-1 rounded text-white text-sm transition ${
               row.status === "upcoming"
@@ -590,7 +517,6 @@ const openModal = (data) => {
       name: "Contest",
       cell: (row) => (
         <div className="flex gap-2">
-          {/* View Contest Button */}
           <button
             className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
             onClick={() =>
@@ -601,8 +527,6 @@ const openModal = (data) => {
           >
             View
           </button>
-
-          {/* Add Contest Button */}
           <button
             className={`px-3 py-2 rounded text-white transition ${
               row.status === "upcoming"
@@ -625,109 +549,72 @@ const openModal = (data) => {
       export: false,
       width: "150px",
     },
-
-    // {
-    //   name: "View",
-    //   cell: (row) => (
-    //     <button
-    //       className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-    //       onClick={() =>
-    //         navigate("/superadmin/tournamentcontest", {
-    //           state: { tournament_id: row._id },
-    //         })
-    //       }
-    //     >
-    //       View Contest
-    //     </button>
-    //   ),
-    //   export: false,
-    //   width: "140px",
-    // },
-    // {
-    //   name: "Contest",
-    //   cell: (row) => (
-    //     <div>
-    //       <button
-    //         className={`px-4 py-2 rounded text-white transition ${
-    //           row.status === "upcoming"
-    //             ? "bg-green-600 hover:bg-green-700"
-    //             : "bg-gray-400 cursor-not-allowed"
-    //         }`}
-    //         disabled={row.status !== "upcoming"}
-    //         onClick={() => {
-    //           if (row.status === "upcoming") {
-    //             navigate("/superadmin/add-contest", {
-    //               state: { tournament_id: row._id },
-    //             });
-    //           }
-    //         }}
-    //       >
-    //         Add Contest
-    //       </button>
-    //     </div>
-    //   ),
-    //   export: false,
-    //   width: "140px",
-    // },
-    // {
-    //   name: "Description",
-    //   selector: (row) => row.description,
-    //   exportValue: (row) => row.description || "N/A",
-    //   export: true,
-    // },
   ];
 
-  const handlePageChange = (page) => setCurrentPage(page);
+  // ✅ Handle page change - fetch new data from server
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
+  // ✅ Handle rows per page change
   const handleRowsPerPageChange = (newPerPage) => {
     setRowsPerPage(newPerPage);
     setCurrentPage(1);
   };
 
+  // ✅ Handle search/filter change
   const handleFilterChange = (text) => {
     setFilterText(text);
-    fatchTournament({ page: 1, limit: rowsPerPage, filter: text });
+    setCurrentPage(1); // Reset to page 1 on search
   };
 
-  const paginatedData = tournament.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
-
+  // ✅ MAIN FUNCTION - Fetch tournaments from server with pagination & search
   const fatchTournament = async () => {
     setLoading(true);
-    const token = localStorage.getItem("token");
-    const res = await GetTournament(token);
+    try {
+      const token = localStorage.getItem("token");
 
-    if (res?.status) {
-      const now = new Date();
-      const updatedData = res.data.map((t) => {
-        const start = new Date(t.startdate);
-        const end = new Date(t.enddate);
-
-        let newStatus = t.status;
-        if (start > now) newStatus = "upcoming";
-        else if (start <= now && end >= now) newStatus = "live";
-        else if (end < now) newStatus = "completed";
-
-        return { ...t, status: newStatus };
+      // Build query params
+      const params = new URLSearchParams({
+        page: currentPage,
+        limit: rowsPerPage,
       });
 
-      setTournament(updatedData);
-      setTotalRows(updatedData.length);
-    } else {
-      toast.error(res?.message || "Failed to fetch");
+      if (filterText) {
+        params.append("search", filterText);
+      }
+
+      const res = await GetTournament(token, params.toString());
+
+      if (res?.status) {
+        const now = new Date();
+        const updatedData = res.data.map((t) => {
+          const start = new Date(t.startdate);
+          const end = new Date(t.enddate);
+
+          let newStatus = t.status;
+          if (start > now) newStatus = "upcoming";
+          else if (start <= now && end >= now) newStatus = "live";
+          else if (end < now) newStatus = "completed";
+
+          return { ...t, status: newStatus };
+        });
+
+        setTournament(updatedData);
+        setTotalRows(res.pagination?.total || 0);
+      } else {
+        toast.error(res?.message || "Failed to fetch");
+      }
+    } catch (error) {
+      toast.error("Error fetching tournaments");
     }
     setLoading(false);
   };
 
+  // ✅ Fetch data when page, rowsPerPage, or filterText changes
   useEffect(() => {
-    fatchTournament({
-      page: currentPage,
-      limit: rowsPerPage,
-      filter: filterText,
-    });
-  }, []);
+    fatchTournament();
+  }, [currentPage, rowsPerPage, filterText]);
 
   return (
     <Content
@@ -744,17 +631,20 @@ const openModal = (data) => {
         ) : (
           <Datatable
             columns={columns}
-            data={paginatedData}
+            data={tournament}
             totalRows={totalRows}
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
             onPageChange={handlePageChange}
             onRowsPerPageChange={handleRowsPerPageChange}
             onRefresh={fatchTournament}
+            filterText={filterText}
+            onFilterChange={handleFilterChange}
           />
         )}
       </div>
 
+      {/* Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 mt-10">
           <div className="bg-white p-6 rounded-md w-[700px] max-h-[80vh] overflow-y-auto hide-scrollbar">
@@ -779,7 +669,6 @@ const openModal = (data) => {
                 }}
               />
 
-              {/* Stocks Section */}
               <div>
                 <h3 className="font-medium mb-2">Stocks *</h3>
                 {formData.stocks?.map((s, idx) => (
@@ -804,7 +693,6 @@ const openModal = (data) => {
                       )}
                     </div>
 
-                    {/* Suggestions List */}
                     {searchResults[idx]?.length > 0 && (
                       <ul className="absolute z-10 bg-white border rounded-md shadow max-h-40 overflow-y-auto w-full mt-1">
                         {searchResults[idx].slice(0, 500).map((stock) => (
@@ -841,24 +729,6 @@ const openModal = (data) => {
                 className="border p-2 rounded"
               />
 
-              {/* <label className="text-sm font-medium">Start Date</label>
-              <input
-                type="datetime-local"
-                name="startdate"
-                value={formData.startdate}
-                onChange={handleChange}
-                className="border p-2 rounded"
-              />
-
-              <label className="text-sm font-medium">End Date</label>
-              <input
-                type="datetime-local"
-                name="enddate"
-                value={formData.enddate}
-                onChange={handleChange}
-                className="border p-2 rounded"
-              /> */}
-
               <label className="text-sm font-medium">Start Date</label>
               <input
                 type="datetime-local"
@@ -866,7 +736,7 @@ const openModal = (data) => {
                 value={formData.startdate}
                 onChange={handleChange}
                 className="border p-2 rounded"
-                min={new Date().toISOString().slice(0, 16)} // Prevent past dates
+                min={new Date().toISOString().slice(0, 16)}
               />
 
               <label className="text-sm font-medium">End Date</label>
@@ -876,7 +746,7 @@ const openModal = (data) => {
                 value={formData.enddate}
                 onChange={handleChange}
                 className="border p-2 rounded"
-                min={formData.startdate} // Prevent end date before start date
+                min={formData.startdate}
               />
             </div>
             <div className="flex justify-end gap-3 mt-6 sticky bg-white py-2">
@@ -897,6 +767,7 @@ const openModal = (data) => {
         </div>
       )}
 
+      {/* View Modal */}
       {viewModalOpen && viewData && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 mt-10">
           <div className="bg-white p-6 rounded-md w-[650px] max-h-[80vh] overflow-y-auto hide-scrollbar">
@@ -928,7 +799,7 @@ const openModal = (data) => {
               <div>
                 <strong>Description:</strong>
                 <div
-                  className="border rounded p-2 mt-1"
+                  className="border rounded p-2 mt-1 max-h-40 overflow-y-auto"
                   dangerouslySetInnerHTML={{
                     __html: viewData.description || "N/A",
                   }}

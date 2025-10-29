@@ -1260,10 +1260,29 @@ export async function GetContestStockList(token) {
 
 //Tournament
 
-export async function GetTournament(token) {
+// export async function GetTournament(token) {
+//   try {
+//     // const response = await axios.get(`${config.base_url}tournament/list?page=1&status=live&search=Mega`),
+//     const response = await axios.get(`${config.base_url}tournament/list`, {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+//     return response?.data;
+//   } catch (error) {
+//     return error?.response?.data;
+//   }
+// }
+
+
+// ✅ UPDATED GetTournament function
+export async function GetTournament(token, queryParams = "") {
   try {
-    // const response = await axios.get(`${config.base_url}tournament/list?page=1&status=live&search=Mega`),
-    const response = await axios.get(`${config.base_url}tournament/list`, {
+    const url = queryParams 
+      ? `${config.base_url}tournament/list?${queryParams}`
+      : `${config.base_url}tournament/list`;
+      
+    const response = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

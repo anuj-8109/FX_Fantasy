@@ -76,10 +76,10 @@ export default function AddEditTournament() {
     stocks: Yup.array()
       .min(1, "At least one stock is required")
       .max(2, "You can add maximum 2 stocks only")
-      .test('valid-stocks', 'All stocks must be selected', function (value) {
-        if (!value || value.length === 0) return false;
-        return value.every(stock => stock.stock_id && stock.stock_name);
-      }),
+      // .test('valid-stocks', 'All stocks must be selected', function (value) {
+      //   if (!value || value.length === 0) return false;
+      //   return value.every(stock => stock.stock_id && stock.stock_name);
+      // }),
   });
 
   const isFormChanged = (values) => {
