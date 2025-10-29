@@ -13,8 +13,10 @@ const Bank_Modal = db.Bank;
 const Contestjoin_Modal = db.Contestjoin;
 const Notification_Modal = db.Notification;
 
-class Clients {
+const ioSocket = require("../Utils/ioSocketReturn");
+const io = ioSocket.getIO();
 
+class Clients {
 
   async AddClient(req, res) {
 
@@ -560,7 +562,7 @@ class Clients {
         const payoutRequest = await Payout_Modal.findById(payoutRequestId);
   
         if (!payoutRequest) {
-          return resolve.json({ status: false, message: 'Payout request not found.' });
+          return res.json({ status: false, message: 'Payout request not found.' });
         }
   
         // Fetch the client record
@@ -590,7 +592,7 @@ class Clients {
 
 
    const notificationTitle = 'Important Update';
-   const  notificationBody = "";
+   let  notificationBody = "";
     if (status === '1') {
     notificationBody =`Withdrawal request of ₹${payoutRequest.amount} was Approved`;
     }
@@ -607,7 +609,7 @@ class Clients {
       await resultn.save();
    
            const clientIds = [client._id];
-       /*           
+         
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
@@ -617,7 +619,7 @@ const socketData = {
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-*/
+
 
 
 

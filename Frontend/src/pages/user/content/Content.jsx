@@ -37,7 +37,7 @@ function Content() {
   }, []);
 
   return (
-    <div className="max-w-3xl mx-auto p-4">
+    <div className="max-w-6xl mx-auto p-4">
       <div className="flex justify-between items-center mb-6 border p-1 rounded-xl shadow-sm bg-gray-50">        {/* Left: Back button */}
         <h2 className="text-2xl font-bold">Content</h2>
         {/* Right: Heading */}

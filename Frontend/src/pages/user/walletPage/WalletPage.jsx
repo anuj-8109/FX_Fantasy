@@ -126,34 +126,39 @@ const WalletPage = () => {
 
   /** Withdraw */
   const handleWithdraw = async (bank) => {
-    const { value: formValues } = await Swal.fire({
+    const { value: amount } = await Swal.fire({
       title: "Withdraw Money",
       input: "number",
-      focusConfirm: false,
+      inputLabel: "Enter amount to withdraw (₹)",
+      inputPlaceholder: "Minimum ₹500",
       showCancelButton: true,
       confirmButtonText: "Submit",
       cancelButtonText: "Cancel",
-      preConfirm: () => {
-        const amount = document.getElementById("swal-amount").value;
-        if (!amount || amount <= 0) Swal.showValidationMessage("Enter valid amount");
-        if (amount < 100) Swal.showValidationMessage("Minimum ₹100");
-        return { amount };
+      inputValidator: (value) => {
+        if (!value || value <= 0) return "Enter valid amount";
+        if (value < 100) return "Minimum ₹100";
       },
     });
 
-    if (!formValues || !bank) return;
+    if (!amount || !bank) return;
 
     try {
       const result = await withdrolmoney(token, {
         clientId: userId,
-        amount: parseInt(formValues.amount),
+        amount: parseInt(amount),
         remark: `Withdraw to ${bank.name} (A/C ${bank.accountno.slice(-4)})`,
         type: "withdraw",
         date: new Date().toISOString(),
       });
-      if (result.status) Swal.fire("Success", "Withdrawal requested", "success");
-      fetchAllHistories();
-    } catch {
+
+      if (result.status) {
+        Swal.fire("Success", "Withdrawal requested", "success");
+        fetchAllHistories();
+      } else {
+        Swal.fire("Error", result.message || "Withdrawal failed", "error");
+      }
+    } catch (error) {
+      console.error(error);
       Swal.fire("Error", "Withdrawal failed", "error");
     }
   };
