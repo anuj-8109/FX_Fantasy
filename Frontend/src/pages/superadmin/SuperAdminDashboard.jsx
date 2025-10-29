@@ -137,13 +137,13 @@ function SuperAdminDashboard() {
     },
     {
       title: "Total Revenue",
-      value: dashboardData.totalRevenue || 0, // 👈 API se total revenue aayega
+      value: dashboardData.contestJoinTotalAmount || 0, // 👈 API se total revenue aayega
       icon: <FaRupeeSign />, // from react-icons/fa
       route: "/superadmin/revenue", // ya jaha revenue details dikhte ho
     },
     {
       title: "Total Winnings",
-      value: dashboardData.totalWinnings || 0, // 👈 API se total winnings aayega
+      value: dashboardData.prizePoolTotalAmount || 0, // 👈 API se total winnings aayega
       icon: <FaMedal />, // from react-icons/fa
       route: "/superadmin/winning", // ya jaha winnings details dikhte ho
     },
