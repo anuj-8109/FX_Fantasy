@@ -6,10 +6,10 @@ import { Eye } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
-function UpcomingTournament() {
+function CancelledTournament() {
   const navigate = useNavigate();
   const [tournament, setTournament] = useState([]);
-  const [allUpcomingTournaments, setAllUpcomingTournaments] = useState([]);
+  const [allCancelledTournaments, setAllCancelledTournaments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewData, setViewData] = useState(null);
@@ -52,24 +52,24 @@ function UpcomingTournament() {
         }
       }
 
-      // ✅ Now filter ONLY upcoming tournaments
-      const upcomingOnly = allTournaments.filter(
-      (t) => t.status?.toLowerCase() === "upcoming"
-    );
+      // ✅ Filter ONLY cancelled tournaments (where status = "cancelled" and del = false)
+      const cancelledOnly = allTournaments.filter(
+        (t) => t.status === "cancelled" 
+      );
 
-      setAllUpcomingTournaments(upcomingOnly);
+      setAllCancelledTournaments(cancelledOnly);
       
     } catch (error) {
       console.error("Error fetching tournaments:", error);
       toast.error("Error fetching tournaments");
-      setAllUpcomingTournaments([]);
+      setAllCancelledTournaments([]);
     }
     setLoading(false);
   };
 
   // ✅ Apply search filter and pagination on client side
   useEffect(() => {
-    let filtered = [...allUpcomingTournaments];
+    let filtered = [...allCancelledTournaments];
 
     // Apply search filter
     if (filterText && filterText.trim() !== "") {
@@ -87,7 +87,7 @@ function UpcomingTournament() {
     const paginated = filtered.slice(startIndex, endIndex);
 
     setTournament(paginated);
-  }, [allUpcomingTournaments, currentPage, rowsPerPage, filterText]);
+  }, [allCancelledTournaments, currentPage, rowsPerPage, filterText]);
 
   // Fetch data only once on mount
   useEffect(() => {
@@ -117,6 +117,20 @@ function UpcomingTournament() {
       width: "180px",
       sortable: true,
     },
+    // {
+    //   name: "Status",
+    //   selector: (row) => row.status,
+    //   exportValue: (row) => row.status || "N/A",
+    //   export: true,
+    //   width: "140px",
+    //   cell: (row) => {
+    //     return (
+    //       <span className="px-2 py-1 rounded-full text-sm font-medium bg-red-500 text-white">
+    //         Cancelled
+    //       </span>
+    //     );
+    //   },
+    // },
     {
       name: "Stocks",
       selector: (row) =>
@@ -149,6 +163,15 @@ function UpcomingTournament() {
       name: "End Date",
       selector: (row) => new Date(row.enddate).toLocaleString(),
       exportValue: (row) => row.enddate || "N/A",
+      export: true,
+      width: "170px",
+      sortable: true,
+    },
+    {
+      name: "Cancelled Date",
+      selector: (row) => 
+        row.updated_at ? new Date(row.updated_at).toLocaleString() : "N/A",
+      exportValue: (row) => row.updated_at || "N/A",
       export: true,
       width: "170px",
       sortable: true,
@@ -196,7 +219,7 @@ function UpcomingTournament() {
 
   return (
     <Content
-      Page_title="Upcoming Tournaments"
+      Page_title="Cancelled Tournaments"
       button_title="Back"
       button_status={true}
       route="/superadmin/dashboard"
@@ -230,7 +253,10 @@ function UpcomingTournament() {
                 <strong>Name:</strong> {viewData.name || "N/A"}
               </div>
               <div>
-                <strong>Status:</strong> {viewData.status || "N/A"}
+                <strong>Status:</strong>{" "}
+                <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-sm font-medium">
+                  Cancelled
+                </span>
               </div>
               <div>
                 <strong>Virtual Amount:</strong> {viewData.useamount || "N/A"}
@@ -242,6 +268,12 @@ function UpcomingTournament() {
               <div>
                 <strong>End Date:</strong>{" "}
                 {new Date(viewData.enddate).toLocaleString()}
+              </div>
+              <div>
+                <strong>Cancelled Date:</strong>{" "}
+                {viewData.updated_at
+                  ? new Date(viewData.updated_at).toLocaleString()
+                  : "N/A"}
               </div>
               <div>
                 <strong>Stocks:</strong>{" "}
@@ -274,4 +306,4 @@ function UpcomingTournament() {
   );
 }
 
-export default UpcomingTournament;
+export default CancelledTournament;

@@ -4,12 +4,12 @@ import { GetTournament } from "../../../services/SuperAdmin";
 import Content from "../../../components/superadmin/Content";
 import { Eye } from "lucide-react";
 import { toast } from "react-hot-toast";
-import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
 function CompletedTournament() {
   const navigate = useNavigate();
   const [tournament, setTournament] = useState([]);
+  const [allCompletedTournaments, setAllCompletedTournaments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewData, setViewData] = useState(null);
@@ -19,145 +19,102 @@ function CompletedTournament() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterText, setFilterText] = useState("");
 
-//   const fatchTournament = async () => {
-//     setLoading(true);
-//     try {
-//       const token = localStorage.getItem("token");
-//       const params = new URLSearchParams({
-//         page: currentPage,
-//         limit: rowsPerPage,
-//       });
-//       if (filterText) params.append("search", filterText);
+  const token = localStorage.getItem("token");
 
-//       const res = await GetTournament(token, params.toString());
-//       if (res?.status) {
-//         const now = new Date();
-//         const filtered = res.data
-//           .map((t) => {
-//             const start = new Date(t.startdate);
-//             const end = new Date(t.enddate);
-//             let status = "upcoming";
-//             if (start <= now && end >= now) status = "live";
-//             else if (end < now) status = "completed";
-//             return { ...t, status };
-//           })
-//           .filter((t) => t.status === "completed");
+  // ✅ Fetch ALL tournaments from ALL pages
+  const fatchTournament = async () => {
+    setLoading(true);
+    try {
+      let allTournaments = [];
+      let currentApiPage = 1;
+      let totalPages = 1;
 
-//         setTournament(filtered);
-//         setTotalRows(res.pagination?.total);
-//       } else toast.error(res?.message || "Failed to fetch");
-//     } catch (error) {
-//       toast.error("Error fetching tournaments");
-//     }
-//     setLoading(false);
-//   };
+      // ✅ Fetch all pages from API
+      while (currentApiPage <= totalPages) {
+        const params = new URLSearchParams({
+          page: currentApiPage,
+          limit: 100, // Fetch more at once to reduce API calls
+        });
 
+        const res = await GetTournament(token, params.toString());
 
-// const fatchTournament = async () => {
-//   setLoading(true);
-//   try {
-//     const token = localStorage.getItem("token");
-//     const params = new URLSearchParams();
-//     const res = await GetTournament(token, params.toString());
+        if (res?.status && res.data) {
+          allTournaments = [...allTournaments, ...res.data];
+          
+          // Update total pages from pagination response
+          if (res.pagination) {
+            totalPages = res.pagination.totalPages || 1;
+          }
+          
+          currentApiPage++;
+        } else {
+          break;
+        }
+      }
 
-//     if (res?.status) {
-//       const now = new Date();
-//       const filtered = res.data
-//         .map((t) => {
-//           const start = new Date(t.startdate);
-//           const end = new Date(t.enddate);
-//           let status = "upcoming";
-//           if (start <= now && end >= now) status = "live";
-//           else if (end < now) status = "completed";
-//           return { ...t, status };
-//         })
-//         .filter((t) => t.status === "completed");
+      // ✅ Now filter ONLY completed tournaments
+     const completedOnly = allTournaments.filter(
+  (t) => t.status?.toLowerCase() === "completed"
+);
 
-//       // ✅ handle pagination manually after filtering
-//       const startIdx = (currentPage - 1) * rowsPerPage;
-//       const paginated = filtered.slice(startIdx, startIdx + rowsPerPage);
-
-//       setTournament(paginated);
-//       setTotalRows(filtered.length);
-//     } else toast.error(res?.message || "Failed to fetch");
-//   } catch (error) {
-//     toast.error("Error fetching tournaments");
-//   }
-//   setLoading(false);
-// };
-
-
-const fatchTournament = async () => {
-  setLoading(true);
-  try {
-    const token = localStorage.getItem("token");
-    const res = await GetTournament(token);
-
-    if (res?.status) {
-      const now = new Date();
-      const completed = res.data
-        .map((t) => {
-          const start = new Date(t.startdate);
-          const end = new Date(t.enddate);
-          let status = "upcoming";
-          if (start <= now && end >= now) status = "live";
-          else if (end < now) status = "completed";
-          return { ...t, status };
-        })
-        .filter((t) => t.status === "completed");
-
-      // ✅ If you have a search filter
-      const filtered = filterText
-        ? completed.filter((t) =>
-            t.name.toLowerCase().includes(filterText.toLowerCase())
-          )
-        : completed;
-
-      // ✅ Now paginate locally
-      const startIndex = (currentPage - 1) * rowsPerPage;
-      const paginatedData = filtered.slice(
-        startIndex,
-        startIndex + rowsPerPage
-      );
-
-      setTournament(paginatedData);
-      setTotalRows(filtered.length); // pagination stays in sync
-    } else {
-      toast.error(res?.message || "Failed to fetch tournaments");
+      setAllCompletedTournaments(completedOnly);
+      
+    } catch (error) {
+      console.error("Error fetching tournaments:", error);
+      toast.error("Error fetching tournaments");
+      setAllCompletedTournaments([]);
     }
-  } catch (error) {
-    toast.error("Error fetching tournaments");
-  }
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
+  // ✅ Apply search filter and pagination on client side
+  useEffect(() => {
+    let filtered = [...allCompletedTournaments];
 
+    // Apply search filter
+    if (filterText && filterText.trim() !== "") {
+      filtered = filtered.filter((t) =>
+        t.name.toLowerCase().includes(filterText.toLowerCase().trim())
+      );
+    }
+
+    // Set total after filtering
+    setTotalRows(filtered.length);
+
+    // Apply client-side pagination
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    const paginated = filtered.slice(startIndex, endIndex);
+
+    setTournament(paginated);
+  }, [allCompletedTournaments, currentPage, rowsPerPage, filterText]);
+
+  // Fetch data only once on mount
   useEffect(() => {
     fatchTournament();
-  }, [currentPage, rowsPerPage, filterText]);
+  }, []);
 
-
-   // ✅ Handle page change - fetch new data from server
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
-  // ✅ Handle rows per page change
   const handleRowsPerPageChange = (newPerPage) => {
     setRowsPerPage(newPerPage);
     setCurrentPage(1);
   };
 
- const handleFilterChange = (text) => {
+  const handleFilterChange = (text) => {
     setFilterText(text);
-    setCurrentPage(1); // Reset to page 1 on search
+    setCurrentPage(1);
   };
 
   const columns = [
     {
       name: "Name",
       selector: (row) => row.name,
-      width: "200px",
+      exportValue: (row) => row.name || "N/A",
+      export: true,
+      width: "180px",
       sortable: true,
     },
     {
@@ -166,32 +123,47 @@ const fatchTournament = async () => {
         row.stocks?.length > 0
           ? row.stocks.map((s) => s.stock_name).join(", ")
           : "N/A",
-      width: "200px",
+      exportValue: (row) =>
+        row.stocks?.length > 0
+          ? row.stocks.map((s) => s.stock_name).join(", ")
+          : "N/A",
+      export: true,
+      width: "180px",
     },
     {
       name: "Virtual Amount",
       selector: (row) => row.useamount || "N/A",
-      width: "120px",
+      exportValue: (row) => row.useamount || "N/A",
+      export: true,
+      width: "140px",
     },
     {
       name: "Start Date",
       selector: (row) => new Date(row.startdate).toLocaleString(),
-      width: "160px",
+      exportValue: (row) => row.startdate || "N/A",
+      export: true,
+      width: "170px",
+      sortable: true,
     },
     {
       name: "End Date",
       selector: (row) => new Date(row.enddate).toLocaleString(),
-      width: "160px",
+      exportValue: (row) => row.enddate || "N/A",
+      export: true,
+      width: "170px",
+      sortable: true,
     },
     {
       name: "Action",
       cell: (row) => (
         <Eye
-          className="text-green-600 cursor-pointer"
+          className="text-green-600 cursor-pointer hover:text-green-700"
+          size={25}
           onClick={() => openViewModal(row)}
         />
       ),
-      width: "80px",
+      export: false,
+      width: "100px",
     },
     {
       name: "Contest",
@@ -207,6 +179,7 @@ const fatchTournament = async () => {
           View
         </button>
       ),
+      export: false,
       width: "130px",
     },
   ];
@@ -228,10 +201,11 @@ const fatchTournament = async () => {
       button_status={true}
       route="/superadmin/dashboard"
     >
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-       <Datatable
+      <div>
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          <Datatable
             columns={columns}
             data={tournament}
             totalRows={totalRows}
@@ -243,18 +217,23 @@ const fatchTournament = async () => {
             filterText={filterText}
             onFilterChange={handleFilterChange}
           />
-      )}
+        )}
+      </div>
 
+      {/* View Modal */}
       {viewModalOpen && viewData && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white p-6 rounded-md w-[650px] max-h-[80vh] overflow-y-auto">
+          <div className="bg-white p-6 rounded-md w-[650px] max-h-[80vh] overflow-y-auto hide-scrollbar">
             <h2 className="text-lg font-bold mb-4">Tournament Details</h2>
             <div className="space-y-3">
               <div>
-                <strong>Name:</strong> {viewData.name}
+                <strong>Name:</strong> {viewData.name || "N/A"}
               </div>
               <div>
-                <strong>Virtual Amount:</strong> {viewData.useamount}
+                <strong>Status:</strong> {viewData.status || "N/A"}
+              </div>
+              <div>
+                <strong>Virtual Amount:</strong> {viewData.useamount || "N/A"}
               </div>
               <div>
                 <strong>Start Date:</strong>{" "}
@@ -266,19 +245,23 @@ const fatchTournament = async () => {
               </div>
               <div>
                 <strong>Stocks:</strong>{" "}
-                {viewData.stocks?.map((s) => s.stock_name).join(", ")}
+                {viewData.stocks && viewData.stocks.length > 0
+                  ? viewData.stocks.map((s) => s.stock_name).join(", ")
+                  : "N/A"}
               </div>
               <div>
                 <strong>Description:</strong>
                 <div
                   className="border rounded p-2 mt-1 max-h-40 overflow-y-auto"
-                  dangerouslySetInnerHTML={{ __html: viewData.description }}
+                  dangerouslySetInnerHTML={{
+                    __html: viewData.description || "N/A",
+                  }}
                 />
               </div>
             </div>
-            <div className="flex justify-end mt-4">
+            <div className="flex justify-end mt-6">
               <button
-                className="px-4 py-2 bg-gray-600 text-white rounded"
+                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                 onClick={closeViewModal}
               >
                 Close

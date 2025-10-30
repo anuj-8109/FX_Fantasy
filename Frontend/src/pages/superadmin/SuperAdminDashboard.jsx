@@ -115,7 +115,7 @@ function SuperAdminDashboard() {
       title: "Cancelled Tournaments",
       value: dashboardData.tournamentCancelled,
       icon: <FaClipboardList />,
-      route: "/superadmin/tournament",
+      route: "/superadmin/cancelledtournament",
     },
     {
       title: "Total Contests",
@@ -127,13 +127,13 @@ function SuperAdminDashboard() {
       title: "Active Contests",
       value: dashboardData.contestActive,
       icon: <FaClipboardList />,
-      route: "/superadmin/contest",
+      route: "/superadmin/activecontest",
     },
     {
       title: "Inactive Contests",
       value: dashboardData.contestInactive,
       icon: <FaClipboardList />,
-      route: "/superadmin/contest",
+      route: "/superadmin/inactivecontest",
     },
     {
       title: "Total Revenue",

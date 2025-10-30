@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/DatatablePagination";
 import {
   GetTournament,
-  DeleteTournament,
   UpdateTournamentStatusActive,
+  UpdateTournamentStatus,
 } from "../../../services/SuperAdmin";
 import Content from "../../../components/superadmin/Content";
 import { Eye, Edit } from "lucide-react";
@@ -35,14 +35,14 @@ function Tournament() {
     setViewData(null);
   };
 
-  const handleDelete = async (row) => {
+  const handleCancel = async (row) => {
     const result = await Swal.fire({
       title: "Are you sure?",
-      text: "Do you want to delete this tournament?",
+      text: "Do you want to cancel this tournament? This action will process refunds.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
+      confirmButtonText: "Yes, cancel it!",
+      cancelButtonText: "No, keep it",
       customClass: {
         popup: "custom-swal-popup",
         title: "custom-swal-title",
@@ -52,18 +52,29 @@ function Tournament() {
       },
     });
 
-    if (result.isConfirmed) {
-      setLoading(true);
-      const res = await DeleteTournament(row._id, token);
-      setLoading(false);
+    if (!result.isConfirmed) return;
+
+    setLoading(true);
+
+    try {
+      const payload = {
+        id: row._id,
+        status: "cancelled",
+      };
+
+      const res = await UpdateTournamentStatus(payload, token);
 
       if (res?.status) {
-        toast.success("Deleted successfully!");
+        toast.success(res?.message || "Tournament cancelled successfully!");
         fetchTournament();
       } else {
-        toast.error(res?.message || "Failed to delete");
+        toast.error(res?.message || "Failed to cancel tournament");
       }
+    } catch (error) {
+      toast.error("Something went wrong!");
     }
+
+    setLoading(false);
   };
 
   const handleStatusChange = async (tournament) => {
@@ -142,6 +153,10 @@ function Tournament() {
           case "upcoming":
             bgColor = "bg-yellow-400";
             textColor = "text-black";
+            break;
+          case "cancelled":
+            bgColor = "bg-red-500";
+            textColor = "text-white";
             break;
           default:
             bgColor = "bg-gray-300";
@@ -260,7 +275,7 @@ function Tournament() {
               }`}
               disabled={!isUpcoming}
               onClick={() => {
-                if (isUpcoming) handleDelete(row);
+                if (isUpcoming) handleCancel(row);
               }}
             >
               Cancel
@@ -323,6 +338,45 @@ function Tournament() {
     setCurrentPage(1);
   };
 
+  // const fetchTournament = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const params = new URLSearchParams({
+  //       page: currentPage,
+  //       limit: rowsPerPage,
+  //     });
+
+  //     if (filterText) {
+  //       params.append("search", filterText);
+  //     }
+
+  //     const res = await GetTournament(token, params.toString());
+
+  //     if (res?.status) {
+  //       const now = new Date();
+  //       const updatedData = res.data.map((t) => {
+  //         const start = new Date(t.startdate);
+  //         const end = new Date(t.enddate);
+
+  //         let newStatus = t.status;
+  //         if (start > now) newStatus = "upcoming";
+  //         else if (start <= now && end >= now) newStatus = "live";
+  //         else if (end < now) newStatus = "completed";
+
+  //         return { ...t, status: newStatus };
+  //       });
+
+  //       setTournament(updatedData);
+  //       setTotalRows(res.pagination?.total || 0);
+  //     } else {
+  //       toast.error(res?.message || "Failed to fetch");
+  //     }
+  //   } catch (error) {
+  //     toast.error("Error fetching tournaments");
+  //   }
+  //   setLoading(false);
+  // };
+
   const fetchTournament = async () => {
     setLoading(true);
     try {
@@ -338,20 +392,8 @@ function Tournament() {
       const res = await GetTournament(token, params.toString());
 
       if (res?.status) {
-        const now = new Date();
-        const updatedData = res.data.map((t) => {
-          const start = new Date(t.startdate);
-          const end = new Date(t.enddate);
-
-          let newStatus = t.status;
-          if (start > now) newStatus = "upcoming";
-          else if (start <= now && end >= now) newStatus = "live";
-          else if (end < now) newStatus = "completed";
-
-          return { ...t, status: newStatus };
-        });
-
-        setTournament(updatedData);
+        // Directly use backend status
+        setTournament(res.data);
         setTotalRows(res.pagination?.total || 0);
       } else {
         toast.error(res?.message || "Failed to fetch");

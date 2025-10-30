@@ -55,6 +55,9 @@ import InactiveClient from "../pages/superadmin/clients/InActiveClient";
 import UpcomingTournament from "../pages/superadmin/tournament/UpComingTournament";
 import CompletedTournament from "../pages/superadmin/tournament/CompletedTornament";
 import LiveTournament from "../pages/superadmin/tournament/LiveTournament";
+import CancelledTournament from "../pages/superadmin/tournament/CancelledTournament";
+import ActiveContest from "../pages/superadmin/contest/ActiveContest";
+import InactiveContest from "../pages/superadmin/contest/InActiveContest";
 
 const SuperAdminRoutes = () => {
   return (
@@ -114,6 +117,9 @@ const SuperAdminRoutes = () => {
         <Route path="upcomingtournament" element={<UpcomingTournament />} />
         <Route path="completedtournamnet" element={<CompletedTournament />} />
         <Route path="livetournament" element={<LiveTournament />} />
+        <Route path="cancelledtournament" element={<CancelledTournament/>}/>
+        <Route path="activecontest" element={<ActiveContest/>}/>
+        <Route path="inactivecontest" element={<InactiveContest/>}/>
       </Route>
     </>
   );
