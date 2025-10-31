@@ -1220,7 +1220,7 @@ async getContestRanking(req, res) {
 
 }
 
-
+/*
 async function returnstockcloseprice(symbol) {
     try {
       
@@ -1275,6 +1275,34 @@ async function returnstockcloseprice(symbol) {
        
        return;
     }
+}
+*/
+
+async function returnstockcloseprice(symbol) {
+  try {
+    if (!symbol || symbol.trim() === "") {
+      throw new Error("Symbol is required");
+    }
+
+    const cleanSymbol = symbol.trim().toUpperCase(); // normalize case
+
+    // Symbol name mapping (same as before)
+    let mappedSymbol = cleanSymbol;
+   
+    // 🎯 Find in MongoDB (case-insensitive)
+    const liveData = await LivePrice_Modal.findOne({
+      ticker: { $regex: `^${mappedSymbol}$`, $options: "i" },
+    });
+
+    if (liveData && liveData.midPrice) {
+      return liveData.midPrice; // ✅ midPrice mil gaya
+    } else {
+      throw new Error(`midPrice not found for symbol: ${symbol}`);
+    }
+  } catch (error) {
+    console.error("❌ Error in returnstockcloseprice:", error.message);
+    return null; // fail-safe return
+  }
 }
 
 
