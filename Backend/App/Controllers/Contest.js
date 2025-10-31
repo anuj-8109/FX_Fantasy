@@ -5,6 +5,7 @@ const Contest_Model = db.Contest;
 const Stock_Modal = db.Stock;
 const Contestjoin_Modal = db.Contestjoin;
 const Clients_Modal = db.Clients;
+const LivePrice_Modal = db.LivePrice;
 
 class ContestController {
 
@@ -359,8 +360,7 @@ async statusChangeActive(req, res) {
   async getStock(req, res) {
     try {
 
-      const result = await Stock_Modal.find({ segment: "C" });
-
+      const result = await LivePrice_Modal.find({});
       return res.json({
         status: true,
         message: "get",
@@ -405,6 +405,74 @@ async getContestsByTournamentId(req, res) {
     }
 }
 
+
+
+async getContestRanking(req, res) {
+  try {
+    const { contest_id, page = 1 } = req.body;
+    const limit = 10;
+
+    if (!contest_id) {
+      return res.status(400).json({
+        status: false,
+        message: "contest_id is required",
+      });
+    }
+
+    // Pagination setup
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    // Contest join data fetch with user details
+    const participants = await Contestjoin_Modal.find({ contest_id })
+      .populate("client_id", "FullName Email PhoneNo") // client details
+      .populate("contest_id", "name") // contest details
+      .sort({ points: -1 }) // Highest points first
+      .skip(skip)
+      .limit(limitNum);
+
+    // Total joined users
+    const total = await Contestjoin_Modal.countDocuments({ contest_id });
+
+    // Ranking assign manually (1st, 2nd, ...)
+    const allParticipants = await Contestjoin_Modal.find({ contest_id })
+      .sort({ points: -1 })
+      .select("client_id points");
+
+    // Map userId => rank
+    const rankMap = {};
+    allParticipants.forEach((p, index) => {
+      rankMap[p.client_id.toString()] = index + 1;
+    });
+
+    // Add rank into response
+    const rankedParticipants = participants.map((p) => {
+      const obj = p.toObject();
+      obj.rank = rankMap[p.client_id._id.toString()];
+      return obj;
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "Contest ranking fetched successfully",
+      contest_id,
+      total_users: total,
+      page: pageNum,
+      limit: limitNum,
+      data: rankedParticipants,
+    });
+  } catch (error) {
+    console.error("Error fetching contest ranking:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
+
 }
 
 // 🧩 Helper for contest refund
@@ -437,7 +505,7 @@ async function processContestRefund(contestId) {
   }
 
   // Mark contest as cancelled/deleted
-  // contest.del = true;
+  //contest.del = true;
   contest.status = "cancelled";
   await contest.save();
 
