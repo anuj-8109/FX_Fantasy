@@ -140,15 +140,14 @@ const startFXSocket = () => {
 
       if (response.messageType === "A" && response.data?.length > 0) {
         const data = response.data;
-
         const formatted = {
           ticker: data[1],
           date: data[2],
           bidSize: data[3] || 0,
           bidPrice: data[4] || 0,
           midPrice: data[5] || 0,
-          askPrice: data[6] || 0,
-          askSize: data[7] || 0,
+          askPrice: data[7] || 0,
+          askSize: data[6] || 0,
           createdAt: new Date(),
         };
 
