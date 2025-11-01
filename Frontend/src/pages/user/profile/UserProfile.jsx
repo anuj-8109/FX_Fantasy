@@ -15,6 +15,8 @@ const UserProfile = () => {
     const [bankdetail, setBankDetail] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [isBankModalOpen, setIsBankModalOpen] = useState(false);
+
     const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
     const [editProfileData, setEditProfileData] = useState({
         FullName: "",
@@ -96,7 +98,7 @@ const UserProfile = () => {
                 // Update with backend image URL
                 const newImageUrl = `${res.data.image}`;
                 console.log("New image URL:", newImageUrl);
-                
+
                 setUserDetails(prev => ({ ...prev, image: res.data.image }));
                 setSelectedImage(newImageUrl);
                 setPreviewImage(null);
@@ -167,6 +169,7 @@ const UserProfile = () => {
         { label: "FAQ", path: "/faq", icon: FileQuestion },
         { label: "Blog", path: "/blog", icon: BookOpen },
         { label: "Content", path: "/content", icon: FileText },
+        { label: "Bank Details", icon: FileText, action: () => setIsBankModalOpen(true) },
     ];
 
     return (
@@ -197,7 +200,7 @@ const UserProfile = () => {
                     {/* Left Sidebar - Profile Card */}
                     <div className="lg:col-span-2 bg-white shadow-md rounded-xl p-2 text-center">
                         <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden border-4 border-gray-100 relative flex items-center justify-center text-4xl font-bold bg-gradient-to-br from-blue-500 to-cyan-400 text-white">
-                            <div 
+                            <div
                                 className="w-full h-full cursor-pointer"
                                 onClick={() => displayImage && setIsPreviewOpen(true)}
                             >
@@ -226,12 +229,12 @@ const UserProfile = () => {
                             {menuItems.map((item) => (
                                 <button
                                     key={item.path}
-                                    onClick={() => navigate(item.path)}
-                                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
-                                        item.active 
-                                            ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md" 
-                                            : "hover:bg-gray-100 text-gray-700"
-                                    }`}
+                                    onClick={() => item.action ? item.action() : navigate(item.path)}
+
+                                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${item.active
+                                        ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md"
+                                        : "hover:bg-gray-100 text-gray-700"
+                                        }`}
                                 >
                                     <div className="flex items-center gap-3">
                                         <item.icon className="h-5 w-5" />
@@ -260,21 +263,19 @@ const UserProfile = () => {
                         <div className="flex border-b">
                             <button
                                 onClick={() => setActiveTab("profile")}
-                                className={`flex-1 p-4 text-sm font-semibold transition ${
-                                    activeTab === "profile"
-                                        ? "border-b-3 border-orange-600 text-orange-600 bg-orange-50"
-                                        : "text-gray-500 hover:bg-gray-50"
-                                }`}
+                                className={`flex-1 p-4 text-sm font-semibold transition ${activeTab === "profile"
+                                    ? "border-b-3 border-orange-600 text-orange-600 bg-orange-50"
+                                    : "text-gray-500 hover:bg-gray-50"
+                                    }`}
                             >
                                 Profile Info
                             </button>
                             <button
                                 onClick={() => setActiveTab("management")}
-                                className={`flex-1 p-4 text-sm font-semibold transition ${
-                                    activeTab === "management"
-                                        ? "border-b-3 border-orange-600 text-orange-600 bg-orange-50"
-                                        : "text-gray-500 hover:bg-gray-50"
-                                }`}
+                                className={`flex-1 p-4 text-sm font-semibold transition ${activeTab === "management"
+                                    ? "border-b-3 border-orange-600 text-orange-600 bg-orange-50"
+                                    : "text-gray-500 hover:bg-gray-50"
+                                    }`}
                             >
                                 Profile Management
                             </button>
@@ -333,17 +334,31 @@ const UserProfile = () => {
                                         <p className="text-sm text-gray-600 mb-3">Add your bank account or UPI for payouts.</p>
                                         <div className="flex gap-3">
                                             <button
-                                                onClick={() => navigate("/bankdetail")}
+                                                onClick={() => {
+                                                    if (bankdetail.length > 0) {
+                                                        toast.error("Please delete your previous bank before adding a new one.");
+                                                    } else {
+                                                        navigate("/bankdetail");
+                                                    }
+                                                }}
                                                 className="px-5 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm font-medium shadow-md hover:shadow-lg transition"
                                             >
                                                 Add Bank
                                             </button>
+
                                             <button
-                                                onClick={() => navigate("/bankdetail")}
+                                                onClick={() => {
+                                                    if (bankdetail.length > 0) {
+                                                        toast.error("Please delete your previous bank before adding a new one.");
+                                                    } else {
+                                                        navigate("/bankdetail");
+                                                    }
+                                                }}
                                                 className="px-5 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm font-medium shadow-md hover:shadow-lg transition"
                                             >
                                                 Add UPI
                                             </button>
+
                                         </div>
                                     </div>
                                 </div>
@@ -353,7 +368,7 @@ const UserProfile = () => {
                 </div>
 
                 {/* Bank Details Section */}
-                <div className="mt-8 bg-white shadow-md rounded-xl p-2">
+                {/* <div className="mt-8 bg-white shadow-md rounded-xl p-2">
                     <h2 className="text-2xl font-bold mb-4 text-gray-800">Bank Details</h2>
                     {bankdetail.length > 0 ? (
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -395,7 +410,9 @@ const UserProfile = () => {
                             </button>
                         </div>
                     )}
-                </div>
+                </div> */}
+
+
             </div>
 
             {/* Image Preview Modal */}
@@ -412,6 +429,8 @@ const UserProfile = () => {
                     />
                 </div>
             )}
+
+
 
             {/* Edit Profile Modal */}
             {isEditProfileModalOpen && (
@@ -565,6 +584,74 @@ const UserProfile = () => {
                                 Save Photo
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+
+            {/* 🏦 Bank Details Modal */}
+            {isBankModalOpen && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+                    onClick={() => setIsBankModalOpen(false)}
+                >
+                    <div
+                        className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl p-6 max-h-[85vh] overflow-y-auto"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-2xl font-bold text-gray-800">Bank Details</h2>
+                            <button
+                                onClick={() => setIsBankModalOpen(false)}
+                                className="text-gray-500 hover:text-red-500 font-semibold text-lg"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {bankdetail.length > 0 ? (
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {bankdetail.map((bank) => (
+                                    <div
+                                        key={bank._id}
+                                        className="border-2 rounded-xl p-5 shadow-sm hover:shadow-lg transition-all bg-gradient-to-br from-blue-50 to-cyan-50 relative"
+                                    >
+                                        <h3 className="text-lg font-bold mb-3 text-gray-800">{bank.name}</h3>
+                                        <div className="space-y-2 text-sm">
+                                            <p className="text-gray-700">
+                                                <span className="font-semibold">Account:</span> {bank.accountno}
+                                            </p>
+                                            <p className="text-gray-700">
+                                                <span className="font-semibold">IFSC:</span> {bank.ifsc}
+                                            </p>
+                                            <p className="text-gray-700">
+                                                <span className="font-semibold">Branch:</span> {bank.branch}
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            onClick={() => handleDeleteBank(bank._id)}
+                                            className="absolute top-3 right-3 px-3 py-1 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 shadow-md transition"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12 border-2 border-dashed rounded-lg bg-gray-50">
+                                <p className="text-gray-500 text-lg">No bank details available</p>
+                                <button
+                                    onClick={() => {
+                                        setIsBankModalOpen(false);
+                                        navigate("/bankdetail");
+                                    }}
+                                    className="mt-4 px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                                >
+                                    Add Bank Details
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
