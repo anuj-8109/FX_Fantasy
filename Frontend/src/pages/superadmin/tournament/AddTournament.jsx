@@ -82,9 +82,13 @@ export default function AddEditTournament() {
     name: Yup.string().required("Tournament name is required"),
     description: Yup.string().required("Description is required"),
     startdate: Yup.date().required("Start date is required"),
-    enddate: Yup.date().required("End date is required"),
-    useamount: Yup.string().required("Virtual amount is required"),
-    stocks: Yup.array().min(1).max(2),
+    enddate: Yup.date()
+      .required("End date is required")
+      .min(Yup.ref('startdate'), "End date must be after start date"),
+    useamount: Yup.number()
+      .typeError("Virtual amount must be a number")
+      .required("Virtual amount is required")
+      .positive("Virtual amount must be positive"),
   });
 
   const isFormChanged = (values) => {
@@ -92,29 +96,57 @@ export default function AddEditTournament() {
     return JSON.stringify(values) !== JSON.stringify(originalData);
   };
 
-  const handleSubmit = async (values) => {
-    // ✅ Pehle check karo form changed hai ya nahi (values ko mutate karne se pehle)
-    if (tournamentData && !isFormChanged(values)) {
-      toast("No changes made", { icon: "ℹ️" });
-      return;
-    }
-
-    const confirm = await Swal.fire({
-      title: tournamentData ? "Update Tournament?" : "Add Tournament?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes",
-      cancelButtonText: "Cancel",
-    });
-
-    if (!confirm.isConfirmed) return;
-
+  const handleSubmit = async (values, formikBag) => {
     try {
+      // ✅ Manual stocks validation
+      if (!values.stocks || values.stocks.length === 0) {
+        toast.error("Please add at least one stock");
+        formikBag?.setSubmitting(false);
+        return;
+      }
+
+      const hasEmptyStock = values.stocks.some(stock => !stock.ticker || stock.ticker === "");
+      if (hasEmptyStock) {
+        toast.error("Please select all stocks before saving");
+        formikBag?.setSubmitting(false);
+        return;
+      }
+
+      const tickers = values.stocks.map(s => s.ticker);
+      const hasDuplicates = tickers.length !== new Set(tickers).size;
+      if (hasDuplicates) {
+        toast.error("Duplicate stocks are not allowed");
+        formikBag?.setSubmitting(false);
+        return;
+      }
+
+      if (tournamentData && !isFormChanged(values)) {
+        toast("No changes made", { icon: "ℹ️" });
+        formikBag?.setSubmitting(false);
+        return;
+      }
+
+      const confirm = await Swal.fire({
+        title: tournamentData ? "Update Tournament?" : "Add Tournament?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        cancelButtonText: "Cancel",
+      });
+
+      if (!confirm.isConfirmed) {
+        formikBag?.setSubmitting(false);
+        return;
+      }
+
       setLoading(true);
 
-      // ✅ Yaha safe fresh payload banao — values ko mutate NAHI karna
       const payload = {
-        ...values,
+        name: values.name,
+        description: values.description,
+        useamount: values.useamount,
+        startdate: values.startdate,
+        enddate: values.enddate,
         add_by,
         status: "upcoming",
         stocks: values.stocks.map((c) => ({
@@ -136,9 +168,10 @@ export default function AddEditTournament() {
       }
     } catch (err) {
       toast.error("Something went wrong");
-      console.log(err);
+      console.error("Error:", err);
     } finally {
       setLoading(false);
+      formikBag?.setSubmitting(false);
     }
   };
 
@@ -161,47 +194,72 @@ export default function AddEditTournament() {
       name: "stocks",
       label: "Stocks",
       type: "custom",
-      required: true,
       colClass: "col-span-4",
       render: (field, form, values, setFieldValue) => {
+        // ✅ Check if form is submitted and stocks have errors
+        const formSubmitted = form.submitCount > 0;
+
         return (
           <div>
-            {values.stocks.map((c, idx) => (
-              <div key={idx} className="mb-3">
-                <label className="text-sm font-medium block mb-1">
-                  Stock {idx + 1}
-                </label>
-                <select
-                  value={c.ticker}
-                  onChange={(e) => {
-                    const updated = [...values.stocks];
-                    updated[idx].ticker = e.target.value;
-                    setFieldValue("stocks", updated);
-                  }}
-                  className="w-full border px-3 py-2 rounded"
-                >
-                  <option value="">Select Stock</option>
-                  {stocksListData.map((item) => (
-                    <option key={item._id} value={item.ticker}>
-                      {item.ticker.toUpperCase()}
-                    </option>
-                  ))}
-                </select>
+            
 
-                {values.stocks.length > 1 && (
-                  <button
-                    type="button"
-                    className="text-red-500 mt-1"
-                    onClick={() => {
-                      const updated = values.stocks.filter((_, i) => i !== idx);
+            {values.stocks?.map((c, idx) => {
+              // ✅ Check if this stock is empty and form was submitted
+              const isEmpty = !c.ticker || c.ticker === "";
+              const showError = formSubmitted && isEmpty;
+
+              return (
+                <div key={idx} className="mb-3 p-3 border rounded bg-gray-50">
+                  <label className="text-sm font-medium block mb-1">
+                    Stock {idx + 1}
+                  </label>
+                  <select
+                    value={c.ticker || ""}
+                    onChange={(e) => {
+                      const updated = [...values.stocks];
+                      updated[idx].ticker = e.target.value;
                       setFieldValue("stocks", updated);
                     }}
+                    className={`w-full border px-3 py-2 rounded ${showError ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                      }`}
                   >
-                    Remove
-                  </button>
-                )}
-              </div>
-            ))}
+                    <option value="">-- Select Stock --</option>
+                    {stocksListData.map((item) => (
+                      <option key={item._id} value={item.ticker}>
+                        {item.ticker.toUpperCase()}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* ✅ Show error message if empty and submitted */}
+                  {showError && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Please select a stock
+                    </p>
+                  )}
+
+                  {values.stocks.length > 1 && (
+                    <button
+                      type="button"
+                      className="text-red-500 mt-2 text-sm hover:underline"
+                      onClick={() => {
+                        const updated = values.stocks.filter((_, i) => i !== idx);
+                        setFieldValue("stocks", updated);
+                      }}
+                    >
+                      ✕ Remove Stock
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* ✅ Show error if no stocks at all */}
+            {formSubmitted && values.stocks.length === 0 && (
+              <p className="text-red-500 text-sm mt-1">
+                At least one stock is required
+              </p>
+            )}
 
             {values.stocks.length < 2 && (
               <button
@@ -209,9 +267,9 @@ export default function AddEditTournament() {
                 onClick={() =>
                   setFieldValue("stocks", [...values.stocks, { ticker: "" }])
                 }
-                className="text-blue-600"
+                className="text-blue-600 text-sm hover:underline mt-2"
               >
-                + Add More
+                + Add Another Stock
               </button>
             )}
           </div>
