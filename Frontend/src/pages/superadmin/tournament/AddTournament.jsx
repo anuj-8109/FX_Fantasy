@@ -5,8 +5,6 @@ import toast from "react-hot-toast";
 import * as Yup from "yup";
 import Content from "../../../components/superadmin/Content";
 import ReusableForm from "../../../extracomponents/ResuableForm";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {
   addTournament,
   UpdateTournament,
@@ -18,16 +16,16 @@ export default function AddEditTournament() {
   const location = useLocation();
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
+
   const tournamentData = location.state?.tournament || null;
 
   const [loading, setLoading] = useState(false);
-  const [stocklistData, setStocklistData] = useState([]);
-  const [showDropdown, setShowDropdown] = useState({});
+  const [stocksListData, setStocksListData] = useState([]);
 
   const [initialValues, setInitialValues] = useState({
     name: "",
     description: "",
-    stocks: [{ stock_id: "", stock_name: "" }],
+    stocks: [{ ticker: "" }],
     useamount: "",
     startdate: "",
     enddate: "",
@@ -36,50 +34,57 @@ export default function AddEditTournament() {
 
   const [originalData, setOriginalData] = useState(null);
 
+  const toLocalDateTime = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}T${String(
+      date.getHours()
+    ).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+  };
+
   useEffect(() => {
-    fetchStockList();
+    fetchStocksList();
+
     if (tournamentData) {
-      setInitialValues({
+      const stocksArr = tournamentData.stocks?.length
+        ? tournamentData.stocks.map((c) => ({ ticker: c.stock_name }))
+        : [{ ticker: "" }];
+
+      const formattedData = {
         name: tournamentData.name || "",
         description: tournamentData.description || "",
-        stocks: tournamentData.stocks || [{ stock_id: "", stock_name: "" }],
+        stocks: stocksArr,
         useamount: tournamentData.useamount || "",
-        startdate: tournamentData.startdate || "",
-        enddate: tournamentData.enddate || "",
+        startdate: toLocalDateTime(tournamentData.startdate),
+        enddate: toLocalDateTime(tournamentData.enddate),
         status: tournamentData.status || "upcoming",
-      });
-      setOriginalData(tournamentData);
+      };
+
+      setInitialValues(formattedData);
+      setOriginalData(formattedData);
     }
   }, [tournamentData]);
 
-  const fetchStockList = async () => {
+  const fetchStocksList = async () => {
     try {
       const res = await stocklist(token);
-      if (res?.status) setStocklistData(res.data || []);
-      else Swal.fire("Failed to fetch stocks");
+      if (res?.status) setStocksListData(res.data || []);
+      else Swal.fire("Failed to fetch stocks list");
     } catch (err) {
       console.error(err);
     }
   };
 
-  // Validation schema - FIXED: No nested object validation
   const validationSchema = Yup.object({
     name: Yup.string().required("Tournament name is required"),
     description: Yup.string().required("Description is required"),
-    startdate: Yup.date()
-      .required("Start date is required")
-      .min(new Date(), "Start date cannot be in the past"),
-    enddate: Yup.date()
-      .required("End date is required")
-      .min(Yup.ref("startdate"), "End date cannot be before start date"),
+    startdate: Yup.date().required("Start date is required"),
+    enddate: Yup.date().required("End date is required"),
     useamount: Yup.string().required("Virtual amount is required"),
-    stocks: Yup.array()
-      .min(1, "At least one stock is required")
-      .max(2, "You can add maximum 2 stocks only")
-      // .test('valid-stocks', 'All stocks must be selected', function (value) {
-      //   if (!value || value.length === 0) return false;
-      //   return value.every(stock => stock.stock_id && stock.stock_name);
-      // }),
+    stocks: Yup.array().min(1).max(2),
   });
 
   const isFormChanged = (values) => {
@@ -88,12 +93,10 @@ export default function AddEditTournament() {
   };
 
   const handleSubmit = async (values) => {
-    // Validate stocks manually
-    const invalidStocks = values.stocks.filter(s => !s.stock_id || !s.stock_name);
-    if (invalidStocks.length > 0) {
-      toast.error("Please select valid stocks for all entries");
-      return;
-    }
+    // ✅ VERY IMPORTANT — now sending `stock_name` (not ticker)
+    values.stocks = values.stocks.map((c) => ({
+      stock_name: c.ticker,
+    }));
 
     if (tournamentData && !isFormChanged(values)) {
       toast("No changes made", { icon: "ℹ️" });
@@ -102,31 +105,24 @@ export default function AddEditTournament() {
 
     const confirm = await Swal.fire({
       title: tournamentData ? "Update Tournament?" : "Add Tournament?",
-      text: "Do you want to save this tournament?",
       icon: "question",
       showCancelButton: true,
-      confirmButtonText: "Yes, Save",
+      confirmButtonText: "Yes",
       cancelButtonText: "Cancel",
-      buttonsStyling: false,
-      customClass: {
-        popup: "custom-swal-popup",
-        title: "custom-swal-title",
-        htmlContainer: "custom-swal-text",
-        confirmButton: "custom-swal-confirm",
-        cancelButton: "custom-swal-cancel",
-
-      },
     });
 
     if (!confirm.isConfirmed) return;
 
     try {
       setLoading(true);
+
       const payload = {
         ...values,
         add_by,
         status: "upcoming",
       };
+
+      if (tournamentData) payload.id = tournamentData._id;
 
       const res = tournamentData
         ? await UpdateTournament(payload, token)
@@ -140,13 +136,12 @@ export default function AddEditTournament() {
       }
     } catch (err) {
       toast.error("Something went wrong");
-      console.error(err);
+      console.log(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fields Configuration
   const tournamentFields = [
     {
       name: "name",
@@ -168,160 +163,60 @@ export default function AddEditTournament() {
       type: "custom",
       required: true,
       colClass: "col-span-4",
-      hideError: true, // Hide automatic error rendering
-      render: (field, form, values, setFieldValue) => (
-        <div className="space-y-4">
-          {values.stocks.map((s, idx) => {
-            // Filter stocks based on search
-            const searchTerm = s.stock_name?.trim().toLowerCase();
-            const filtered = searchTerm
-              ? stocklistData.filter(
-                (st) =>
-                  st.symbol.toLowerCase().includes(searchTerm) ||
-                  st.tradesymbol?.toLowerCase().includes(searchTerm)
-              )
-              : stocklistData.slice(0, 50);
-
-            const shouldShowDropdown =
-              showDropdown[idx] && filtered.length > 0 && !s.stock_id;
-
-            const hasError = form.submitCount > 0 && (!s.stock_id || !s.stock_name);
-
-            return (
-              <div key={idx} className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Stock {idx + 1} <span className="text-red-500">*</span>
+      render: (field, form, values, setFieldValue) => {
+        return (
+          <div>
+            {values.stocks.map((c, idx) => (
+              <div key={idx} className="mb-3">
+                <label className="text-sm font-medium block mb-1">
+                  Stock {idx + 1}
                 </label>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="text"
-                    value={s.stock_name}
-                    onChange={(e) => {
-                      const updated = [...values.stocks];
-                      updated[idx].stock_name = e.target.value;
-                      updated[idx].stock_id = "";
+                <select
+                  value={c.ticker}
+                  onChange={(e) => {
+                    const updated = [...values.stocks];
+                    updated[idx].ticker = e.target.value;
+                    setFieldValue("stocks", updated);
+                  }}
+                  className="w-full border px-3 py-2 rounded"
+                >
+                  <option value="">Select Stock</option>
+                  {stocksListData.map((item) => (
+                    <option key={item._id} value={item.ticker}>
+                      {item.ticker.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+
+                {values.stocks.length > 1 && (
+                  <button
+                    type="button"
+                    className="text-red-500 mt-1"
+                    onClick={() => {
+                      const updated = values.stocks.filter((_, i) => i !== idx);
                       setFieldValue("stocks", updated);
-                      setShowDropdown({ ...showDropdown, [idx]: true });
                     }}
-                    onFocus={() => {
-                      setShowDropdown({ ...showDropdown, [idx]: true });
-                    }}
-                    onBlur={() => {
-                      setTimeout(() => {
-                        setShowDropdown({ ...showDropdown, [idx]: false });
-                      }, 200);
-                    }}
-                    placeholder="Search stock by symbol or name"
-                    className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 ${hasError
-                        ? 'border-red-500 focus:ring-red-500'
-                        : 'border-gray-300 focus:ring-blue-500'
-                      }`}
-                  />
-                  {values.stocks.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updated = values.stocks.filter(
-                          (_, i) => i !== idx
-                        );
-                        setFieldValue("stocks", updated);
-                      }}
-                      className="text-red-600 hover:text-red-800 font-bold text-lg px-3 py-2 border border-red-300 rounded-md hover:bg-red-50"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-
-                {/* Selected stock display */}
-                {s.stock_id && (
-                  <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md text-sm text-green-700">
-                    ✓ Selected: <strong>{s.stock_name}</strong>
-                  </div>
-                )}
-
-                {/* Error message */}
-                {hasError && (
-                  <div className="text-red-500 text-sm mt-1">
-                    Please select a valid stock
-                  </div>
-                )}
-
-                {/* Suggestions dropdown */}
-                {shouldShowDropdown && (
-                  <div className="absolute z-10 bg-white border border-gray-300 rounded-md shadow-lg mt-1 w-full max-h-[240px] overflow-y-scroll">
-                    <ul>
-                      {filtered.length > 0 ? (
-                        filtered.map((stock) => (
-                          <li
-                            key={stock._id}
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              const updated = [...values.stocks];
-                              updated[idx] = {
-                                stock_id: stock._id,
-                                stock_name: stock.symbol,
-                                instrument_token: stock.instrument_token,
-                                lotsize: stock.lotsize,
-                              };
-                              setFieldValue("stocks", updated);
-                              setShowDropdown({
-                                ...showDropdown,
-                                [idx]: false,
-                              });
-                            }}
-                            className="px-4 py-3 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0"
-                          >
-                            <div className="font-semibold text-gray-800">
-                              {stock.symbol}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {stock.tradesymbol}
-                            </div>
-                          </li>
-                        ))
-                      ) : (
-                        <li className="px-4 py-3 text-gray-500 text-sm">
-                          No stocks found
-                        </li>
-                      )}
-                    </ul>
-                  </div>
+                  >
+                    Remove
+                  </button>
                 )}
               </div>
-            );
-          })}
+            ))}
 
-          {/* Add stock button */}
-          {values.stocks.length < 2 && (
-            <button
-              type="button"
-              onClick={() =>
-                setFieldValue("stocks", [
-                  ...values.stocks,
-                  { stock_id: "", stock_name: "" },
-                ])
-              }
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1 mt-2"
-            >
-              <span className="text-lg">+</span> Add Another Stock
-            </button>
-          )}
-
-          {values.stocks.length >= 2 && (
-            <div className="text-sm text-gray-500 italic">
-              Maximum 2 stocks can be added
-            </div>
-          )}
-
-          {/* General array validation error */}
-          {form.submitCount > 0 && form.errors.stocks && typeof form.errors.stocks === 'string' && (
-            <div className="text-red-500 text-sm mt-2">
-              {form.errors.stocks}
-            </div>
-          )}
-        </div>
-      ),
+            {values.stocks.length < 2 && (
+              <button
+                type="button"
+                onClick={() =>
+                  setFieldValue("stocks", [...values.stocks, { ticker: "" }])
+                }
+                className="text-blue-600"
+              >
+                + Add More
+              </button>
+            )}
+          </div>
+        );
+      },
     },
     {
       name: "useamount",

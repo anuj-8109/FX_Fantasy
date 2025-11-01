@@ -31,9 +31,9 @@ import Client from "../pages/superadmin/clients/Clients";
 import AddContest from "../pages/superadmin/contest/AddContest";
 import Tournament from "../pages/superadmin/tournament/Tournament";
 import AddTournament from "../pages/superadmin/tournament/AddTournament";
-import HelpDesk from "../pages/superadmin/helpdesk/HelpDesk"
-import Chatreply from "../pages/superadmin/helpdesk/Chatreply"
-import Withdrawal from "../pages/superadmin/withdrawal/Withdrawal"
+import HelpDesk from "../pages/superadmin/helpdesk/HelpDesk";
+import Chatreply from "../pages/superadmin/helpdesk/Chatreply";
+import Withdrawal from "../pages/superadmin/withdrawal/Withdrawal";
 import Viewtournamentcontest from "../pages/superadmin/contest/Viewtournamentcontest";
 import Kycinformation from "../pages/superadmin/basicsettings/kycinformation";
 import Referearn from "../pages/superadmin/basicsettings/Referearn";
@@ -47,12 +47,19 @@ import AddEditBlog from "../pages/superadmin/blog/AddBlog";
 import AddEditContent from "../pages/superadmin/content/AddContent";
 import AddEditBanner from "../pages/superadmin/banner/AddBanner";
 import AddEditClient from "../pages/superadmin/clients/AddClient";
-import Revenue from "../pages/superadmin/revenue/Revenue"
-import Winnings from "../pages/superadmin/winning/Winnings"
-import Notifications from "../pages/superadmin/notification/Notifiaction"
+import Revenue from "../pages/superadmin/revenue/Revenue";
+import Winnings from "../pages/superadmin/winning/Winnings";
+import Notifications from "../pages/superadmin/notification/Notifiaction";
+import ActiveClient from "../pages/superadmin/clients/ActiveClient";
+import InactiveClient from "../pages/superadmin/clients/InActiveClient";
+import UpcomingTournament from "../pages/superadmin/tournament/UpComingTournament";
+import CompletedTournament from "../pages/superadmin/tournament/CompletedTornament";
+import LiveTournament from "../pages/superadmin/tournament/LiveTournament";
+import CancelledTournament from "../pages/superadmin/tournament/CancelledTournament";
+import ActiveContest from "../pages/superadmin/contest/ActiveContest";
+import InactiveContest from "../pages/superadmin/contest/InActiveContest";
 
 const SuperAdminRoutes = () => {
-
   return (
     <>
       <Route path="/superadmin" element={<SuperAdminLayout />}>
@@ -89,22 +96,30 @@ const SuperAdminRoutes = () => {
         <Route path="help" element={<HelpDesk />} />
         <Route path="chatreply/:ticketId" element={<Chatreply />} />
         <Route path="withdrawal" element={<Withdrawal />} />
-        <Route path="tournamentcontest" element={<Viewtournamentcontest/>}/>
-        <Route path="kycinformation" element={<Kycinformation/>}/>
-        <Route path="referearn" element={<Referearn/>}/>
-        <Route path="kycapproval" element={<Kycapproval/>}/>
-        <Route path="bankdetail"  element={<Bankdetails/>}/>
-        <Route path="viewcontest/:id" element={<ViewContest/>}/>
-        <Route path="add-coupon" element={<AddCoupon/>}/>
-        <Route path="add-faq" element={<AddEditFAQ/>}/>
-        <Route path="add-news" element={<AddEditNews/>}/>
-        <Route path="add-blog" element={<AddEditBlog/>}/>
-        <Route path="add-content" element={<AddEditContent/>}/>
-        <Route path="add-banner" element={<AddEditBanner/>}/>
-        <Route path="add-client" element={<AddEditClient/>}/>
-        <Route path="revenue" element={<Revenue/>}/>
-         <Route path="winning" element={<Winnings/>}/>
-          <Route path="notifications" element={<Notifications/>}/>
+        <Route path="tournamentcontest" element={<Viewtournamentcontest />} />
+        <Route path="kycinformation" element={<Kycinformation />} />
+        <Route path="referearn" element={<Referearn />} />
+        <Route path="kycapproval" element={<Kycapproval />} />
+        <Route path="bankdetail" element={<Bankdetails />} />
+        <Route path="viewcontest/:id" element={<ViewContest />} />
+        <Route path="add-coupon" element={<AddCoupon />} />
+        <Route path="add-faq" element={<AddEditFAQ />} />
+        <Route path="add-news" element={<AddEditNews />} />
+        <Route path="add-blog" element={<AddEditBlog />} />
+        <Route path="add-content" element={<AddEditContent />} />
+        <Route path="add-banner" element={<AddEditBanner />} />
+        <Route path="add-client" element={<AddEditClient />} />
+        <Route path="revenue" element={<Revenue />} />
+        <Route path="winning" element={<Winnings />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="activeclient" element={<ActiveClient />} />
+        <Route path="inactiveclient" element={<InactiveClient />} />
+        <Route path="upcomingtournament" element={<UpcomingTournament />} />
+        <Route path="completedtournamnet" element={<CompletedTournament />} />
+        <Route path="livetournament" element={<LiveTournament />} />
+        <Route path="cancelledtournament" element={<CancelledTournament/>}/>
+        <Route path="activecontest" element={<ActiveContest/>}/>
+        <Route path="inactivecontest" element={<InactiveContest/>}/>
       </Route>
     </>
   );

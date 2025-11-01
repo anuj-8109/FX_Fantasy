@@ -288,39 +288,81 @@ class List {
       return res.status(500).json({ status: false, message: 'Server error', data: [] });
     }
   }
+
 async getUpcomingTournaments(req, res) {
-    try {
-        const { search } = req.query;
+  try {
+    const { search } = req.query;
 
-        const matchConditions = { 
-            del: false,
-         //   status: "upcoming" 
-        };
+    // 🎯 Base match condition
+    const matchConditions = { del: false };
 
-        if (search && search.trim() !== "") {
-            matchConditions.$or = [
-                { name: { $regex: search, $options: "i" } },
-                { description: { $regex: search, $options: "i" } }
-            ];
-        }
-
-        const tournaments = await Tournament_Model.find(matchConditions)
-            .sort({ created_at: -1 });
-
-        return res.status(200).json({
-            status: true,
-            message: "Upcoming tournaments retrieved successfully",
-            data: tournaments
-        });
-
-    } catch (error) {
-        return res.status(500).json({ 
-            status: false, 
-            message: "Server error", 
-            error: error.message 
-        });
+    if (search && search.trim() !== "") {
+      matchConditions.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
     }
+
+    const tournaments = await Tournament_Model.aggregate([
+      { $match: matchConditions },
+
+      // 🎯 Join contests
+      {
+        $lookup: {
+          from: "contests",
+          localField: "_id",
+          foreignField: "tournament_id",
+          as: "contestDetails",
+        },
+      },
+
+      // 🎯 Filter contests (del:false, activestatus:true)
+      {
+        $addFields: {
+          contestDetails: {
+            $filter: {
+              input: "$contestDetails",
+              as: "contest",
+              cond: {
+                $and: [
+                  { $eq: ["$$contest.del", false] },
+                  { $eq: ["$$contest.activestatus", true] },
+                ],
+              },
+            },
+          },
+        },
+      },
+
+      // 🎯 Calculate totals (count + prize sum)
+      {
+        $addFields: {
+          contestCount: { $size: "$contestDetails" },
+          totalPrizePool: {
+            $sum: "$contestDetails.prize_pool",
+          },
+        },
+      },
+
+      // 🎯 Sort
+      { $sort: { created_at: -1 } },
+    ]);
+
+    return res.status(200).json({
+      status: true,
+      message: "Tournaments with contests retrieved successfully",
+      data: tournaments,
+    });
+  } catch (error) {
+    console.error("Error in getUpcomingTournaments:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
 }
+
 async getContestsByTournamentId(req, res) {
     try {
         const { tournament_id } = req.params;

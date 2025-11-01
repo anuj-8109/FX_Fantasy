@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import Content from "../../../components/superadmin/Content";
 
-const ActiveClient = () => {
+const InactiveClient = () => {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(false);
   const [bankOpen, setBankOpen] = useState(false);
@@ -21,11 +21,11 @@ const ActiveClient = () => {
 
   const token = localStorage.getItem("token");
 
-  // ✅ Fetch only Active Clients
+  // ✅ Fetch only Inactive Clients
   const fetchClients = async () => {
     setLoading(true);
     const data = {
-      status: "1", // 👈 only active clients
+      status: "0", // 👈 only inactive clients
       kyc_verification: "",
       search: filterText,
       add_by: "",
@@ -38,7 +38,7 @@ const ActiveClient = () => {
       setClients(response?.data);
       setTotalRows(response?.pagination?.totalRecords || 0);
     } else {
-      toast.error(response?.message || "Failed to load active clients");
+      toast.error(response?.message || "Failed to load inactive clients");
     }
     setLoading(false);
   };
@@ -97,7 +97,7 @@ const ActiveClient = () => {
     fetchClients();
   }, [currentPage, rowsPerPage, filterText]);
 
-  // ✅ Columns — no Status or Action column now
+  // ✅ Columns — same as ActiveClients, no Status or Action
   const columns = [
     {
       name: "Name",
@@ -188,7 +188,7 @@ const ActiveClient = () => {
 
   return (
     <Content
-      Page_title="Active Clients"
+      Page_title="Inactive Clients"
       button_title="Back"
       button_status={true}
       route={"/superadmin/dashboard"}
@@ -260,4 +260,4 @@ const ActiveClient = () => {
   );
 };
 
-export default ActiveClient;
+export default InactiveClient;

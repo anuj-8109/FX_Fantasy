@@ -316,7 +316,7 @@ async function processTournamentRefund(tournamentId) {
     }
 
     // Mark contest as cancelled/deleted
-    contest.del = true;
+   // contest.del = true;
     contest.status = "cancelled";
     await contest.save();
   }

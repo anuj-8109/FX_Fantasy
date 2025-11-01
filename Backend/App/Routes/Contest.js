@@ -9,7 +9,8 @@ const {
     statusChange,
     statusChangeActive,
     getStock,
-    getContestsByTournamentId
+    getContestsByTournamentId,
+    getContestRanking
 } = require('../Controllers/Contest');
 
 router.post('/contest/add', auth, AddContest);
@@ -21,6 +22,7 @@ router.post('/contest/change-status', auth, statusChange);
 router.post('/contest/change-status-active', auth, statusChangeActive);
 router.get('/contest/stocklist', auth, getStock);
 router.get('/contest/getcontestsbytournamentid/:tournament_id', auth, getContestsByTournamentId); 
+router.post('/contest/getcontestranking', auth, getContestRanking); 
 
 
 module.exports = router;

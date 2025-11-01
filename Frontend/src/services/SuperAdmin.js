@@ -1274,14 +1274,13 @@ export async function GetContestStockList(token) {
 //   }
 // }
 
-
 // ✅ UPDATED GetTournament function
 export async function GetTournament(token, queryParams = "") {
   try {
-    const url = queryParams 
+    const url = queryParams
       ? `${config.base_url}tournament/list?${queryParams}`
       : `${config.base_url}tournament/list`;
-      
+
     const response = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -1641,21 +1640,16 @@ export async function kyc_verification(token, data) {
 
 export async function GetDashboardCount(token) {
   try {
-    const response = await axios.get(
-      `${config.base_url}dashboard/getcount`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await axios.get(`${config.base_url}dashboard/getcount`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Server error" };
   }
 }
-
-
 
 // ✅ 1️⃣ Get latest 20 notifications with unread count
 export const getNotification = async () => {
@@ -1711,15 +1705,31 @@ export const changeNotificationStatus = async (id, status) => {
 export const changeAllNotificationStatus = async () => {
   try {
     const token = localStorage.getItem("token");
-    const res = await axios.get(`${config.base_url}dashboard/allstatuschangenotifiction`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await axios.get(
+      `${config.base_url}dashboard/allstatuschangenotifiction`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
     return res.data;
   } catch (error) {
     console.error("Error changing all notifications:", error);
     return { status: false, message: "Error updating all statuses" };
   }
 };
+
+export async function GetContestRankingSuperAmin(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}contest/getcontestranking`,
+      data,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
 
 // Contest API Ends Here
 

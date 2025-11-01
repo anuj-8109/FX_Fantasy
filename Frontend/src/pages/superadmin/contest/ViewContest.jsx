@@ -55,7 +55,7 @@ const ViewContest = () => {
           phone: item?.client_id?.PhoneNo || "-",
           rank: item?.rank || "-",
           points: item?.points || 0,
-          wallet_balance: item?.wallet_balance || 0,
+          // wallet_balance: item?.wallet_balance || 0,
           joined_at: item?.joined_at
             ? new Date(item.joined_at).toLocaleString("en-GB", {
               day: "2-digit",
@@ -239,9 +239,9 @@ const ViewContest = () => {
                     <th className="border px-3 py-2 text-left">Phone</th>
                     <th className="border px-3 py-2 text-left">Rank</th>
                     <th className="border px-3 py-2 text-left">Points</th>
-                    <th className="border px-3 py-2 text-left">
+                    {/* <th className="border px-3 py-2 text-left">
                       Wallet Balance
-                    </th>
+                    </th> */}
                     <th className="border px-3 py-2 text-left">Joined At</th>
                   </tr>
                 </thead>
@@ -255,7 +255,7 @@ const ViewContest = () => {
                       <td className="border px-3 py-2">{m.rank}</td>
                       <td className="border px-3 py-2">{Number(m.points).toFixed(2)}</td>
 
-                      <td className="border px-3 py-2">₹{m.wallet_balance}</td>
+                      {/* <td className="border px-3 py-2">₹{m.wallet_balance}</td> */}
                       <td className="border px-3 py-2">{m.joined_at}</td>
                     </tr>
                   ))}

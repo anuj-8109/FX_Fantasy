@@ -82,6 +82,8 @@ const UserDashboard = () => {
               prizePool: item.prizePool || "₹0",
               spots: item.spots || "N/A",
               activestatus: item.activestatus, // ✅ still store it for reference
+              totalPrizePool: item.totalPrizePool,
+              contestCount: item.contestCount,
             };
           });
 
@@ -135,9 +137,11 @@ const UserDashboard = () => {
       className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-[0.675rem] shadow-md"
       style={{ backgroundColor: color }}
     >
-      {name[0]}
+{name?.charAt(0)?.toUpperCase()}
     </div>
   );
+
+  const capitalize = (str) => (str ? str.toUpperCase() : "");
 
   return (
     <div className="min-h-screen bg-gray-50 ">
@@ -174,7 +178,7 @@ const UserDashboard = () => {
 
           {/* Dots */}
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1 sm:space-x-2">
-            {banners.map((_, idx) => (
+            {banners?.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentBannerIndex(idx)}
@@ -231,16 +235,31 @@ const UserDashboard = () => {
               </div>
 
               {/* Company Info */}
-              <div className="px-5 py-3 border-b border-gray-100 flex justify-between items-center flex-wrap gap-3">
-                {/* Primary Company */}
-                <div className="flex items-center gap-2">
-                  {getCompanyIcon(contest.company, contest.companyColor)}
-                  <div>
-                    <p className="font-semibold text-gray-800 text-sm">
-                      {contest.company || "—"}
-                    </p>
-                    <p className="text-xs text-gray-500">Primary Stock</p>
+              <div className="px-5 py-3 border-b border-gray-100">
+                <div className="flex justify-between items-center flex-wrap gap-3">
+                  {/* Primary Company */}
+                  <div className="flex items-center gap-2">
+                    {getCompanyIcon(contest.company, contest.companyColor)}
+                    <div>
+                      <p className="font-semibold text-gray-800 text-sm">
+                        {capitalize(contest.company) || "-"}
+                      </p>
+                      <p className="text-xs text-gray-500">Primary Stock</p>
+                    </div>
                   </div>
+
+                  {/* Partner Company */}
+                  {contest.partner && (
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <p className="font-semibold text-gray-800 text-sm">
+                          {capitalize(contest.partner)}
+                        </p>
+                        <p className="text-xs text-gray-500">Partner</p>
+                      </div>
+                      {getCompanyIcon(contest.partner, contest.partnerColor)}
+                    </div>
+                  )}
                 </div>
 
                 {/* Partner Company */}
@@ -259,26 +278,34 @@ const UserDashboard = () => {
 
               {/* Stats */}
               <div className="px-5 py-4 grid grid-cols-3 gap-3">
+                {/* ✅ Prize Pool with Trophy Icon */}
                 <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
-                  <p className="text-gray-900 font-semibold text-sm">
-                    {contest.prizePool}
+                  <p className="text-gray-900 font-bold text-sm flex items-center justify-center">
+                    <Trophy className="w-4 h-4 mr-1 text-yellow-600 flex-shrink-0" />
+                    {contest.totalPrizePool}
                   </p>
-                  <p className="text-xs text-gray-500">Prize Pool</p>
+                  <p className="text-gray-500 text-xs font-medium">
+                    Prize Pool
+                  </p>
                 </div>
 
+                {/* ✅ Time Left */}
                 <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
-                  <p className="text-gray-700 font-semibold text-sm whitespace-nowrap">
+                  <p className="text-red-600 font-bold text-sm whitespace-nowrap overflow-hidden text-ellipsis">
                     {getTimeLeft(contest)}
                   </p>
-                  <p className="text-xs text-gray-500">Time Left</p>
+                  <p className="text-gray-500 text-xs font-medium">Time Left</p>
                 </div>
 
+                {/* ✅ Total Contests with Better Icon */}
                 <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
-                  <p className="text-gray-900 font-semibold text-sm flex items-center justify-center">
-                    <Users className="w-4 h-4 mr-1 text-gray-600" />
-                    {contest.participants}
+                  <p className="text-gray-900 font-bold text-sm flex items-center justify-center">
+                    <Target className="w-4 h-4 mr-1 text-indigo-600 flex-shrink-0" />
+                    {contest.contestCount}
                   </p>
-                  <p className="text-xs text-gray-500">Participants</p>
+                  <p className="text-gray-500 text-xs font-medium">
+                    Total Contests
+                  </p>
                 </div>
               </div>
             </div>
