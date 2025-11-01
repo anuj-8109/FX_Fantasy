@@ -93,11 +93,7 @@ export default function AddEditTournament() {
   };
 
   const handleSubmit = async (values) => {
-    // ✅ VERY IMPORTANT — now sending `stock_name` (not ticker)
-    values.stocks = values.stocks.map((c) => ({
-      stock_name: c.ticker,
-    }));
-
+    // ✅ Pehle check karo form changed hai ya nahi (values ko mutate karne se pehle)
     if (tournamentData && !isFormChanged(values)) {
       toast("No changes made", { icon: "ℹ️" });
       return;
@@ -116,10 +112,14 @@ export default function AddEditTournament() {
     try {
       setLoading(true);
 
+      // ✅ Yaha safe fresh payload banao — values ko mutate NAHI karna
       const payload = {
         ...values,
         add_by,
         status: "upcoming",
+        stocks: values.stocks.map((c) => ({
+          stock_name: c.ticker,
+        })),
       };
 
       if (tournamentData) payload.id = tournamentData._id;
