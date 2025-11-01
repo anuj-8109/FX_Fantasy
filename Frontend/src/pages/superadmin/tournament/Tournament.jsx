@@ -172,16 +172,20 @@ function Tournament() {
         );
       },
     },
-    {
-      name: "Stock",
-      selector: (row) =>
-        row.stocks && row.stocks.length > 0
-          ? row.stocks.map((s) => s.stock_name).join(", ")
-          : "N/A",
-      exportValue: (row) => row.stocks || "N/A",
-      export: true,
-      width: "150px",
-    },
+   {
+  name: "Stock",
+  selector: (row) =>
+    row.stocks && row.stocks.length > 0
+      ? row.stocks.map((s) => s.stock_name.toUpperCase()).join(", ")
+      : "N/A",
+  exportValue: (row) =>
+    row.stocks && row.stocks.length > 0
+      ? row.stocks.map((s) => s.stock_name.toUpperCase()).join(", ")
+      : "N/A",
+  export: true,
+  width: "150px",
+}
+,
     {
       name: "Virtual Amount",
       selector: (row) => row.useamount || "N/A",
@@ -462,7 +466,7 @@ function Tournament() {
               <div>
                 <strong>Stocks:</strong>{" "}
                 {viewData.stocks && viewData.stocks.length > 0
-                  ? viewData.stocks.map((s) => s.stock_name).join(", ")
+                  ? viewData.stocks.map((s) => s.stock_name.toUpperCase()).join(", ")
                   : "N/A"}
               </div>
               <div>

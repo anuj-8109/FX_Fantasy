@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/DatatablePagination";
 import { Eye } from "lucide-react";
-import { GetContestsList } from "../../../services/SuperAdmin";
-import { getContestRanking } from "../../../services/User";
+import { GetContestsList,GetContestRankingSuperAmin } from "../../../services/SuperAdmin";
 import Content from "../../../components/superadmin/Content";
 import { toast } from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -65,7 +64,7 @@ const Revenue = () => {
   // 🧩 Show participants popup
   const handleViewParticipants = async (contestId) => {
     try {
-      const response = await getContestRanking(token, {
+      const response = await GetContestRankingSuperAmin(token, {
         contest_id: contestId,
       });
       if (
@@ -82,8 +81,6 @@ const Revenue = () => {
           <tr style="border-bottom: 1px solid #eee;">
             <td style="padding: 8px;">${i + 1}</td>
             <td style="padding: 8px;">${p.client_id?.FullName ?? "N/A"}</td>
-            <td style="padding: 8px;">${p.rank ?? "-"}</td>
-            <td style="padding: 8px;">₹${p.total ?? 0}</td>
           </tr>`;
         });
 
@@ -92,10 +89,8 @@ const Revenue = () => {
           <table style="width: 100%; border-collapse: collapse;">
             <thead>
               <tr style="border-bottom: 1px solid #ddd; background: #f8f9fa;">
-                <th style="padding: 8px;">#</th>
+                <th style="padding: 8px;">S.No</th>
                 <th style="padding: 8px;">Name</th>
-                <th style="padding: 8px;">Rank</th>
-                <th style="padding: 8px;">Amount</th>
               </tr>
             </thead>
             <tbody>${rows}</tbody>

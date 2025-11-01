@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Datatable from "../../../extracomponents/DatatablePagination";
 import { Eye } from "lucide-react";
-import { GetContestsList } from "../../../services/SuperAdmin";
-import { getContestRanking } from "../../../services/User";
+import { GetContestsList,GetContestRankingSuperAmin,GetContestDetails } from "../../../services/SuperAdmin";
 import Content from "../../../components/superadmin/Content";
 import { toast } from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -61,68 +60,166 @@ const Winnings = () => {
   };
 
   // 👁 Show participants and their winnings
-  const handleViewParticipants = async (contest) => {
-    try {
-      const response = await getContestRanking(token, {
-        contest_id: contest._id,
-      });
+// const handleViewParticipants = async (contest) => {
+//   try {
+//     // ✅ 1. Fetch participants
+//     const rankingRes = await GetContestRankingSuperAmin(token, {
+//       contest_id: contest._id,
+//     });
 
-      if (
-        response?.status &&
-        Array.isArray(response.data) &&
-        response.data.length > 0
-      ) {
-        const participants = response.data;
-        const prizeMap = {};
+//     // ✅ 2. Fetch prize distribution
+//     const detailsRes = await GetContestDetails(token, contest._id);
 
-        // Build map: rank → amount
-        contest.prize_distribution?.forEach((prize) => {
-          prizeMap[prize.rank] = prize.amount;
-        });
+//     const prizeDistribution = detailsRes?.data?.prize_distribution || [];
+//     const prizeMap = {};
+//     prizeDistribution.forEach((p) => {
+//       prizeMap[p.rank] = p.amount;
+//     });
 
-        // Build table rows
-        const rows = participants
-          .map((p, i) => {
-            const winning = prizeMap[p.rank] || 0;
-            return `
-              <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding:8px;">${i + 1}</td>
-                <td style="padding:8px;">${p.client_id?.FullName ?? "N/A"}</td>
-                <td style="padding:8px;">${p.rank ?? "-"}</td>
-                <td style="padding:8px;">₹${winning}</td>
-              </tr>`;
-          })
-          .join("");
+//     let htmlContent = "";
 
-        const htmlContent = `
-          <div style="text-align:left;">
-            <table style="width:100%;border-collapse:collapse;">
-              <thead>
-                <tr style="border-bottom:1px solid #ddd;background:#f8f9fa;">
-                  <th style="padding:8px;">#</th>
-                  <th style="padding:8px;">Name</th>
-                  <th style="padding:8px;">Rank</th>
-                  <th style="padding:8px;">Winning Amount</th>
-                </tr>
-              </thead>
-              <tbody>${rows}</tbody>
-            </table>
-          </div>`;
+//     // ✅ CASE 1: No participants in contest
+//     if (!rankingRes?.status || rankingRes.data.length === 0) {
+//       htmlContent = `
+//         <div style="padding:20px; text-align:center;">
+//             <img src="https://cdn-icons-png.flaticon.com/512/4076/4076500.png" width="90" style="opacity:0.6;"/>
+//             <h3 style="margin-top:10px; color:#666;">No Participants Found</h3>
+//             <p style="color:#888;">This contest has no joined users yet.</p>
+//         </div>
+//       `;
+//     } 
+//     else {
+//       // ✅ CASE 2: Participants Exist → build table
+//       const rows = rankingRes.data
+//         .map((p) => {
+//           const winning = prizeMap[p.rank] || 0;
+//           return `
+//             <tr style="border-bottom: 1px solid #eee;">
+//               <td style="padding:10px;">${p.client_id?.FullName ?? "N/A"}</td>
+//               <td style="padding:10px;">${p.rank ?? "-"}</td>
+//               <td style="padding:10px;">₹${winning}</td>
+//             </tr>`;
+//         })
+//         .join("");
 
-        Swal.fire({
-          title: "Participants & Winnings",
-          html: htmlContent,
-          width: 600,
-          confirmButtonText: "Close",
-        });
-      } else {
-        Swal.fire("No Data", "No participants found for this contest.", "info");
-      }
-    } catch (error) {
-      console.error("Error fetching participants:", error);
-      Swal.fire("Error", "Failed to fetch participants.", "error");
+//       htmlContent = `
+//         <div style="text-align:left;">
+//           <table style="width:100%; border-collapse:collapse;">
+//             <thead>
+//               <tr style="background:#f5f6f8; border-bottom:1px solid #ddd;">
+//                 <th style="padding:10px;">Name</th>
+//                 <th style="padding:10px;">Rank</th>
+//                 <th style="padding:10px;">Winning Amount</th>
+//               </tr>
+//             </thead>
+//             <tbody>${rows}</tbody>
+//           </table>
+//         </div>
+//       `;
+//     }
+
+//     // ✅ SweetAlert modal
+//     Swal.fire({
+//       title: "Participants & Winnings",
+//       html: htmlContent,
+//       width: 600,
+//       confirmButtonText: "Close",
+//     });
+
+//   } catch (error) {
+//     console.error("Error:", error);
+//     Swal.fire("Error", "Something went wrong.", "error");
+//   }
+// };
+
+const handleViewParticipants = async (contest) => {
+  try {
+    // ✅ 1. Fetch participants
+    const rankingRes = await GetContestRankingSuperAmin(token, {
+      contest_id: contest._id,
+    });
+
+    // ✅ 2. Fetch prize distribution
+    const detailsRes = await GetContestDetails(token, contest._id);
+
+    const prizeDistribution = detailsRes?.data?.prize_distribution || [];
+    const prizeMap = {};
+    prizeDistribution.forEach((p) => {
+      prizeMap[p.rank] = p.amount;
+    });
+
+    let htmlContent = "";
+
+    // ✅ CASE 1: No participants in contest
+    if (!rankingRes?.status || rankingRes.data.length === 0) {
+      htmlContent = `
+        <div style="
+          display:flex;
+          flex-direction:column;
+          justify-content:center;
+          align-items:center;
+          padding:25px;
+          text-align:center;
+        ">
+            <img 
+              src="https://cdn-icons-png.flaticon.com/512/4076/4076500.png" 
+              width="90" 
+              style="opacity:0.8; margin-bottom:15px;"
+            />
+
+            <h3 style="margin:0; font-size:20px; color:#444;">
+              No Participants Found
+            </h3>
+
+            <p style="color:#777; font-size:14px; margin-top:5px;">
+              This contest has no joined users yet.
+            </p>
+        </div>
+      `;
+    } 
+    else {
+      // ✅ CASE 2: Participants Exist → build table
+      const rows = rankingRes.data
+        .map((p) => {
+          const winning = prizeMap[p.rank] || 0;
+          return `
+            <tr style="border-bottom: 1px solid #eee;">
+              <td style="padding:10px;">${p.client_id?.FullName ?? "N/A"}</td>
+              <td style="padding:10px;">${p.rank ?? "-"}</td>
+              <td style="padding:10px;">₹${winning}</td>
+            </tr>`;
+        })
+        .join("");
+
+      htmlContent = `
+        <div style="text-align:left;">
+          <table style="width:100%; border-collapse:collapse;">
+            <thead>
+              <tr style="background:#f5f6f8; border-bottom:1px solid #ddd;">
+                <th style="padding:10px;">Name</th>
+                <th style="padding:10px;">Rank</th>
+                <th style="padding:10px;">Winning Amount</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
     }
-  };
+
+    // ✅ SweetAlert modal
+    Swal.fire({
+      title: "Participants & Winnings",
+      html: htmlContent,
+      width: 600,
+      confirmButtonText: "Close",
+    });
+
+  } catch (error) {
+    console.error("Error:", error);
+    Swal.fire("Error", "Something went wrong.", "error");
+  }
+};
 
   // 🧱 Table columns
   const columns = [
