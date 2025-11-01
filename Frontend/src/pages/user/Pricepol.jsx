@@ -120,21 +120,21 @@ function Pricepol() {
         //   setJoinedContests([]);
         // }
 
-if (data.status && data.data.length > 0) {
-  // ✅ Filter only those contests that belong to the current tournament
-  const filteredContests = data.data.filter(
-    (c) => c?.contest_id?.tournament_id?._id === tournamentId
-  );
+        if (data.status && data.data.length > 0) {
+          // ✅ Filter only those contests that belong to the current tournament
+          const filteredContests = data.data.filter(
+            (c) => c?.contest_id?.tournament_id?._id === tournamentId
+          );
 
-  setMyContests(filteredContests);
+          setMyContests(filteredContests);
 
-  // ✅ update joinedContests also
-  const joinedIds = filteredContests.map((c) => c.contest_id?._id);
-  setJoinedContests(joinedIds);
-} else {
-  setMyContests([]);
-  setJoinedContests([]);
-}
+          // ✅ update joinedContests also
+          const joinedIds = filteredContests.map((c) => c.contest_id?._id);
+          setJoinedContests(joinedIds);
+        } else {
+          setMyContests([]);
+          setJoinedContests([]);
+        }
 
 
       } catch (err) {
@@ -409,55 +409,52 @@ if (data.status && data.data.length > 0) {
 
                         {/* Buttons */}
                         <div className="flex flex-wrap sm:flex-nowrap gap-2 mt-2 sm:mt-0">
-                          <button
-                            onClick={() =>
-                              navigate("/trade", {
-                                state: {
-                                  contestId: contestWrapper?.contest_id?._id,
-                                  stocks:
-                                    contestWrapper?.contest_id?.tournament_id?.stocks ||
-                                    [],
-                                  wallet_balance: contestWrapper?.wallet_balance || 0,
-                                },
-                              })
-                            }
-                            disabled={
-                              new Date(
-                                contestWrapper?.contest_id?.tournament_id?.startdate
-                              ) > new Date()
-                            }
-                            className={`flex-1 sm:flex-none px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300
-                    ${new Date(
-                              contestWrapper?.contest_id?.tournament_id?.startdate
-                            ) <= new Date()
-                                ? "bg-gradient-to-r from-orange-500 to-orange-400 text-white hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500 cursor-pointer"
-                                : "bg-gray-300 text-gray-600 cursor-not-allowed"
-                              }`}
-                          >
-                            Live
-                          </button>
+                          {new Date(contestWrapper?.contest_id?.tournament_id?.startdate) <= new Date() && (
+                            <button
+                              onClick={() =>
+                                navigate("/trade", {
+                                  state: {
+                                    contestId: contestWrapper?.contest_id?._id,
+                                    stocks:
+                                      contestWrapper?.contest_id?.tournament_id?.stocks || [],
+                                    wallet_balance: contestWrapper?.wallet_balance || 0,
+                                  },
+                                })
+                              }
+                              className="flex-1 sm:flex-none px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300
+               bg-gradient-to-r from-orange-500 to-orange-400 text-white hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500 cursor-pointer"
+                            >
+                              Live
+                            </button>
+                          )}
 
-                          <button
-                            onClick={() =>
-                              navigate("/tradehistory", {
-                                state: { contestId: contestWrapper?.contest_id?._id },
-                              })
-                            }
-                            className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
-                          >
-                            History
-                          </button>
+                          {/* ✅ Show "History" and "View Rank" buttons only after contest start */}
+                          {new Date(contestWrapper?.contest_id?.tournament_id?.startdate) <= new Date() && (
+                            <>
+                              <button
+                                onClick={() =>
+                                  navigate("/tradehistory", {
+                                    state: { contestId: contestWrapper?.contest_id?._id },
+                                  })
+                                }
+                                className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
+                              >
+                                History
+                              </button>
 
-                          <button
-                            onClick={() =>
-                              navigate("/contesttracking", {
-                                state: { _id: contestWrapper?.contest_id?._id },
-                              })
-                            }
-                            className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
-                          >
-                            View Rank
-                          </button>
+                              <button
+                                onClick={() =>
+                                  navigate("/contesttracking", {
+                                    state: { _id: contestWrapper?.contest_id?._id },
+                                  })
+                                }
+                                className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:from-orange-600 hover:to-orange-500"
+                              >
+                                View Rank
+                              </button>
+                            </>
+                          )}
+
                         </div>
                       </div>
 

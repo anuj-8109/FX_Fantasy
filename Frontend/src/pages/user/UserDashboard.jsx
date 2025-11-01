@@ -263,7 +263,7 @@ const UserDashboard = () => {
                 </div>
 
                 {/* Partner Company */}
-                {contest.partner && (
+                {/* {contest.partner && (
                   <div className="flex items-center gap-2">
                     <div className="text-right">
                       <p className="font-semibold text-gray-800 text-sm">
@@ -273,7 +273,7 @@ const UserDashboard = () => {
                     </div>
                     {getCompanyIcon(contest.partner, contest.partnerColor)}
                   </div>
-                )}
+                )} */}
               </div>
 
               {/* Stats */}
