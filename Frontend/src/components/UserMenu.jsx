@@ -1,14 +1,36 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home, Search, Bell, User } from "lucide-react";
+import { Home, Search, Bell } from "lucide-react";
 import Swal from "sweetalert2";
+import { GetUserDetails } from "../services/User"; // ✅ same API as UserHeader
 
 const UserMenu = () => {
   const navigate = useNavigate();
   const [showProfile, setShowProfile] = useState(false);
+  const [userDetails, setUserDetails] = useState(null);
   const profileRef = useRef();
-  const user = JSON.parse(localStorage.getItem("user"));
 
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
+
+  // ✅ Fetch user details (same as in UserHeader)
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await GetUserDetails(token, userId);
+        if (res?.status) {
+          const data = res.data;
+          setUserDetails(data);
+        }
+      } catch (err) {
+        console.error("User fetch error", err);
+      }
+    };
+
+    fetchUser();
+  }, [token, userId]);
+
+  // ✅ Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -53,12 +75,8 @@ const UserMenu = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 
-      footer 
-     shadow-lg bg-white z-50 rounded-t-2xl">
-      
+    <div className="fixed bottom-0 left-0 right-0 footer shadow-lg bg-white z-50 rounded-t-2xl">
       <div className="flex justify-around items-center h-16">
-        
         {/* Home */}
         <button
           onClick={() => navigate("/dashboard")}
@@ -87,59 +105,34 @@ const UserMenu = () => {
         </button>
 
         {/* Profile */}
-        <div className="relative" ref={profileRef}>
-          <button
-            // onClick={() => setShowProfile(!showProfile)}
-              onClick={() => navigate("/profile")}
+       <div className="relative" ref={profileRef}>
+  <button
+    onClick={() => navigate("/profile")} // 👈 Direct navigate
+    className="flex flex-col items-center hover:scale-110 transition"
+  >
+    {/* ✅ User Image or Fallback Initials */}
+    <div className="h-8 w-8 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center shadow-md">
+      {userDetails?.image ? (
+        <img
+          src={userDetails.image}
+          alt="User Avatar"
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <span className="text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-400 w-full h-full flex items-center justify-center">
+          {userDetails?.FullName
+            ? userDetails.FullName.split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()
+            : "U"}
+        </span>
+      )}
+    </div>
+    <span className="text-xs">Profile</span>
+  </button>
+</div>
 
-            className="flex flex-col items-center hover:scale-110 transition"
-          >
-            <div className="h-7 w-7 rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 text-white flex items-center justify-center text-xs shadow-md">
-              {user?.FullName?.split(" ").map((n) => n[0]).join("")}
-            </div>
-            <span className="text-xs">Profile</span>
-          </button>
-
-          {showProfile && (
-            <div className="absolute bottom-16 right-0 w-60 shadow-xl rounded-xl border bg-white text-gray-800 z-50 animate-slide-up">
-              {/* User Info */}
-              <div className="p-3 border-b text-sm">
-                <p className="font-medium">{user?.FullName}</p>
-                <p className="text-xs text-gray-500">{user?.Email}</p>
-              </div>
-
-              {/* Menu Links */}
-              {[
-                ["Profile Management", "/profile"],
-                // ["Help Desk", "/helpdesk"],
-                // ["Coupons", "/coupon"],
-                // ["FAQ", "/faq"],
-                // ["Blog", "/blog"],
-                // ["Content", "/content"],
-                // ["Contest Tracking", "/contesttracking"],
-              ].map(([label, path]) => (
-                <button
-                  key={path}
-                  onClick={() => {
-                    navigate(path);
-                    setShowProfile(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition"
-                >
-                  {label}
-                </button>
-              ))}
-
-              {/* Logout */}
-              <button
-                onClick={handleLogout}
-                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100 transition"
-              >
-                Log Out
-              </button>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

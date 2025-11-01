@@ -178,9 +178,8 @@ const UserDashboard = () => {
               <button
                 key={idx}
                 onClick={() => setCurrentBannerIndex(idx)}
-                className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-colors ${
-                  currentBannerIndex === idx ? "bg-white" : "bg-white/50"
-                }`}
+                className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-colors ${currentBannerIndex === idx ? "bg-white" : "bg-white/50"
+                  }`}
               />
             ))}
           </div>
@@ -196,11 +195,10 @@ const UserDashboard = () => {
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`flex-1 py-3 sm:py-4 px-2 font-medium transition-all duration-200 ${
-              activeTab === key
-                ? "text-orange-600 border-b-2 border-orange-600"
-                : "text-gray-600"
-            }`}
+            className={`flex-1 py-3 sm:py-4 px-2 font-medium transition-all duration-200 ${activeTab === key
+              ? "text-orange-600 border-b-2 border-orange-600"
+              : "text-gray-600"
+              }`}
           >
             <div className="flex flex-col items-center space-y-1">
               <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -213,6 +211,7 @@ const UserDashboard = () => {
       {/* Contest Cards */}
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
         {filteredContests.length > 0 ? (
+
           filteredContests.map((contest) => (
             <div
               key={contest.id}
@@ -221,85 +220,71 @@ const UserDashboard = () => {
                   state: { _id: contest.id, stocks: contest.stocks || [] },
                 })
               }
-              className="bg-white rounded-2xl border border-gray-300 shadow-sm hover:shadow-lg hover:-translate-y-[3px] transition-all duration-200 cursor-pointer overflow-hidden"
+              className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-[3px] transition-all duration-200 cursor-pointer overflow-hidden"
             >
-              {/* Tournament Header */}
-              <div className="px-5 pt-4 pb-3 border-b border-gray-200">
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
+              {/* Header */}
+              <div className="px-5 pt-4 pb-3 border-b border-gray-200 bg-gray-50">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-800">
                   Tournament:{" "}
-                  <span className="font-semibold text-gray-700">
-                    {contest.name}
-                  </span>
+                  <span className="font-medium text-gray-600">{contest.name}</span>
                 </h2>
               </div>
 
               {/* Company Info */}
-              <div className="px-5 py-3 border-b border-gray-100">
-                <div className="flex justify-between items-center flex-wrap gap-3">
-                  {/* Primary Company */}
-                  <div className="flex items-center gap-2">
-                    {getCompanyIcon(contest.company, contest.companyColor)}
-                    <div>
-                      <p className="font-semibold text-gray-800 text-sm">
-                        {contest.company || "—"}
-                      </p>
-                      <p className="text-xs text-gray-500">Primary Stock</p>
-                    </div>
+              <div className="px-5 py-3 border-b border-gray-100 flex justify-between items-center flex-wrap gap-3">
+                {/* Primary Company */}
+                <div className="flex items-center gap-2">
+                  {getCompanyIcon(contest.company, contest.companyColor)}
+                  <div>
+                    <p className="font-semibold text-gray-800 text-sm">
+                      {contest.company || "—"}
+                    </p>
+                    <p className="text-xs text-gray-500">Primary Stock</p>
                   </div>
-
-                  {/* Partner Company */}
-                  {contest.partner && (
-                    <div className="flex items-center gap-2">
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-800 text-sm">
-                          {contest.partner}
-                        </p>
-                        <p className="text-xs text-gray-500">Partner</p>
-                      </div>
-                      {getCompanyIcon(contest.partner, contest.partnerColor)}
-                    </div>
-                  )}
                 </div>
+
+                {/* Partner Company */}
+                {contest.partner && (
+                  <div className="flex items-center gap-2">
+                    <div className="text-right">
+                      <p className="font-semibold text-gray-800 text-sm">
+                        {contest.partner}
+                      </p>
+                      <p className="text-xs text-gray-500">Partner</p>
+                    </div>
+                    {getCompanyIcon(contest.partner, contest.partnerColor)}
+                  </div>
+                )}
               </div>
 
-              {/* Stats Section */}
+              {/* Stats */}
               <div className="px-5 py-4 grid grid-cols-3 gap-3">
                 <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
-                  <p className="text-gray-900 font-bold text-sm">
+                  <p className="text-gray-900 font-semibold text-sm">
                     {contest.prizePool}
                   </p>
-                  <p className="text-gray-500 text-xs font-medium">
-                    Prize Pool
-                  </p>
-                </div>
-
-                {/* <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
-                  <p className="text-gray-900 font-bold text-sm whitespace-nowrap overflow-hidden text-ellipsis">
-                    {getTimeLeft(contest)}
-
-                  </p>
-                  <p className="text-gray-500 text-xs font-medium">Time Left</p>
-                </div> */}
-
-                <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
-                  <p className="text-red-600 font-bold text-sm whitespace-nowrap overflow-hidden text-ellipsis">
-                    {getTimeLeft(contest)}
-                  </p>
-                  <p className="text-gray-500 text-xs font-medium">Time Left</p>
+                  <p className="text-xs text-gray-500">Prize Pool</p>
                 </div>
 
                 <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
-                  <p className="text-gray-900 font-bold text-sm flex items-center justify-center">
-                    <Users className="w-4 h-4 mr-1 text-gray-700 flex-shrink-0" />
+                  <p className="text-gray-700 font-semibold text-sm whitespace-nowrap">
+                    {getTimeLeft(contest)}
+                  </p>
+                  <p className="text-xs text-gray-500">Time Left</p>
+                </div>
+
+                <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
+                  <p className="text-gray-900 font-semibold text-sm flex items-center justify-center">
+                    <Users className="w-4 h-4 mr-1 text-gray-600" />
                     {contest.participants}
                   </p>
-                  <p className="text-gray-500 text-xs font-medium">
-                    Participants
-                  </p>
+                  <p className="text-xs text-gray-500">Participants</p>
                 </div>
               </div>
             </div>
           ))
+
+
         ) : (
           <div className="text-center py-12 col-span-full">
             <Trophy className="w-12 h-12 text-gray-400 mx-auto mb-4" />
