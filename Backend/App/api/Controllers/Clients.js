@@ -2057,7 +2057,7 @@ const titles = 'Important Update';
         clientid: client._id,
         title: titles,
         message: message,
-        type: 'kyc Upload',
+        type: 'contest',
       });
 	  */
 	  
@@ -2139,10 +2139,10 @@ const titles = 'Important Update';
       await resultnm.save();
 
       /*io.emit("adminnotification", {
-        clientid: client._id,
+        clientid: shared_by_client_id,
         title: titles,
         message: message,
-        type: 'kyc Upload',
+        type: 'contest',
       });
 	  */
 
