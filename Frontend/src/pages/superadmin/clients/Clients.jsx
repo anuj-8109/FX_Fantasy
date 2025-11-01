@@ -39,8 +39,6 @@ const Client = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterText, setFilterText] = useState("");
   const navigate = useNavigate();
-const [docsOpen, setDocsOpen] = useState(false);
-const [viewDocs, setViewDocs] = useState(null);
 
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
@@ -494,109 +492,53 @@ const [viewDocs, setViewDocs] = useState(null);
       ),
       export: false,
     },
-    // {
-    //   name: "KYC",
-    //   width: "170px",
-    //   exportValue: (row) => {
-    //     if (row.kyc_verification === 1) return "Verified";
-    //     if (row.kyc_verification === 2) return "Rejected";
-    //     return "Pending";
-    //   },
-    //   selector: (row) => {
-    //     if (row.kyc_verification === 1) return "Verified";
-    //     if (row.kyc_verification === 2) return "Rejected";
-    //     return "Pending";
-    //   },
-    //   cell: (row) => (
-    //     <div className="flex gap-2">
-    //       {row.kyc_type === 1 ? (
-    //         row.kyc_verification === 1 ? (
-    //           <span className="text-green-600 font-semibold">Verified ✅</span>
-    //         ) : row.kyc_verification === 2 ? (
-    //           <span className="text-red-600 font-semibold">Rejected ❌</span>
-    //         ) : (
-    //           <div className="flex gap-2">
-    //             <button
-    //               className="px-2 py-1 bg-green-600 text-white rounded-md text-sm"
-    //               onClick={() => handleKycVerification(row, 1)}
-    //             >
-    //               Approve
-    //             </button>
-    //             <button
-    //               className="px-2 py-1 bg-red-600 text-white rounded-md text-sm"
-    //               onClick={() => handleKycVerification(row, 2)}
-    //             >
-    //               Reject
-    //             </button>
-    //           </div>
-    //         )
-    //       ) : row.kyc_verification === 1 ? (
-    //         <span className="text-green-600 font-semibold">Verified ✅</span>
-    //       ) : row.kyc_verification === 2 ? (
-    //         <span className="text-red-600 font-semibold">Rejected ❌</span>
-    //       ) : (
-    //         <span className="text-gray-500 font-semibold">Pending ⏳</span>
-    //       )}
-    //     </div>
-    //   ),
-    //   export: true,
-    // },
-
-{
-  name: "KYC",
-  width: "220px",
-  selector: (row) => {
-    if (row.kyc_verification === 1) return "Verified";
-    if (row.kyc_verification === 2) return "Rejected";
-    return "Pending";
-  },
-  cell: (row) => (
-    <div className="flex flex-col gap-1">
-      {/* Status */}
-      <div>
-        {row.kyc_verification === 1 ? (
-          <span className="text-green-600 font-semibold">Verified ✅</span>
-        ) : row.kyc_verification === 2 ? (
-          <span className="text-red-600 font-semibold">Rejected ❌</span>
-        ) : (
-          <span className="text-gray-600 font-semibold">Pending ⏳</span>
-        )}
-      </div>
-
-      {/* Approve / Reject Buttons */}
-      {row.kyc_verification === 0 && (
+    {
+      name: "KYC",
+      width: "170px",
+      exportValue: (row) => {
+        if (row.kyc_verification === 1) return "Verified";
+        if (row.kyc_verification === 2) return "Rejected";
+        return "Pending";
+      },
+      selector: (row) => {
+        if (row.kyc_verification === 1) return "Verified";
+        if (row.kyc_verification === 2) return "Rejected";
+        return "Pending";
+      },
+      cell: (row) => (
         <div className="flex gap-2">
-          <button
-            className="px-2 py-1 bg-green-600 text-white rounded"
-            onClick={() => handleKycVerification(row._id, 1)}
-          >
-            Approve
-          </button>
-          <button
-            className="px-2 py-1 bg-red-600 text-white rounded"
-            onClick={() => handleKycVerification(row._id, 2)}
-          >
-            Reject
-          </button>
+          {row.kyc_type === 1 ? (
+            row.kyc_verification === 1 ? (
+              <span className="text-green-600 font-semibold">Verified ✅</span>
+            ) : row.kyc_verification === 2 ? (
+              <span className="text-red-600 font-semibold">Rejected ❌</span>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  className="px-2 py-1 bg-green-600 text-white rounded-md text-sm"
+                  onClick={() => handleKycVerification(row, 1)}
+                >
+                  Approve
+                </button>
+                <button
+                  className="px-2 py-1 bg-red-600 text-white rounded-md text-sm"
+                  onClick={() => handleKycVerification(row, 2)}
+                >
+                  Reject
+                </button>
+              </div>
+            )
+          ) : row.kyc_verification === 1 ? (
+            <span className="text-green-600 font-semibold">Verified ✅</span>
+          ) : row.kyc_verification === 2 ? (
+            <span className="text-red-600 font-semibold">Rejected ❌</span>
+          ) : (
+            <span className="text-gray-500 font-semibold">Pending ⏳</span>
+          )}
         </div>
-      )}
-
-      {/* ✅ View Documents Button */}
-      <button
-        className="px-2 py-1 bg-blue-600 text-white rounded text-xs"
-        onClick={() => {
-          setViewDocs(row);
-          setDocsOpen(true);
-        }}
-      >
-        View Docs
-      </button>
-    </div>
-  ),
-  export: true,
-}
-
-
+      ),
+      export: true,
+    },
   ];
 
   return (
@@ -870,91 +812,6 @@ const [viewDocs, setViewDocs] = useState(null);
             </div>
           </div>
         )}
-        {docsOpen && viewDocs && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
-      <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
-        <span>📄 KYC Documents</span>
-        <button
-          onClick={() => {
-            setDocsOpen(false);
-            setViewDocs(null);
-          }}
-          className="text-gray-600 hover:text-gray-800"
-        >
-          ✖
-        </button>
-      </h2>
-
-      <div className="space-y-4">
-
-        {/* Aadhaar Front */}
-        {viewDocs.adhaarphotofront && (
-          <div>
-            <p className="font-semibold mb-1">Aadhaar Front</p>
-            <img
-              src={`${process.env.REACT_APP_IMAGE_URL}/${viewDocs.adhaarphotofront}`}
-              alt="Aadhaar Front"
-              className="w-full rounded border"
-            />
-          </div>
-        )}
-
-        {/* Aadhaar Back */}
-        {viewDocs.adhaarphotoback && (
-          <div>
-            <p className="font-semibold mb-1">Aadhaar Back</p>
-            <img
-              src={`${process.env.REACT_APP_IMAGE_URL}/${viewDocs.adhaarphotoback}`}
-              alt="Aadhaar Back"
-              className="w-full rounded border"
-            />
-          </div>
-        )}
-
-        {/* PAN Card */}
-        {viewDocs.pancard && (
-          <div>
-            <p className="font-semibold mb-1">PAN Card</p>
-            <img
-              src={`${process.env.REACT_APP_IMAGE_URL}/${viewDocs.pancard}`}
-              alt="PAN Card"
-              className="w-full rounded border"
-            />
-          </div>
-        )}
-
-        {/* PDF Document */}
-        {viewDocs.pdf && (
-          <div>
-            <p className="font-semibold mb-1">PDF Document</p>
-            <a
-              href={`${process.env.REACT_APP_IMAGE_URL}/${viewDocs.pdf}`}
-              target="_blank"
-              rel="noreferrer"
-              className="text-blue-600 underline"
-            >
-              View PDF
-            </a>
-          </div>
-        )}
-      </div>
-
-      <div className="mt-4 flex justify-end">
-        <button
-          onClick={() => {
-            setDocsOpen(false);
-            setViewDocs(null);
-          }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
       </div>
     </Content>
   );
