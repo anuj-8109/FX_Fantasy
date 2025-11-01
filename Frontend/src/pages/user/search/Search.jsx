@@ -111,58 +111,87 @@ function Search() {
                   </div>
 
                   {/* Buttons */}
-                  <div className="flex flex-wrap justify-end gap-2 w-full sm:w-auto">
-                    {activeTab === "live" ? (
-                      <>
-                        <button
-                          onClick={() =>
-                            navigate("/trade", {
-                              state: {
-                                contestId: contestWrapper?.contest_id?._id,
-                                stocks:
-                                  contestWrapper?.contest_id?.tournament_id
-                                    ?.stocks || [],
-                                wallet_balance:
-                                  contestWrapper?.wallet_balance || 0,
-                              },
-                            })
-                          }
-                          className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md hover:from-orange-600 hover:to-orange-500 transition-all"
-                        >
-                          Live
-                        </button>
+                  {/* Buttons */}
+<div className="flex flex-wrap justify-end gap-2 w-full sm:w-auto">
+  {activeTab === "live" ? (
+    <>
+      {/* Live */}
+      <button
+        onClick={() =>
+          navigate("/trade", {
+            state: {
+              contestId: contestWrapper?.contest_id?._id,
+              stocks:
+                contestWrapper?.contest_id?.tournament_id?.stocks || [],
+              wallet_balance: contestWrapper?.wallet_balance || 0,
+            },
+          })
+        }
+        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md hover:from-orange-600 hover:to-orange-500 transition-all"
+      >
+        Live
+      </button>
 
-                        <button
-                          onClick={() =>
-                            navigate("/contesttracking", {
-                              state: { _id: contestWrapper?.contest_id?._id },
-                            })
-                          }
-                          className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md hover:from-orange-600 hover:to-orange-500 transition-all"
-                        >
-                          View Rank
-                        </button>
-                      </>
-                    ) : activeTab === "upcoming" ? (
-                      <button
-                        disabled
-                        className="flex-1 sm:flex-none px-3 py-2 bg-gray-200 text-gray-600 rounded-lg text-xs sm:text-sm font-semibold shadow-md cursor-not-allowed"
-                      >
-                        Coming Soon
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() =>
-                          navigate("/tradehistory", {
-                            state: { contestId: contestWrapper?.contest_id?._id },
-                          })
-                        }
-                        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md hover:from-orange-600 hover:to-orange-500 transition-all"
-                      >
-                        History
-                      </button>
-                    )}
-                  </div>
+      {/* View Rank */}
+      <button
+        onClick={() =>
+          navigate("/contesttracking", {
+            state: { _id: contestWrapper?.contest_id?._id },
+          })
+        }
+        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md hover:from-orange-600 hover:to-orange-500 transition-all"
+      >
+        View Rank
+      </button>
+
+      {/* History */}
+      <button
+        onClick={() =>
+          navigate("/tradehistory", {
+            state: { contestId: contestWrapper?.contest_id?._id },
+          })
+        }
+        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md hover:from-orange-600 hover:to-orange-500 transition-all"
+      >
+        History
+      </button>
+    </>
+  ) : activeTab === "upcoming" ? (
+    <button
+      disabled
+      className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md opacity-60 cursor-not-allowed"
+    >
+      Coming Soon
+    </button>
+  ) : (
+    <>
+      {/* Completed → View Rank */}
+      <button
+        onClick={() =>
+          navigate("/contesttracking", {
+            state: { _id: contestWrapper?.contest_id?._id },
+          })
+        }
+        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md hover:from-orange-600 hover:to-orange-500 transition-all"
+      >
+        View Rank
+      </button>
+
+      {/* Completed → History */}
+      <button
+        onClick={() =>
+          navigate("/tradehistory", {
+            state: { contestId: contestWrapper?.contest_id?._id },
+          })
+        }
+        className="flex-1 sm:flex-none px-3 py-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md hover:from-orange-600 hover:to-orange-500 transition-all"
+      >
+        History
+      </button>
+    </>
+  )}
+</div>
+
                 </div>
 
                 {/* Info Cards */}

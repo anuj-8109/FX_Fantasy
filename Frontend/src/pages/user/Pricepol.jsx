@@ -261,17 +261,20 @@ function Pricepol() {
 
         {/* Create Button */}
         <div className="w-full sm:w-auto flex justify-center sm:justify-end">
-          <button
-            onClick={() =>
-              navigate("/addprivatecontest", {
-                state: { tournament_id: tournament?._id },
-              })
-            }
-            className="bg-orange-500 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg shadow-md transition-all duration-200 text-sm sm:text-base font-semibold w-full sm:w-auto"
-          >
-            + Create Private Contest
-          </button>
+          {tournament?.startdate && new Date(tournament.startdate) > new Date() && (
+            <button
+              onClick={() =>
+                navigate("/addprivatecontest", {
+                  state: { tournament_id: tournament?._id },
+                })
+              }
+              className="bg-orange-500 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg shadow-md transition-all duration-200 text-sm sm:text-base font-semibold w-full sm:w-auto"
+            >
+              + Create Private Contest
+            </button>
+          )}
         </div>
+
       </div>
 
 
@@ -462,15 +465,15 @@ function Pricepol() {
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-2 sm:p-4 text-[11px] sm:text-sm">
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
                           <p className="text-gray-600 text-[10px] sm:text-xs">Prize Pool</p>
-                          {/* <p className="font-bold text-sm sm:text-base text-gray-900">
+                          <p className="font-bold text-sm sm:text-base text-gray-900">
                             ₹{contest.prize_pool}
-                          </p> */}
+                          </p>
                         </div>
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
                           <p className="text-gray-600 text-[10px] sm:text-xs">Entry Fee</p>
-                          {/* <p className="font-bold text-sm sm:text-base text-gray-900">
+                          <p className="font-bold text-sm sm:text-base text-gray-900">
                             ₹{contest.entry_fee}
-                          </p> */}
+                          </p>
                         </div>
                         <div className="bg-gray-50 border rounded-md p-2 text-center">
                           <p className="text-gray-600 text-[10px] sm:text-xs">Joined At</p>
