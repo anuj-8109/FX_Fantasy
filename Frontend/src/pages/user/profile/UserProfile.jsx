@@ -170,6 +170,7 @@ const UserProfile = () => {
         { label: "Blog", path: "/blog", icon: BookOpen },
         { label: "Content", path: "/content", icon: FileText },
         { label: "Bank Details", icon: FileText, action: () => setIsBankModalOpen(true) },
+         { label: "Refer and Earn", path: "/referral", icon: FileText },
     ];
 
     return (

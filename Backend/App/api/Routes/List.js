@@ -24,6 +24,6 @@ router.post('/api/list/getcontestranking', auth, getContestRanking);
 router.get('/api/list/getstates', getAllStates);
 router.get('/api/list/getcitybystates/:stateName', getCityByStates);
 router.get("/api/list/notification/:id", auth, NotificationList);
-router.post('/api/list/applycoupon', applyCoupon);
+router.post('/api/list/applycoupon', auth, applyCoupon);
 
 module.exports = router;
