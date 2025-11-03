@@ -346,7 +346,7 @@ async function updateContestRanks(req, res) {
             // If open position left → calculate unrealized P&L
             if (buyQty > 0) {
               const avgBuyPrice = buyValue / buyQty;
-              const livePrice = await getLivePrice(symbol); // 🔥 API से live price
+              const livePrice = await returnstockcloseprice(symbol); // 🔥 API से live price
               if (livePrice) {
                 const unrealizedPL = (livePrice - avgBuyPrice) * buyQty;
                 totalPoints += unrealizedPL;
