@@ -4,16 +4,24 @@ import { BuySelltrade, GetMyContests, getOpenTrades } from "../../services/User"
 import toast from "react-hot-toast";
 import BackButton from "../../pages/user/Backbutton";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { useSheetData } from '../../utils/data';
+import { io } from "socket.io-client"; // ✅ Added
+import { useSheetData } from "../../utils/data";
 
 function HistoryPage() {
-  const sheetCSVUrl = "https://docs.google.com/spreadsheets/d/1CZoeoUXH__2UrFfldIMvczrMuKDIU5ZYdoTrjPplTLI/edit?gid=0#gid=0";
+
+
+  const sheetCSVUrl =
+    "https://docs.google.com/spreadsheets/d/1CZoeoUXH__2UrFfldIMvczrMuKDIU5ZYdoTrjPplTLI/edit?gid=0#gid=0";
+
+
+
   const location = useLocation();
   const navigate = useNavigate();
   const contestId = location?.state?.contestId;
-  const stocks = location?.state?.stocks || [];
+  const initialStocks = location?.state?.stocks || [];
   const initialWallet = Number(location?.state?.wallet_balance || 0);
 
+  const [stocks, setStocks] = useState(initialStocks); // ✅ Needed to update live prices
   const [buySellLoadingId, setBuySellLoadingId] = useState(null);
   const [showQuantityBox, setShowQuantityBox] = useState(null);
   const [quantityMap, setQuantityMap] = useState({});
@@ -28,7 +36,26 @@ function HistoryPage() {
   const [loadingTrades, setLoadingTrades] = useState(false);
 
   const token = localStorage.getItem("token");
-  const clientId = localStorage.getItem("userId") || localStorage.getItem("client_id");
+  const clientId =
+    localStorage.getItem("userId") || localStorage.getItem("client_id");
+
+
+
+
+useEffect(() => {
+  const socket = io("https://fx.tradestreet.in:1001", {
+    transports: ["websocket"],
+  });
+
+  socket.on("connect", () => console.log("Connected ✅", socket.id));
+
+  socket.onAny((event, data) => {
+    console.log("Received event:", event, "→", data);
+  });
+
+  return () => socket.disconnect();
+}, []);
+
 
   // Fetch My Contests
   const fetchMyContests = async () => {
@@ -36,7 +63,9 @@ function HistoryPage() {
     try {
       const data = await GetMyContests(token, clientId);
       if (data.status && data.data?.length > 0) {
-        const contestWrapper = data.data.find((c) => c.contest_id?._id === contestId);
+        const contestWrapper = data.data.find(
+          (c) => c.contest_id?._id === contestId
+        );
         setMyContests(data.data);
         if (contestWrapper) setWalletBalance(contestWrapper?.wallet_balance);
       }
@@ -54,12 +83,9 @@ function HistoryPage() {
       const res = await getOpenTrades(token, data);
 
       if (res.status) {
-        // Update table data
         setOpenTrades(res.data || []);
         setTradesPage(res.page || 1);
         setTotalTradePages(Math.ceil(res.total / res.limit) || 1);
-
-        // Optional: scroll to table top
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         toast.error(res.message || "Failed to fetch open trades");
@@ -78,14 +104,27 @@ function HistoryPage() {
   }, []);
 
   // Buy/Sell handler
-  const handleBuySell = async (stock_symbol, trade_type, stockId, quantity, price) => {
+  const handleBuySell = async (
+    stock_symbol,
+    trade_type,
+    stockId,
+    quantity,
+    price
+  ) => {
     if (!token || !clientId || !contestId) return toast.error("Missing info");
 
     const qty = Number(quantity);
     setBuySellLoadingId(stockId);
 
     try {
-      const payload = { contest_id: contestId, client_id: clientId, stock_symbol, trade_type, quantity: qty, price };
+      const payload = {
+        contest_id: contestId,
+        client_id: clientId,
+        stock_symbol,
+        trade_type,
+        quantity: qty,
+        price,
+      };
       const res = await BuySelltrade(token, payload);
       if (res?.status) {
         toast.success("Trade successful!");
@@ -103,6 +142,9 @@ function HistoryPage() {
       setBuySellLoadingId(null);
     }
   };
+
+
+
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col p-2">
@@ -165,7 +207,13 @@ function HistoryPage() {
                   <div>
                     <p className="text-lg font-semibold text-gray-800">{s.stock_name}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-gray-700 font-medium">₹{s.last_price}</span>
+                      <span
+                        className={`font-semibold transition-all duration-300 ${s.price_change >= 0 ? "text-green-600" : "text-red-600"
+                          }`}
+                      >
+                        ₹{Number(s.last_price).toFixed(4)}
+                      </span>
+
                       <span
                         className={`flex items-center text-sm font-semibold ${s.price_change >= 0 ? "text-green-600" : "text-red-600"
                           }`}
