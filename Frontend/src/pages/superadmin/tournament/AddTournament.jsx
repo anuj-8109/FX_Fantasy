@@ -50,7 +50,9 @@ export default function AddEditTournament() {
 
     if (tournamentData) {
       const stocksArr = tournamentData.stocks?.length
-        ? tournamentData.stocks.map((c) => ({ ticker: c.stock_name }))
+        ? tournamentData.stocks.map((c) => ({
+            ticker: c.stock_name.toUpperCase(),
+          }))
         : [{ ticker: "" }];
 
       const formattedData = {
@@ -71,8 +73,15 @@ export default function AddEditTournament() {
   const fetchStocksList = async () => {
     try {
       const res = await stocklist(token);
-      if (res?.status) setStocksListData(res.data || []);
-      else Swal.fire("Failed to fetch stocks list");
+      if (res?.status) {
+        const formatted = res.data.map((s) => ({
+          ...s,
+          ticker: s.ticker.toUpperCase(),
+        }));
+        setStocksListData(formatted);
+      } else {
+        Swal.fire("Failed to fetch stocks list");
+      }
     } catch (err) {
       console.error(err);
     }
@@ -81,38 +90,55 @@ export default function AddEditTournament() {
   const validationSchema = Yup.object({
     name: Yup.string().required("Tournament name is required"),
     description: Yup.string().required("Description is required"),
-    startdate: Yup.date().required("Start date is required"),
+
+    startdate: Yup.date()
+      .required("Start date is required")
+      .min(new Date(), "Start date cannot be in the past"),
+
     enddate: Yup.date()
       .required("End date is required")
-      .min(Yup.ref('startdate'), "End date must be after start date"),
+      .min(Yup.ref("startdate"), "End date must be after start date"),
+
     useamount: Yup.number()
       .typeError("Virtual amount must be a number")
       .required("Virtual amount is required")
       .positive("Virtual amount must be positive"),
   });
 
+  // ✅ PROPER STOCK + OTHER FIELDS COMPARISON FIX
   const isFormChanged = (values) => {
     if (!originalData) return true;
-    return JSON.stringify(values) !== JSON.stringify(originalData);
+
+    const { stocks, ...restValues } = values;
+    const { stocks: origStocks, ...restOriginal } = originalData;
+
+    const stocksNow = stocks.map((s) => s.ticker);
+    const stocksOld = origStocks.map((s) => s.ticker);
+
+    return (
+      JSON.stringify(restValues) !== JSON.stringify(restOriginal) ||
+      JSON.stringify(stocksNow) !== JSON.stringify(stocksOld)
+    );
   };
 
   const handleSubmit = async (values, formikBag) => {
     try {
-      // ✅ Manual stocks validation
       if (!values.stocks || values.stocks.length === 0) {
         toast.error("Please add at least one stock");
         formikBag?.setSubmitting(false);
         return;
       }
 
-      const hasEmptyStock = values.stocks.some(stock => !stock.ticker || stock.ticker === "");
+      const hasEmptyStock = values.stocks.some(
+        (stock) => !stock.ticker || stock.ticker === ""
+      );
       if (hasEmptyStock) {
         toast.error("Please select all stocks before saving");
         formikBag?.setSubmitting(false);
         return;
       }
 
-      const tickers = values.stocks.map(s => s.ticker);
+      const tickers = values.stocks.map((s) => s.ticker);
       const hasDuplicates = tickers.length !== new Set(tickers).size;
       if (hasDuplicates) {
         toast.error("Duplicate stocks are not allowed");
@@ -150,7 +176,7 @@ export default function AddEditTournament() {
         add_by,
         status: "upcoming",
         stocks: values.stocks.map((c) => ({
-          stock_name: c.ticker,
+          stock_name: c.ticker.toUpperCase(),
         })),
       };
 
@@ -196,15 +222,11 @@ export default function AddEditTournament() {
       type: "custom",
       colClass: "col-span-4",
       render: (field, form, values, setFieldValue) => {
-        // ✅ Check if form is submitted and stocks have errors
         const formSubmitted = form.submitCount > 0;
 
         return (
           <div>
-            
-
             {values.stocks?.map((c, idx) => {
-              // ✅ Check if this stock is empty and form was submitted
               const isEmpty = !c.ticker || c.ticker === "";
               const showError = formSubmitted && isEmpty;
 
@@ -216,22 +238,25 @@ export default function AddEditTournament() {
                   <select
                     value={c.ticker || ""}
                     onChange={(e) => {
-                      const updated = [...values.stocks];
-                      updated[idx].ticker = e.target.value;
+                      const updated = values.stocks.map((s, i) =>
+                        i === idx
+                          ? { ticker: e.target.value.toUpperCase() }
+                          : { ...s }
+                      );
                       setFieldValue("stocks", updated);
                     }}
-                    className={`w-full border px-3 py-2 rounded ${showError ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                      }`}
+                    className={`w-full border px-3 py-2 rounded ${
+                      showError ? "border-red-500 bg-red-50" : "border-gray-300"
+                    }`}
                   >
                     <option value="">-- Select Stock --</option>
                     {stocksListData.map((item) => (
                       <option key={item._id} value={item.ticker}>
-                        {item.ticker.toUpperCase()}
+                        {item.ticker}
                       </option>
                     ))}
                   </select>
 
-                  {/* ✅ Show error message if empty and submitted */}
                   {showError && (
                     <p className="text-red-500 text-sm mt-1">
                       Please select a stock
@@ -243,7 +268,9 @@ export default function AddEditTournament() {
                       type="button"
                       className="text-red-500 mt-2 text-sm hover:underline"
                       onClick={() => {
-                        const updated = values.stocks.filter((_, i) => i !== idx);
+                        const updated = values.stocks.filter(
+                          (_, i) => i !== idx
+                        );
                         setFieldValue("stocks", updated);
                       }}
                     >
@@ -254,7 +281,6 @@ export default function AddEditTournament() {
               );
             })}
 
-            {/* ✅ Show error if no stocks at all */}
             {formSubmitted && values.stocks.length === 0 && (
               <p className="text-red-500 text-sm mt-1">
                 At least one stock is required
