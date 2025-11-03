@@ -699,3 +699,21 @@ export async function getNotificationList(token, userId, page = 1, limit = 10) {
   }
 }
 
+export async function applyCouponAPI(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/list/applycoupon`, 
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,   // token use ho raha h
+        },
+      }
+    );
+
+    return response?.data;
+  } catch (error) {
+    console.error("Error applying coupon:", error?.response?.data || error.message);
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
