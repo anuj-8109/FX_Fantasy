@@ -1040,7 +1040,7 @@ async  addMoneyInWallet(req, res) {
     await walletEntry.save();
 
     // Update client balance
-    await Clients_Modal.findByIdAndUpdate(
+    const client = await Clients_Modal.findByIdAndUpdate(
       client_id,
       { $inc: { wamount: amount } }, // increment balance
       { new: true }
