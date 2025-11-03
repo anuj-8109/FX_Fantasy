@@ -1279,7 +1279,7 @@ async getContestRanking(req, res) {
 
 
       // const settings = await BasicSetting_Modal.findOne();
-      // let total = finalPrice; // Use let for reassignable variables
+      let total = finalPrice; // Use let for reassignable variables
       // let totalgst = 0;
 
       // if (settings.gst > 0 && settings.gststatus == 1) {
