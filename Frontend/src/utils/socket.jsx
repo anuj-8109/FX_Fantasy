@@ -20,7 +20,7 @@ export default function SocketToast() {
 
     socket.on("connect", () => {
       console.log("✅ Socket connected:", socket.id);
-      toast.success("✅ Live Forex Feed Connected", { autoClose: 1500 });
+      // toast.success("✅ Live Forex Feed Connected", { autoClose: 1500 });
     });
 
     socket.on("adminnotification", (data) => {

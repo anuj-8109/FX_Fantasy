@@ -1,31 +1,21 @@
+// COMPLETE FIXED COMPONENT - Replace your entire HistoryPage component
+
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { BuySelltrade, GetMyContests, getOpenTrades } from "../../services/User";
 import toast from "react-hot-toast";
 import BackButton from "../../pages/user/Backbutton";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { useSheetData } from '../../utils/data';
 import { io } from "socket.io-client";
-
-
 
 const SOCKET_URL = "https://fx.tradestreet.in:1001";
 
 function HistoryPage() {
-
-   const socket = io(SOCKET_URL);
-
-   
-
-  const sheetCSVUrl = "https://docs.google.com/spreadsheets/d/1CZoeoUXH__2UrFfldIMvczrMuKDIU5ZYdoTrjPplTLI/edit?gid=0#gid=0";
   const location = useLocation();
   const navigate = useNavigate();
   const contestId = location?.state?.contestId;
   const stocks = location?.state?.stocks || [];
   const initialWallet = Number(location?.state?.wallet_balance || 0);
-  
-
-  
 
   const [buySellLoadingId, setBuySellLoadingId] = useState(null);
   const [showQuantityBox, setShowQuantityBox] = useState(null);
@@ -33,19 +23,20 @@ function HistoryPage() {
   const [walletBalance, setWalletBalance] = useState(initialWallet);
   const [pnl, setPnl] = useState(0);
   const [myContests, setMyContests] = useState([]);
-
   const [openTrades, setOpenTrades] = useState([]);
   const [tradesPage, setTradesPage] = useState(1);
   const [totalTradePages, setTotalTradePages] = useState(1);
   const [loadingTrades, setLoadingTrades] = useState(false);
 
+  // ✅ Store live prices in state instead of just DOM manipulation
+  const [livePrices, setLivePrices] = useState({});
+
   const token = localStorage.getItem("token");
   const clientId = localStorage.getItem("userId") || localStorage.getItem("client_id");
-const [prices, setPrices] = useState({});
 
-
- useEffect(() => {
-    const socket = io("https://fx.tradestreet.in:1001", {
+  // ✅ Socket connection for live prices
+  useEffect(() => {
+    const socket = io(SOCKET_URL, {
       transports: ["websocket"],
     });
 
@@ -56,9 +47,15 @@ const [prices, setPrices] = useState({});
     socket.on("forex_data", (data) => {
       const { ticker, midPrice } = data;
 
-      // Match stock and update HTML directly
+      // Update live prices in state
+      setLivePrices(prev => ({
+        ...prev,
+        [ticker.toUpperCase()]: Number(midPrice)
+      }));
+
+      // Also update DOM for visual feedback
       const matchedStock = stocks.find(
-        (s) => s.stock_name.toLowerCase() === ticker.toLowerCase()
+        (s) => s.stock_name.toUpperCase() === ticker.toUpperCase()
       );
 
       if (matchedStock) {
@@ -66,16 +63,13 @@ const [prices, setPrices] = useState({});
           `.price-${matchedStock.stock_name.toLowerCase()}`
         );
         if (priceElement) {
-          priceElement.textContent = midPrice; // 👈 Show live midPrice here
+          priceElement.textContent = midPrice;
         }
       }
     });
 
     return () => socket.disconnect();
-  }, [stocks]);;
-
-
-
+  }, [stocks]);
 
   const fetchMyContests = async () => {
     if (!token || !clientId) return;
@@ -91,8 +85,6 @@ const [prices, setPrices] = useState({});
     }
   };
 
-
-
   const fetchOpenTrades = async (page = 1) => {
     if (!token || !clientId) return;
     setLoadingTrades(true);
@@ -104,7 +96,6 @@ const [prices, setPrices] = useState({});
         setOpenTrades(res.data || []);
         setTradesPage(res.page || 1);
         setTotalTradePages(Math.ceil(res.total / res.limit) || 1);
-
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         toast.error(res.message || "Failed to fetch open trades");
@@ -117,51 +108,81 @@ const [prices, setPrices] = useState({});
     }
   };
 
-
-
-
-
   useEffect(() => {
     fetchMyContests();
     fetchOpenTrades();
   }, []);
 
-  
+  // ✅ Helper function to get current price for a stock
+  const getCurrentPrice = (stockName) => {
+    const normalizedName = stockName.toUpperCase();
+    // Try to get live price from socket, fallback to initial price
+    return livePrices[normalizedName] || 
+           stocks.find(s => s.stock_name.toUpperCase() === normalizedName)?.last_price || 
+           0;
+  };
 
-
-
-  const handleBuySell = async (stock_symbol, trade_type, stockId, quantity, price) => {
-    if (!token || !clientId || !contestId) return toast.error("Missing info");
+  // ✅ FIXED handleBuySell function
+  const handleBuySell = async (stock_symbol, trade_type, stockId, quantity) => {
+    if (!token || !clientId || !contestId) {
+      return toast.error("Missing authentication info");
+    }
 
     const qty = Number(quantity);
+    
+    // Validate quantity
+    if (!qty || qty <= 0) {
+      return toast.error("Please enter a valid quantity");
+    }
+
+    // ✅ Get the current live price
+    const currentPrice = getCurrentPrice(stock_symbol);
+    
+    if (!currentPrice || currentPrice <= 0) {
+      return toast.error("Invalid stock price. Please try again.");
+    }
+
     setBuySellLoadingId(stockId);
 
     try {
-      const payload = { contest_id: contestId, client_id: clientId, stock_symbol, trade_type, quantity: qty, price };
+      const payload = { 
+        contest_id: contestId, 
+        client_id: clientId, 
+        stock_symbol: stock_symbol.toUpperCase(),
+        trade_type: trade_type.toLowerCase(),
+        quantity: qty, 
+        price: currentPrice // ✅ Now sending the actual price
+      };
+
+      console.log("📤 Sending trade payload:", payload);
+
       const res = await BuySelltrade(token, payload);
+      
       if (res?.status) {
-        toast.success("Trade successful!");
+        toast.success(`${trade_type.toUpperCase()} order successful!`);
         setShowQuantityBox(null);
         setQuantityMap({ ...quantityMap, [stockId]: "" });
-        await fetchMyContests();
-        await fetchOpenTrades(tradesPage);
+        
+        // Refresh data
+        await Promise.all([
+          fetchMyContests(),
+          fetchOpenTrades(tradesPage)
+        ]);
       } else {
         toast.error(res?.message || "Trade failed");
+        console.error("❌ Trade error:", res);
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Trade failed due to network error");
+      console.error("❌ Trade exception:", err);
+      toast.error(err?.message || "Trade failed due to network error");
     } finally {
       setBuySellLoadingId(null);
     }
   };
 
-
-
-
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col p-2">
-  
+      {/* Header */}
       <header className="flex justify-between items-center bg-gray-100 text-black px-5 py-3 shadow-md rounded-b-2xl">
         <h1 className="text-xl sm:text-2xl font-semibold flex items-center gap-2">Trading</h1>
         <div className="flex items-center gap-3">
@@ -174,6 +195,8 @@ const [prices, setPrices] = useState({});
           <BackButton />
         </div>
       </header>
+
+      {/* Wallet Summary */}
       <div className="max-w-6xl mx-auto w-full mt-4">
         <div className="bg-white shadow-md rounded-xl p-5 border border-gray-100">
           <div className="flex justify-between items-center mb-4">
@@ -183,123 +206,135 @@ const [prices, setPrices] = useState({});
           <div className="text-center mb-5">
             <p className="text-sm text-gray-600">Total Balance</p>
             <p className="text-2xl font-bold text-green-600">
-              ₹{(walletBalance + pnl).toFixed(2)}
+              {(walletBalance + pnl).toFixed(2)}
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-orange-50 border border-orange-100 p-4 rounded-lg text-center">
               <p className="text-xs text-orange-700 font-medium">Unutilized Balance</p>
               <p className="text-lg font-bold text-orange-600 mt-1">
-                ₹{walletBalance.toFixed(2)}
+                {walletBalance.toFixed(2)}
               </p>
             </div>
             <div className="bg-green-50 border border-green-100 p-4 rounded-lg text-center">
               <p className="text-xs text-green-700 font-medium">Profit & Loss</p>
               <p className="text-lg font-bold text-green-600 mt-1">
-                ₹{pnl.toFixed(2)}
+                {pnl.toFixed(2)}
               </p>
             </div>
           </div>
         </div>
       </div>
 
-
       {/* Stock Cards */}
       <div className="max-w-6xl mx-auto w-full mt-4 flex-1">
         {stocks.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5">
-            {stocks.map((s) => (
-              <div
-                key={s._id}
-                className="relative bg-white border border-gray-200 shadow-md hover:shadow-lg rounded-2xl p-5 transition-all duration-300 overflow-hidden group"
-              >
-          
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-lg font-semibold text-gray-800">{s.stock_name}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-gray-700 font-medium">₹{s.last_price}</span>
-                       <span>{s.stock_name}</span> :
-          <span className={`price-${s.stock_name.toLowerCase()}`}>
-            {s.last_price}
-          </span>
-                    </div>
-                  </div>
-                  <div
-                    className={`px-2 py-1 rounded-md text-xs font-semibold ${s.price_change >= 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                      }`}
-                  >
-                    {s.price_change >= 0 ? "Bullish" : "Bearish"}
-                  </div>
-                </div>
-
-          
-                <div className="flex justify-between items-center mt-3">
-                  <button
-                    onClick={() => setShowQuantityBox({ id: s._id, type: "buy" })}
-                    className="w-[30%] py-1 px-2 text-xs bg-green-500 text-white font-medium rounded-md hover:bg-green-600 transition-all shadow-sm hover:scale-105"
-                  >
-                    BUY
-                  </button>
-                  <button
-                    onClick={() => setShowQuantityBox({ id: s._id, type: "sell" })}
-                    className="w-[30%] py-1 px-2 text-xs bg-red-500 text-white font-medium rounded-md hover:bg-red-600 transition-all shadow-sm hover:scale-105"
-                  >
-                    SELL
-                  </button>
-                </div>
-
-
-                {showQuantityBox?.id === s._id && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-10 animate-fadeIn">
-                    <div className="bg-white p-5 rounded-2xl shadow-2xl w-72 border border-gray-200">
-                      <p className="font-semibold mb-2 text-gray-800 text-center">
-                        {showQuantityBox.type === "buy" ? "Buy" : "Sell"} Quantity
-                      </p>
-                      <input
-                        type="number"
-                        min="1"
-                        placeholder="Enter quantity"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-3 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
-                        value={quantityMap[s._id] || ""}
-                        onChange={(e) => setQuantityMap({ ...quantityMap, [s._id]: e.target.value })}
-                      />
-                      <div className="flex justify-between mt-3">
-                        <button
-                          onClick={() => setShowQuantityBox(null)}
-                          className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleBuySell(
-                              s.stock_name,
-                              showQuantityBox.type,
-                              s._id,
-                              quantityMap[s._id] || "1",
-                              s.last_price
-                            )
-                          }
-                          className={`px-4 py-1.5 rounded-lg text-sm text-white font-medium ${showQuantityBox.type === "buy" ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"
-                            }`}
-                          disabled={buySellLoadingId === s._id}
-                        >
-                          {buySellLoadingId === s._id ? "Processing..." : `Confirm ${showQuantityBox.type.toUpperCase()}`}
-                        </button>
+            {stocks.map((s) => {
+              const currentPrice = getCurrentPrice(s.stock_name);
+              
+              return (
+                <div
+                  key={s._id}
+                  className="relative bg-white border border-gray-200 shadow-md hover:shadow-lg rounded-2xl p-5 transition-all duration-300 overflow-hidden group"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-lg font-semibold text-gray-800">{s.stock_name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-gray-700 font-medium">
+                          <span className={`price-${s.stock_name.toLowerCase()}`}>
+                            {currentPrice || s.last_price}
+                          </span>
+                        </span>
                       </div>
                     </div>
+                    <div
+                      className={`px-2 py-1 rounded-md text-xs font-semibold ${
+                        s.price_change >= 0 
+                          ? "bg-green-100 text-green-700" 
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {s.price_change >= 0 ? "Bullish" : "Bearish"}
+                    </div>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {/* Buy/Sell Buttons */}
+                  <div className="flex justify-between items-center mt-3">
+                    <button
+                      onClick={() => setShowQuantityBox({ id: s._id, type: "buy" })}
+                      className="w-[30%] py-1 px-2 text-xs bg-green-500 text-white font-medium rounded-md hover:bg-green-600 transition-all shadow-sm hover:scale-105"
+                    >
+                      BUY
+                    </button>
+                    <button
+                      onClick={() => setShowQuantityBox({ id: s._id, type: "sell" })}
+                      className="w-[30%] py-1 px-2 text-xs bg-red-500 text-white font-medium rounded-md hover:bg-red-600 transition-all shadow-sm hover:scale-105"
+                    >
+                      SELL
+                    </button>
+                  </div>
+
+                  {/* Quantity Modal */}
+                  {showQuantityBox?.id === s._id && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-10 animate-fadeIn">
+                      <div className="bg-white p-5 rounded-2xl shadow-2xl w-72 border border-gray-200">
+                        <p className="font-semibold mb-2 text-gray-800 text-center">
+                          {showQuantityBox.type === "buy" ? "Buy" : "Sell"} {s.stock_name}
+                        </p>
+                        <p className="text-sm text-gray-600 text-center mb-3">
+                          Price: ₹{currentPrice || s.last_price}
+                        </p>
+                        <input
+                          type="number"
+                          min="1"
+                          placeholder="Enter quantity"
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-3 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                          value={quantityMap[s._id] || ""}
+                          onChange={(e) => setQuantityMap({ ...quantityMap, [s._id]: e.target.value })}
+                        />
+                        <div className="flex justify-between mt-3">
+                          <button
+                            onClick={() => setShowQuantityBox(null)}
+                            className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleBuySell(
+                                s.stock_name,
+                                showQuantityBox.type,
+                                s._id,
+                                quantityMap[s._id] || "1"
+                              )
+                            }
+                            className={`px-4 py-1.5 rounded-lg text-sm text-white font-medium ${
+                              showQuantityBox.type === "buy" 
+                                ? "bg-green-500 hover:bg-green-600" 
+                                : "bg-red-500 hover:bg-red-600"
+                            }`}
+                            disabled={buySellLoadingId === s._id}
+                          >
+                            {buySellLoadingId === s._id 
+                              ? "Processing..." 
+                              : `Confirm ${showQuantityBox.type.toUpperCase()}`}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         ) : (
           <p className="text-center text-gray-600 mt-12 text-lg">No stocks available for trading.</p>
         )}
       </div>
 
-     
+      {/* Open Trades Table */}
       <div className="max-w-6xl mx-auto w-full mt-8">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">Open Trades</h2>
 
@@ -312,17 +347,15 @@ const [prices, setPrices] = useState({});
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Qty</th>
-                  {/* <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contest</th> */}
-                  {/* <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th> */}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {openTrades.map((trade) => (
                   <tr key={trade._id} className="hover:bg-gray-50">
                     <td className="px-4 py-2 text-gray-800 font-medium">{trade.stock_symbol}</td>
-                    <td className={`px-4 py-2 font-medium ${trade.netQty >= 0 ? 'text-green-600' : 'text-red-600'}`}>{trade.netQty}</td>
-                    {/* <td className="px-4 py-2 text-gray-600">{trade.contest_id?.name || "-"}</td> */}
-                    {/* <td className="px-4 py-2 text-gray-600">{trade.client_id?.FullName || "-"}</td> */}
+                    <td className={`px-4 py-2 font-medium ${trade.netQty >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {trade.netQty}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -332,7 +365,7 @@ const [prices, setPrices] = useState({});
           <p className="text-gray-600">No open trades available.</p>
         )}
 
-      
+        {/* Pagination */}
         {totalTradePages > 1 && (
           <div className="flex justify-center gap-2 mt-4">
             <button
