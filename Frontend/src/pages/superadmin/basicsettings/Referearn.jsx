@@ -15,7 +15,7 @@ const Referearn = () => {
     refer_description: "",
     sender_earn: 0,
     receiver_earn: 0,
-    refer_status: "inactive",
+    // refer_status: "inactive",
     refersendmsg: "",
     refer_image: null,
     multipleTime: true,
@@ -35,7 +35,7 @@ const Referearn = () => {
           refer_description: data.refer_description || "",
           sender_earn: data.sender_earn || 0,
           receiver_earn: data.receiver_earn || 0,
-          refer_status: data.refer_status || "inactive",
+          // refer_status: data.refer_status || "inactive",
           refersendmsg: data.refersendmsg || "",
           refer_image: null,
           multipleTime: data.multipleTime ?? true,
@@ -207,7 +207,7 @@ const Referearn = () => {
             <input type="file" name="refer_image" onChange={handleChange} />
           </div>
 
-          <div>
+          {/* <div>
             <label className="block font-medium">Status</label>
             <select
               name="refer_status"
@@ -218,7 +218,7 @@ const Referearn = () => {
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </select>
-          </div>
+          </div> */}
 
           <div className="flex gap-4 items-center">
             <label>

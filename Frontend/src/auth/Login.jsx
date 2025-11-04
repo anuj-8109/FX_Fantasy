@@ -75,7 +75,7 @@ const Login = () => {
         localStorage.setItem("roleId", roleId);
         localStorage.setItem("add_by", response?.data?.id);
         localStorage.setItem("userId", response?.data?.id);
-        localStorage.setItem("permissions", response?.data?.permissions);
+        localStorage.setItem("permissions",  JSON.stringify(response?.data?.permissions));
         toast.success(response?.message || "You have been logged in", {
           duration: 2000,
           position: "top-right",
