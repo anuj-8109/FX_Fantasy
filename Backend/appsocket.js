@@ -165,8 +165,8 @@ mongoose.connect(process.env.MONGO_URI, {
             bidSize: data[3] || 0,
             bidPrice: data[4] || 0,
             midPrice: data[5] || 0,
-            askPrice: data[6] || 0,
-            askSize: data[7] || 0,
+            askPrice: data[7] || 0,
+            askSize: data[6] || 0,
             createdAt: new Date(),
           };
   
