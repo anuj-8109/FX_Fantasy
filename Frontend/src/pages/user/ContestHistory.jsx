@@ -4,24 +4,29 @@ import { BuySelltrade, GetMyContests, getOpenTrades } from "../../services/User"
 import toast from "react-hot-toast";
 import BackButton from "../../pages/user/Backbutton";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { io } from "socket.io-client"; // ✅ Added
-import { useSheetData } from "../../utils/data";
+import { useSheetData } from '../../utils/data';
+import { io } from "socket.io-client";
+
+
+
+const SOCKET_URL = "https://fx.tradestreet.in:1001";
 
 function HistoryPage() {
 
+   const socket = io(SOCKET_URL);
 
-  const sheetCSVUrl =
-    "https://docs.google.com/spreadsheets/d/1CZoeoUXH__2UrFfldIMvczrMuKDIU5ZYdoTrjPplTLI/edit?gid=0#gid=0";
+   
 
-
-
+  const sheetCSVUrl = "https://docs.google.com/spreadsheets/d/1CZoeoUXH__2UrFfldIMvczrMuKDIU5ZYdoTrjPplTLI/edit?gid=0#gid=0";
   const location = useLocation();
   const navigate = useNavigate();
   const contestId = location?.state?.contestId;
-  const initialStocks = location?.state?.stocks || [];
+  const stocks = location?.state?.stocks || [];
   const initialWallet = Number(location?.state?.wallet_balance || 0);
+  
 
-  const [stocks, setStocks] = useState(initialStocks); // ✅ Needed to update live prices
+  
+
   const [buySellLoadingId, setBuySellLoadingId] = useState(null);
   const [showQuantityBox, setShowQuantityBox] = useState(null);
   const [quantityMap, setQuantityMap] = useState({});
@@ -29,43 +34,55 @@ function HistoryPage() {
   const [pnl, setPnl] = useState(0);
   const [myContests, setMyContests] = useState([]);
 
-  // Open trades state
   const [openTrades, setOpenTrades] = useState([]);
   const [tradesPage, setTradesPage] = useState(1);
   const [totalTradePages, setTotalTradePages] = useState(1);
   const [loadingTrades, setLoadingTrades] = useState(false);
 
   const token = localStorage.getItem("token");
-  const clientId =
-    localStorage.getItem("userId") || localStorage.getItem("client_id");
+  const clientId = localStorage.getItem("userId") || localStorage.getItem("client_id");
+const [prices, setPrices] = useState({});
+
+
+ useEffect(() => {
+    const socket = io("https://fx.tradestreet.in:1001", {
+      transports: ["websocket"],
+    });
+
+    socket.on("connect", () => {
+      console.log("✅ Socket connected:", socket.id);
+    });
+
+    socket.on("forex_data", (data) => {
+      const { ticker, midPrice } = data;
+
+      // Match stock and update HTML directly
+      const matchedStock = stocks.find(
+        (s) => s.stock_name.toLowerCase() === ticker.toLowerCase()
+      );
+
+      if (matchedStock) {
+        const priceElement = document.querySelector(
+          `.price-${matchedStock.stock_name.toLowerCase()}`
+        );
+        if (priceElement) {
+          priceElement.textContent = midPrice; // 👈 Show live midPrice here
+        }
+      }
+    });
+
+    return () => socket.disconnect();
+  }, [stocks]);;
 
 
 
 
-useEffect(() => {
-  const socket = io("https://fx.tradestreet.in:1001", {
-    transports: ["websocket"],
-  });
-
-  socket.on("connect", () => console.log("Connected ✅", socket.id));
-
-  socket.onAny((event, data) => {
-    console.log("Received event:", event, "→", data);
-  });
-
-  return () => socket.disconnect();
-}, []);
-
-
-  // Fetch My Contests
   const fetchMyContests = async () => {
     if (!token || !clientId) return;
     try {
       const data = await GetMyContests(token, clientId);
       if (data.status && data.data?.length > 0) {
-        const contestWrapper = data.data.find(
-          (c) => c.contest_id?._id === contestId
-        );
+        const contestWrapper = data.data.find((c) => c.contest_id?._id === contestId);
         setMyContests(data.data);
         if (contestWrapper) setWalletBalance(contestWrapper?.wallet_balance);
       }
@@ -74,7 +91,8 @@ useEffect(() => {
     }
   };
 
-  // Fetch Open Trades
+
+
   const fetchOpenTrades = async (page = 1) => {
     if (!token || !clientId) return;
     setLoadingTrades(true);
@@ -86,6 +104,7 @@ useEffect(() => {
         setOpenTrades(res.data || []);
         setTradesPage(res.page || 1);
         setTotalTradePages(Math.ceil(res.total / res.limit) || 1);
+
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         toast.error(res.message || "Failed to fetch open trades");
@@ -98,33 +117,27 @@ useEffect(() => {
     }
   };
 
+
+
+
+
   useEffect(() => {
     fetchMyContests();
     fetchOpenTrades();
   }, []);
 
-  // Buy/Sell handler
-  const handleBuySell = async (
-    stock_symbol,
-    trade_type,
-    stockId,
-    quantity,
-    price
-  ) => {
+  
+
+
+
+  const handleBuySell = async (stock_symbol, trade_type, stockId, quantity, price) => {
     if (!token || !clientId || !contestId) return toast.error("Missing info");
 
     const qty = Number(quantity);
     setBuySellLoadingId(stockId);
 
     try {
-      const payload = {
-        contest_id: contestId,
-        client_id: clientId,
-        stock_symbol,
-        trade_type,
-        quantity: qty,
-        price,
-      };
+      const payload = { contest_id: contestId, client_id: clientId, stock_symbol, trade_type, quantity: qty, price };
       const res = await BuySelltrade(token, payload);
       if (res?.status) {
         toast.success("Trade successful!");
@@ -148,7 +161,7 @@ useEffect(() => {
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col p-2">
-      {/* Header */}
+  
       <header className="flex justify-between items-center bg-gray-100 text-black px-5 py-3 shadow-md rounded-b-2xl">
         <h1 className="text-xl sm:text-2xl font-semibold flex items-center gap-2">Trading</h1>
         <div className="flex items-center gap-3">
@@ -161,8 +174,6 @@ useEffect(() => {
           <BackButton />
         </div>
       </header>
-
-      {/* Wallet Summary */}
       <div className="max-w-6xl mx-auto w-full mt-4">
         <div className="bg-white shadow-md rounded-xl p-5 border border-gray-100">
           <div className="flex justify-between items-center mb-4">
@@ -202,25 +213,16 @@ useEffect(() => {
                 key={s._id}
                 className="relative bg-white border border-gray-200 shadow-md hover:shadow-lg rounded-2xl p-5 transition-all duration-300 overflow-hidden group"
               >
-                {/* Stock Header */}
+          
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-lg font-semibold text-gray-800">{s.stock_name}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span
-                        className={`font-semibold transition-all duration-300 ${s.price_change >= 0 ? "text-green-600" : "text-red-600"
-                          }`}
-                      >
-                        ₹{Number(s.last_price).toFixed(4)}
-                      </span>
-
-                      <span
-                        className={`flex items-center text-sm font-semibold ${s.price_change >= 0 ? "text-green-600" : "text-red-600"
-                          }`}
-                      >
-                        {s.price_change >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                        {s.price_change >= 0 ? `+${s.price_change}%` : `${s.price_change}%`}
-                      </span>
+                      <span className="text-gray-700 font-medium">₹{s.last_price}</span>
+                       <span>{s.stock_name}</span> :
+          <span className={`price-${s.stock_name.toLowerCase()}`}>
+            {s.last_price}
+          </span>
                     </div>
                   </div>
                   <div
@@ -231,7 +233,7 @@ useEffect(() => {
                   </div>
                 </div>
 
-                {/* Actions */}
+          
                 <div className="flex justify-between items-center mt-3">
                   <button
                     onClick={() => setShowQuantityBox({ id: s._id, type: "buy" })}
@@ -248,7 +250,6 @@ useEffect(() => {
                 </div>
 
 
-                {/* Quantity Box */}
                 {showQuantityBox?.id === s._id && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-10 animate-fadeIn">
                     <div className="bg-white p-5 rounded-2xl shadow-2xl w-72 border border-gray-200">
@@ -298,7 +299,7 @@ useEffect(() => {
         )}
       </div>
 
-      {/* Open Trades Table */}
+     
       <div className="max-w-6xl mx-auto w-full mt-8">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">Open Trades</h2>
 
@@ -331,7 +332,7 @@ useEffect(() => {
           <p className="text-gray-600">No open trades available.</p>
         )}
 
-        {/* Pagination */}
+      
         {totalTradePages > 1 && (
           <div className="flex justify-center gap-2 mt-4">
             <button

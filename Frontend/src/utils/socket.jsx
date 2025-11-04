@@ -46,7 +46,6 @@ export default function SocketToast() {
    
 
     socket.on("disconnect", (reason) => {
-      toast.warn("⚠️ Live feed disconnected");
       console.warn("⚠️ Socket disconnected:", reason);
     });
 
