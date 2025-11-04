@@ -141,7 +141,7 @@ const startFXSocket = () => {
   ws.onmessage = async (message) => {
     try {
       const response = JSON.parse(message.data);
-
+      
       if (response.messageType === "A" && response.data?.length > 0) {
         const data = response.data;
         const formatted = {
@@ -150,11 +150,12 @@ const startFXSocket = () => {
           bidSize: data[3] || 0,
           bidPrice: data[4] || 0,
           midPrice: data[5] || 0,
-          askPrice: data[7] || 0,
+          askPrice: data[ 7] || 0,
           askSize: data[6] || 0,
           createdAt: new Date(),
         };
-
+  
+        
         // Emit to frontend
         io.emit("forex_data", formatted);
 

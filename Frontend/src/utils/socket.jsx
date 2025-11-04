@@ -8,66 +8,49 @@ const SOCKET_URL = "https://fx.tradestreet.in:1001";
 
 export default function SocketToast() {
   const socketRef = useRef(null);
+  const lastPrices = useRef({});
 
   useEffect(() => {
     socketRef.current = io(SOCKET_URL, {
       transports: ["websocket"],
-      reconnectionAttempts: 5,
+      
     });
 
     const socket = socketRef.current;
 
     socket.on("connect", () => {
-      console.log("Socket connected:", socket.id);
+      console.log("✅ Socket connected:", socket.id);
+      toast.success("✅ Live Forex Feed Connected", { autoClose: 1500 });
     });
 
     socket.on("adminnotification", (data) => {
-      console.log("Received data:", data);
+      
       if (!data) return;
 
-      // If data is string, show simple toast
-      if (typeof data === "string") {
-        toast.info(data);
-        return;
-      }
+      if (typeof data === "string") return toast.info(data);
 
-      const { title, message, type, clientid } = data;
-
-      // Custom formatted toast content
-      const toastContent = (
+      const { title, message, type } = data;
+      const content = (
         <div>
           <strong>{title}</strong>
           <div>{message}</div>
-          <small style={{ color: "#888" }}>
-          </small>
           <div style={{ marginTop: "4px", fontStyle: "italic", color: "#007bff" }}>
             Type: {type}
           </div>
         </div>
       );
 
-      // Show toast based on type
-      switch (type?.toLowerCase()) {
-        case "success":
-          toast.success(toastContent);
-          break;
-        case "error":
-          toast.error(toastContent);
-          break;
-        case "warning":
-          toast.warn(toastContent);
-          break;
-        default:
-          toast.info(toastContent);
-      }
+      toast[type?.toLowerCase()]?.(content) || toast.info(content);
     });
 
+   
+
     socket.on("disconnect", (reason) => {
-      console.log("Socket disconnected:", reason);
+      console.warn("⚠️ Socket disconnected:", reason);
     });
 
     socket.on("connect_error", (err) => {
-      console.error("Socket connect error:", err);
+      console.error("❌ Socket connection error:", err);
     });
 
     return () => {
@@ -78,17 +61,5 @@ export default function SocketToast() {
     };
   }, []);
 
-  return (
-    <>
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-        draggable
-      />
-    </>
-  );
+  return <ToastContainer position="top-right" autoClose={5000} limit={5} />;
 }
