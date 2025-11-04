@@ -17,7 +17,7 @@ const Referearn = () => {
     receiver_earn: 0,
     refer_status: "inactive",
     refersendmsg: "",
-    image: null,
+    refer_image: null,
     multipleTime: true,
     refer_amount_used_percent: 0,
   });
@@ -37,7 +37,7 @@ const Referearn = () => {
           receiver_earn: data.receiver_earn || 0,
           refer_status: data.refer_status || "inactive",
           refersendmsg: data.refersendmsg || "",
-          image: null,
+          refer_image: null,
           multipleTime: data.multipleTime ?? true,
           refer_amount_used_percent: data.refer_amount_used_percent || 0,
         };
@@ -72,7 +72,7 @@ const Referearn = () => {
 
     // ✅ Check if changes were actually made
     const hasChanges = Object.keys(formData).some((key) => {
-      if (key === "image") return !!formData.image; // file is optional
+      if (key === "refer_image") return !!formData.refer_image; // file is optional
       return formData[key] !== originalData[key];
     });
 
@@ -204,7 +204,7 @@ const Referearn = () => {
 
           <div>
             <label className="block font-medium">Image</label>
-            <input type="file" name="image" onChange={handleChange} />
+            <input type="file" name="refer_image" onChange={handleChange} />
           </div>
 
           <div>

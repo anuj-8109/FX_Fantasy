@@ -58,6 +58,7 @@ import LiveTournament from "../pages/superadmin/tournament/LiveTournament";
 import CancelledTournament from "../pages/superadmin/tournament/CancelledTournament";
 import ActiveContest from "../pages/superadmin/contest/ActiveContest";
 import InactiveContest from "../pages/superadmin/contest/InActiveContest";
+import ManagePermissions from "../pages/superadmin/users/ManagePermission";
 
 const SuperAdminRoutes = () => {
   return (
@@ -120,6 +121,7 @@ const SuperAdminRoutes = () => {
         <Route path="cancelledtournament" element={<CancelledTournament/>}/>
         <Route path="activecontest" element={<ActiveContest/>}/>
         <Route path="inactivecontest" element={<InactiveContest/>}/>
+        <Route path="manage-permissions" element={<ManagePermissions/>}/>
       </Route>
     </>
   );

@@ -47,14 +47,12 @@ const AllUsers = () => {
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-
       },
     }).then(async (result) => {
       if (result?.isConfirmed) {
         try {
           const token = localStorage.getItem("token");
           const res = await DeleteUser(token, row._id);
-
 
           if (res?.status) {
             toast.success(
@@ -89,10 +87,8 @@ const AllUsers = () => {
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-
       },
     });
-
 
     if (!confirm.isConfirmed) return;
 
@@ -124,7 +120,6 @@ const AllUsers = () => {
             htmlContainer: "custom-swal-text",
             confirmButton: "custom-swal-confirm",
             cancelButton: "custom-swal-cancel",
-
           },
         });
       }
@@ -140,64 +135,23 @@ const AllUsers = () => {
           htmlContainer: "custom-swal-text",
           confirmButton: "custom-swal-confirm",
           cancelButton: "custom-swal-cancel",
-
         },
       });
     }
   };
 
-  const handlePermissionUpdate = async (row) => {
-    // Convert stored string into array
-    let currentPermissions = [];
-    try {
-      currentPermissions = row.permissions?.[0]
-        ? JSON.parse(row.permissions[0])
-        : [];
-    } catch (err) {
-      currentPermissions = [];
-    }
+  const handlePermissionUpdate = (row) => {
+    console.log("Row data:", row);
+    console.log("Row permissions:", row.permissions);
 
-    const { value: selectedPermissions } = await Swal.fire({
-      title: `Manage Permissions for ${row.FullName}`,
-      input: "checkbox",
-      inputOptions: {
-        add_user: "Add User",
-        edit_user: "Edit User",
-        delete_user: "Delete User",
-      },
-      inputValue: currentPermissions,
-      confirmButtonText: "Update",
-      showCancelButton: true,
-      customClass: {
-        popup: "custom-swal-popup",
-        title: "custom-swal-title",
-        htmlContainer: "custom-swal-text",
-        confirmButton: "custom-swal-confirm",
-        cancelButton: "custom-swal-cancel",
-
+    // Navigate to the dedicated permissions page
+    navigate("/superadmin/manage-permissions", {
+      state: {
+        userId: row._id,
+        userName: row.FullName,
+        userPermissions: row.permissions || [], // Ensure it's always an array
       },
     });
-
-    if (!selectedPermissions || selectedPermissions.length === 0) {
-      toast.error("Please select at least one permission.");
-      return;
-    }
-
-    try {
-      const response = await UpdatePermissions(token, {
-        id: row._id,
-        permissions: selectedPermissions, // ✅ send array
-      });
-
-      if (response?.status) {
-        toast.success("Permissions updated successfully!");
-        fetchAllUsers(); // refresh table
-      } else {
-        toast.error(response?.message || "Failed to update permissions");
-      }
-    } catch (err) {
-      toast.error("Server error while updating permissions");
-    }
   };
 
   useEffect(() => {
@@ -270,10 +224,9 @@ const AllUsers = () => {
       name: "Permission",
       cell: (row) => (
         <div className="flex items-center gap-3">
-          {/* ✅ Gear icon for permissions */}
           <button
             onClick={() => handlePermissionUpdate(row)}
-            className="text-purple-600 hover:text-purple-800"
+            className="text-purple-600 hover:text-purple-800 hover:bg-purple-50 p-2 rounded-lg transition-all"
             title="Manage Permissions"
           >
             <svg
