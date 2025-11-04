@@ -316,121 +316,121 @@ const ManagePermissions = () => {
   );
   const allSelected = selectedPermissions.length === totalPermissions;
 
-return (
-  <Content
-    Page_title={`Manage Permissions - ${userName || "Employee"}`}
-    button_status={true}
-    button_title="Back"
-    route="/superadmin/alluser"
-  >
-    <div className="p-4 min-h-screen bg-gray-100">
+  return (
+    <Content
+      Page_title={`Manage Permissions - ${userName || "Employee"}`}
+      button_status={true}
+      button_title="Back"
+      route="/superadmin/alluser"
+    >
+      <div className="p-4 min-h-screen bg-gray-100">
+        {/* HEADER CARD */}
+        <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-lg font-semibold text-gray-800">
+                Manage Permissions
+              </h1>
+              <p className="text-gray-500 mt-0.5 text-xs">
+                Assign permissions to{" "}
+                <span className="font-medium text-blue-600">{userName}</span>
+              </p>
+            </div>
 
-      {/* HEADER CARD */}
-      <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-semibold text-gray-800">
-              Manage Permissions
-            </h1>
-            <p className="text-gray-500 mt-0.5 text-xs">
-              Assign permissions to{" "}
-              <span className="font-medium text-blue-600">{userName}</span>
+            <button
+              onClick={handleSelectAllPermissions}
+              className={`px-4 py-1.5 rounded-md text-white text-xs shadow transition ${
+                allSelected ? "bg-red-500" : "bg-blue-600"
+              }`}
+            >
+              {allSelected ? "Deselect All" : "Select All"}
+            </button>
+          </div>
+        </div>
+
+        {/* PERMISSION CARDS */}
+        {/* PERMISSION CARDS */}
+        <div className="max-w-5xl mx-auto bg-white mt-4 rounded-lg shadow-sm border border-gray-200 p-4">
+          {permissionCategories.map((category, idx) => (
+            <div key={idx} className="mb-8">
+              {/* CATEGORY HEADER — IMPROVED */}
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-base font-bold text-gray-800 tracking-wide border-l-4 border-blue-600 pl-2">
+                  {category.category}
+                </h2>
+
+                <button
+                  onClick={() => handleSelectAllCategory(category)}
+                  className="text-[10px] px-3 py-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200"
+                >
+                  {selectAll[category.category] ? "Deselect" : "Select All"}
+                </button>
+              </div>
+
+              {/* PERMISSIONS AS SMALL CARDS */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {category.permissions.map((permission) => {
+                  const isSelected = selectedPermissions.includes(
+                    permission.key
+                  );
+
+                  return (
+                    <div
+                      key={permission.id}
+                      className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-100 transition"
+                    >
+                      <span className="text-gray-700 text-xs font-medium">
+                        {permission.label}
+                      </span>
+
+                      {/* Toggle */}
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() =>
+                            handlePermissionToggle(permission.key)
+                          }
+                          className="sr-only peer"
+                        />
+                        <div className="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition"></div>
+                        <div className="absolute left-1 top-1 w-3.5 h-3.5 bg-white rounded-full shadow transform transition peer-checked:translate-x-4"></div>
+                      </label>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* SAVE BAR */}
+        <div className="max-w-5xl mx-auto bg-white p-4 rounded-lg shadow border border-gray-200 mt-4">
+          <div className="flex items-center justify-between">
+            <p className="text-gray-600 text-xs">
+              Selected:{" "}
+              <span className="font-semibold text-blue-600">
+                {selectedPermissions.length}
+              </span>{" "}
+              / {totalPermissions}
             </p>
-          </div>
 
-          <button
-            onClick={handleSelectAllPermissions}
-            className={`px-4 py-1.5 rounded-md text-white text-xs shadow transition ${
-              allSelected ? "bg-red-500" : "bg-blue-600"
-            }`}
-          >
-            {allSelected ? "Deselect All" : "Select All"}
-          </button>
+            <button
+              disabled={loading || selectedPermissions.length === 0}
+              onClick={handleSavePermissions}
+              className={`px-5 py-1.5 rounded-md text-white text-xs shadow ${
+                loading || selectedPermissions.length === 0
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {loading ? "Saving..." : "Save Permissions"}
+            </button>
+          </div>
         </div>
       </div>
-
-      {/* PERMISSION CARDS */}
-      <div className="max-w-5xl mx-auto bg-white mt-4 rounded-lg shadow-sm border border-gray-200 p-4">
-        {permissionCategories.map((category, idx) => (
-          <div key={idx} className="mb-6">
-
-            {/* CATEGORY HEADER */}
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-gray-700">
-                {category.category}
-              </h2>
-
-              <button
-                onClick={() => handleSelectAllCategory(category)}
-                className="text-[10px] px-2.5 py-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200"
-              >
-                {selectAll[category.category] ? "Deselect" : "Select All"}
-              </button>
-            </div>
-
-            {/* PERMISSION LIST */}
-            <div className="bg-gray-50 rounded-md border border-gray-200 p-3 space-y-2">
-              {category.permissions.map((permission) => {
-                const isSelected = selectedPermissions.includes(permission.key);
-
-                return (
-                  <div
-                    key={permission.id}
-                    className="flex items-center justify-between py-2 border-b last:border-none"
-                  >
-                    <span className="text-gray-700 text-xs font-medium">
-                      {permission.label}
-                    </span>
-
-                    {/* Toggle (smaller) */}
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => handlePermissionToggle(permission.key)}
-                        className="sr-only peer"
-                      />
-
-                      <div className="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition"></div>
-                      <div className="absolute left-1 top-1 w-3.5 h-3.5 bg-white rounded-full shadow transform transition peer-checked:translate-x-4"></div>
-                    </label>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* SAVE BAR */}
-      <div className="max-w-5xl mx-auto bg-white p-4 rounded-lg shadow border border-gray-200 mt-4">
-        <div className="flex items-center justify-between">
-          <p className="text-gray-600 text-xs">
-            Selected:{" "}
-            <span className="font-semibold text-blue-600">
-              {selectedPermissions.length}
-            </span>{" "}
-            / {totalPermissions}
-          </p>
-
-          <button
-            disabled={loading || selectedPermissions.length === 0}
-            onClick={handleSavePermissions}
-            className={`px-5 py-1.5 rounded-md text-white text-xs shadow ${
-              loading || selectedPermissions.length === 0
-                ? "bg-gray-300 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
-          >
-            {loading ? "Saving..." : "Save Permissions"}
-          </button>
-        </div>
-      </div>
-    </div>
-  </Content>
-);
-
-
+    </Content>
+  );
 };
 
 export default ManagePermissions;

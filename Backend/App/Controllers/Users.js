@@ -344,6 +344,7 @@ class Users {
           id: user.id,
           token: token,
           tokenjwt: tokenjwt, // Include the JWT token in the response
+           permissions: user.permissions || [],
         },
       });
     } catch (error) {
