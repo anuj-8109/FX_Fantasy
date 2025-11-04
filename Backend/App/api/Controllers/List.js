@@ -16,6 +16,7 @@ const Contesttrade_Modal = db.Contesttrade;
 const States = db.States;
 const City = db.City;
 const Notification_Modal = db.Notification;
+const LivePrice_Modal = db.LivePrice;
 
 
 const mongoose = require('mongoose');
