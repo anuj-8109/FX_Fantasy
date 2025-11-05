@@ -1046,7 +1046,10 @@ async  addMoneyInWallet(req, res) {
       { new: true }
     );
 
-
+  const settings = await BasicSetting_Modal.findOne();
+    if (!settings) {
+      return res.status(500).json({ status: false, message: "Basic settings not found" });
+    }
 
 
       const refertokens = await Refer_Modal.find({ user_id: client._id, status: 0 });
@@ -1074,7 +1077,6 @@ async  addMoneyInWallet(req, res) {
           await client.save();
 
 
-
    const notificationTitle = 'Important Update';
    const  notificationBody =`₹${receiveramount} bonus credited to your Bonus`;
    
@@ -1092,17 +1094,12 @@ async  addMoneyInWallet(req, res) {
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
-  type: 'kyc Upload',
+  type: 'bonus',
   from: 'admin',
   clientIds: clientIds
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-
-
-
-
-
 
           const sender = await Clients_Modal.findOne({ refer_token: client.token, del: 0, ActiveStatus: 1 });
 
@@ -1110,8 +1107,6 @@ const socketData = {
             sender.referwamount+= senderamount;
             sender.wamount += senderamount;
             await sender.save();
-
-
 
    const notificationTitleSender = 'Important Update';
    const  notificationBodySender =`₹${senderamount} bonus credited to your Bonus`;
@@ -1136,10 +1131,6 @@ const socketData = {
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-
-
-
-
 
           } else {
             // console.error(`Sender not found or inactive for user_id: ${refertoken.user_id}`);
@@ -1182,15 +1173,12 @@ const socketData = {
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
-  type: 'kyc Upload',
+  type: 'bonus',
   from: 'admin',
   clientIds: clientIds
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-
-
-
 
           // Update sender's wallet amount
           const sender = await Clients_Modal.findOne({ refer_token: refertoken.token, del: 0, ActiveStatus: 1 });
@@ -1218,15 +1206,12 @@ const socketData = {
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
-  type: 'kyc Upload',
+  type: 'bonus',
   from: 'admin',
   clientIds: clientIds
 };
 
  io.emit('clientnotification', socketData);  // ✅ Correct
-
-
-
 
           } else {
             // console.error(`Sender not found or inactive for user_id: ${refertoken.user_id}`);
@@ -1235,10 +1220,6 @@ const socketData = {
       } else {
         console.log('No referral tokens found.');
       }
-
-    
-
-
 
    const notificationTitle = 'Important Update';
  
