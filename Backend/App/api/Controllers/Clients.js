@@ -1059,8 +1059,8 @@ async  addMoneyInWallet(req, res) {
         }
         else {
 
-          const senderamount = (amount.price * settings.sender_earn) / 100;
-          const receiveramount = (amount.price * settings.receiver_earn) / 100;
+          const senderamount = (amount * settings.sender_earn) / 100;
+          const receiveramount = (amount * settings.receiver_earn) / 100;
 
           const results = new Refer_Modal({
             token: client.token,
@@ -1125,7 +1125,7 @@ const socketData = {
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
-  type: 'kyc Upload',
+  type: 'bonus',
   from: 'admin',
   clientIds: clientIds
 };
@@ -1142,8 +1142,8 @@ const socketData = {
 
       if (refertokens.length > 0) {
         for (const refertoken of refertokens) {
-          const senderamount = (amount.price * refertoken.senderearn) / 100;
-          const receiveramount = (amount.price * refertoken.receiverearn) / 100;
+          const senderamount = (amount * refertoken.senderearn) / 100;
+          const receiveramount = (amount * refertoken.receiverearn) / 100;
 
           refertoken.senderamount = senderamount;
           refertoken.receiveramount = receiveramount;
@@ -1239,7 +1239,7 @@ const socketData = {
 const socketData = {
   title: notificationTitle,
   message: notificationBody,
-  type: 'kyc Upload',
+  type: 'bonus',
   from: 'admin',
   clientIds: clientIds
 };
