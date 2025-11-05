@@ -5,6 +5,7 @@ import {
   GetContestsList,
   DeleteContest,
   UpdateContestStatusActive,
+  UpdateContestStatus,
 } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
@@ -63,14 +64,14 @@ const Contest = () => {
     fetchContests(currentPage, rowsPerPage, filterText);
   }, [currentPage, rowsPerPage, filterText]);
 
-  const handleDelete = async (contest) => {
-    const confirm = await Swal.fire({
+  const handleCancelContest = async (row) => {
+    const result = await Swal.fire({
       title: "Are you sure?",
-      text: "Do you want to delete this contest?",
+      text: "Do you want to cancel this contest? Refund will be processed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes, Delete",
-      cancelButtonText: "Cancel",
+      confirmButtonText: "Yes, cancel it!",
+      cancelButtonText: "No, keep it",
       customClass: {
         popup: "custom-swal-popup",
         title: "custom-swal-title",
@@ -80,18 +81,29 @@ const Contest = () => {
       },
     });
 
-    if (!confirm.isConfirmed) return;
+    if (!result.isConfirmed) return;
 
     setLoading(true);
-    const response = await DeleteContest(token, contest._id);
-    setLoading(false);
 
-    if (response?.status) {
-      toast.success(response?.message || "Contest deleted successfully");
-      fetchContests();
-    } else {
-      toast.error(response?.message || "Failed to delete contest");
+    try {
+      const payload = {
+        id: row._id,
+        status: "cancelled",
+      };
+
+      const res = await UpdateContestStatus(token, payload);
+
+      if (res?.status) {
+        toast.success(res?.message || "Contest cancelled successfully!");
+        fetchContests();
+      } else {
+        toast.error(res?.message || "Failed to cancel contest");
+      }
+    } catch (error) {
+      toast.error("Something went wrong!");
     }
+
+    setLoading(false);
   };
 
   const handleStatusChange = async (contest) => {
@@ -283,7 +295,7 @@ const Contest = () => {
             />
 
             {/* Cancel (instead of Delete) */}
-            <button
+            {/* <button
               className={`px-3 py-1 rounded text-white text-sm transition ${
                 isUpcoming
                   ? "bg-red-600 hover:bg-red-700"
@@ -291,11 +303,11 @@ const Contest = () => {
               }`}
               disabled={!isUpcoming}
               onClick={() => {
-                if (isUpcoming) handleDelete(row);
+                if (isUpcoming) handleCancelContest(row);
               }}
             >
               Cancel
-            </button>
+            </button> */}
           </div>
         );
       },
