@@ -27,7 +27,7 @@ const Notification_Modal = db.Notification;
 const { sendSMS } = require('../../Utils/smsHelper');
 const upload = require('../../Utils/multerHelper');
 const { generatePDF } = require('../../Utils/pdfGenerator');
-
+const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const otpStore = new Map();
 
@@ -2354,6 +2354,58 @@ async myContestsWithoutTournament(req, res) {
 }
 
 
+async googleAuth(req, res, next) {
+ try {
+    // Trigger the Google authentication flow
+    passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+  } catch (error) {
+    console.error("Error in googleAuth:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+  }
+
+async googleCallback(req, res, next) {
+ try {
+    // Call passport authenticate (this part stays synchronous for authentication)
+    passport.authenticate('google', { session: false }, async (err, user, info) => {
+      if (err) {
+        console.error("Error in Google Authentication:", err);
+        return next(err);
+      }
+
+      if (!user) {
+        return res.redirect(`${process.env.DOMAIN}`);
+      }
+
+
+      // Create JWT token
+      const payload = {
+        id: user._id,
+        googleId: user.googleId,
+        email: user.Email,
+      };
+
+      const token = jwt.sign(payload, process.env.JWT_SECRET_CLIENT, { expiresIn: '7d' });
+
+      // Option 1: Redirect with token as URL parameter (less secure)
+      // return res.redirect(`${DOMAIN}/auth/success?token=${token}`);
+
+      // Option 2: Send the token as an HTTPOnly cookie (more secure)
+      res.cookie('token', token, {
+        httpOnly: true,  // Ensures cookie can't be accessed via JS (XSS protection)
+        secure: process.env.NODE_ENV === 'production', // Enable in production (HTTPS)
+        maxAge: 7 * 24 * 60 * 60 * 1000, // Token expiry: 7 days
+      });
+
+      // Redirect to success page
+      return res.redirect(`${process.env.DOMAIN}`);
+    })(req, res, next);
+  } catch (err) {
+    console.error("Error in googleCallback:", err);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+
+}
 
 }
 
