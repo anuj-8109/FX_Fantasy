@@ -324,7 +324,7 @@ async function processTournamentRefund(tournamentId) {
   // Finally, cancel the tournament itself
   await Tournament_Model.updateOne(
     { _id: tournamentId },
-    { $set: { del: true, status: "cancelled" } }
+    { $set: {  status: "cancelled" } }
   );
 
   return totalRefunded;
