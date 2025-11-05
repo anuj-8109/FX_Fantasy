@@ -15,7 +15,6 @@ const UserLogin = () => {
   const [formData, setFormData] = useState({
     UserName: "",
     otp: "",
-
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -88,92 +87,90 @@ const UserLogin = () => {
     }
   };
 
-  const handleSendOtp = async (e) => {
-    console.log("Send OTP clicked");
-    e.preventDefault();
-    if (!(await validateForm())) return;
-    if (!checked) {
-      Swal.fire("Error", "You must certify age above 18 years", "error");
-      return;
-    }
+  // const handleSendOtp = async (e) => {
+  //   console.log("Send OTP clicked");
+  //   e.preventDefault();
+  //   if (!(await validateForm())) return;
+  //   if (!checked) {
+  //     Swal.fire("Error", "You must certify age above 18 years", "error");
+  //     return;
+  //   }
 
-    setIsLoading(true);
-    try {
-      const response = await UserLoginApi({ PhoneNo: formData.UserName });
-      if (response.status === true) {
+  //   setIsLoading(true);
+  //   try {
+  //     const response = await UserLoginApi({ PhoneNo: formData.UserName });
+  //     if (response.status === true) {
 
+  //       localStorage.setItem("token", response?.data?.tokenjwt);
 
-        localStorage.setItem("token", response?.data?.tokenjwt);
+  //       toast.success(response.message || "OTP sent successfully");
+  //       setOtpSent(true);
+  //       setTimer(30);
+  //       setFormData((prev) => ({ ...prev, otp: "" }));
+  //     } else {
+  //       Swal.fire("Error", response.message);
+  //     }
+  //   } catch (error) {
+  //     Swal.fire(
+  //       "Error",
+  //       error.response?.data?.msg || error.message || "Something went wrong",
+  //       "error"
+  //     );
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
-        toast.success(response.message || "OTP sent successfully");
-        setOtpSent(true);
-        setTimer(30);
-        setFormData((prev) => ({ ...prev, otp: "" }));
-      } else {
-        Swal.fire("Error", response.message);
-      }
-    } catch (error) {
-      Swal.fire(
-        "Error",
-        error.response?.data?.msg || error.message || "Something went wrong",
-        "error"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const handleVerifyOtp = async (e) => {
+  //   e.preventDefault();
+  //   if (!(await validateForm())) return;
 
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    if (!(await validateForm())) return;
+  //   setIsLoading(true);
+  //   try {
+  //     const payload = {
+  //       PhoneNo: formData.UserName,
+  //       otp: formData.otp,
+  //       refer_token: referToken || null,
+  //     };
 
-    setIsLoading(true);
-    try {
-      const payload = {
-        PhoneNo: formData.UserName,
-        otp: formData.otp,
-        refer_token: referToken || null,
-      };
+  //     const response = await LoginWithOtpApi(payload);
 
-      const response = await LoginWithOtpApi(payload);
+  //     if (response.status === true && response.data) {
+  //       const user = response.data;
+  //       const token = user.jwtToken;
 
-      if (response.status === true && response.data) {
-        const user = response.data;
-        const token = user.jwtToken;
+  //       if (!token) {
+  //         Swal.fire("Error", "Token missing in response", "error");
+  //         setIsLoading(false);
+  //         return;
+  //       }
 
-        if (!token) {
-          Swal.fire("Error", "Token missing in response", "error");
-          setIsLoading(false);
-          return;
-        }
+  //       // Save user info to localStorage
+  //       localStorage.setItem("token", token);
+  //       localStorage.setItem("user", JSON.stringify(user));
+  //       localStorage.setItem("userId", user.id);
 
-        // Save user info to localStorage
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("userId", user.id);
+  //       toast.success(response.message || "Login successful");
 
-        toast.success(response.message || "Login successful");
-
-        // Redirect
-        if (user.FullName && user.FullName.trim() !== "") {
-          navigate("/dashboard");
-        } else {
-          navigate("/setname");
-        }
-      } else {
-        Swal.fire("Error",  "Invalid OTP");
-      }
-    } catch (error) {
-      Swal.fire(
-        "Error",
-        error.response?.data?.msg || error.message || "Something went wrong",
-        "error"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  //       // Redirect
+  //       if (user.FullName && user.FullName.trim() !== "") {
+  //         navigate("/dashboard");
+  //       } else {
+  //         navigate("/setname");
+  //       }
+  //     } else {
+  //       Swal.fire("Error",  "Invalid OTP");
+  //     }
+  //   } catch (error) {
+  //     Swal.fire(
+  //       "Error",
+  //       error.response?.data?.msg || error.message || "Something went wrong",
+  //       "error"
+  //     );
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   // return (
   //   <div className="min-h-screen flex items-center justify-center bg-white px-4">
@@ -181,7 +178,6 @@ const UserLogin = () => {
   //       <h2 className="text-xl font-semibold mb-6">
   //         {otpSent ? "Almost There!" : "Login / Register"}
   //       </h2>
-
 
   //       {!otpSent && (
   //         <>
@@ -200,7 +196,7 @@ const UserLogin = () => {
   //               placeholder="Enter Your Number"
   //               value={formData.UserName}
   //               onChange={(e) => {
-  //                 const value = e.target.value; 
+  //                 const value = e.target.value;
   //                  if (/^\d{0,10}$/.test(value)) {
   //                   setFormData({ ...formData, UserName: value });
   //                 }
@@ -214,7 +210,6 @@ const UserLogin = () => {
   //           )}
   //         </>
   //       )}
-
 
   //       {otpSent && (
   //         <div className="mb-4">
@@ -258,7 +253,6 @@ const UserLogin = () => {
   //         </div>
   //       )}
 
-
   //       {!otpSent && (
   //         <div className="flex items-center justify-start mb-4">
   //           <input
@@ -274,7 +268,6 @@ const UserLogin = () => {
   //         </div>
   //       )}
 
-
   //       <button
   //         onClick={otpSent ? handleVerifyOtp : handleSendOtp}
   //         disabled={isLoading}
@@ -286,7 +279,6 @@ const UserLogin = () => {
   //             : "Sending OTP..."
   //           : "Continue"}
   //       </button>
-
 
   //       {!otpSent && (
   //         <>
@@ -307,7 +299,6 @@ const UserLogin = () => {
   //             </button>
   //           </div>
 
-
   //           {showOtherOptions && (
   //             <div className="mt-4 flex items-center justify-center gap-4">
   //               <button className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full hover:bg-blue-700">
@@ -325,166 +316,259 @@ const UserLogin = () => {
   //   </div>
   // );
 
-return (
-  <div className="min-h-screen flex items-center justify-center bg-white px-4">
-    <div className="w-full max-w-md text-center">
-      <h2 className="text-xl font-semibold mb-6">
-        {otpSent ? "Almost There!" : "Login / Register"}
-      </h2>
+  const handleSendOtp = async (e) => {
+    console.log("Send OTP clicked");
+    e.preventDefault();
+    if (!(await validateForm())) return;
+    if (!checked) {
+      Swal.fire("Error", "You must certify age above 18 years", "error");
+      return;
+    }
 
-      {/* ✅ Wrap everything inside a form so Enter triggers submission */}
-      <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp}>
-        {/* --- PHONE NUMBER INPUT --- */}
+    setIsLoading(true);
+    try {
+      // ✅ Pass refer token here
+      const payload = {
+        PhoneNo: formData.UserName,
+        token: referToken || null, // ✅ Add this
+      };
+
+      console.log("📤 Sending OTP with payload:", payload); // Debug
+
+      const response = await UserLoginApi(payload);
+
+      if (response.status === true) {
+        toast.success(response.message || "OTP sent successfully");
+        setOtpSent(true);
+        setTimer(30);
+        setFormData((prev) => ({ ...prev, otp: "" }));
+      } else {
+        Swal.fire("Error", response.message);
+      }
+    } catch (error) {
+      Swal.fire(
+        "Error",
+        error.response?.data?.msg || error.message || "Something went wrong",
+        "error"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (!(await validateForm())) return;
+
+    setIsLoading(true);
+    try {
+      const payload = {
+        PhoneNo: formData.UserName,
+        otp: formData.otp,
+        token: referToken || null, // ✅ Keep this
+      };
+
+      console.log("📤 Verifying OTP with payload:", payload); // Debug
+
+      const response = await LoginWithOtpApi(payload);
+
+      if (response.status === true && response.data) {
+        const user = response.data;
+        const token = user.jwtToken;
+
+        if (!token) {
+          Swal.fire("Error", "Token missing in response", "error");
+          setIsLoading(false);
+          return;
+        }
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("userId", user.id);
+
+        toast.success(response.message || "Login successful");
+
+        if (user.FullName && user.FullName.trim() !== "") {
+          navigate("/dashboard");
+        } else {
+          navigate("/setname");
+        }
+      } else {
+        Swal.fire("Error", "Invalid OTP");
+      }
+    } catch (error) {
+      Swal.fire(
+        "Error",
+        error.response?.data?.msg || error.message || "Something went wrong",
+        "error"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <div className="w-full max-w-md text-center">
+        <h2 className="text-xl font-semibold mb-6">
+          {otpSent ? "Almost There!" : "Login / Register"}
+        </h2>
+
+        {/* ✅ Wrap everything inside a form so Enter triggers submission */}
+        <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp}>
+          {/* --- PHONE NUMBER INPUT --- */}
+          {!otpSent && (
+            <>
+              <div className="flex items-center border rounded-full px-4 py-3 mb-4">
+                <span className="flex items-center mr-2">
+                  <img
+                    src="https://flagcdn.com/w20/in.png"
+                    alt="flag"
+                    className="w-5 h-5 mr-1"
+                  />
+                  +91
+                </span>
+                <input
+                  type="text"
+                  name="UserName"
+                  placeholder="Enter Your Number"
+                  value={formData.UserName}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d{0,10}$/.test(value)) {
+                      setFormData({ ...formData, UserName: value });
+                    }
+                  }}
+                  className="bg-transparent flex-1 outline-none"
+                />
+              </div>
+              {errors.UserName && (
+                <p className="text-sm text-red-600 mb-2">{errors.UserName}</p>
+              )}
+            </>
+          )}
+
+          {/* --- OTP INPUT SECTION --- */}
+          {otpSent && (
+            <div className="mb-4">
+              <p className="text-gray-600 mb-4">
+                Please enter OTP sent on <b>{formData.UserName}</b>
+              </p>
+
+              <div className="flex justify-center gap-3 mb-4">
+                {[...Array(6)].map((_, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    maxLength={1}
+                    value={formData.otp[index] || ""}
+                    onChange={(e) => handleOtpChange(e.target.value, index)}
+                    onKeyDown={(e) => {
+                      if (
+                        e.key === "Backspace" &&
+                        !formData.otp[index] &&
+                        index > 0
+                      ) {
+                        inputRefs.current[index - 1].focus();
+                      }
+                      // ✅ Enter triggers OTP verification
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleVerifyOtp(e);
+                      }
+                    }}
+                    ref={(el) => (inputRefs.current[index] = el)}
+                    className={`w-12 h-12 text-center text-xl font-bold border rounded ${
+                      formData.otp[index]
+                        ? "bg-orange-500 text-white"
+                        : "bg-white-100"
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {errors.otp && (
+                <p className="mt-1 text-sm text-red-600">{errors.otp}</p>
+              )}
+
+              {timer > 0 ? (
+                <p className="text-sm text-gray-600">
+                  Didn’t receive OTP? Resend in{" "}
+                  <span className="font-semibold">{timer} Seconds</span>
+                </p>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSendOtp}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  Resend OTP
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* --- AGE CERTIFICATION --- */}
+          {!otpSent && (
+            <div className="flex items-center justify-start mb-4">
+              <input
+                type="checkbox"
+                id="certify"
+                checked={checked}
+                onChange={() => setChecked(!checked)}
+                className="mr-2"
+              />
+              <label htmlFor="certify" className="text-sm text-gray-700">
+                I certify that I am above 18 years
+              </label>
+            </div>
+          )}
+
+          {/* --- CONTINUE BUTTON --- */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-orange-500 text-white py-3 rounded-full font-medium hover:bg-orange-600 transition disabled:opacity-50"
+          >
+            {isLoading
+              ? otpSent
+                ? "Verifying..."
+                : "Sending OTP..."
+              : "Continue"}
+          </button>
+        </form>
+
+        {/* --- FOOTER & OTHER OPTIONS --- */}
         {!otpSent && (
           <>
-            <div className="flex items-center border rounded-full px-4 py-3 mb-4">
-              <span className="flex items-center mr-2">
-                <img
-                  src="https://flagcdn.com/w20/in.png"
-                  alt="flag"
-                  className="w-5 h-5 mr-1"
-                />
-                +91
-              </span>
-              <input
-                type="text"
-                name="UserName"
-                placeholder="Enter Your Number"
-                value={formData.UserName}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^\d{0,10}$/.test(value)) {
-                    setFormData({ ...formData, UserName: value });
-                  }
-                }}
-                className="bg-transparent flex-1 outline-none"
-              />
+            <p className="text-xs text-gray-500 mt-4">
+              By continuing, I agree to Dream Trading T&C.
+            </p>
+            <div className="text-sm mt-2">
+              <button
+                type="button"
+                onClick={() => setShowOtherOptions(!showOtherOptions)}
+                className="text-blue-600 hover:underline"
+              >
+                Other login options
+              </button>
             </div>
-            {errors.UserName && (
-              <p className="text-sm text-red-600 mb-2">{errors.UserName}</p>
+
+            {showOtherOptions && (
+              <div className="mt-4 flex items-center justify-center gap-4">
+                <button className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full hover:bg-blue-700">
+                  <FaFacebookF size={20} />
+                </button>
+                <button className="flex items-center justify-center w-12 h-12 bg-red-500 text-white rounded-full hover:bg-red-600">
+                  <FaGoogle size={20} />
+                </button>
+              </div>
             )}
           </>
         )}
-
-        {/* --- OTP INPUT SECTION --- */}
-        {otpSent && (
-          <div className="mb-4">
-            <p className="text-gray-600 mb-4">
-              Please enter OTP sent on <b>{formData.UserName}</b>
-            </p>
-
-            <div className="flex justify-center gap-3 mb-4">
-              {[...Array(6)].map((_, index) => (
-                <input
-                  key={index}
-                  type="text"
-                  maxLength={1}
-                  value={formData.otp[index] || ""}
-                  onChange={(e) => handleOtpChange(e.target.value, index)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Backspace" && !formData.otp[index] && index > 0) {
-                      inputRefs.current[index - 1].focus();
-                    }
-                    // ✅ Enter triggers OTP verification
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleVerifyOtp(e);
-                    }
-                  }}
-                  ref={(el) => (inputRefs.current[index] = el)}
-                  className={`w-12 h-12 text-center text-xl font-bold border rounded ${
-                    formData.otp[index]
-                      ? "bg-orange-500 text-white"
-                      : "bg-white-100"
-                  }`}
-                />
-              ))}
-            </div>
-
-            {errors.otp && (
-              <p className="mt-1 text-sm text-red-600">{errors.otp}</p>
-            )}
-
-            {timer > 0 ? (
-              <p className="text-sm text-gray-600">
-                Didn’t receive OTP? Resend in{" "}
-                <span className="font-semibold">{timer} Seconds</span>
-              </p>
-            ) : (
-              <button
-                type="button"
-                onClick={handleSendOtp}
-                className="text-sm text-blue-600 hover:underline"
-              >
-                Resend OTP
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* --- AGE CERTIFICATION --- */}
-        {!otpSent && (
-          <div className="flex items-center justify-start mb-4">
-            <input
-              type="checkbox"
-              id="certify"
-              checked={checked}
-              onChange={() => setChecked(!checked)}
-              className="mr-2"
-            />
-            <label htmlFor="certify" className="text-sm text-gray-700">
-              I certify that I am above 18 years
-            </label>
-          </div>
-        )}
-
-        {/* --- CONTINUE BUTTON --- */}
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full bg-orange-500 text-white py-3 rounded-full font-medium hover:bg-orange-600 transition disabled:opacity-50"
-        >
-          {isLoading
-            ? otpSent
-              ? "Verifying..."
-              : "Sending OTP..."
-            : "Continue"}
-        </button>
-      </form>
-
-      {/* --- FOOTER & OTHER OPTIONS --- */}
-      {!otpSent && (
-        <>
-          <p className="text-xs text-gray-500 mt-4">
-            By continuing, I agree to Dream Trading T&C.
-          </p>
-          <div className="text-sm mt-2">
-            <button
-              type="button"
-              onClick={() => setShowOtherOptions(!showOtherOptions)}
-              className="text-blue-600 hover:underline"
-            >
-              Other login options
-            </button>
-          </div>
-
-          {showOtherOptions && (
-            <div className="mt-4 flex items-center justify-center gap-4">
-              <button className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full hover:bg-blue-700">
-                <FaFacebookF size={20} />
-              </button>
-              <button className="flex items-center justify-center w-12 h-12 bg-red-500 text-white rounded-full hover:bg-red-600">
-                <FaGoogle size={20} />
-              </button>
-            </div>
-          )}
-        </>
-      )}
+      </div>
     </div>
-  </div>
-);
-
-
+  );
 };
 
 export default UserLogin;
