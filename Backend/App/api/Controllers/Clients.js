@@ -641,7 +641,7 @@ async LoginWithOTP(req, res) {
     if (!client) {
       // --- Validate referral token if provided ---
       if (token) {
-        const refUser = await Clients_Modal.findOne({ token: token, del: 0, ActiveStatus: 1 });
+        const refUser = await Clients_Modal.findOne({ refer_token: token, del: 0, ActiveStatus: 1 });
         if (!refUser) {
           return res.status(400).json({ status: false, message: "Referral code doesn't exist" });
         }
