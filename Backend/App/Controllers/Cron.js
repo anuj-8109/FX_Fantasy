@@ -337,26 +337,37 @@ async function updateContestRanks(req, res) {
           }
 
           // 5️⃣ Calculate total points
-          for (const symbol of Object.keys(stockGroups)) {
-            const { buyQty, buyValue, realizedPL } = stockGroups[symbol];
+         for (const symbol of Object.keys(stockGroups)) {
+  const { buyQty, buyValue, realizedPL } = stockGroups[symbol];
 
-            // Add realized P&L
-            totalPoints += realizedPL;
+  // Add realized P&L (safe add)
+  if (!isNaN(realizedPL)) {
+    totalPoints += realizedPL;
+  }
 
-            // If open position left → calculate unrealized P&L
-            if (buyQty > 0) {
-              const avgBuyPrice = buyValue / buyQty;
-              const livePrice = await returnstockcloseprice(symbol); // 🔥 API से live price
-              if (livePrice) {
-                const unrealizedPL = (livePrice - avgBuyPrice) * buyQty;
-                totalPoints += unrealizedPL;
-              }
-            }
-          }
+  // If open position left → calculate unrealized P&L
+  if (buyQty > 0) {
+    const avgBuyPrice = buyValue / buyQty;
+    if (!isNaN(avgBuyPrice) && isFinite(avgBuyPrice)) {
+      const livePrice = await returnstockcloseprice(symbol);
+      if (livePrice && !isNaN(livePrice)) {
+        const unrealizedPL = (livePrice - avgBuyPrice) * buyQty;
+        if (!isNaN(unrealizedPL)) {
+          totalPoints += unrealizedPL;
+        }
+      }
+    }
+  }
+}
 
-          // Save user points
-          join.points = totalPoints;
-          await join.save();
+// finally ensure totalPoints is number
+if (isNaN(totalPoints) || !isFinite(totalPoints)) {
+  totalPoints = 0;
+}
+
+join.points = Number(totalPoints.toFixed(2)); // round to 2 decimals safely
+await join.save();
+
         }
 
         // 6️⃣ Update ranking inside contest
