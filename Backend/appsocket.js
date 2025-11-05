@@ -11,7 +11,6 @@ const socketIo = require('socket.io');
 const https = require('https');
 const fs = require('fs');
 const WebSocket = require('ws');
-const passport = require('./App/Utils/passport');  // Ensure passport is correctly imported
 
 const app = express();
 const server = http.createServer(app);
