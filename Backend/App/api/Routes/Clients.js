@@ -1,7 +1,7 @@
 const router = require("express").Router()
 const auth = require('../../Middleware/authClient');
 
-const {detailClient,deleteClient,requestPayout,payoutList,referEarn,getTickets,detailTicket,rePly,addTicket,LoginWithOTP,otpSubmitWithPhone,updateClientProfile,Logout,addMoneyInWallet,getWalletHistory,updateClientName,updateClientImage,clientKycAndAgreement,uploadDocuments,downloadDocuments,updateClientManualkyc,addBankDetail,listBankDetails,deleteBank,AddContestPrivate,SharePrivateContest,ListPrivateContests,Refer,myContestsWithoutTournament} = require('../Controllers/Clients')
+const {detailClient,deleteClient,requestPayout,payoutList,referEarn,getTickets,detailTicket,rePly,addTicket,LoginWithOTP,otpSubmitWithPhone,updateClientProfile,Logout,addMoneyInWallet,getWalletHistory,updateClientName,updateClientImage,clientKycAndAgreement,uploadDocuments,downloadDocuments,updateClientManualkyc,addBankDetail,listBankDetails,deleteBank,AddContestPrivate,SharePrivateContest,ListPrivateContests,Refer,myContestsWithoutTournament,googleAuth,googleCallback} = require('../Controllers/Clients')
 
 
 router.post("/api/client/login-with-otp", LoginWithOTP);
@@ -34,5 +34,8 @@ router.get("/api/client/listprivatecontests", auth, ListPrivateContests);
 router.get("/api/client/refer", Refer);
 router.post('/api/list/mycontestswithouttournament', auth, myContestsWithoutTournament); 
 
+
+router.get('/api/client/google', googleAuth);
+router.get('/api/client/callback', googleCallback);
 
 module.exports = router;
