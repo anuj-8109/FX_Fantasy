@@ -2398,7 +2398,8 @@ async googleCallback(req, res, next) {
       });
 
       // Redirect to success page
-      return res.redirect(`${process.env.DOMAIN}`);
+
+     return res.redirect(`${process.env.DOMAIN}?token=${token}&FullName=${user.FullName}&email=${user.Email}&createdAt=${user.createdAt}&id=${user._id}`);
     })(req, res, next);
   } catch (err) {
     console.error("Error in googleCallback:", err);
