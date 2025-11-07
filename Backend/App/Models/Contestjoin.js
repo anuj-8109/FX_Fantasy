@@ -56,7 +56,13 @@ const ContestJoinSchema = new Schema({
   wallet_balance: {
   type: Number,
   required: true
+},
+winningAmount: {
+  type: Number,
+  default: 0
 }
+
+
 }, { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } });
 
 module.exports = model("ContestJoin", ContestJoinSchema);
