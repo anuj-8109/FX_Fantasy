@@ -33,30 +33,31 @@ const UserLogin = () => {
     }),
   });
 
-  useEffect(() => {
+  
+useEffect(() => {
   const params = new URLSearchParams(window.location.search);
 
   const token = params.get("token");
   const fullName = params.get("FullName");
-  const email = params.get("email");
+  const email = params.get("Email");
   const userId = params.get("id");
   const createdAt = params.get("createdAt");
 
-  // ✅ Check if Google login returned data
   if (token && email) {
-    // ✅ Save to localStorage
+
     localStorage.setItem("token", token);
+
     localStorage.setItem("user", JSON.stringify({
-      fullName,
-      email,
+      FullName: fullName,
+      Email: email,
       id: userId,
-      createdAt
+      createdAt: createdAt
     }));
 
-    // ✅ Redirect to Dashboard
     navigate("/dashboard");
   }
 }, [navigate]);
+
 
 
   const handleGoogleLogin = () => {
