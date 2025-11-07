@@ -16,6 +16,7 @@ const UserHeader = () => {
     const fetchUser = async () => {
       try {
         const res = await GetUserDetails(token, userId);
+        
         if (res?.status) {
           const data = res.data;
           setWalletBalance(data?.wamount || 0);

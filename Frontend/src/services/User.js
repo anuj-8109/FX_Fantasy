@@ -120,12 +120,31 @@ export async function GetUserDetails(token, id) {
         },
       }
     );
+
     return response?.data;
+
   } catch (error) {
     console.error("API error", error?.response || error);
-    return error?.response?.data || { status: false, message: "Unknown error" };
+
+    // ✅ 404 ko handle karo
+    if (error?.response?.status === 404) {
+      // console.warn("User not found. Clearing localStorage...");
+
+      // ✅ LocalStorage clear
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.clear(); // optional
+
+      // ✅ Redirect to '/'
+      window.location.href = "/";
+    }
+
+    return (
+      error?.response?.data || { status: false, message: "Unknown error" }
+    );
   }
 }
+
 
 // for Ticket Status
 
