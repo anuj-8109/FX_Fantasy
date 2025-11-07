@@ -34,7 +34,8 @@ const UserLogin = () => {
   });
 
   const handleGoogleLogin = () => {
-    window.location.href = "https://fx.tradestreet.in/api/client/google";
+    // window.location.href = "https://fx.tradestreet.in/api/client/google";
+    window.location.href = "https://fx.tradestreet.in/backend/api/client/google";
   };
 
 
