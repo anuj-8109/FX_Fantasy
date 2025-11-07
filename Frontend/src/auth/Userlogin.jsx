@@ -43,7 +43,7 @@ useEffect(() => {
   const createdAt = params.get("createdAt");
 
   if (token && email) {
-    // ✅ Save login session
+
     localStorage.setItem("token", token);
     localStorage.setItem(
       "user",
@@ -57,10 +57,16 @@ useEffect(() => {
 
     toast.success("Login Successful! ✅");
 
-    // ✅ Redirect to dashboard
-    navigate("/dashboard");
+    // ✅ If first time login → go to Set Name page
+    if (!fullName || fullName.trim() === "") {
+      navigate("/setname");
+    } 
+    else {
+      navigate("/dashboard");
+    }
   }
 }, [navigate]);
+
 
 
 
