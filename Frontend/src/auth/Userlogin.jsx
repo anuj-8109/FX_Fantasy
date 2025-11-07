@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 import { FaFacebookF, FaGoogle } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
+import config from "../utils/config";
 
 const UserLogin = () => {
   const location = useLocation();
@@ -59,26 +60,10 @@ const UserLogin = () => {
 }, [navigate]);
 
 
-const handleGoogleLogin = async () => {
-  try {
-    const response = await GoogleAuthApi();
-
-    // If your backend returns a redirect URL like:
-    // { url: "https://accounts.google.com/o/oauth2/v2/auth?...." }
-
-    if (response?.url) {
-      window.location.href = response.url;
-    } else {
-      // If backend directly handles redirect
-      window.location.href = `${config.base_url}backend/api/client/google`;
-    }
-
-  } catch (error) {
-    console.log("Google login error", error);
-    toast.error("Google login failed");
-  }
-};
-
+  const handleGoogleLogin = () => {
+    // window.location.href = "https://fx.tradestreet.in/api/client/google";
+    window.location.href = `${config.base_url}backend/api/client/google`;
+  };
 
 
   useEffect(() => {
