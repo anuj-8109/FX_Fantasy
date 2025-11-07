@@ -33,35 +33,30 @@ const UserLogin = () => {
     }),
   });
 
-useEffect(() => {
+  useEffect(() => {
   const params = new URLSearchParams(window.location.search);
 
   const token = params.get("token");
-  const FullName = params.get("FullName");
-  const Email = params.get("Email");
+  const fullName = params.get("FullName");
+  const email = params.get("email");
   const userId = params.get("id");
   const createdAt = params.get("createdAt");
 
-  if (token && Email) {
-    // ✅ Save login session
+  // ✅ Check if Google login returned data
+  if (token && email) {
+    // ✅ Save to localStorage
     localStorage.setItem("token", token);
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        FullName: FullName,
-        Email: Email,
-        id: userId,
-        createdAt,
-      })
-    );
+    localStorage.setItem("user", JSON.stringify({
+      fullName,
+      email,
+      id: userId,
+      createdAt
+    }));
 
-    toast.success("Login Successful! ✅");
-
-    // ✅ Redirect to dashboard
+    // ✅ Redirect to Dashboard
     navigate("/dashboard");
   }
 }, [navigate]);
-
 
 
   const handleGoogleLogin = () => {
