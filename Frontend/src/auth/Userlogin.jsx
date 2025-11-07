@@ -40,7 +40,7 @@ const UserLogin = () => {
   const token = params.get("token");
   const fullName = params.get("FullName");
   const email = params.get("email");
-  const userId = params.get("id");
+  const userId = params.get("userId");
   const createdAt = params.get("createdAt");
 
   // ✅ Check if Google login returned data
