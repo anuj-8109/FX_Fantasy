@@ -33,6 +33,37 @@ const UserLogin = () => {
     }),
   });
 
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+
+  const token = params.get("token");
+  const fullName = params.get("FullName");
+  const email = params.get("email");
+  const userId = params.get("id");
+  const createdAt = params.get("createdAt");
+
+  if (token && email) {
+    // ✅ Save login session
+    localStorage.setItem("token", token);
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        fullName,
+        email,
+        id: userId,
+        createdAt,
+      })
+    );
+
+    toast.success("Login Successful! ✅");
+
+    // ✅ Redirect to dashboard
+    navigate("/dashboard");
+  }
+}, [navigate]);
+
+
+
   const handleGoogleLogin = () => {
     // window.location.href = "https://fx.tradestreet.in/api/client/google";
     window.location.href = "https://fx.tradestreet.in/backend/api/client/google";
