@@ -708,98 +708,110 @@ const Client = () => {
           </div>
         )}
 
-        {bankOpen && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-opacity-40">
-            <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl p-6 overflow-auto max-h-[80vh]">
-              <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
-                <span>🏦 Bank Details</span>
-                <button
-                  onClick={() => {
-                    setBankOpen(false);
-                    setBankDetails([]);
-                  }}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✖
-                </button>
-              </h2>
+      {bankOpen && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 backdrop-blur-sm">
+    {/* Modal Box */}
+    <div className="w-[92%] max-w-3xl rounded-xl bg-white shadow-2xl border border-gray-200 overflow-hidden max-h-[85vh] flex flex-col">
 
-              {bankDetails.length > 0 ? (
-                <table className="min-w-full border border-gray-300 rounded-lg">
-                  <thead>
-                    <tr className="bg-gray-100 text-left">
-                      <th className="px-4 py-2 border">#</th>
-                      <th className="px-4 py-2 border">Bank Name</th>
-                      <th className="px-4 py-2 border">Branch Name</th>
-                      <th className="px-4 py-2 border">Account No</th>
-                      <th className="px-4 py-2 border">IFSC</th>
-                      {/* <th className="px-4 py-2 border">Status</th> */}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bankDetails.map((item, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-4 py-2 border">{index + 1}</td>
-                        <td className="px-4 py-2 border">{item.name}</td>
-                        <td className="px-4 py-2 border">{item.branch}</td>
-                        <td className="px-4 py-2 border">{item.accountno}</td>
-                        <td className="px-4 py-2 border">{item.ifsc}</td>
-                        {/* <td className="px-4 py-2 border">
-                          {item.status == "approved" ? (
-                            <span className="text-green-600 font-semibold">Approved</span>
-                          ) : (
-                            <span className="text-yellow-600 font-semibold">Pending</span>
-                          )}
-                        </td> */}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-500">No bank details found.</p>
-              )}
-            </div>
-          </div>
-        )}
+      {/* Header */}
+      <div className="flex justify-between items-center px-6 py-4 bg-gray-50 border-b">
+        <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+          🏦 Bank Details
+        </h2>
 
-        {/* KYC Documents Modal */}
-        {/* KYC Documents Modal */}
+        <button
+          onClick={() => {
+            setBankOpen(false)
+            setBankDetails([])
+          }}
+          className="text-gray-500 hover:text-red-600 text-2xl font-bold leading-none transition"
+        >
+          ✖
+        </button>
+      </div>
+
+      {/* Content */}
+  {/* Content */}
+<div className="p-6 overflow-y-auto flex-1 bg-white">
+
+  {bankDetails.length > 0 ? (
+    <Datatable
+      columns={[
+        // { name: "#", selector: (row, index) => index + 1, width: "60px" },
+        { name: "Bank Name", selector: row => row.name, sortable: true },
+        { name: "Branch Name", selector: row => row.branch, sortable: true },
+        { name: "Account Number", selector: row => row.accountno, sortable: true },
+        { name: "IFSC", selector: row => row.ifsc, sortable: true },
+      ]}
+      data={bankDetails}
+      pagination
+      highlightOnHover
+      pointerOnHover
+      dense
+    />
+  ) : (
+    <p className="text-gray-500 text-center py-6">
+      No bank details found.
+    </p>
+  )}
+
+</div>
+
+
+      {/* Footer */}
+      <div className="px-6 py-4 bg-gray-50 border-t flex justify-end">
+        <button
+          onClick={() => {
+            setBankOpen(false)
+            setBankDetails([])
+          }}
+          className="px-6 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition font-medium"
+        >
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
+
         {kycModalOpen && selectedKycClient && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="fixed   inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 backdrop-blur-sm">
             {/* Modal Container */}
-            <div className="bg-white rounded-lg shadow-xl w-[90%] max-w-5xl max-h-[85vh] flex flex-col">
+            <div className="bg-white rounded-xl shadow-2xl  max-w-6xl max-h-[70vh] flex flex-col border border-gray-200">
+
               {/* Header */}
-              <div className="flex justify-between items-center px-6 py-4 border-b">
+              <div className="flex justify-between items-center px-6 py-4 border-b bg-gray-50 rounded-t-xl">
                 <h2 className="text-xl font-semibold text-gray-800">
-                  📄 KYC Documents – {selectedKycClient.FullName}
+                  📄 KYC Documents • {selectedKycClient.FullName}
                 </h2>
                 <button
                   onClick={() => {
-                    setKycModalOpen(false);
-                    setSelectedKycClient(null);
+                    setKycModalOpen(false)
+                    setSelectedKycClient(null)
                   }}
-                  className="text-gray-600 hover:text-gray-800 text-2xl font-bold leading-none"
+                  className="text-gray-600 hover:text-red-600 text-2xl font-bold leading-none transition"
                 >
                   ✖
                 </button>
               </div>
 
               {/* Scrollable Content */}
-              <div className="overflow-y-auto px-6 py-6 flex-1">
-                <h3 className="font-semibold text-lg mb-6 text-gray-700">
+              <div className="overflow-y-auto px-6 py-6 flex-1 bg-white">
+                <h3 className="font-semibold text-lg mb-5 text-gray-700">
                   Uploaded Documents
                 </h3>
 
                 {/* Documents Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                   {/* Aadhaar Front */}
-                  <div className="border rounded-lg p-4 bg-gray-50">
-                    <h4 className="font-semibold mb-3 text-blue-700">
-                      🪪 Aadhaar Card – Front
-                    </h4>
+                  <div className="p-4 bg-gray-50 border rounded-xl shadow-sm hover:shadow-md transition">
+                    <h4 className="font-semibold mb-3 text-blue-700">🪪 Aadhaar Card • Front</h4>
 
                     {selectedKycClient.adhaarphotofront ? (
-                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden">
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden shadow-inner">
                         <img
                           src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`}
                           alt="Aadhaar Front"
@@ -820,13 +832,11 @@ const Client = () => {
                   </div>
 
                   {/* Aadhaar Back */}
-                  <div className="border rounded-lg p-4 bg-gray-50">
-                    <h4 className="font-semibold mb-3 text-blue-700">
-                      🪪 Aadhaar Card – Back
-                    </h4>
+                  <div className="p-4 bg-gray-50 border rounded-xl shadow-sm hover:shadow-md transition">
+                    <h4 className="font-semibold mb-3 text-blue-700">🪪 Aadhaar Card • Back</h4>
 
                     {selectedKycClient.adhaarphotoback ? (
-                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden">
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden shadow-inner">
                         <img
                           src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`}
                           alt="Aadhaar Back"
@@ -847,13 +857,11 @@ const Client = () => {
                   </div>
 
                   {/* PAN Card */}
-                  <div className="md:col-span-2 border rounded-lg p-4 bg-gray-50">
-                    <h4 className="font-semibold mb-3 text-green-700">
-                      💳 PAN Card
-                    </h4>
+                  <div className="md:col-span-2 p-4 bg-gray-50 border rounded-xl shadow-sm hover:shadow-md transition">
+                    <h4 className="font-semibold mb-3 text-green-700">💳 PAN Card</h4>
 
                     {selectedKycClient.pancard ? (
-                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden">
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden shadow-inner">
                         <img
                           src={`${config.image_url}uploads/kyc/${selectedKycClient.pancard}`}
                           alt="PAN Card"
@@ -872,17 +880,18 @@ const Client = () => {
                       </div>
                     )}
                   </div>
+
                 </div>
               </div>
 
               {/* Footer */}
-              <div className="flex justify-end px-6 py-4 border-t bg-white">
+              <div className="flex justify-end px-6 py-4 border-t bg-gray-50 rounded-b-xl">
                 <button
                   onClick={() => {
-                    setKycModalOpen(false);
-                    setSelectedKycClient(null);
+                    setKycModalOpen(false)
+                    setSelectedKycClient(null)
                   }}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition font-medium"
                 >
                   Close
                 </button>
@@ -890,85 +899,130 @@ const Client = () => {
             </div>
           </div>
         )}
+
 
         {/* View Client */}
         {viewOpen && viewClient && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-opacity-40">
-            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
-              <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
-                <span>👁️ Client Details</span>
+          <div className="fixed mt-5 inset-0 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm z-50">
+            <div className="w-full max-w-lg max-h-[90vh] rounded-2xl bg-white shadow-xl p-0 overflow-hidden animate-scaleIn">
+
+              {/* Header */}
+              <div className="flex justify-between items-center border-b p-4">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <span className="text-blue-600 text-xl">👁️</span> Client Details
+                </h2>
+
                 <button
                   onClick={() => {
                     setViewOpen(false);
                     setViewClient(null);
                   }}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 hover:text-gray-700 transition"
                 >
                   ✖
                 </button>
-              </h2>
-
-              <div className="space-y-3">
-                <p>
-                  <strong>Name:</strong> {viewClient?.FullName || "N/A"}
-                </p>
-                <p>
-                  <strong>Email:</strong> {viewClient?.Email || "N/A"}
-                </p>
-                <p>
-                  <strong>Phone:</strong> {viewClient?.PhoneNo || "N/A"}
-                </p>
-                <p>
-                  <strong>City:</strong> {viewClient?.city || "N/A"}
-                </p>
-                <p>
-                  <strong>State:</strong> {viewClient?.state || "N/A"}
-                </p>
-                <p>
-                  <strong>DOB:</strong> {viewClient?.dob || "N/A"}
-                </p>
-                <p>
-                  <strong>Wallet Amount</strong> {viewClient?.wamount || "N/A"}
-                </p>
-                 <p>
-                  <strong>Refer Amount</strong> {viewClient?.referwamount || "N/A"}
-                </p>
-                 <p>
-                  <strong>Refer Code</strong> {viewClient?.refer_token || "N/A"}
-                </p>
-                <p>
-                  <strong>Status:</strong>{" "}
-                  {viewClient?.ActiveStatus === 1 ||
-                  viewClient?.ActiveStatus === "1"
-                    ? "Active"
-                    : "Inactive"}
-                </p>
-                <p>
-                  <strong>KYC:</strong>{" "}
-                  {viewClient.kyc_verification === 1 ? (
-                    <span>Verified</span>
-                  ) : viewClient.kyc_verification === 2 ? (
-                    <span>Rejected </span>
-                  ) : (
-                    <span>Pending </span>
-                  )}
-                </p>
               </div>
 
-              <div className="mt-6 flex justify-end">
+              {/* Scrollable Body */}
+              <div className="p-4 overflow-y-auto max-h-[65vh]">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="font-semibold text-gray-700">Name</p>
+                    <p className="text-gray-600">{viewClient?.FullName || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">Email</p>
+                    <p className="text-gray-600">{viewClient?.Email || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">Phone</p>
+                    <p className="text-gray-600">{viewClient?.PhoneNo || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">City</p>
+                    <p className="text-gray-600">{viewClient?.city || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">State</p>
+                    <p className="text-gray-600">{viewClient?.state || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">DOB</p>
+                    <p className="text-gray-600">{viewClient?.dob || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">Wallet Amount</p>
+                    <p className="text-gray-800 font-medium">{viewClient?.wamount || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">Refer Amount</p>
+                    <p className="text-gray-800 font-medium">{viewClient?.referwamount || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">Refer Code</p>
+                    <p className="text-gray-600">{viewClient?.refer_token || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">Status</p>
+                    <p
+                      className={
+                        viewClient?.ActiveStatus == 1
+                          ? "text-green-600 font-medium"
+                          : "text-red-600 font-medium"
+                      }
+                    >
+                      {viewClient?.ActiveStatus == 1 ? "Active" : "Inactive"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">KYC</p>
+                    <p
+                      className={
+                        viewClient?.kyc_verification === 1
+                          ? "text-green-600 font-medium"
+                          : viewClient?.kyc_verification === 2
+                            ? "text-red-600 font-medium"
+                            : "text-yellow-600 font-medium"
+                      }
+                    >
+                      {viewClient?.kyc_verification === 1
+                        ? "Verified"
+                        : viewClient?.kyc_verification === 2
+                          ? "Rejected"
+                          : "Pending"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex justify-end border-t p-4">
                 <button
                   onClick={() => {
                     setViewOpen(false);
                     setViewClient(null);
                   }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                  className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
                 >
                   Close
                 </button>
               </div>
+
             </div>
           </div>
         )}
+
+
       </div>
     </Content>
   );
