@@ -54,6 +54,8 @@ useEffect(() => {
       userId: userId,
       createdAt: createdAt || ""
     }));
+    localStorage.setItem("userId", userId);
+    localStorage.setItem("createdAt", createdAt || "");
 
     navigate("/dashboard");
   }
