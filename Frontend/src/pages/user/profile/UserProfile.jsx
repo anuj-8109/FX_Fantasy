@@ -287,7 +287,7 @@ const UserProfile = () => {
                                 <div className="space-y-4">
                                     <div className="border rounded-lg p-4 bg-gray-50 hover:shadow-sm transition">
                                         <p className="text-xs text-gray-500 mb-1">Username</p>
-                                        <p className="font-medium">{userDetails?.fullName || "Not provided"}</p>
+                                        <p className="font-medium">{userDetails?.FullName || "Not provided"}</p>
                                     </div>
 
                                     <div className="border rounded-lg p-4 bg-gray-50 hover:shadow-sm transition">
