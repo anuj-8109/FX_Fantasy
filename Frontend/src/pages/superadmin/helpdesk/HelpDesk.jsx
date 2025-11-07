@@ -83,7 +83,7 @@ function HelpDesk() {
     },
     {
       name: "E-mail",
-      selector: (row) => row.Email || "N/A",
+      selector: (row) => row.client.Email || "N/A",
       exportValue: (row) => row.Email || "N/A",
       export: true,
       sortable: true,
@@ -91,7 +91,7 @@ function HelpDesk() {
     },
     {
       name: "Phone No",
-      selector: (row) => row.PhoneNo || "N/A",
+      selector: (row) => row.client.PhoneNo || "N/A",
       exportValue: (row) => row.PhoneNo || "N/A",
       export: true,
       sortable: true,
@@ -121,10 +121,63 @@ function HelpDesk() {
     //   wrap: true,
     //   width: "120px",
     // },
+    // {
+    //   name: "Status",
+    //   selector: (row) => row.status,
+    //   exportValue: (row) => {
+    //     switch (row.status) {
+    //       case 1:
+    //         return "Active";
+    //       case 2:
+    //         return "Closed";
+    //       case 0:
+    //         return "Pending";
+    //       default:
+    //         return "N/A";
+    //     }
+    //   },
+    //   export: true,
+    //   width: "100px",
+    //   cell: (row) => {
+    //     let bgColor = "";
+    //     let textColor = "text-white";
+    //     let label = "";
+
+    //     switch (row.status) {
+    //       case 1:
+    //         bgColor = "bg-green-300"; // light green for Active
+    //         textColor = "text-black";
+    //         label = "Active";
+    //         break;
+    //       case 2:
+    //         bgColor = "bg-red-700"; // dark green for Closed
+    //         textColor = "text-white";
+    //         label = "Closed";
+    //         break;
+    //       case 0:
+    //         bgColor = "bg-yellow-400"; // yellow for Pending
+    //         textColor = "text-black";
+    //         label = "Pending";
+    //         break;
+    //       default:
+    //         bgColor = "bg-gray-300";
+    //         textColor = "text-black";
+    //         label = "Unknown";
+    //     }
+
+    //     return (
+    //       <span
+    //         className={`px-2 py-1 rounded-full text-sm font-medium ${bgColor} ${textColor}`}
+    //       >
+    //         {label}
+    //       </span>
+    //     );
+    //   },
+    // },
+
     {
       name: "Status",
-      selector: (row) => row.status,
-      exportValue: (row) => {
+      selector: (row) => {
         switch (row.status) {
           case 1:
             return "Active";
@@ -137,6 +190,7 @@ function HelpDesk() {
         }
       },
       export: true,
+      sortable: true,
       width: "100px",
       cell: (row) => {
         let bgColor = "";
@@ -145,17 +199,17 @@ function HelpDesk() {
 
         switch (row.status) {
           case 1:
-            bgColor = "bg-green-300"; // light green for Active
+            bgColor = "bg-green-300";
             textColor = "text-black";
             label = "Active";
             break;
           case 2:
-            bgColor = "bg-red-700"; // dark green for Closed
+            bgColor = "bg-red-700";
             textColor = "text-white";
             label = "Closed";
             break;
           case 0:
-            bgColor = "bg-yellow-400"; // yellow for Pending
+            bgColor = "bg-yellow-400";
             textColor = "text-black";
             label = "Pending";
             break;
@@ -174,7 +228,6 @@ function HelpDesk() {
         );
       },
     },
-
     {
       name: "Action",
       cell: (row) => (

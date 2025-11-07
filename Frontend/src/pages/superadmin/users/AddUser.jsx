@@ -230,7 +230,7 @@ export default function User() {
 
   return (
     <Content
-      Page_title={userId ? "Edit User" : "Add User"}
+      Page_title={userId ? "Edit Employee" : "Add Employee"}
       button_status={true}
       button_title="Back"
       route={"/superadmin/alluser"}

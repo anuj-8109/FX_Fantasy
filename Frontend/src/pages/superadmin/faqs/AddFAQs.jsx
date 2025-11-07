@@ -59,13 +59,12 @@ export default function AddEditFAQ() {
       confirmButtonText: "Yes, Save",
       cancelButtonText: "Cancel",
       buttonsStyling: false,
-         customClass: {
+      customClass: {
         popup: "custom-swal-popup",
         title: "custom-swal-title",
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-        
       },
     });
 
@@ -94,11 +93,22 @@ export default function AddEditFAQ() {
   };
 
   // Fields config for ReusableForm
-const faqFields = [
-  { name: "title", label: "Question", type: "text", required: true },
-  { name: "description", label: "Answer", type: "ckeditor", required: true },
-];
-
+  const faqFields = [
+    {
+      name: "title",
+      label: "Question",
+      type: "text",
+      required: true,
+      colClass: "col-span-4",
+    },
+    {
+      name: "description",
+      label: "Answer",
+      type: "ckeditor",
+      required: true,
+      colClass: "col-span-4",
+    },
+  ];
 
   return (
     <Content
@@ -108,9 +118,7 @@ const faqFields = [
       route="/superadmin/faqs"
     >
       <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4 border-b pb-2">
-          {faqData ? "Edit FAQ" : "Add FAQ"}
-        </h2>
+       
 
         <ReusableForm
           initialValues={initialValues}

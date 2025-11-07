@@ -29,7 +29,7 @@ export default function AddEditBlog() {
       const data = {
         title: blogData.title || "",
         description: blogData.description || "",
-        image: null, // existing image handled separately
+          image: blogData.image || null,// existing image handled separately
       };
       setInitialValues(data);
       setOriginalData(data);
@@ -73,7 +73,6 @@ export default function AddEditBlog() {
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-
       },
     });
 
@@ -106,14 +105,22 @@ export default function AddEditBlog() {
   };
 
   const blogFields = [
-    { name: "title", label: "Title", type: "text", required: true },
+    {
+      name: "title",
+      label: "Title",
+      type: "text",
+      required: true,
+      colClass: "col-span-2",
+    },
+
+    { name: "image", label: "Image", type: "file", colClass: "col-span-2" }, // optional on edit
     {
       name: "description",
       label: "Description",
       type: "ckeditor",
       required: true,
+      colClass: "col-span-4",
     },
-    { name: "image", label: "Image", type: "file" }, // optional on edit
   ];
 
   return (
@@ -124,10 +131,6 @@ export default function AddEditBlog() {
       route="/superadmin/blog"
     >
       <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4 border-b pb-2">
-          {blogData ? "Edit Blog" : "Add Blog"}
-        </h2>
-
         <ReusableForm
           initialValues={initialValues}
           validationSchema={validationSchema}

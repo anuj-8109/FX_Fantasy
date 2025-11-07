@@ -243,9 +243,6 @@ export default function AddCoupon() {
       route="/superadmin/coupons"
     >
       <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4 border-b pb-2">
-          {editId ? "Edit Coupon" : "Add Coupon"}
-        </h2>
 
         <ReusableForm
           initialValues={initialValues}

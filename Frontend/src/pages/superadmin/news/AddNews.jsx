@@ -109,14 +109,16 @@ export default function AddEditNews() {
   };
 
   const newsFields = [
-    { name: "title", label: "Title", type: "text", required: true },
-    {
+    { name: "title", label: "Title", type: "text", required: true, colClass: "col-span-2", },
+   
+    { name: "image", label: "Image", type: "file", required: true, colClass: "col-span-2", },
+     {
       name: "description",
       label: "Description",
       type: "ckeditor",
       required: true,
+       colClass: "col-span-4",
     },
-    { name: "image", label: "Image", type: "file", required: true },
   ];
 
   return (
@@ -127,9 +129,6 @@ export default function AddEditNews() {
       route="/superadmin/news"
     >
       <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4 border-b pb-2">
-          {newsData ? "Edit News" : "Add News"}
-        </h2>
 
         <ReusableForm
           initialValues={initialValues}

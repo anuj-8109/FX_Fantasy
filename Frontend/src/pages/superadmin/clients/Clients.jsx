@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import Content from "../../../components/superadmin/Content";
 import { useNavigate } from "react-router-dom";
+import * as config from "../../../utils/config";
 
 const Client = () => {
   const [clients, setClients] = useState([]);
@@ -39,6 +40,8 @@ const Client = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterText, setFilterText] = useState("");
   const navigate = useNavigate();
+  const [kycModalOpen, setKycModalOpen] = useState(false);
+  const [selectedKycClient, setSelectedKycClient] = useState(null);
 
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
@@ -49,6 +52,12 @@ const Client = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
     fetchClients({ page, limit: rowsPerPage, filter: filterText });
+  };
+
+  // New function to open KYC modal
+  const handleViewKyc = (client) => {
+    setSelectedKycClient(client);
+    setKycModalOpen(true);
   };
 
   const handleRowsPerPageChange = (newPerPage, page) => {
@@ -229,7 +238,6 @@ const Client = () => {
             htmlContainer: "custom-swal-text",
             confirmButton: "custom-swal-confirm",
             cancelButton: "custom-swal-cancel",
-
           },
         });
         return; // exit without making API call
@@ -245,13 +253,12 @@ const Client = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, Save",
       cancelButtonText: "Cancel",
-         customClass: {
+      customClass: {
         popup: "custom-swal-popup",
         title: "custom-swal-title",
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-        
       },
     });
 
@@ -300,7 +307,6 @@ const Client = () => {
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-
       },
     });
 
@@ -331,7 +337,6 @@ const Client = () => {
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-
       },
     });
     if (!confirm.isConfirmed) return;
@@ -353,7 +358,7 @@ const Client = () => {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
-         customClass: {
+      customClass: {
         popup: "custom-swal-popup",
         title: "custom-swal-title",
         htmlContainer: "custom-swal-text",
@@ -446,21 +451,21 @@ const Client = () => {
       export: true,
     },
 
-    // {
-    //   name: "View",
-    //   cell: (row) => (
-    //     <Eye
-    //       className="cursor-pointer text-green-600"
-    //       size={20}
-    //       onClick={() => {
-    //         setViewClient(row);
-    //         setViewOpen(true);
-    //       }}
-    //     />
-    //   ),
-    //   width: "60px",
-    //   export: false,
-    // },
+    {
+      name: "View",
+      cell: (row) => (
+        <Eye
+          className="cursor-pointer text-green-600"
+          size={20}
+          onClick={() => {
+            setViewClient(row);
+            setViewOpen(true);
+          }}
+        />
+      ),
+      width: "60px",
+      export: false,
+    },
     {
       name: "Action",
       cell: (row) => (
@@ -488,6 +493,20 @@ const Client = () => {
           onClick={() => fetchBankDetails(row._id)}
         >
           View Banks
+        </button>
+      ),
+      export: false,
+    },
+    {
+      name: "KYC Docs",
+      width: "100px",
+      cell: (row) => (
+        <button
+          className="px-2 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700"
+          onClick={() => handleViewKyc(row)}
+          disabled={row.kyc_type !== 1}
+        >
+          View
         </button>
       ),
       export: false,
@@ -743,6 +762,135 @@ const Client = () => {
           </div>
         )}
 
+        {/* KYC Documents Modal */}
+        {/* KYC Documents Modal */}
+        {kycModalOpen && selectedKycClient && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+            {/* Modal Container */}
+            <div className="bg-white rounded-lg shadow-xl w-[90%] max-w-5xl max-h-[85vh] flex flex-col">
+              {/* Header */}
+              <div className="flex justify-between items-center px-6 py-4 border-b">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  📄 KYC Documents – {selectedKycClient.FullName}
+                </h2>
+                <button
+                  onClick={() => {
+                    setKycModalOpen(false);
+                    setSelectedKycClient(null);
+                  }}
+                  className="text-gray-600 hover:text-gray-800 text-2xl font-bold leading-none"
+                >
+                  ✖
+                </button>
+              </div>
+
+              {/* Scrollable Content */}
+              <div className="overflow-y-auto px-6 py-6 flex-1">
+                <h3 className="font-semibold text-lg mb-6 text-gray-700">
+                  Uploaded Documents
+                </h3>
+
+                {/* Documents Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Aadhaar Front */}
+                  <div className="border rounded-lg p-4 bg-gray-50">
+                    <h4 className="font-semibold mb-3 text-blue-700">
+                      🪪 Aadhaar Card – Front
+                    </h4>
+
+                    {selectedKycClient.adhaarphotofront ? (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden">
+                        <img
+                          src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`}
+                          alt="Aadhaar Front"
+                          className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() =>
+                            window.open(
+                              `${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`,
+                              "_blank"
+                            )
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center">
+                        <p className="text-gray-400">Not uploaded</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Aadhaar Back */}
+                  <div className="border rounded-lg p-4 bg-gray-50">
+                    <h4 className="font-semibold mb-3 text-blue-700">
+                      🪪 Aadhaar Card – Back
+                    </h4>
+
+                    {selectedKycClient.adhaarphotoback ? (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden">
+                        <img
+                          src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`}
+                          alt="Aadhaar Back"
+                          className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() =>
+                            window.open(
+                              `${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`,
+                              "_blank"
+                            )
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center">
+                        <p className="text-gray-400">Not uploaded</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* PAN Card */}
+                  <div className="md:col-span-2 border rounded-lg p-4 bg-gray-50">
+                    <h4 className="font-semibold mb-3 text-green-700">
+                      💳 PAN Card
+                    </h4>
+
+                    {selectedKycClient.pancard ? (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden">
+                        <img
+                          src={`${config.image_url}uploads/kyc/${selectedKycClient.pancard}`}
+                          alt="PAN Card"
+                          className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() =>
+                            window.open(
+                              `${config.image_url}uploads/kyc/${selectedKycClient.pancard}`,
+                              "_blank"
+                            )
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center">
+                        <p className="text-gray-400">Not uploaded</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex justify-end px-6 py-4 border-t bg-white">
+                <button
+                  onClick={() => {
+                    setKycModalOpen(false);
+                    setSelectedKycClient(null);
+                  }}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* View Client */}
         {viewOpen && viewClient && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-opacity-40">
@@ -780,9 +928,18 @@ const Client = () => {
                   <strong>DOB:</strong> {viewClient?.dob || "N/A"}
                 </p>
                 <p>
+                  <strong>Wallet Amount</strong> {viewClient?.wamount || "N/A"}
+                </p>
+                 <p>
+                  <strong>Refer Amount</strong> {viewClient?.referwamount || "N/A"}
+                </p>
+                 <p>
+                  <strong>Refer Code</strong> {viewClient?.refer_token || "N/A"}
+                </p>
+                <p>
                   <strong>Status:</strong>{" "}
                   {viewClient?.ActiveStatus === 1 ||
-                    viewClient?.ActiveStatus === "1"
+                  viewClient?.ActiveStatus === "1"
                     ? "Active"
                     : "Inactive"}
                 </p>

@@ -92,8 +92,8 @@ export default function AddEditContent() {
   };
 
   const contentFields = [
-    { name: "title", label: "Title", type: "text", required: true },
-    { name: "description", label: "Description", type: "ckeditor", required: true },
+    { name: "title", label: "Title", type: "text", required: true , colClass: "col-span-4",},
+    { name: "description", label: "Description", type: "ckeditor", required: true, colClass: "col-span-4", },
   ];
 
   return (
@@ -104,9 +104,6 @@ export default function AddEditContent() {
       route="/superadmin/content"
     >
       <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4 border-b pb-2">
-          {contentData ? "Edit Content" : "Add Content"}
-        </h2>
 
         <ReusableForm
           initialValues={initialValues}

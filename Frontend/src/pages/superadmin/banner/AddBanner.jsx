@@ -140,9 +140,6 @@ export default function AddEditBanner() {
       route="/superadmin/banner"
     >
       <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4 border-b pb-2">
-          {bannerData ? "Edit Banner" : "Add Banner"}
-        </h2>
 
         <ReusableForm
           initialValues={initialValues}
