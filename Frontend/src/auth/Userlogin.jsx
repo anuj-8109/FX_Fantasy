@@ -33,37 +33,52 @@ const UserLogin = () => {
     }),
   });
 
-  
-useEffect(() => {
+  useEffect(() => {
   const params = new URLSearchParams(window.location.search);
 
   const token = params.get("token");
   const fullName = params.get("FullName");
-  const email = params.get("Email");
+  const email = params.get("email");
   const userId = params.get("id");
   const createdAt = params.get("createdAt");
 
+  // ✅ Check if Google login returned data
   if (token && email) {
-
+    // ✅ Save to localStorage
     localStorage.setItem("token", token);
-
     localStorage.setItem("user", JSON.stringify({
-      FullName: fullName,
-      Email: email,
+      fullName,
+      email,
       id: userId,
-      createdAt: createdAt
+      createdAt
     }));
 
+    // ✅ Redirect to Dashboard
     navigate("/dashboard");
   }
 }, [navigate]);
 
 
+const handleGoogleLogin = async () => {
+  try {
+    const response = await GoogleAuthApi();
 
-  const handleGoogleLogin = () => {
-    // window.location.href = "https://fx.tradestreet.in/api/client/google";
-    window.location.href = "https://fx.tradestreet.in/backend/api/client/google";
-  };
+    // If your backend returns a redirect URL like:
+    // { url: "https://accounts.google.com/o/oauth2/v2/auth?...." }
+
+    if (response?.url) {
+      window.location.href = response.url;
+    } else {
+      // If backend directly handles redirect
+      window.location.href = `${config.base_url}backend/api/client/google`;
+    }
+
+  } catch (error) {
+    console.log("Google login error", error);
+    toast.error("Google login failed");
+  }
+};
+
 
 
   useEffect(() => {

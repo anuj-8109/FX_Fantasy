@@ -42,7 +42,7 @@ export async function LoginWithOtpApi(data) {
 export async function GoogleAuthApi() {
   try {
     // const response = await axios.get(`${config.base_url}api/client/google`);
-    const response = await axios.get(`${config.base_url}api/client/google`);
+    const response = await axios.get(`${config.base_url}backend/api/client/google`);
     return response?.data;
   } catch (error) {
     return error;
