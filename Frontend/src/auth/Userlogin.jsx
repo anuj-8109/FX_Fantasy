@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
-import { UserLoginApi, LoginWithOtpApi } from "../services/Auth";
+import { UserLoginApi, LoginWithOtpApi,GoogleAuthApi } from "../services/Auth";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 import { FaFacebookF, FaGoogle } from "react-icons/fa";
@@ -32,6 +32,11 @@ const UserLogin = () => {
         .matches(/^\d{6}$/, "OTP must be 6 digits"),
     }),
   });
+
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:5000/api/client/google";
+  };
+
 
   useEffect(() => {
     if (otpSent && timer > 0) {
@@ -478,11 +483,10 @@ const UserLogin = () => {
                       }
                     }}
                     ref={(el) => (inputRefs.current[index] = el)}
-                    className={`w-12 h-12 text-center text-xl font-bold border rounded ${
-                      formData.otp[index]
-                        ? "bg-orange-500 text-white"
-                        : "bg-white-100"
-                    }`}
+                    className={`w-12 h-12 text-center text-xl font-bold border rounded ${formData.otp[index]
+                      ? "bg-orange-500 text-white"
+                      : "bg-white-100"
+                      }`}
                   />
                 ))}
               </div>
@@ -559,9 +563,14 @@ const UserLogin = () => {
                 <button className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full hover:bg-blue-700">
                   <FaFacebookF size={20} />
                 </button>
-                <button className="flex items-center justify-center w-12 h-12 bg-red-500 text-white rounded-full hover:bg-red-600">
+                <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  className="flex items-center justify-center w-12 h-12 bg-red-500 text-white rounded-full hover:bg-red-600"
+                >
                   <FaGoogle size={20} />
                 </button>
+
               </div>
             )}
           </>

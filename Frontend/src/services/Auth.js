@@ -38,3 +38,13 @@ export async function LoginWithOtpApi(data) {
     return error;
   }
 }
+
+export async function GoogleAuthApi() {
+  try {
+    // const response = await axios.get(`${config.base_url}api/client/google`);
+    const response = await axios.get(`${config.base_url}api/client/google`);
+    return response?.data;
+  } catch (error) {
+    return error;
+  }
+}
