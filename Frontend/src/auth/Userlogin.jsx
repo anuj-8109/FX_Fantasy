@@ -62,7 +62,7 @@ const UserLogin = () => {
 
   const handleGoogleLogin = () => {
     // window.location.href = "https://fx.tradestreet.in/api/client/google";
-    window.location.href = `${config.base_url}api/client/google`;
+    window.location.href = `${config.base_url}api/client/google/${userId}`;
   };
 
 
