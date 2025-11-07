@@ -2399,8 +2399,14 @@ async googleCallback(req, res, next) {
 
       // Redirect to success page
 
-     return res.redirect(`${process.env.DOMAIN}?token=${token}&FullName=${user.FullName}&email=${user.Email}&createdAt=${user.createdAt}&id=${user._id}`);
-    })(req, res, next);
+const dynamicUrl = `${req.protocol}://${req.headers.host}`;
+
+return res.redirect(
+  `${dynamicUrl}?token=${token}&FullName=${encodeURIComponent(user.FullName)}&email=${encodeURIComponent(user.Email)}&createdAt=${encodeURIComponent(user.createdAt)}&id=${user._id}`
+);
+
+
+})(req, res, next);
   } catch (err) {
     console.error("Error in googleCallback:", err);
     return res.status(500).json({ message: "Internal Server Error" });
