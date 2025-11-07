@@ -38,18 +38,18 @@ const UserLogin = () => {
   const params = new URLSearchParams(window.location.search);
 
   const token = params.get("token");
-  const fullName = params.get("FullName");
-  const email = params.get("email");
+  const FullName = params.get("FullName");
+  const Email = params.get("Email");
   const userId = params.get("id");
   const createdAt = params.get("createdAt");
 
   // ✅ Check if Google login returned data
-  if (token && email) {
+  if (token && Email) {
     // ✅ Save to localStorage
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify({
-      fullName,
-      email,
+      FullName,
+      Email,
       id: userId,
       createdAt
     }));
