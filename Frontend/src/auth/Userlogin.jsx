@@ -37,19 +37,19 @@ useEffect(() => {
   const params = new URLSearchParams(window.location.search);
 
   const token = params.get("token");
-  const fullName = params.get("FullName");
-  const email = params.get("email");
+  const FullName = params.get("FullName");
+  const Email = params.get("Email");
   const userId = params.get("id");
   const createdAt = params.get("createdAt");
 
-  if (token && email) {
-
+  if (token && Email) {
+    // ✅ Save login session
     localStorage.setItem("token", token);
     localStorage.setItem(
       "user",
       JSON.stringify({
-        fullName,
-        email,
+        FullName: FullName,
+        Email: Email,
         id: userId,
         createdAt,
       })
@@ -57,16 +57,10 @@ useEffect(() => {
 
     toast.success("Login Successful! ✅");
 
-    // ✅ If first time login → go to Set Name page
-    if (!fullName || fullName.trim() === "") {
-      navigate("/setname");
-    } 
-    else {
-      navigate("/dashboard");
-    }
+    // ✅ Redirect to dashboard
+    navigate("/dashboard");
   }
 }, [navigate]);
-
 
 
 
