@@ -17,9 +17,10 @@ const RouteManager = () => {
 
     if (!user && window.location.pathname !== "/superadminlogin") {
       navigate("/", { replace: true });
-    } else if (roleId === "1") {
-      navigate("/superadmin/dashboard", { replace: true });
-    }
+    } 
+    // else if (roleId === "1") {
+    //   navigate("/superadmin/dashboard", { replace: true });
+    // }
   }, []);
 
   return (
