@@ -42,13 +42,13 @@ const Blog = () => {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
-       customClass: {
+      customClass: {
         popup: "custom-swal-popup",
         title: "custom-swal-title",
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-        
+
       },
     });
     if (!confirm.isConfirmed) return;
@@ -68,13 +68,13 @@ const Blog = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, Delete",
       cancelButtonText: "Cancel",
-       customClass: {
+      customClass: {
         popup: "custom-swal-popup",
         title: "custom-swal-title",
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-        
+
       },
     });
     if (!confirm.isConfirmed) return;
@@ -191,7 +191,8 @@ const Blog = () => {
         {/* View Blog Modal */}
         {viewOpen && viewBlog && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
+            <div className="w-full max-w-xl rounded-2xl bg-white shadow-2xl p-6 max-h-[75vh] overflow-hidden">
+
               <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
                 <span>👁️ Blog Details</span>
                 <button
@@ -205,7 +206,9 @@ const Blog = () => {
                 </button>
               </h2>
 
-              <div className="space-y-4">
+              {/* Scrollable Content */}
+              <div className="space-y-4 overflow-y-auto pr-2 max-h-[55vh]">
+
                 <div>
                   <h3 className="font-semibold text-gray-800">Title:</h3>
                   <p className="text-gray-600">{viewBlog.title}</p>
@@ -217,7 +220,7 @@ const Blog = () => {
                     <img
                       src={viewBlog.image}
                       alt={viewBlog.title}
-                      className="w-full max-h-64 object-contain rounded-md border"
+                      className="w-full max-h-56 object-contain rounded-md border"
                     />
                   </div>
                 )}
@@ -229,22 +232,25 @@ const Blog = () => {
                     dangerouslySetInnerHTML={{ __html: viewBlog.description }}
                   />
                 </div>
+                <div className="mt-2 flex justify-end">
+                  <button
+                    onClick={() => {
+                      setViewOpen(false);
+                      setViewBlog(null);
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                  >
+                    Close
+                  </button>
+                </div>
+
               </div>
 
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={() => {
-                    setViewOpen(false);
-                    setViewBlog(null);
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md"
-                >
-                  Close
-                </button>
-              </div>
+
             </div>
           </div>
         )}
+
       </div>
     </Content>
   );

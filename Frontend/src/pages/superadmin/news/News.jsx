@@ -44,13 +44,13 @@ const News = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, Delete",
       cancelButtonText: "Cancel",
-       customClass: {
+      customClass: {
         popup: "custom-swal-popup",
         title: "custom-swal-title",
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-        
+
       },
     });
 
@@ -78,13 +78,13 @@ const News = () => {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
-       customClass: {
+      customClass: {
         popup: "custom-swal-popup",
         title: "custom-swal-title",
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-        
+
       },
     });
 
@@ -215,7 +215,8 @@ const News = () => {
 
         {viewOpen && viewNews && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
+            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6 max-h-[75vh] overflow-hidden">
+
               <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
                 <span>👁️ News Details</span>
                 <button
@@ -229,7 +230,9 @@ const News = () => {
                 </button>
               </h2>
 
-              <div className="space-y-4">
+              {/* Scrollable Content */}
+              <div className="space-y-4 overflow-y-auto pr-2 max-h-[55vh]">
+
                 <div>
                   <h3 className="font-semibold text-gray-800">Title:</h3>
                   <p className="text-gray-600">{viewNews?.title}</p>
@@ -241,7 +244,7 @@ const News = () => {
                     <img
                       src={`${config?.image_url}uploads/news/${viewNews.image}`}
                       alt={viewNews?.title}
-                      className="w-full max-h-64 object-contain rounded-md border"
+                      className="w-full max-h-56 object-contain rounded-md border"
                     />
                   </div>
                 )}
@@ -253,22 +256,24 @@ const News = () => {
                     dangerouslySetInnerHTML={{ __html: viewNews?.description }}
                   />
                 </div>
+                <div className="mt-6 flex justify-end">
+                  <button
+                    onClick={() => {
+                      setViewOpen(false);
+                      setViewNews(null);
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
 
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={() => {
-                    setViewOpen(false);
-                    setViewNews(null);
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md"
-                >
-                  Close
-                </button>
-              </div>
+
             </div>
           </div>
         )}
+
       </div>
     </Content>
   );
