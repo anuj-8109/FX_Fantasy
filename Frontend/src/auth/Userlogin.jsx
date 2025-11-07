@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 import { FaFacebookF, FaGoogle } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
-import { config } from "../utils/config";
+import  config  from "../utils/config";
 
 const UserLogin = () => {
   const location = useLocation();
