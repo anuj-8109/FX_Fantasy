@@ -40,12 +40,12 @@ const UserLogin = () => {
   const token = params.get("token");
   const fullName = params.get("FullName");
   const email = params.get("email");
-  const userId = params.get("userId");
+  const userId = params.get("userId") || params.get("id");
   const createdAt = params.get("createdAt");
 
-  // ✅ Check if Google login returned data
+
   if (token && email) {
-    // ✅ Save to localStorage
+   
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify({
       fullName,
