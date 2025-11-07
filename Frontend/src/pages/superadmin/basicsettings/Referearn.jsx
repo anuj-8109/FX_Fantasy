@@ -18,7 +18,7 @@ const Referearn = () => {
     // refer_status: "inactive",
     refersendmsg: "",
     refer_image: null,
-    multipleTime: true,
+    multipleTime: false,
     refer_amount_used_percent: 0,
   });
 

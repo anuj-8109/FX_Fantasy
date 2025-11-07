@@ -14,7 +14,7 @@ const db = require("./App/Models");
 const http = require('http');
 const socketio = require('socket.io');
 const WebSocket = require('ws');
-
+const passport = require('./App/Utils/passport');  // Ensure passport is correctly imported
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server, {
@@ -25,6 +25,13 @@ const io = socketio(server, {
 });
 
 global.io = io;
+
+
+//////////////////////  google login  ///////////////////
+
+
+/////////////////////// google login //////////////////
+
 
 
 

@@ -15,14 +15,14 @@ const clientsModel = new Schema({
     },
     PhoneNo: {
         type: String,
-        required: true,
+        //required: true,
         trim: true,
-        validate: {
-            validator: function(v) {
-                return /\d{10}/.test(v); // ensures exactly 10 digits
-            },
-            message: props => `${props.value} is not a valid phone number!`
-        },
+        // validate: {
+        //     validator: function(v) {
+        //         return /\d{10}/.test(v); // ensures exactly 10 digits
+        //     },
+        //     message: props => `${props.value} is not a valid phone number!`
+        // },
         default: null
     },
     password: {
@@ -129,6 +129,12 @@ const clientsModel = new Schema({
         trim: true,
         default: null
     },
+    googleId: {
+        type: String,
+        trim: true,
+        default: null
+    },
+
 }, {
     timestamps: true
 });
