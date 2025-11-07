@@ -49,7 +49,6 @@ function HistoryPage() {
 
   // Socket connection for live prices
   useEffect(() => {
-    // Uncomment this when integrating with real socket
     
     const socket = io(SOCKET_URL, {
       transports: ["websocket"],
@@ -488,6 +487,7 @@ function HistoryPage() {
           </div>
         </div>
       )}
+
     </div>
   );
 }
