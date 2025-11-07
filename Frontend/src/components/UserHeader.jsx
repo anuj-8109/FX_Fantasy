@@ -81,7 +81,10 @@ const UserHeader = () => {
         </button>
 
         {/* Notifications */}
-        <button className="bg-black p-2 rounded-full text-white relative shadow-md hover:scale-110 transition">
+        <button onClick={()=>{
+          navigate("/alert")
+        }}
+        className="bg-black p-2 rounded-full text-white relative shadow-md hover:scale-110 transition">
           <Bell size={20} />
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1 animate-pulse">
             3
