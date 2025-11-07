@@ -34,7 +34,7 @@ const UserLogin = () => {
     }),
   });
 
-  useEffect(() => {
+useEffect(() => {
   const params = new URLSearchParams(window.location.search);
 
   const token = params.get("token");
@@ -43,21 +43,22 @@ const UserLogin = () => {
   const userId = params.get("userId") || params.get("id");
   const createdAt = params.get("createdAt");
 
-
   if (token && email) {
-   
     localStorage.setItem("token", token);
+
+    // ✅ SAVE IN SAME FORMAT AS OTP
     localStorage.setItem("user", JSON.stringify({
-      fullName,
-      email,
+      fullName: fullName || "",
+      email: email || "",
       id: userId,
-      createdAt
+      userId: userId,
+      createdAt: createdAt || ""
     }));
 
-    // ✅ Redirect to Dashboard
     navigate("/dashboard");
   }
 }, [navigate]);
+
 
 
   const handleGoogleLogin = () => {
