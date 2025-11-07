@@ -1073,7 +1073,7 @@ async  addMoneyInWallet(req, res) {
           })
           await results.save();
           client.referwamount+= receiveramount;
-          client.wamount += receiveramount;
+         // client.wamount += receiveramount;
           await client.save();
 
 
@@ -1105,7 +1105,7 @@ const socketData = {
 
           if (sender) {
             sender.referwamount+= senderamount;
-            sender.wamount += senderamount;
+           // sender.wamount += senderamount;
             await sender.save();
 
    const notificationTitleSender = 'Important Update';
@@ -1153,7 +1153,7 @@ const socketData = {
 
           // Update client's wallet amount
             client.referwamount+= receiveramount;
-          client.wamount += receiveramount;
+        //  client.wamount += receiveramount;
           await client.save();
 
    const notificationTitle = 'Important Update';
@@ -1185,7 +1185,7 @@ const socketData = {
 
           if (sender) {
               sender.referwamount+= senderamount;
-            sender.wamount += senderamount;
+        //    sender.wamount += senderamount;
             await sender.save();
 
 
