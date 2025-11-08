@@ -4,6 +4,7 @@ import { ArrowLeft, Save, Shield, CheckSquare, Square } from "lucide-react";
 import toast from "react-hot-toast";
 import { UpdatePermissions } from "../../../services/SuperAdmin";
 import Content from "../../../components/superadmin/Content";
+import Swal from "sweetalert2";
 
 // Permission categories based on sidebar (excluding Basic Settings)
 const permissionCategories = [
@@ -265,7 +266,79 @@ const ManagePermissions = () => {
     }
   };
 
+  // const handleSavePermissions = async () => {
+  //   if (selectedPermissions.length === 0) {
+  //     toast.error("Please select at least one permission");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+  //   try {
+  //     const response = await UpdatePermissions(token, {
+  //       id: userId,
+  //       permissions: selectedPermissions,
+  //     });
+
+  //     if (response?.status) {
+  //       toast.success("Permissions updated successfully!");
+  //       setTimeout(() => {
+  //         navigate("/superadmin/alluser");
+  //       }, 1500);
+  //     } else {
+  //       toast.error(response?.message || "Failed to update permissions");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating permissions:", error);
+  //     toast.error("Server error while updating permissions");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSavePermissions = async () => {
+    // ✅ Step 1: Check if no changes made
+    const original = Array.isArray(userPermissions)
+      ? typeof userPermissions[0] === "string"
+        ? (() => {
+            try {
+              return JSON.parse(userPermissions[0]);
+            } catch {
+              return userPermissions;
+            }
+          })()
+        : userPermissions
+      : [];
+
+    // Filter invalid values
+    const originalClean = original.filter(
+      (p) => p && p !== "1" && typeof p === "string"
+    );
+
+    // Compare arrays
+    const noChange =
+      originalClean.length === selectedPermissions.length &&
+      originalClean.every((p) => selectedPermissions.includes(p));
+
+    if (noChange) {
+      toast("No changes made", { icon: "⚠️" });
+      return;
+    }
+
+    // ✅ Step 2: Confirmation popup before update
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you really want to update these permissions?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Update",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#2563eb",
+      cancelButtonColor: "#6b7280",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    // ✅ Step 3: Proceed update if confirmed
     if (selectedPermissions.length === 0) {
       toast.error("Please select at least one permission");
       return;
@@ -282,7 +355,7 @@ const ManagePermissions = () => {
         toast.success("Permissions updated successfully!");
         setTimeout(() => {
           navigate("/superadmin/alluser");
-        }, 1500);
+        });
       } else {
         toast.error(response?.message || "Failed to update permissions");
       }

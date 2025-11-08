@@ -104,9 +104,6 @@ export default function AddEditContent() {
       route="/superadmin/content"
     >
       <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4 border-b pb-2">
-          {contentData ? "Edit Content" : "Add Content"}
-        </h2>
 
         <ReusableForm
           initialValues={initialValues}

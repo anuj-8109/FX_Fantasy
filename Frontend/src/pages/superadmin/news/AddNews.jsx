@@ -129,9 +129,6 @@ export default function AddEditNews() {
       route="/superadmin/news"
     >
       <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4 border-b pb-2">
-          {newsData ? "Edit News" : "Add News"}
-        </h2>
 
         <ReusableForm
           initialValues={initialValues}

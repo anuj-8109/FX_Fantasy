@@ -213,7 +213,10 @@ function Tournament() {
       selector: (row) => (row.activestatus ? "Active" : "Inactive"),
       exportValue: (row) => (row.activestatus ? "Active" : "Inactive"),
       cell: (row) => {
-        const isDisabled = row.status === "live" || row.status === "completed";
+        const isDisabled =
+          row.status === "live" ||
+          row.status === "completed" ||
+          row.status === "cancelled";
 
         return (
           <label
@@ -241,12 +244,16 @@ function Tournament() {
     {
       name: "Action",
       cell: (row) => {
-        const now = new Date();
-        const startDate = new Date(row.startdate);
-        const endDate = new Date(row.enddate);
-        const isLive = now >= startDate && now <= endDate;
-        const isCompleted = now > endDate;
-        const isUpcoming = now < startDate;
+        const status = row.status?.toLowerCase();
+
+        const isUpcoming = status === "upcoming";
+        const isLive = status === "live";
+        const isCompleted = status === "completed";
+        const isCancelled = status === "cancelled";
+
+        const disableEdit = isLive || isCompleted || isCancelled;
+        const disableCancel = !isUpcoming || isCancelled;
+        const disableAdd = !isUpcoming || isCancelled;
 
         return (
           <div className="flex gap-3 items-center">
@@ -255,30 +262,34 @@ function Tournament() {
               size={25}
               onClick={() => openViewModal(row)}
             />
+
+            {/* EDIT BUTTON */}
             <Edit
               className={`${
-                isLive || isCompleted
+                disableEdit
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-blue-600 hover:text-blue-700 cursor-pointer"
               }`}
               size={22}
               onClick={() => {
-                if (!isLive && !isCompleted) {
+                if (!disableEdit) {
                   navigate("/superadmin/add-tournament", {
                     state: { tournament: row },
                   });
                 }
               }}
             />
+
+            {/* CANCEL BUTTON */}
             <button
               className={`px-3 py-1 rounded text-white text-sm transition ${
-                isUpcoming
+                !disableCancel
                   ? "bg-red-600 hover:bg-red-700"
                   : "bg-gray-400 cursor-not-allowed"
               }`}
-              disabled={!isUpcoming}
+              disabled={disableCancel}
               onClick={() => {
-                if (isUpcoming) handleCancel(row);
+                if (!disableCancel) handleCancel(row);
               }}
             >
               Cancel

@@ -928,6 +928,15 @@ const Client = () => {
                   <strong>DOB:</strong> {viewClient?.dob || "N/A"}
                 </p>
                 <p>
+                  <strong>Wallet Amount</strong> {viewClient?.wamount || "N/A"}
+                </p>
+                 <p>
+                  <strong>Refer Amount</strong> {viewClient?.referwamount || "N/A"}
+                </p>
+                 <p>
+                  <strong>Refer Code</strong> {viewClient?.refer_token || "N/A"}
+                </p>
+                <p>
                   <strong>Status:</strong>{" "}
                   {viewClient?.ActiveStatus === 1 ||
                   viewClient?.ActiveStatus === "1"
