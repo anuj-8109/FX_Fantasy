@@ -31,8 +31,8 @@ const refer_token = referTokenPrefix + refer_token_suffix; // e.g. "48371234"
       });
     } else {
       // optional: update fields
-      user.Email = profile.emails?.[0]?.value || user.email;
-      user.FullName = profile.displayName || user.name;
+      user.Email = profile.emails?.[0]?.value || user.Email;
+      user.FullName = profile.displayName || user.FullName;
       await user.save();
     }
     return done(null, user);
