@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import Content from "../../../components/superadmin/Content";
 import { useNavigate } from "react-router-dom";
+import * as config from "../../../utils/config";
 
 const Client = () => {
   const [clients, setClients] = useState([]);
@@ -39,6 +40,8 @@ const Client = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterText, setFilterText] = useState("");
   const navigate = useNavigate();
+  const [kycModalOpen, setKycModalOpen] = useState(false);
+  const [selectedKycClient, setSelectedKycClient] = useState(null);
 
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
@@ -49,6 +52,12 @@ const Client = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
     fetchClients({ page, limit: rowsPerPage, filter: filterText });
+  };
+
+  // New function to open KYC modal
+  const handleViewKyc = (client) => {
+    setSelectedKycClient(client);
+    setKycModalOpen(true);
   };
 
   const handleRowsPerPageChange = (newPerPage, page) => {
@@ -229,7 +238,6 @@ const Client = () => {
             htmlContainer: "custom-swal-text",
             confirmButton: "custom-swal-confirm",
             cancelButton: "custom-swal-cancel",
-
           },
         });
         return; // exit without making API call
@@ -245,13 +253,12 @@ const Client = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, Save",
       cancelButtonText: "Cancel",
-         customClass: {
+      customClass: {
         popup: "custom-swal-popup",
         title: "custom-swal-title",
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-        
       },
     });
 
@@ -300,7 +307,6 @@ const Client = () => {
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-
       },
     });
 
@@ -331,7 +337,6 @@ const Client = () => {
         htmlContainer: "custom-swal-text",
         confirmButton: "custom-swal-confirm",
         cancelButton: "custom-swal-cancel",
-
       },
     });
     if (!confirm.isConfirmed) return;
@@ -353,7 +358,7 @@ const Client = () => {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
-         customClass: {
+      customClass: {
         popup: "custom-swal-popup",
         title: "custom-swal-title",
         htmlContainer: "custom-swal-text",
@@ -488,6 +493,20 @@ const Client = () => {
           onClick={() => fetchBankDetails(row._id)}
         >
           View Banks
+        </button>
+      ),
+      export: false,
+    },
+    {
+      name: "KYC Docs",
+      width: "100px",
+      cell: (row) => (
+        <button
+          className="px-2 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700"
+          onClick={() => handleViewKyc(row)}
+          disabled={row.kyc_type !== 1}
+        >
+          View
         </button>
       ),
       export: false,
@@ -743,6 +762,189 @@ const Client = () => {
           </div>
         )}
 
+        {/* KYC Documents Modal */}
+        {kycModalOpen && selectedKycClient && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+            <div className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl p-6 overflow-auto max-h-[90vh]">
+              <div className="flex justify-between items-center mb-4 border-b pb-3">
+                <h2 className="text-xl font-semibold">
+                  📄 KYC Documents - {selectedKycClient.FullName}
+                </h2>
+                <button
+                  onClick={() => {
+                    setKycModalOpen(false);
+                    setSelectedKycClient(null);
+                  }}
+                  className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+                >
+                  ✖
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Client Basic Info */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-lg mb-2">
+                    Client Information
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <p>
+                      <strong>Email:</strong> {selectedKycClient.Email}
+                    </p>
+                    <p>
+                      <strong>Phone:</strong> {selectedKycClient.PhoneNo}
+                    </p>
+                    <p>
+                      <strong>PAN No:</strong>{" "}
+                      {selectedKycClient.panno || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Aadhaar No:</strong>{" "}
+                      {selectedKycClient.aadhaarno || "N/A"}
+                    </p>
+                    <p>
+                      <strong>DOB:</strong> {selectedKycClient.dob}
+                    </p>
+                    <p>
+                      <strong>KYC Status:</strong>{" "}
+                      {selectedKycClient.kyc_verification === 1 ? (
+                        <span className="text-green-600 font-semibold">
+                          Verified ✅
+                        </span>
+                      ) : selectedKycClient.kyc_verification === 2 ? (
+                        <span className="text-red-600 font-semibold">
+                          Rejected ❌
+                        </span>
+                      ) : (
+                        <span className="text-yellow-600 font-semibold">
+                          Pending ⏳
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                {/* KYC Documents */}
+                <div>
+                  <h3 className="font-semibold text-lg mb-3">
+                    Uploaded Documents
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Aadhaar Front */}
+                    <div className="border rounded-lg p-4">
+                      <h4 className="font-semibold mb-2 text-blue-600">
+                        🪪 Aadhaar Card - Front
+                      </h4>
+                      {selectedKycClient.adhaarphotofront ? (
+                        <img
+                          src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`}
+                          alt="Aadhaar Front"
+                          className="w-full h-48 object-contain border rounded-md cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() =>
+                            window.open(
+                              `${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`,
+                              "_blank"
+                            )
+                          }
+                        />
+                      ) : (
+                        <p className="text-gray-400 text-center py-8">
+                          Not uploaded
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Aadhaar Back */}
+                    <div className="border rounded-lg p-4">
+                      <h4 className="font-semibold mb-2 text-blue-600">
+                        🪪 Aadhaar Card - Back
+                      </h4>
+                      {selectedKycClient.adhaarphotoback ? (
+                        <img
+                          src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`}
+                          alt="Aadhaar Back"
+                          className="w-full h-48 object-contain border rounded-md cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() =>
+                            window.open(
+                              `${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`,
+                              "_blank"
+                            )
+                          }
+                        />
+                      ) : (
+                        <p className="text-gray-400 text-center py-8">
+                          Not uploaded
+                        </p>
+                      )}
+                    </div>
+
+                    {/* PAN Card */}
+                    <div className="border rounded-lg p-4 md:col-span-2">
+                      <h4 className="font-semibold mb-2 text-green-600">
+                        💳 PAN Card
+                      </h4>
+                      {selectedKycClient.pancard ? (
+                        <img
+                          src={`${config.image_url}uploads/kyc/${selectedKycClient.pancard}`}
+                          alt="PAN Card"
+                          className="w-full max-w-md mx-auto h-48 object-contain border rounded-md cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() =>
+                            window.open(
+                              `${config.image_url}uploads/kyc/${selectedKycClient.pancard}`,
+                              "_blank"
+                            )
+                          }
+                        />
+                      ) : (
+                        <p className="text-gray-400 text-center py-8">
+                          Not uploaded
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons if KYC is pending */}
+                {selectedKycClient.kyc_verification === 0 &&
+                  selectedKycClient.kyc_type === 1 && (
+                    <div className="flex justify-center gap-4 pt-4 border-t">
+                      <button
+                        className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                        onClick={() => {
+                          handleKycVerification(selectedKycClient._id, 1);
+                          setKycModalOpen(false);
+                        }}
+                      >
+                        ✅ Approve KYC
+                      </button>
+                      <button
+                        className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                        onClick={() => {
+                          handleKycVerification(selectedKycClient._id, 2);
+                          setKycModalOpen(false);
+                        }}
+                      >
+                        ❌ Reject KYC
+                      </button>
+                    </div>
+                  )}
+
+                <div className="flex justify-end pt-4">
+                  <button
+                    onClick={() => {
+                      setKycModalOpen(false);
+                      setSelectedKycClient(null);
+                    }}
+                    className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* View Client */}
         {viewOpen && viewClient && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-opacity-40">
@@ -782,7 +984,7 @@ const Client = () => {
                 <p>
                   <strong>Status:</strong>{" "}
                   {viewClient?.ActiveStatus === 1 ||
-                    viewClient?.ActiveStatus === "1"
+                  viewClient?.ActiveStatus === "1"
                     ? "Active"
                     : "Inactive"}
                 </p>
