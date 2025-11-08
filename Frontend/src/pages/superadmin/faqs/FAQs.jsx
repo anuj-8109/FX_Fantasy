@@ -103,14 +103,24 @@ const FAQs = () => {
       sortable: true,
       exportValue: row => row.title || "N/A",
     },
-    {
-      name: "Description",
-      selector: row => row.description,
-      exportValue: row => row.description || "N/A",
-      cell: row => (
-        <div className="prose prose-sm max-w-xs truncate" dangerouslySetInnerHTML={{ __html: row.description }} />
-      ),
-    },
+   {
+  name: "Description",
+  selector: row => row.description,
+  exportValue: row => row.description || "N/A",
+
+  cell: row => {
+    const text = row.description
+      ?.replace(/<[^>]+>/g, "")        // remove HTML tags
+      .substring(0, 20);               // trim
+
+    return (
+      <span title={row.description?.replace(/<[^>]+>/g, "")}>
+        {text}
+        {row.description?.replace(/<[^>]+>/g, "").length > 20 ? "..." : ""}
+      </span>
+    );
+  }
+},
     {
       name: "Status",
       selector: row => row.status,
