@@ -763,132 +763,133 @@ const Client = () => {
         )}
 
         {/* KYC Documents Modal */}
-      {kycModalOpen && selectedKycClient && (
-   <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 p-4">
-      
-      {/* Modal Container - Perfectly Centered */}
-      <div className="w-full max-w-4xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
-        
-        {/* Header - Fixed */}
-        <div className="flex justify-between items-center px-6 py-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
-          <h2 className="text-2xl font-bold text-gray-800">
-            📄 KYC Documents – {selectedKycClient.FullName}
-          </h2>
-          <button
-            onClick={() => setKycModalOpen(false)}
-            className="text-gray-500 hover:text-red-600 text-2xl font-bold transition-colors w-8 h-8 flex items-center justify-center"
-          >
-            ✖
-          </button>
-        </div>
+        {/* KYC Documents Modal */}
+        {kycModalOpen && selectedKycClient && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+            {/* Modal Container */}
+            <div className="bg-white rounded-lg shadow-xl w-[90%] max-w-5xl max-h-[85vh] flex flex-col">
+              {/* Header */}
+              <div className="flex justify-between items-center px-6 py-4 border-b">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  📄 KYC Documents – {selectedKycClient.FullName}
+                </h2>
+                <button
+                  onClick={() => {
+                    setKycModalOpen(false);
+                    setSelectedKycClient(null);
+                  }}
+                  className="text-gray-600 hover:text-gray-800 text-2xl font-bold leading-none"
+                >
+                  ✖
+                </button>
+              </div>
 
-        {/* Scrollable Content */}
-        <div className="overflow-y-auto p-6 flex-1">
-          
-          {/* Section Title */}
-          <h3 className="font-semibold text-xl mb-6 text-gray-700">
-            Uploaded Documents
-          </h3>
+              {/* Scrollable Content */}
+              <div className="overflow-y-auto px-6 py-6 flex-1">
+                <h3 className="font-semibold text-lg mb-6 text-gray-700">
+                  Uploaded Documents
+                </h3>
 
-          {/* Documents Grid - Properly Centered */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                {/* Documents Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Aadhaar Front */}
+                  <div className="border rounded-lg p-4 bg-gray-50">
+                    <h4 className="font-semibold mb-3 text-blue-700">
+                      🪪 Aadhaar Card – Front
+                    </h4>
 
-            {/* Aadhaar Front */}
-            <div className="border rounded-xl p-5 shadow-md bg-gradient-to-br from-blue-50 to-white hover:shadow-lg transition-shadow">
-              <h4 className="font-semibold mb-4 text-blue-700 flex items-center gap-2">
-                🪪 Aadhaar Card – Front
-              </h4>
+                    {selectedKycClient.adhaarphotofront ? (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden">
+                        <img
+                          src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`}
+                          alt="Aadhaar Front"
+                          className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() =>
+                            window.open(
+                              `${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`,
+                              "_blank"
+                            )
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center">
+                        <p className="text-gray-400">Not uploaded</p>
+                      </div>
+                    )}
+                  </div>
 
-              {selectedKycClient.adhaarphotofront ? (
-                <div className="w-full h-64 border-2 border-gray-200 rounded-lg bg-white overflow-hidden flex items-center justify-center">
-                  <img
-                    src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`}
-                    alt="Aadhaar Front"
-                    className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
-                    onClick={() =>
-                      window.open(
-                        `${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`,
-                        "_blank"
-                      )
-                    }
-                  />
+                  {/* Aadhaar Back */}
+                  <div className="border rounded-lg p-4 bg-gray-50">
+                    <h4 className="font-semibold mb-3 text-blue-700">
+                      🪪 Aadhaar Card – Back
+                    </h4>
+
+                    {selectedKycClient.adhaarphotoback ? (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden">
+                        <img
+                          src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`}
+                          alt="Aadhaar Back"
+                          className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() =>
+                            window.open(
+                              `${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`,
+                              "_blank"
+                            )
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center">
+                        <p className="text-gray-400">Not uploaded</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* PAN Card */}
+                  <div className="md:col-span-2 border rounded-lg p-4 bg-gray-50">
+                    <h4 className="font-semibold mb-3 text-green-700">
+                      💳 PAN Card
+                    </h4>
+
+                    {selectedKycClient.pancard ? (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden">
+                        <img
+                          src={`${config.image_url}uploads/kyc/${selectedKycClient.pancard}`}
+                          alt="PAN Card"
+                          className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() =>
+                            window.open(
+                              `${config.image_url}uploads/kyc/${selectedKycClient.pancard}`,
+                              "_blank"
+                            )
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center">
+                        <p className="text-gray-400">Not uploaded</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <div className="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center">
-                  <p className="text-gray-400 text-center">Not uploaded</p>
-                </div>
-              )}
-            </div>
+              </div>
 
-            {/* Aadhaar Back */}
-            <div className="border rounded-xl p-5 shadow-md bg-gradient-to-br from-blue-50 to-white hover:shadow-lg transition-shadow">
-              <h4 className="font-semibold mb-4 text-blue-700 flex items-center gap-2">
-                🪪 Aadhaar Card – Back
-              </h4>
-
-              {selectedKycClient.adhaarphotoback ? (
-                <div className="w-full h-64 border-2 border-gray-200 rounded-lg bg-white overflow-hidden flex items-center justify-center">
-                  <img
-                    src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`}
-                    alt="Aadhaar Back"
-                    className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
-                    onClick={() =>
-                      window.open(
-                        `${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`,
-                        "_blank"
-                      )
-                    }
-                  />
-                </div>
-              ) : (
-                <div className="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center">
-                  <p className="text-gray-400 text-center">Not uploaded</p>
-                </div>
-              )}
-            </div>
-
-            {/* PAN Card - Full Width */}
-            <div className="md:col-span-2 border rounded-xl p-5 shadow-md bg-gradient-to-br from-green-50 to-white hover:shadow-lg transition-shadow">
-              <h4 className="font-semibold mb-4 text-green-700 flex items-center gap-2">
-                💳 PAN Card
-              </h4>
-
-              {selectedKycClient.pancard ? (
-                <div className="w-full max-w-2xl mx-auto h-64 border-2 border-gray-200 rounded-lg bg-white overflow-hidden flex items-center justify-center">
-                  <img
-                    src={`${config.image_url}uploads/kyc/${selectedKycClient.pancard}`}
-                    alt="PAN Card"
-                    className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
-                    onClick={() =>
-                      window.open(
-                        `${config.image_url}uploads/kyc/${selectedKycClient.pancard}`,
-                        "_blank"
-                      )
-                    }
-                  />
-                </div>
-              ) : (
-                <div className="w-full max-w-2xl mx-auto h-64 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center">
-                  <p className="text-gray-400 text-center">Not uploaded</p>
-                </div>
-              )}
+              {/* Footer */}
+              <div className="flex justify-end px-6 py-4 border-t bg-white">
+                <button
+                  onClick={() => {
+                    setKycModalOpen(false);
+                    setSelectedKycClient(null);
+                  }}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Footer - Fixed */}
-        <div className="flex justify-end gap-3 px-6 py-4 border-t bg-gray-50">
-          <button
-            onClick={() => setKycModalOpen(false)}
-            className="px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-)}
-  
+        )}
 
         {/* View Client */}
         {viewOpen && viewClient && (
