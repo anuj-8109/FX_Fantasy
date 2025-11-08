@@ -106,14 +106,16 @@ export default function AddEditBlog() {
   };
 
   const blogFields = [
-    { name: "title", label: "Title", type: "text", required: true },
+    { name: "title", label: "Title", type: "text", required: true , colClass: "col-span-2",},
+    
+    { name: "image", label: "Image", type: "file" , colClass: "col-span-2",}, // optional on edit
     {
       name: "description",
       label: "Description",
       type: "ckeditor",
       required: true,
+       colClass: "col-span-4",
     },
-    { name: "image", label: "Image", type: "file" }, // optional on edit
   ];
 
   return (

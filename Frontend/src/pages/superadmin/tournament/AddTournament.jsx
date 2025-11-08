@@ -207,7 +207,7 @@ export default function AddEditTournament() {
       label: "Tournament Name",
       type: "text",
       required: true,
-      colClass: "col-span-2",
+      colClass: "col-span-4",
     },
     {
       name: "description",

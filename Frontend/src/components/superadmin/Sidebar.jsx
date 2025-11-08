@@ -82,6 +82,19 @@ const menuItems = [
     slug: "news",
   },
   {
+    title: "Coupons",
+    url: "/superadmin/coupons",
+    icon: <TicketPercent />,
+    slug: "coupons",
+  },
+  {
+    title: "FAQs",
+    url: "/superadmin/faqs",
+    icon: <BadgeHelp />,
+    slug: "faqs",
+  },
+
+  {
     title: "Withdrawal",
     url: "/superadmin/withdrawal",
     icon: <Banknote />,
@@ -93,18 +106,7 @@ const menuItems = [
     icon: <LifeBuoy />,
     slug: "help",
   },
-  {
-    title: "FAQs",
-    url: "/superadmin/faqs",
-    icon: <BadgeHelp />,
-    slug: "faqs",
-  },
-  {
-    title: "Coupons",
-    url: "/superadmin/coupons",
-    icon: <TicketPercent />,
-    slug: "coupons",
-  },
+
   {
     title: "Basic Settings",
     icon: <Settings2 />,

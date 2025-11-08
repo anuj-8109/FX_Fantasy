@@ -92,8 +92,8 @@ export default function AddEditContent() {
   };
 
   const contentFields = [
-    { name: "title", label: "Title", type: "text", required: true },
-    { name: "description", label: "Description", type: "ckeditor", required: true },
+    { name: "title", label: "Title", type: "text", required: true , colClass: "col-span-4",},
+    { name: "description", label: "Description", type: "ckeditor", required: true, colClass: "col-span-4", },
   ];
 
   return (
