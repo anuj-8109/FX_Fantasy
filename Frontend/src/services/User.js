@@ -44,7 +44,8 @@ export async function JoinContest(
   price,
   discount,
   total,
-  token
+  token,
+   couponCode = ""
 ) {
   try {
     const response = await axios.post(
@@ -55,6 +56,7 @@ export async function JoinContest(
         price,
         discount,
         total,
+        coupon_code: couponCode, 
       },
       {
         headers: {

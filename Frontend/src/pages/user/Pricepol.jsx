@@ -17,8 +17,6 @@ import Swal from "sweetalert2";
  * - Shows contests for a tournament
  * - Allows joining contests with optional coupon application
  * - Shows My Contests and Private Contests tabs
- *
- * Important: applyCouponAPI(token, { code, purchaseValue }) must exist on services/User
  */
 
 function Pricepol() {
@@ -35,9 +33,9 @@ function Pricepol() {
 
   // UI & filters
   const [loading, setLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false); // for join/apply actions
+  const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState("contests"); // contests | myContests | myTeam
+  const [activeTab, setActiveTab] = useState("contests");
   const [filters, setFilters] = useState({
     minEntryFee: "",
     maxEntryFee: "",
@@ -47,14 +45,10 @@ function Pricepol() {
     maxParticipants: "",
   });
 
-  // token
   const token = localStorage.getItem("token");
-
-  // Map to hold applied coupon per contestId (so UI can show discount if user applied before)
-  // shape: { [contestId]: { code, discount, finalPrice } }
   const [appliedCoupons, setAppliedCoupons] = useState({});
 
-  // --- Fetch contests by tournament on mount / when tournamentId or token changes ---
+  // Fetch contests by tournament
   useEffect(() => {
     if (!tournamentId || !token) {
       setError("Missing Tournament ID or Token");
@@ -86,7 +80,7 @@ function Pricepol() {
     fetchContests();
   }, [tournamentId, token]);
 
-  // --- Fetch my contests (joined) ---
+  // Fetch my contests
   useEffect(() => {
     const clientId = localStorage.getItem("userId");
     if (!token || !clientId) return setError("Missing token or client ID");
@@ -97,7 +91,6 @@ function Pricepol() {
         const data = await GetMyContests(token, clientId);
         console.log("GetMyContests response:", data);
         if (data?.status && data.data?.length > 0) {
-          // Filter those that belong to this tournament
           const filteredContests = data.data.filter(
             (c) => c?.contest_id?.tournament_id?._id === tournamentId
           );
@@ -117,10 +110,9 @@ function Pricepol() {
     };
 
     fetchMyContests();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, tournamentId]);
 
-  // --- Fetch private contests when activeTab is myTeam ---
+  // Fetch private contests
   useEffect(() => {
     const fetchPrivateContests = async () => {
       const clientId = localStorage.getItem("userId");
@@ -139,11 +131,12 @@ function Pricepol() {
     if (activeTab === "myTeam") fetchPrivateContests();
   }, [activeTab, tournamentId, token]);
 
-  // --- Filter handler ---
+  // Filter handlers
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
+
   const handleResetFilters = () =>
     setFilters({
       minEntryFee: "",
@@ -180,11 +173,9 @@ function Pricepol() {
     return true;
   });
 
-  // --- Coupon apply + join flow ---
-  // This function asks for coupon (optional), tries to apply it, then proceeds to JoinContest
+  // Join contest with coupon
   const handleJoinNow = async (contest) => {
     try {
-      // Prevent double clicks
       if (actionLoading) return;
       setActionLoading(true);
 
@@ -211,18 +202,18 @@ function Pricepol() {
         return;
       }
 
-      // If already joined, prevent join
+      // Check if already joined
       if (joinedContests.includes(contest._id)) {
         toast.error("You have already joined this contest");
         setActionLoading(false);
         return;
       }
 
-      // Entry fee
       const entryFee = parseFloat(contest.entry_fee) || 0;
       let discount = 0;
+      let appliedCouponCode = ""; // Store coupon code for backend
 
-      // Ask user for coupon code (optional)
+      // Ask for coupon code
       const { value: couponCode } = await Swal.fire({
         title: "Apply Coupon?",
         input: "text",
@@ -233,11 +224,10 @@ function Pricepol() {
         allowOutsideClick: false,
       });
 
-      // If user entered couponCode (could be empty if skipped)
-      if (couponCode) {
+      // If coupon code entered
+      if (couponCode && couponCode.trim() !== "") {
         try {
           toast.loading("Applying coupon...");
-          // Backend expects { code, purchaseValue }
           const couponRes = await applyCouponAPI(tokenLocal, {
             code: couponCode,
             purchaseValue: entryFee,
@@ -247,13 +237,13 @@ function Pricepol() {
           console.log("applyCouponAPI response:", couponRes);
 
           if (couponRes?.status) {
-            // Backend returns discount / finalPrice
             discount =
               parseFloat(
                 couponRes?.discount || couponRes?.discountAmount || 0
               ) || 0;
 
-            // store applied coupon for UI
+            appliedCouponCode = couponCode; // Store valid coupon
+
             setAppliedCoupons((prev) => ({
               ...prev,
               [contest._id]: {
@@ -265,7 +255,6 @@ function Pricepol() {
 
             toast.success(`Coupon applied - ₹${discount} off`);
           } else {
-            // If coupon invalid, show message and ask user whether to continue without coupon
             toast.error(
               couponRes?.message || "Coupon invalid or not applicable"
             );
@@ -286,7 +275,6 @@ function Pricepol() {
           toast.dismiss();
           console.error("applyCouponAPI error:", err);
           toast.error("Error applying coupon — continuing without it");
-          // Let user continue to join without coupon
         }
       }
 
@@ -298,7 +286,7 @@ function Pricepol() {
         return;
       }
 
-      // Call JoinContest API
+      // Join contest
       try {
         toast.loading("Joining contest...");
         const res = await JoinContest(
@@ -307,14 +295,14 @@ function Pricepol() {
           entryFee,
           discount,
           total,
-          tokenLocal
+          tokenLocal,
+          appliedCouponCode // Pass coupon code to backend
         );
         toast.dismiss();
         console.log("JoinContest response:", res);
 
         if (res?.status) {
           toast.success(`Joined ${contest.name} successfully 🎉`);
-          // Update local states
           const joinedContest = { ...contest, ...res.data };
           setMyContests((prev) => {
             const exists = prev.find((c) => c._id === joinedContest._id);
@@ -324,7 +312,6 @@ function Pricepol() {
           setJoinedContests((prev) => [...prev, contest._id]);
           setActiveTab("myContests");
         } else {
-          // If backend returns error, show it
           toast.error(res?.message || "Failed to join contest");
         }
       } catch (err) {
@@ -337,7 +324,7 @@ function Pricepol() {
     }
   };
 
-  // --- Share private contest handler (existing code reused) ---
+  // Share private contest
   const handleSharePrivate = async (contest) => {
     const tokenLocal = localStorage.getItem("token");
     const shared_by_client_id = localStorage.getItem("userId");
@@ -390,7 +377,7 @@ function Pricepol() {
     }
   };
 
-  // --- UI components ---
+  // Progress bar component
   const AnimatedProgressBar = ({ filled = 0, total = 0 }) => {
     const [progress, setProgress] = React.useState(0);
 
@@ -427,7 +414,6 @@ function Pricepol() {
     );
   };
 
-  // --- Render ---
   return (
     <div className="p-2 sm:p-4 md:p-6 lg:p-8 bg-gray-50 min-h-screen">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6 bg-gradient-to-r from-[#f8fafc] to-[#e0f2fe] p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200">
@@ -487,8 +473,6 @@ function Pricepol() {
           {/* All Contests */}
           {activeTab === "contests" &&
             filteredContests.map((contest) => {
-              const progress =
-                (contest.filled_spots / contest.total_spots) * 100 || 0;
               const isJoined = joinedContests.includes(contest._id);
               const applied = appliedCoupons[contest._id];
 
@@ -711,7 +695,7 @@ function Pricepol() {
               ) : (
                 <div className="text-center py-8 bg-gray-50 rounded-lg shadow-sm border border-gray-100">
                   <p className="text-gray-600 text-sm sm:text-base">
-                    📌 You haven’t joined any contests yet.
+                    📌 You haven't joined any contests yet.
                   </p>
                 </div>
               )}
@@ -825,7 +809,7 @@ function Pricepol() {
               ) : (
                 <div className="text-center py-8 bg-gray-50 rounded-lg shadow-sm border border-gray-100">
                   <p className="text-gray-600 text-sm sm:text-base">
-                    📌 You haven’t created any private contests yet.
+                    📌 You haven't created any private contests yet.
                   </p>
                 </div>
               )}
