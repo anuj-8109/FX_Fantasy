@@ -1762,6 +1762,21 @@ async getWalletHistory(req, res) {
       return res.status(404).json({ status: false, message: "Client not found or inactive" });
     }
 
+ const existingClient = await Clients_Modal.findOne({
+      PhoneNo: phone,
+      _id: { $ne: client._id }, // exclude current client
+      del: 0
+    });
+
+    if (existingClient) {
+      return res.status(400).json({
+        status: false,
+        message: "Phone number already exists for another client"
+      });
+    }
+
+
+
     // ✅ Update documents if uploaded
     if (req.files["adhaarphotofront"]) {
       client.adhaarphotofront = req.files["adhaarphotofront"][0].filename;
