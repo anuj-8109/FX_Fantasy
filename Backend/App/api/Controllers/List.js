@@ -401,7 +401,7 @@ async getContestsByTournamentId(req, res) {
 
 async  joinContest(req, res) {
   try {
-    const { contest_id, client_id, price, discount = 0 } = req.body;
+    const { contest_id, client_id, price, discount = 0,coupon_code="" } = req.body;
 
     // Validate inputs
     if (!contest_id || !client_id) {
@@ -495,6 +495,30 @@ if (client.referwamount && client.referwamount > 0 && referPercent > 0) {
     });
 
     await joinEntry.save();
+
+
+ if (coupon_code) {
+        const resultc = await Coupon_Modal.findOne({
+          del: false,
+          status: true,
+          code: coupon_code
+        });
+
+
+        if (resultc) {
+
+          // Check if limitation is greater than 0 before decrementing
+          if (resultc.limitation > 0) {
+            const updatedResult = await Coupon_Modal.findByIdAndUpdate(
+              resultc._id,
+              { $inc: { limitation: -1 } }, // Decrease limitation by 1
+              { new: true } // Return the updated document
+            );
+          }
+
+        }
+      }
+
 
     return res.status(200).json({
       status: true,

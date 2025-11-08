@@ -1730,12 +1730,26 @@ async getWalletHistory(req, res) {
       });
     });
 
-    const { id } = req.body;
+
+    const { id,email,name,phone,state,city,dob} = req.body;
 
     // 🔒 Validation
-    if (!id) {
-      return res.status(400).json({ status: false, message: "Client id is required" });
-    }
+    if (!id || !email || !name || !phone || !state || !city || !dob) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  // Email validation (basic)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
+
+  // Phone validation (10 digits)
+  const phoneRegex = /^[0-9]{10}$/;
+  if (!phoneRegex.test(phone)) {
+    return res.status(400).json({ message: "Invalid phone number" });
+  }
+
 
     // 🔎 Find client
     const client = await Clients_Modal.findOne({
@@ -1748,6 +1762,21 @@ async getWalletHistory(req, res) {
       return res.status(404).json({ status: false, message: "Client not found or inactive" });
     }
 
+ const existingClient = await Clients_Modal.findOne({
+      PhoneNo: phone,
+      _id: { $ne: client._id }, // exclude current client
+      del: 0
+    });
+
+    if (existingClient) {
+      return res.status(400).json({
+        status: false,
+        message: "Phone number already exists for another client"
+      });
+    }
+
+
+
     // ✅ Update documents if uploaded
     if (req.files["adhaarphotofront"]) {
       client.adhaarphotofront = req.files["adhaarphotofront"][0].filename;
@@ -1759,8 +1788,15 @@ async getWalletHistory(req, res) {
       client.pancard = req.files["pancard"][0].filename;
     }
 
-    client.kyc_type = 1; // Manual KYC
+    client.kyc_type = 1;
     client.kyc_verification=0;
+    client.FullName = name; 
+    client.Email=email;
+    client.PhoneNo = phone; 
+    client.state=state;
+    client.city = city; 
+    client.dob=dob;
+
     await client.save();
 
 
