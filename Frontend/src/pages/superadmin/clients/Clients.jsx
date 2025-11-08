@@ -451,21 +451,21 @@ const Client = () => {
       export: true,
     },
 
-    // {
-    //   name: "View",
-    //   cell: (row) => (
-    //     <Eye
-    //       className="cursor-pointer text-green-600"
-    //       size={20}
-    //       onClick={() => {
-    //         setViewClient(row);
-    //         setViewOpen(true);
-    //       }}
-    //     />
-    //   ),
-    //   width: "60px",
-    //   export: false,
-    // },
+    {
+      name: "View",
+      cell: (row) => (
+        <Eye
+          className="cursor-pointer text-green-600"
+          size={20}
+          onClick={() => {
+            setViewClient(row);
+            setViewOpen(true);
+          }}
+        />
+      ),
+      width: "60px",
+      export: false,
+    },
     {
       name: "Action",
       cell: (row) => (
@@ -763,187 +763,132 @@ const Client = () => {
         )}
 
         {/* KYC Documents Modal */}
-        {kycModalOpen && selectedKycClient && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-            <div className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl p-6 overflow-auto max-h-[90vh]">
-              <div className="flex justify-between items-center mb-4 border-b pb-3">
-                <h2 className="text-xl font-semibold">
-                  📄 KYC Documents - {selectedKycClient.FullName}
-                </h2>
-                <button
-                  onClick={() => {
-                    setKycModalOpen(false);
-                    setSelectedKycClient(null);
-                  }}
-                  className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
-                >
-                  ✖
-                </button>
-              </div>
+      {kycModalOpen && selectedKycClient && (
+   <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 p-4">
+      
+      {/* Modal Container - Perfectly Centered */}
+      <div className="w-full max-w-4xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
+        
+        {/* Header - Fixed */}
+        <div className="flex justify-between items-center px-6 py-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+          <h2 className="text-2xl font-bold text-gray-800">
+            📄 KYC Documents – {selectedKycClient.FullName}
+          </h2>
+          <button
+            onClick={() => setKycModalOpen(false)}
+            className="text-gray-500 hover:text-red-600 text-2xl font-bold transition-colors w-8 h-8 flex items-center justify-center"
+          >
+            ✖
+          </button>
+        </div>
 
-              <div className="space-y-6">
-                {/* Client Basic Info */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-lg mb-2">
-                    Client Information
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <p>
-                      <strong>Email:</strong> {selectedKycClient.Email}
-                    </p>
-                    <p>
-                      <strong>Phone:</strong> {selectedKycClient.PhoneNo}
-                    </p>
-                    <p>
-                      <strong>PAN No:</strong>{" "}
-                      {selectedKycClient.panno || "N/A"}
-                    </p>
-                    <p>
-                      <strong>Aadhaar No:</strong>{" "}
-                      {selectedKycClient.aadhaarno || "N/A"}
-                    </p>
-                    <p>
-                      <strong>DOB:</strong> {selectedKycClient.dob}
-                    </p>
-                    <p>
-                      <strong>KYC Status:</strong>{" "}
-                      {selectedKycClient.kyc_verification === 1 ? (
-                        <span className="text-green-600 font-semibold">
-                          Verified ✅
-                        </span>
-                      ) : selectedKycClient.kyc_verification === 2 ? (
-                        <span className="text-red-600 font-semibold">
-                          Rejected ❌
-                        </span>
-                      ) : (
-                        <span className="text-yellow-600 font-semibold">
-                          Pending ⏳
-                        </span>
-                      )}
-                    </p>
-                  </div>
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto p-6 flex-1">
+          
+          {/* Section Title */}
+          <h3 className="font-semibold text-xl mb-6 text-gray-700">
+            Uploaded Documents
+          </h3>
+
+          {/* Documents Grid - Properly Centered */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+
+            {/* Aadhaar Front */}
+            <div className="border rounded-xl p-5 shadow-md bg-gradient-to-br from-blue-50 to-white hover:shadow-lg transition-shadow">
+              <h4 className="font-semibold mb-4 text-blue-700 flex items-center gap-2">
+                🪪 Aadhaar Card – Front
+              </h4>
+
+              {selectedKycClient.adhaarphotofront ? (
+                <div className="w-full h-64 border-2 border-gray-200 rounded-lg bg-white overflow-hidden flex items-center justify-center">
+                  <img
+                    src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`}
+                    alt="Aadhaar Front"
+                    className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
+                    onClick={() =>
+                      window.open(
+                        `${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`,
+                        "_blank"
+                      )
+                    }
+                  />
                 </div>
-
-                {/* KYC Documents */}
-                <div>
-                  <h3 className="font-semibold text-lg mb-3">
-                    Uploaded Documents
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Aadhaar Front */}
-                    <div className="border rounded-lg p-4">
-                      <h4 className="font-semibold mb-2 text-blue-600">
-                        🪪 Aadhaar Card - Front
-                      </h4>
-                      {selectedKycClient.adhaarphotofront ? (
-                        <img
-                          src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`}
-                          alt="Aadhaar Front"
-                          className="w-full h-48 object-contain border rounded-md cursor-pointer hover:scale-105 transition-transform"
-                          onClick={() =>
-                            window.open(
-                              `${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`,
-                              "_blank"
-                            )
-                          }
-                        />
-                      ) : (
-                        <p className="text-gray-400 text-center py-8">
-                          Not uploaded
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Aadhaar Back */}
-                    <div className="border rounded-lg p-4">
-                      <h4 className="font-semibold mb-2 text-blue-600">
-                        🪪 Aadhaar Card - Back
-                      </h4>
-                      {selectedKycClient.adhaarphotoback ? (
-                        <img
-                          src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`}
-                          alt="Aadhaar Back"
-                          className="w-full h-48 object-contain border rounded-md cursor-pointer hover:scale-105 transition-transform"
-                          onClick={() =>
-                            window.open(
-                              `${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`,
-                              "_blank"
-                            )
-                          }
-                        />
-                      ) : (
-                        <p className="text-gray-400 text-center py-8">
-                          Not uploaded
-                        </p>
-                      )}
-                    </div>
-
-                    {/* PAN Card */}
-                    <div className="border rounded-lg p-4 md:col-span-2">
-                      <h4 className="font-semibold mb-2 text-green-600">
-                        💳 PAN Card
-                      </h4>
-                      {selectedKycClient.pancard ? (
-                        <img
-                          src={`${config.image_url}uploads/kyc/${selectedKycClient.pancard}`}
-                          alt="PAN Card"
-                          className="w-full max-w-md mx-auto h-48 object-contain border rounded-md cursor-pointer hover:scale-105 transition-transform"
-                          onClick={() =>
-                            window.open(
-                              `${config.image_url}uploads/kyc/${selectedKycClient.pancard}`,
-                              "_blank"
-                            )
-                          }
-                        />
-                      ) : (
-                        <p className="text-gray-400 text-center py-8">
-                          Not uploaded
-                        </p>
-                      )}
-                    </div>
-                  </div>
+              ) : (
+                <div className="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center">
+                  <p className="text-gray-400 text-center">Not uploaded</p>
                 </div>
+              )}
+            </div>
 
-                {/* Action Buttons if KYC is pending */}
-                {selectedKycClient.kyc_verification === 0 &&
-                  selectedKycClient.kyc_type === 1 && (
-                    <div className="flex justify-center gap-4 pt-4 border-t">
-                      <button
-                        className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                        onClick={() => {
-                          handleKycVerification(selectedKycClient._id, 1);
-                          setKycModalOpen(false);
-                        }}
-                      >
-                        ✅ Approve KYC
-                      </button>
-                      <button
-                        className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                        onClick={() => {
-                          handleKycVerification(selectedKycClient._id, 2);
-                          setKycModalOpen(false);
-                        }}
-                      >
-                        ❌ Reject KYC
-                      </button>
-                    </div>
-                  )}
+            {/* Aadhaar Back */}
+            <div className="border rounded-xl p-5 shadow-md bg-gradient-to-br from-blue-50 to-white hover:shadow-lg transition-shadow">
+              <h4 className="font-semibold mb-4 text-blue-700 flex items-center gap-2">
+                🪪 Aadhaar Card – Back
+              </h4>
 
-                <div className="flex justify-end pt-4">
-                  <button
-                    onClick={() => {
-                      setKycModalOpen(false);
-                      setSelectedKycClient(null);
-                    }}
-                    className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-                  >
-                    Close
-                  </button>
+              {selectedKycClient.adhaarphotoback ? (
+                <div className="w-full h-64 border-2 border-gray-200 rounded-lg bg-white overflow-hidden flex items-center justify-center">
+                  <img
+                    src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`}
+                    alt="Aadhaar Back"
+                    className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
+                    onClick={() =>
+                      window.open(
+                        `${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`,
+                        "_blank"
+                      )
+                    }
+                  />
                 </div>
-              </div>
+              ) : (
+                <div className="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center">
+                  <p className="text-gray-400 text-center">Not uploaded</p>
+                </div>
+              )}
+            </div>
+
+            {/* PAN Card - Full Width */}
+            <div className="md:col-span-2 border rounded-xl p-5 shadow-md bg-gradient-to-br from-green-50 to-white hover:shadow-lg transition-shadow">
+              <h4 className="font-semibold mb-4 text-green-700 flex items-center gap-2">
+                💳 PAN Card
+              </h4>
+
+              {selectedKycClient.pancard ? (
+                <div className="w-full max-w-2xl mx-auto h-64 border-2 border-gray-200 rounded-lg bg-white overflow-hidden flex items-center justify-center">
+                  <img
+                    src={`${config.image_url}uploads/kyc/${selectedKycClient.pancard}`}
+                    alt="PAN Card"
+                    className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
+                    onClick={() =>
+                      window.open(
+                        `${config.image_url}uploads/kyc/${selectedKycClient.pancard}`,
+                        "_blank"
+                      )
+                    }
+                  />
+                </div>
+              ) : (
+                <div className="w-full max-w-2xl mx-auto h-64 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center">
+                  <p className="text-gray-400 text-center">Not uploaded</p>
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
+
+        {/* Footer - Fixed */}
+        <div className="flex justify-end gap-3 px-6 py-4 border-t bg-gray-50">
+          <button
+            onClick={() => setKycModalOpen(false)}
+            className="px-6 py-2.5 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+)}
+  
 
         {/* View Client */}
         {viewOpen && viewClient && (
