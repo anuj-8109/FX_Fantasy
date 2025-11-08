@@ -1734,9 +1734,22 @@ async getWalletHistory(req, res) {
     const { id,email,name,phone,state,city,dob} = req.body;
 
     // 🔒 Validation
-    if (!id) {
-      return res.status(400).json({ status: false, message: "Client id is required" });
-    }
+    if (!id || !email || !name || !phone || !state || !city || !dob) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  // Email validation (basic)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
+
+  // Phone validation (10 digits)
+  const phoneRegex = /^[0-9]{10}$/;
+  if (!phoneRegex.test(phone)) {
+    return res.status(400).json({ message: "Invalid phone number" });
+  }
+
 
     // 🔎 Find client
     const client = await Clients_Modal.findOne({
