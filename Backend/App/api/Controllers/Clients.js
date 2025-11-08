@@ -1730,7 +1730,8 @@ async getWalletHistory(req, res) {
       });
     });
 
-    const { id } = req.body;
+
+    const { id,email,name,phone,state,city,dob} = req.body;
 
     // 🔒 Validation
     if (!id) {
@@ -1759,8 +1760,15 @@ async getWalletHistory(req, res) {
       client.pancard = req.files["pancard"][0].filename;
     }
 
-    client.kyc_type = 1; // Manual KYC
+    client.kyc_type = 1;
     client.kyc_verification=0;
+    client.FullName = name; 
+    client.Email=email;
+    client.PhoneNo = phone; 
+    client.state=state;
+    client.city = city; 
+    client.dob=dob;
+
     await client.save();
 
 
