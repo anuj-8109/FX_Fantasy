@@ -46,6 +46,18 @@ const menuItems = [
     slug: "clients",
   },
   {
+    title: "Active Clients",
+    url: "/superadmin/activeclient",
+    icon: <UserCheck />,
+    slug: "traders",
+  },
+  {
+    title: "Inactive Clients",
+    url: "/superadmin/inactiveclient",
+    icon: <UserCheck />,
+    slug: "traders",
+  },
+  {
     title: "Tournament",
     url: "/superadmin/tournament",
     icon: <Trophy />,

@@ -23,6 +23,18 @@ const RouteManager = () => {
     // }
   }, []);
 
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/superadminlogin", { replace: true });
+      }
+    };
+    
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [navigate]);
+
   return (
     <Routes>
       {AuthRoute()}       {/* Public routes */}
