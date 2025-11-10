@@ -275,6 +275,7 @@ async function getLivePrice(symbol) {
        return;
     }
   }
+  /*
 async function updateContestRanks(req, res) {
   try {
     // 1️⃣ Get all live tournaments
@@ -448,6 +449,183 @@ await join.save();
   }
 }
 
+*/
+
+
+async function updateContestRanks(req, res) {
+  try {
+    // 1️⃣ Get all live tournaments
+    const tournaments = await Tournament_Model.find({
+      status: "live",
+      activestatus: true,
+      del: false
+    });
+
+    for (const tournament of tournaments) {
+      // 2️⃣ Get contests under each tournament
+      const contests = await Contest_Model.find({
+        tournament_id: tournament._id,
+        activestatus: true,
+        del: false
+      });
+
+      for (const contest of contests) {
+        // 3️⃣ Get all joined users
+        const joins = await Contestjoin_Modal.find({ contest_id: contest._id });
+
+        // 🧮 Calculate points for each user
+        for (const join of joins) {
+          let totalPoints = 0;
+
+          // 4️⃣ Get all trades of this user in this contest
+          const trades = await Contesttrade_Modal.find({
+            contest_id: contest._id,
+            client_id: join.client_id
+          });
+
+          // Group trades by stock
+          const stockGroups = {};
+          for (const trade of trades) {
+            if (!stockGroups[trade.stock_symbol]) {
+              stockGroups[trade.stock_symbol] = {
+                buyQty: 0,
+                buyValue: 0,
+                sellQty: 0,
+                realizedPL: 0
+              };
+            }
+
+            if (trade.trade_type.toUpperCase() === "BUY") {
+              stockGroups[trade.stock_symbol].buyQty += trade.quantity;
+              stockGroups[trade.stock_symbol].buyValue += trade.price * trade.quantity;
+            } else if (trade.trade_type.toUpperCase() === "SELL") {
+              // Calculate realized P&L directly on sell
+              const avgBuyPrice =
+                stockGroups[trade.stock_symbol].buyValue /
+                  stockGroups[trade.stock_symbol].buyQty || 0;
+
+              const pl = (trade.price - avgBuyPrice) * trade.quantity;
+
+              stockGroups[trade.stock_symbol].sellQty += trade.quantity;
+              stockGroups[trade.stock_symbol].realizedPL += pl;
+
+              stockGroups[trade.stock_symbol].buyQty -= trade.quantity;
+              stockGroups[trade.stock_symbol].buyValue -= avgBuyPrice * trade.quantity;
+            }
+          }
+
+          // 5️⃣ Calculate total points (realized + unrealized)
+          for (const symbol of Object.keys(stockGroups)) {
+            const { buyQty, buyValue, realizedPL } = stockGroups[symbol];
+
+            if (!isNaN(realizedPL)) totalPoints += realizedPL;
+
+            // If open position left → calculate unrealized P&L
+            if (buyQty > 0) {
+              const avgBuyPrice = buyValue / buyQty;
+              if (!isNaN(avgBuyPrice) && isFinite(avgBuyPrice)) {
+                const livePrice = await returnstockcloseprice(symbol);
+                if (livePrice && !isNaN(livePrice)) {
+                  const unrealizedPL = (livePrice - avgBuyPrice) * buyQty;
+                  if (!isNaN(unrealizedPL)) {
+                    totalPoints += unrealizedPL;
+                  }
+                }
+              }
+            }
+          }
+
+          // Ensure totalPoints is safe
+          if (isNaN(totalPoints) || !isFinite(totalPoints)) totalPoints = 0;
+
+          join.points = Number(totalPoints.toFixed(2));
+          await join.save();
+        }
+
+        // 6️⃣ Sort participants by points (high → low)
+        const allParticipants = await Contestjoin_Modal.find({
+          contest_id: contest._id
+        }).sort({ points: -1 });
+
+        const prizeDistribution = contest.prize_distribution || [];
+        const numParticipants = allParticipants.length;
+
+        // 7️⃣ Create rank → prize mapping
+        let rankPrizes = [];
+        for (let i = 0; i < prizeDistribution.length; i++) {
+          const prize = prizeDistribution[i];
+          rankPrizes[prize.rank] = prize.amount;
+        }
+
+        // 8️⃣ Assign ranks (based on score, handling ties)
+        const rankToParticipants = {};
+        let currentRank = 1;
+
+        for (let i = 0; i < numParticipants; i++) {
+          const participant = allParticipants[i];
+          if (i > 0 && participant.points === allParticipants[i - 1].points) {
+            participant.rank = allParticipants[i - 1].rank; // same points → same rank
+          } else {
+            participant.rank = currentRank;
+          }
+
+          if (!rankToParticipants[participant.rank]) {
+            rankToParticipants[participant.rank] = [];
+          }
+          rankToParticipants[participant.rank].push(participant);
+
+          currentRank++;
+        }
+
+        // 9️⃣ Dream11-style prize distribution
+        let rankCounter = 1;
+        while (rankCounter <= numParticipants) {
+          const participantsInRank = rankToParticipants[rankCounter];
+
+          if (!participantsInRank || participantsInRank.length === 0) {
+            rankCounter++;
+            continue;
+          }
+
+          const sameRankCount = participantsInRank.length;
+          let totalPrizeToDistribute = 0;
+
+          // 🧮 Add prizes of current + next (sameRankCount - 1) ranks
+          for (let r = rankCounter; r < rankCounter + sameRankCount; r++) {
+            totalPrizeToDistribute += rankPrizes[r] || 0;
+          }
+
+          // Divide equally
+          const prizePerUser = sameRankCount > 0 ? totalPrizeToDistribute / sameRankCount : 0;
+
+          // Update each participant
+          for (const participant of participantsInRank) {
+            participant.winningAmount = Number(prizePerUser.toFixed(2));
+            await participant.save();
+          }
+
+          // Jump to next unprocessed rank (skip next ranks)
+          rankCounter += sameRankCount;
+        }
+      }
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: "✅ Contest rankings updated successfully"
+    });
+
+  } catch (error) {
+    console.error("Error in updateContestRanks:", error);
+    return res.status(500).json({
+      status: false,
+      message: error.message
+    });
+  }
+}
+
+
+
 async function closeOpenPositionsForEndedTournaments(req, res) {
   try {
     const now = new Date();
@@ -606,7 +784,7 @@ async function closeOpenPositionsForEndedTournaments(req, res) {
 
 
 async function updateContestRankss(req, res) {
-  try {
+ try {
     // 1️⃣ Get all live tournaments
     const tournaments = await Tournament_Model.find({
       status: "live",
@@ -626,6 +804,7 @@ async function updateContestRankss(req, res) {
         // 3️⃣ Get all joined users
         const joins = await Contestjoin_Modal.find({ contest_id: contest._id });
 
+        // 🧮 Calculate points for each user
         for (const join of joins) {
           let totalPoints = 0;
 
@@ -666,102 +845,102 @@ async function updateContestRankss(req, res) {
             }
           }
 
-          // 5️⃣ Calculate total points
-         for (const symbol of Object.keys(stockGroups)) {
-  const { buyQty, buyValue, realizedPL } = stockGroups[symbol];
+          // 5️⃣ Calculate total points (realized + unrealized)
+          for (const symbol of Object.keys(stockGroups)) {
+            const { buyQty, buyValue, realizedPL } = stockGroups[symbol];
 
-  // Add realized P&L (safe add)
-  if (!isNaN(realizedPL)) {
-    totalPoints += realizedPL;
-  }
+            if (!isNaN(realizedPL)) totalPoints += realizedPL;
 
-  // If open position left → calculate unrealized P&L
-  if (buyQty > 0) {
-    const avgBuyPrice = buyValue / buyQty;
-    if (!isNaN(avgBuyPrice) && isFinite(avgBuyPrice)) {
-      const livePrice = await returnstockcloseprice(symbol);
-      if (livePrice && !isNaN(livePrice)) {
-        const unrealizedPL = (livePrice - avgBuyPrice) * buyQty;
-        if (!isNaN(unrealizedPL)) {
-          totalPoints += unrealizedPL;
-        }
-      }
-    }
-  }
-}
+            // If open position left → calculate unrealized P&L
+            if (buyQty > 0) {
+              const avgBuyPrice = buyValue / buyQty;
+              if (!isNaN(avgBuyPrice) && isFinite(avgBuyPrice)) {
+                const livePrice = await returnstockcloseprice(symbol);
+                if (livePrice && !isNaN(livePrice)) {
+                  const unrealizedPL = (livePrice - avgBuyPrice) * buyQty;
+                  if (!isNaN(unrealizedPL)) {
+                    totalPoints += unrealizedPL;
+                  }
+                }
+              }
+            }
+          }
 
-// finally ensure totalPoints is number
-if (isNaN(totalPoints) || !isFinite(totalPoints)) {
-  totalPoints = 0;
-}
+          // Ensure totalPoints is safe
+          if (isNaN(totalPoints) || !isFinite(totalPoints)) totalPoints = 0;
 
-join.points = Number(totalPoints.toFixed(2)); // round to 2 decimals safely
-await join.save();
-
+          join.points = Number(totalPoints.toFixed(2));
+          await join.save();
         }
 
-        // 6️⃣ Update ranking inside contest
+        // 6️⃣ Sort participants by points (high → low)
         const allParticipants = await Contestjoin_Modal.find({
           contest_id: contest._id
         }).sort({ points: -1 });
 
-
-
-
-
-        // for (let i = 0; i < allParticipants.length; i++) {
-        //   allParticipants[i].rank = i + 1;
-        //   await allParticipants[i].save();
-        // }
-
-
-
-           const prizePool = contest.prize_pool || 0; // Assuming you have a prize pool field in contest model
-        const prizeDistribution = contest.prize_distribution || []; // Prize distribution from the contest data
+        const prizeDistribution = contest.prize_distribution || [];
         const numParticipants = allParticipants.length;
 
-        // 7️⃣ Create a map of ranks to prize amounts
+        // 7️⃣ Create rank → prize mapping
         let rankPrizes = [];
         for (let i = 0; i < prizeDistribution.length; i++) {
           const prize = prizeDistribution[i];
-          rankPrizes[prize.rank] = prize.amount; // Mapping rank -> prize
+          rankPrizes[prize.rank] = prize.amount;
         }
 
-        // 8️⃣ Update ranks based on points and distribute prizes
+        // 8️⃣ Assign ranks (based on score, handling ties)
         const rankToParticipants = {};
+        let currentRank = 1;
 
-        // Group participants by rank
         for (let i = 0; i < numParticipants; i++) {
           const participant = allParticipants[i];
-          const rank = i + 1; // Rank based on the sorted order
-
-          // Group participants by their rank
-          if (!rankToParticipants[rank]) {
-            rankToParticipants[rank] = [];
+          if (i > 0 && participant.points === allParticipants[i - 1].points) {
+            participant.rank = allParticipants[i - 1].rank; // same points → same rank
+          } else {
+            participant.rank = currentRank;
           }
-          rankToParticipants[rank].push(participant);
 
-          // Update rank for each participant
-          participant.rank = rank;
+          if (!rankToParticipants[participant.rank]) {
+            rankToParticipants[participant.rank] = [];
+          }
+          rankToParticipants[participant.rank].push(participant);
+
+          currentRank++;
         }
 
-        // 9️⃣ Distribute the prize based on rank and number of participants in that rank
-        for (const rank in rankToParticipants) {
-          const participantsInRank = rankToParticipants[rank];
-          const prizeForRank = rankPrizes[rank] || 0;
-          const prizePerUser = participantsInRank.length > 0 ? prizeForRank / participantsInRank.length : 0;
+        // 9️⃣ Dream11-style prize distribution
+        let rankCounter = 1;
+        while (rankCounter <= numParticipants) {
+          const participantsInRank = rankToParticipants[rankCounter];
 
-          // Update each participant's winning amount
+          if (!participantsInRank || participantsInRank.length === 0) {
+            rankCounter++;
+            continue;
+          }
+
+          const sameRankCount = participantsInRank.length;
+          let totalPrizeToDistribute = 0;
+
+          // 🧮 Add prizes of current + next (sameRankCount - 1) ranks
+          for (let r = rankCounter; r < rankCounter + sameRankCount; r++) {
+            totalPrizeToDistribute += rankPrizes[r] || 0;
+          }
+
+          // Divide equally
+          const prizePerUser = sameRankCount > 0 ? totalPrizeToDistribute / sameRankCount : 0;
+
+          // Update each participant
           for (const participant of participantsInRank) {
-            participant.winningAmount = Number(prizePerUser.toFixed(2)); // Round to 2 decimals
+            participant.winningAmount = Number(prizePerUser.toFixed(2));
             await participant.save();
           }
+
+          // Jump to next unprocessed rank (skip next ranks)
+          rankCounter += sameRankCount;
         }
-  
-
-
       }
     }
+
 
     return 1
 
