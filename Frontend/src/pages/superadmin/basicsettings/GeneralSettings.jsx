@@ -72,6 +72,22 @@ const GeneralSettings = () => {
   };
 
   const updateBasicSettings = async () => {
+    // ✅ Compare old settings with current form data
+    const original = settings?.[0] || {};
+    const hasChanges = Object.keys(formData).some(
+      (key) => formData[key] !== (original[key] || "")
+    );
+
+    if (!hasChanges) {
+      Swal.fire({
+        icon: "info",
+        title: "No changes made",
+        text: "You haven’t made any changes to the settings.",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
     const confirm = await Swal.fire({
       title: "Are you sure?",
       text: "Do you want to update the basic settings?",
@@ -111,7 +127,7 @@ const GeneralSettings = () => {
     return (
       <Content
         Page_title="General Settings"
-        button_title="back"
+        button_title="Back"
         button_status={true}
       >
         <div className="text-center py-12">
@@ -124,16 +140,16 @@ const GeneralSettings = () => {
   return (
     <Content
       Page_title="General Settings"
-      button_title="back"
-       route="/superadmin/dashboard"
+      button_title="Back"
+      route="/superadmin/dashboard"
       button_status={true}
     >
-      <div className="max-w-4xl mx-auto Content_Style">
+      <div className="max-w-6xl mx-auto ">
         <form onSubmit={handleSubmit}>
-          <div className="p-6 border rounded-lg shadow-sm">
+          <div className="p-4  rounded-lg shadow-sm">
             <div className="grid gap-4">
               <div>
-                <label className="block text-sm font-medium   mb-2">
+                <label className="block text-sm font-medium  mb-2">
                   Website Title:
                 </label>
 
@@ -142,7 +158,8 @@ const GeneralSettings = () => {
                   name="website_title"
                   value={formData.website_title}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm  focus:outline-none focus:ring-2 focus:ring-blue-500 input-Add"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm  
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 input-Add"
                 />
               </div>
 
@@ -156,7 +173,7 @@ const GeneralSettings = () => {
                   value={formData.favicon}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 input-Add"
-                /> 
+                />
               </div>
 
               <div>
@@ -313,20 +330,20 @@ const GeneralSettings = () => {
                 />
               </div>
             </div>
-          </div>
 
-          <div className="text-center mt-8">
-            <button
-              type="submit"
-              disabled={updateLoading}
-              className={`px-8 py-3 rounded-md text-sm font-medium transition-colors duration-300  ${
-                updateLoading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              } text-white`}
-            >
-              {updateLoading ? "Updating..." : "Update Settings"}
-            </button>
+            <div className="text-center mt-4 ">
+              <button
+                type="submit"
+                disabled={updateLoading}
+                className={`px-8 py-3 rounded-md text-sm font-medium transition-colors duration-300  ${
+                  updateLoading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                } text-white`}
+              >
+                {updateLoading ? "Updating..." : "Update Settings"}
+              </button>
+            </div>
           </div>
         </form>
       </div>

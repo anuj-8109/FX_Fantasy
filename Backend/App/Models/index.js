@@ -39,6 +39,10 @@ module.exports = {
     Contestjoin: require("./Contestjoin"),
     Tournament: require("./Tournament"),
     Contesttrade: require("./Contesttrade"),  // Add this line to export the
+    Wallet: require("./Wallet"),  // Add this line to export the
+    ContestShare: require("./ContestShare"),  // Add this line to export the
+    LivePrice: require("./livePrice"), 
+
     States:States,
     City:City,
    

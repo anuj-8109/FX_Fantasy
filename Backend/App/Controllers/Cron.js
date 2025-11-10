@@ -1,7 +1,13 @@
 const db = require("../Models");
 const axios = require('axios');
 var dateTime = require('node-datetime');
+const mongoose = require("mongoose");
 
+const Tournament_Model = db.Tournament;
+const Contestjoin_Modal = db.Contestjoin;
+const Contesttrade_Modal = db.Contesttrade;
+const Contest_Model = db.Contest;
+const LivePrice_Modal = db.LivePrice;
 
 const Stock_Modal = db.Stock;
 
@@ -168,6 +174,811 @@ const DeleteTokenAliceToken = async (req, res) => {
     }
   
   }
+async function TournamentStatusChange(req, res) {
+  try {
+    const now = new Date();
+    // 1️⃣ upcoming → live
+    const makeLive = await Tournament_Model.updateMany(
+      {
+        activestatus: true,
+        del: false,
+        startdate: { $lte: now },
+        enddate: { $gt: now },
+        status: "upcoming"
+      },
+      { $set: { status: "live", updated_at: now } }
+    );
+
+    // 2️⃣ live → completed
+    const makeCompleted = await Tournament_Model.updateMany(
+      {
+        activestatus: true,
+        del: false,
+        enddate: { $lte: now },
+        status: "live"
+      },
+      { $set: { status: "completed", updated_at: now } }
+    );
+
+    return res.status(200).json({
+      status: true,
+      message: "✅ Tournament status updated successfully",
+      time: now,
+      updated: {
+        madeLive: makeLive.modifiedCount || 0,
+        completed: makeCompleted.modifiedCount || 0
+      }
+    });
+
+  } catch (error) {
+    console.error("TournamentStatusChange Error:", error);
+    return res.status(500).json({
+      status: false,
+      message: "❌ Internal Server Error",
+      error: error.message
+    });
+  }
+}
+
+async function getLivePrice(symbol) {
+  try {
+      
+        const csvFilePath = "https://docs.google.com/spreadsheets/d/1wwSMDmZuxrDXJsmxSIELk1O01F0x1-0LEpY03iY1tWU/export?format=csv";
+        const { data } = await axios.get(csvFilePath);
+        
+        // Return a promise that resolves with the CPrice after parsing
+        return new Promise((resolve, reject) => {
+            Papa.parse(data, {
+                header: true,
+                complete: (result) => {
+                    let sheetData = result.data;
+
+                    // Map symbol names as needed
+                    sheetData.forEach(item => {
+                        switch (item.SYMBOL) {
+                            case "NIFTY_BANK":
+                                item.SYMBOL = "BANKNIFTY";
+                                break;
+                            case "NIFTY_50":
+                                item.SYMBOL = "NIFTY";
+                                break;
+                            case "NIFTY_FIN_SERVICE":
+                                item.SYMBOL = "FINNIFTY";
+                                break;
+                        }
+                    });
+
+                    // Find the requested symbol and return its CPrice
+                   // const stockData = sheetData.find(item => item.SYMBOL === symbol);
+
+                      const stockData = sheetData.find(item => 
+                        item.SYMBOL === symbol.trim() || 
+                        item.SYMBOL === `NSE:${symbol.trim()}`
+                    );
+
+                    // console.log("Searching for Symbol:", symbol.trim());
+                    // console.log("Matched Stock Data:", stockData);
+
+                    if (stockData && stockData.CPrice && stockData.CPrice !== "#N/A") {
+                        resolve(stockData.CPrice);
+                    } else {
+                        reject(new Error("CPrice unavailable or symbol not found."));
+                    }
+                },
+                error: (error) => {
+                    reject(error);
+                }
+            });
+        });
+    } catch (error) {
+       
+       return;
+    }
+  }
+  /*
+async function updateContestRanks(req, res) {
+  try {
+    // 1️⃣ Get all live tournaments
+    const tournaments = await Tournament_Model.find({
+      status: "live",
+      activestatus: true,
+      del: false
+    });
+
+    for (const tournament of tournaments) {
+      // 2️⃣ Get contests under each tournament
+      const contests = await Contest_Model.find({
+        tournament_id: tournament._id,
+        activestatus: true,
+        del: false
+      });
+
+      for (const contest of contests) {
+        // 3️⃣ Get all joined users
+        const joins = await Contestjoin_Modal.find({ contest_id: contest._id });
+
+        for (const join of joins) {
+          let totalPoints = 0;
+
+          // 4️⃣ Get all trades of this user in this contest
+          const trades = await Contesttrade_Modal.find({
+            contest_id: contest._id,
+            client_id: join.client_id
+          });
+
+          // Group trades by stock
+          const stockGroups = {};
+          for (const trade of trades) {
+            if (!stockGroups[trade.stock_symbol]) {
+              stockGroups[trade.stock_symbol] = {
+                buyQty: 0,
+                buyValue: 0,
+                sellQty: 0,
+                realizedPL: 0
+              };
+            }
+
+            if (trade.trade_type.toUpperCase() === "BUY") {
+              stockGroups[trade.stock_symbol].buyQty += trade.quantity;
+              stockGroups[trade.stock_symbol].buyValue += trade.price * trade.quantity;
+            } else if (trade.trade_type.toUpperCase() === "SELL") {
+              // Calculate realized P&L directly on sell
+              const avgBuyPrice =
+                stockGroups[trade.stock_symbol].buyValue /
+                  stockGroups[trade.stock_symbol].buyQty || 0;
+
+              const pl = (trade.price - avgBuyPrice) * trade.quantity;
+
+              stockGroups[trade.stock_symbol].sellQty += trade.quantity;
+              stockGroups[trade.stock_symbol].realizedPL += pl;
+
+              stockGroups[trade.stock_symbol].buyQty -= trade.quantity;
+              stockGroups[trade.stock_symbol].buyValue -= avgBuyPrice * trade.quantity;
+            }
+          }
+
+          // 5️⃣ Calculate total points
+         for (const symbol of Object.keys(stockGroups)) {
+  const { buyQty, buyValue, realizedPL } = stockGroups[symbol];
+
+  // Add realized P&L (safe add)
+  if (!isNaN(realizedPL)) {
+    totalPoints += realizedPL;
+  }
+
+  // If open position left → calculate unrealized P&L
+  if (buyQty > 0) {
+    const avgBuyPrice = buyValue / buyQty;
+    if (!isNaN(avgBuyPrice) && isFinite(avgBuyPrice)) {
+      const livePrice = await returnstockcloseprice(symbol);
+      if (livePrice && !isNaN(livePrice)) {
+        const unrealizedPL = (livePrice - avgBuyPrice) * buyQty;
+        if (!isNaN(unrealizedPL)) {
+          totalPoints += unrealizedPL;
+        }
+      }
+    }
+  }
+}
+
+// finally ensure totalPoints is number
+if (isNaN(totalPoints) || !isFinite(totalPoints)) {
+  totalPoints = 0;
+}
+
+join.points = Number(totalPoints.toFixed(2)); // round to 2 decimals safely
+await join.save();
+
+        }
+
+        // 6️⃣ Update ranking inside contest
+        const allParticipants = await Contestjoin_Modal.find({
+          contest_id: contest._id
+        }).sort({ points: -1 });
 
 
-  module.exports = { AddBulkStockCron,DeleteTokenAliceToken };
+
+
+
+        // for (let i = 0; i < allParticipants.length; i++) {
+        //   allParticipants[i].rank = i + 1;
+        //   await allParticipants[i].save();
+        // }
+
+
+
+           const prizePool = contest.prize_pool || 0; // Assuming you have a prize pool field in contest model
+        const prizeDistribution = contest.prize_distribution || []; // Prize distribution from the contest data
+        const numParticipants = allParticipants.length;
+
+        // 7️⃣ Create a map of ranks to prize amounts
+        let rankPrizes = [];
+        for (let i = 0; i < prizeDistribution.length; i++) {
+          const prize = prizeDistribution[i];
+          rankPrizes[prize.rank] = prize.amount; // Mapping rank -> prize
+        }
+
+        // 8️⃣ Update ranks based on points and distribute prizes
+        const rankToParticipants = {};
+
+        // Group participants by rank
+        for (let i = 0; i < numParticipants; i++) {
+          const participant = allParticipants[i];
+          const rank = i + 1; // Rank based on the sorted order
+
+          // Group participants by their rank
+          if (!rankToParticipants[rank]) {
+            rankToParticipants[rank] = [];
+          }
+          rankToParticipants[rank].push(participant);
+
+          // Update rank for each participant
+          participant.rank = rank;
+        }
+
+        // 9️⃣ Distribute the prize based on rank and number of participants in that rank
+        for (const rank in rankToParticipants) {
+          const participantsInRank = rankToParticipants[rank];
+          const prizeForRank = rankPrizes[rank] || 0;
+          const prizePerUser = participantsInRank.length > 0 ? prizeForRank / participantsInRank.length : 0;
+
+          // Update each participant's winning amount
+          for (const participant of participantsInRank) {
+            participant.winningAmount = Number(prizePerUser.toFixed(2)); // Round to 2 decimals
+            await participant.save();
+          }
+        }
+  
+
+
+      }
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: "✅ Contest rankings updated successfully"
+    });
+
+
+  } catch (error) {
+
+    return res.status(500).json({
+      status: false,
+      message: error.message
+    });
+  }
+}
+
+*/
+
+
+async function updateContestRanks(req, res) {
+  try {
+    // 1️⃣ Get all live tournaments
+    const tournaments = await Tournament_Model.find({
+      status: "live",
+      activestatus: true,
+      del: false
+    });
+
+    for (const tournament of tournaments) {
+      // 2️⃣ Get contests under each tournament
+      const contests = await Contest_Model.find({
+        tournament_id: tournament._id,
+        activestatus: true,
+        del: false
+      });
+
+      for (const contest of contests) {
+        // 3️⃣ Get all joined users
+        const joins = await Contestjoin_Modal.find({ contest_id: contest._id });
+
+        // 🧮 Calculate points for each user
+        for (const join of joins) {
+          let totalPoints = 0;
+
+          // 4️⃣ Get all trades of this user in this contest
+          const trades = await Contesttrade_Modal.find({
+            contest_id: contest._id,
+            client_id: join.client_id
+          });
+
+          // Group trades by stock
+          const stockGroups = {};
+          for (const trade of trades) {
+            if (!stockGroups[trade.stock_symbol]) {
+              stockGroups[trade.stock_symbol] = {
+                buyQty: 0,
+                buyValue: 0,
+                sellQty: 0,
+                realizedPL: 0
+              };
+            }
+
+            if (trade.trade_type.toUpperCase() === "BUY") {
+              stockGroups[trade.stock_symbol].buyQty += trade.quantity;
+              stockGroups[trade.stock_symbol].buyValue += trade.price * trade.quantity;
+            } else if (trade.trade_type.toUpperCase() === "SELL") {
+              // Calculate realized P&L directly on sell
+              const avgBuyPrice =
+                stockGroups[trade.stock_symbol].buyValue /
+                  stockGroups[trade.stock_symbol].buyQty || 0;
+
+              const pl = (trade.price - avgBuyPrice) * trade.quantity;
+
+              stockGroups[trade.stock_symbol].sellQty += trade.quantity;
+              stockGroups[trade.stock_symbol].realizedPL += pl;
+
+              stockGroups[trade.stock_symbol].buyQty -= trade.quantity;
+              stockGroups[trade.stock_symbol].buyValue -= avgBuyPrice * trade.quantity;
+            }
+          }
+
+          // 5️⃣ Calculate total points (realized + unrealized)
+          for (const symbol of Object.keys(stockGroups)) {
+            const { buyQty, buyValue, realizedPL } = stockGroups[symbol];
+
+            if (!isNaN(realizedPL)) totalPoints += realizedPL;
+
+            // If open position left → calculate unrealized P&L
+            if (buyQty > 0) {
+              const avgBuyPrice = buyValue / buyQty;
+              if (!isNaN(avgBuyPrice) && isFinite(avgBuyPrice)) {
+                const livePrice = await returnstockcloseprice(symbol);
+                if (livePrice && !isNaN(livePrice)) {
+                  const unrealizedPL = (livePrice - avgBuyPrice) * buyQty;
+                  if (!isNaN(unrealizedPL)) {
+                    totalPoints += unrealizedPL;
+                  }
+                }
+              }
+            }
+          }
+
+          // Ensure totalPoints is safe
+          if (isNaN(totalPoints) || !isFinite(totalPoints)) totalPoints = 0;
+
+          join.points = Number(totalPoints.toFixed(2));
+          await join.save();
+        }
+
+        // 6️⃣ Sort participants by points (high → low)
+        const allParticipants = await Contestjoin_Modal.find({
+          contest_id: contest._id
+        }).sort({ points: -1 });
+
+        const prizeDistribution = contest.prize_distribution || [];
+        const numParticipants = allParticipants.length;
+
+        // 7️⃣ Create rank → prize mapping
+        let rankPrizes = [];
+        for (let i = 0; i < prizeDistribution.length; i++) {
+          const prize = prizeDistribution[i];
+          rankPrizes[prize.rank] = prize.amount;
+        }
+
+        // 8️⃣ Assign ranks (based on score, handling ties)
+        const rankToParticipants = {};
+        let currentRank = 1;
+
+        for (let i = 0; i < numParticipants; i++) {
+          const participant = allParticipants[i];
+          if (i > 0 && participant.points === allParticipants[i - 1].points) {
+            participant.rank = allParticipants[i - 1].rank; // same points → same rank
+          } else {
+            participant.rank = currentRank;
+          }
+
+          if (!rankToParticipants[participant.rank]) {
+            rankToParticipants[participant.rank] = [];
+          }
+          rankToParticipants[participant.rank].push(participant);
+
+          currentRank++;
+        }
+
+        // 9️⃣ Dream11-style prize distribution
+        let rankCounter = 1;
+        while (rankCounter <= numParticipants) {
+          const participantsInRank = rankToParticipants[rankCounter];
+
+          if (!participantsInRank || participantsInRank.length === 0) {
+            rankCounter++;
+            continue;
+          }
+
+          const sameRankCount = participantsInRank.length;
+          let totalPrizeToDistribute = 0;
+
+          // 🧮 Add prizes of current + next (sameRankCount - 1) ranks
+          for (let r = rankCounter; r < rankCounter + sameRankCount; r++) {
+            totalPrizeToDistribute += rankPrizes[r] || 0;
+          }
+
+          // Divide equally
+          const prizePerUser = sameRankCount > 0 ? totalPrizeToDistribute / sameRankCount : 0;
+
+          // Update each participant
+          for (const participant of participantsInRank) {
+            participant.winningAmount = Number(prizePerUser.toFixed(2));
+            await participant.save();
+          }
+
+          // Jump to next unprocessed rank (skip next ranks)
+          rankCounter += sameRankCount;
+        }
+      }
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: "✅ Contest rankings updated successfully"
+    });
+
+  } catch (error) {
+    console.error("Error in updateContestRanks:", error);
+    return res.status(500).json({
+      status: false,
+      message: error.message
+    });
+  }
+}
+
+
+
+async function closeOpenPositionsForEndedTournaments(req, res) {
+  try {
+    const now = new Date();
+
+    // 1️⃣ Find tournaments that ended but not yet processed
+    const endedTournaments = await Tournament_Model.find({
+      enddate: { $lte: now },
+      closed_positions: { $ne: true } 
+    });
+
+    for (const tour of endedTournaments) {
+      const contest_id = tour._id;
+
+      // 2️⃣ Get all participants
+      const participants = await Contestjoin_Modal.find({ contest_id });
+
+      for (const join of participants) {
+        const client_id = join.client_id;
+
+        // 3️⃣ Aggregate open positions per stock
+        const positions = await Contesttrade_Modal.aggregate([
+          { $match: { contest_id, client_id } },
+          {
+            $group: {
+              _id: "$stock_symbol",
+              buyQty: { $sum: { $cond: [{ $eq: ["$trade_type", "buy"] }, "$quantity", 0] } },
+              buyValue: { $sum: { $cond: [{ $eq: ["$trade_type", "buy"] }, { $multiply: ["$quantity", "$price"] }, 0] } },
+              sellQty: { $sum: { $cond: [{ $eq: ["$trade_type", "sell"] }, "$quantity", 0] } },
+              sellValue: { $sum: { $cond: [{ $eq: ["$trade_type", "sell"] }, { $multiply: ["$quantity", "$price"] }, 0] } }
+            }
+          },
+          {
+            $project: {
+              stock_symbol: "$_id",
+              netQty: { $subtract: ["$buyQty", "$sellQty"] },
+              longAvg: { $cond: [{ $gt: ["$buyQty", 0] }, { $divide: ["$buyValue", "$buyQty"] }, null] },
+              shortAvg: { $cond: [{ $gt: ["$sellQty", 0] }, { $divide: ["$sellValue", "$sellQty"] }, null] }
+            }
+          },
+          { $match: { netQty: { $ne: 0 } } } // only open positions
+        ]);
+
+        let wallet = Number(join.wallet_balance || 0);
+        let locked = Number(join.locked_balance || 0);
+
+        for (const pos of positions) {
+          const { stock_symbol, netQty, longAvg, shortAvg } = pos;
+          const currentPrice = await returnstockcloseprice(stock_symbol);
+
+          const tradesToInsert = [];
+          let realizedPnL = 0;
+
+          if (netQty > 0) {
+            // Close long positions
+            const pnlClose = (currentPrice - longAvg) * netQty;
+            realizedPnL += pnlClose;
+
+            const release = longAvg * netQty;
+            locked -= release;
+            wallet += release;
+
+            tradesToInsert.push({
+              contest_id,
+              client_id,
+              stock_symbol,
+              trade_type: "sell",
+              quantity: netQty,
+              price: currentPrice,
+              position_type: "CLOSE",
+              realizedPnL
+            });
+          } else if (netQty < 0) {
+            // Close short positions
+            const qtyAbs = Math.abs(netQty);
+            const pnlClose = (shortAvg - currentPrice) * qtyAbs;
+            realizedPnL += pnlClose;
+
+            const release = shortAvg * qtyAbs;
+            locked -= release;
+            wallet += release;
+
+            tradesToInsert.push({
+              contest_id,
+              client_id,
+              stock_symbol,
+              trade_type: "buy",
+              quantity: qtyAbs,
+              price: currentPrice,
+              position_type: "CLOSE",
+              realizedPnL
+            });
+          }
+
+          // Apply realized P&L
+          wallet += realizedPnL;
+
+          // Save closing trades
+          if (tradesToInsert.length > 0) {
+            await Contesttrade_Modal.insertMany(tradesToInsert);
+          }
+        }
+
+        // Update participant wallet and locked balance
+        join.wallet_balance = wallet;
+        join.locked_balance = locked;
+        await join.save();
+      }
+
+      // Mark tournament as processed
+      tour.closed_positions = true;
+      await tour.save({ validateBeforeSave: false }); // Skip validation for required fields
+    }
+
+
+           await updateContestRankss();
+
+
+
+
+           for (const tour of endedTournaments) {
+      const contests = await Contest_Model.find({
+        tournament_id: tour._id,
+        activestatus: true,
+        del: false
+      });
+
+      for (const contest of contests) {
+        const participants = await Contestjoin_Modal.find({ contest_id: contest._id });
+
+        for (const join of participants) {
+          // After ranks are updated, we need to update the winning amount
+          const winningAmount = join.winningAmount || 0; // Assuming winningAmount is already calculated in updateContestRanks
+
+          // Update the client wallet with the winning amount, only for completed tournaments
+          const client = await Client_Model.findById(join.client_id); // Get client data
+
+          if (client) {
+            // Add the winning amount to the client's wallet balance (wamount)
+            client.wamount += winningAmount;
+            await client.save();  // Save the updated client data
+          }
+        }
+      }
+    }
+
+
+    console.log("✅ All open positions for ended tournaments closed successfully.");
+     return res.status(200).json({ status: true, message: "Positions closed successfully" });
+
+  } catch (err) {
+    console.error("❌ Error closing positions for ended tournaments:", err);
+     return res.status(500).json({ status: false, message: "Server error", error: err.message });
+  }
+}
+
+
+
+async function updateContestRankss(req, res) {
+ try {
+    // 1️⃣ Get all live tournaments
+    const tournaments = await Tournament_Model.find({
+      status: "live",
+      activestatus: true,
+      del: false
+    });
+
+    for (const tournament of tournaments) {
+      // 2️⃣ Get contests under each tournament
+      const contests = await Contest_Model.find({
+        tournament_id: tournament._id,
+        activestatus: true,
+        del: false
+      });
+
+      for (const contest of contests) {
+        // 3️⃣ Get all joined users
+        const joins = await Contestjoin_Modal.find({ contest_id: contest._id });
+
+        // 🧮 Calculate points for each user
+        for (const join of joins) {
+          let totalPoints = 0;
+
+          // 4️⃣ Get all trades of this user in this contest
+          const trades = await Contesttrade_Modal.find({
+            contest_id: contest._id,
+            client_id: join.client_id
+          });
+
+          // Group trades by stock
+          const stockGroups = {};
+          for (const trade of trades) {
+            if (!stockGroups[trade.stock_symbol]) {
+              stockGroups[trade.stock_symbol] = {
+                buyQty: 0,
+                buyValue: 0,
+                sellQty: 0,
+                realizedPL: 0
+              };
+            }
+
+            if (trade.trade_type.toUpperCase() === "BUY") {
+              stockGroups[trade.stock_symbol].buyQty += trade.quantity;
+              stockGroups[trade.stock_symbol].buyValue += trade.price * trade.quantity;
+            } else if (trade.trade_type.toUpperCase() === "SELL") {
+              // Calculate realized P&L directly on sell
+              const avgBuyPrice =
+                stockGroups[trade.stock_symbol].buyValue /
+                  stockGroups[trade.stock_symbol].buyQty || 0;
+
+              const pl = (trade.price - avgBuyPrice) * trade.quantity;
+
+              stockGroups[trade.stock_symbol].sellQty += trade.quantity;
+              stockGroups[trade.stock_symbol].realizedPL += pl;
+
+              stockGroups[trade.stock_symbol].buyQty -= trade.quantity;
+              stockGroups[trade.stock_symbol].buyValue -= avgBuyPrice * trade.quantity;
+            }
+          }
+
+          // 5️⃣ Calculate total points (realized + unrealized)
+          for (const symbol of Object.keys(stockGroups)) {
+            const { buyQty, buyValue, realizedPL } = stockGroups[symbol];
+
+            if (!isNaN(realizedPL)) totalPoints += realizedPL;
+
+            // If open position left → calculate unrealized P&L
+            if (buyQty > 0) {
+              const avgBuyPrice = buyValue / buyQty;
+              if (!isNaN(avgBuyPrice) && isFinite(avgBuyPrice)) {
+                const livePrice = await returnstockcloseprice(symbol);
+                if (livePrice && !isNaN(livePrice)) {
+                  const unrealizedPL = (livePrice - avgBuyPrice) * buyQty;
+                  if (!isNaN(unrealizedPL)) {
+                    totalPoints += unrealizedPL;
+                  }
+                }
+              }
+            }
+          }
+
+          // Ensure totalPoints is safe
+          if (isNaN(totalPoints) || !isFinite(totalPoints)) totalPoints = 0;
+
+          join.points = Number(totalPoints.toFixed(2));
+          await join.save();
+        }
+
+        // 6️⃣ Sort participants by points (high → low)
+        const allParticipants = await Contestjoin_Modal.find({
+          contest_id: contest._id
+        }).sort({ points: -1 });
+
+        const prizeDistribution = contest.prize_distribution || [];
+        const numParticipants = allParticipants.length;
+
+        // 7️⃣ Create rank → prize mapping
+        let rankPrizes = [];
+        for (let i = 0; i < prizeDistribution.length; i++) {
+          const prize = prizeDistribution[i];
+          rankPrizes[prize.rank] = prize.amount;
+        }
+
+        // 8️⃣ Assign ranks (based on score, handling ties)
+        const rankToParticipants = {};
+        let currentRank = 1;
+
+        for (let i = 0; i < numParticipants; i++) {
+          const participant = allParticipants[i];
+          if (i > 0 && participant.points === allParticipants[i - 1].points) {
+            participant.rank = allParticipants[i - 1].rank; // same points → same rank
+          } else {
+            participant.rank = currentRank;
+          }
+
+          if (!rankToParticipants[participant.rank]) {
+            rankToParticipants[participant.rank] = [];
+          }
+          rankToParticipants[participant.rank].push(participant);
+
+          currentRank++;
+        }
+
+        // 9️⃣ Dream11-style prize distribution
+        let rankCounter = 1;
+        while (rankCounter <= numParticipants) {
+          const participantsInRank = rankToParticipants[rankCounter];
+
+          if (!participantsInRank || participantsInRank.length === 0) {
+            rankCounter++;
+            continue;
+          }
+
+          const sameRankCount = participantsInRank.length;
+          let totalPrizeToDistribute = 0;
+
+          // 🧮 Add prizes of current + next (sameRankCount - 1) ranks
+          for (let r = rankCounter; r < rankCounter + sameRankCount; r++) {
+            totalPrizeToDistribute += rankPrizes[r] || 0;
+          }
+
+          // Divide equally
+          const prizePerUser = sameRankCount > 0 ? totalPrizeToDistribute / sameRankCount : 0;
+
+          // Update each participant
+          for (const participant of participantsInRank) {
+            participant.winningAmount = Number(prizePerUser.toFixed(2));
+            await participant.save();
+          }
+
+          // Jump to next unprocessed rank (skip next ranks)
+          rankCounter += sameRankCount;
+        }
+      }
+    }
+
+
+    return 1
+
+
+  } catch (error) {
+
+    return 0
+  }
+}
+
+
+async function returnstockcloseprice(symbol) {
+  try {
+    if (!symbol || symbol.trim() === "") {
+      throw new Error("Symbol is required");
+    }
+
+    const cleanSymbol = symbol.trim().toUpperCase(); // normalize case
+
+    // Symbol name mapping (same as before)
+    let mappedSymbol = cleanSymbol;
+   
+    // 🎯 Find in MongoDB (case-insensitive)
+    const liveData = await LivePrice_Modal.findOne({
+      ticker: { $regex: `^${mappedSymbol}$`, $options: "i" },
+    });
+
+    if (liveData && liveData.midPrice) {
+      return liveData.midPrice; // ✅ midPrice mil gaya
+    } else {
+      throw new Error(`midPrice not found for symbol: ${symbol}`);
+    }
+  } catch (error) {
+    console.error("❌ Error in returnstockcloseprice:", error.message);
+    return null; // fail-safe return
+  }
+}
+
+
+
+  module.exports = { AddBulkStockCron,DeleteTokenAliceToken,TournamentStatusChange,updateContestRanks, closeOpenPositionsForEndedTournaments };

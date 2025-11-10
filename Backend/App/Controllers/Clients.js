@@ -8,10 +8,15 @@ const axios = require('axios');
 const Clients_Modal = db.Clients;
 const Mailtemplate_Modal = db.Mailtemplate;
 const BasicSetting_Modal = db.BasicSetting;
+const Payout_Modal = db.Payout;
+const Bank_Modal = db.Bank;
+const Contestjoin_Modal = db.Contestjoin;
+const Notification_Modal = db.Notification;
 
+const ioSocket = require("../Utils/ioSocketReturn");
+const io = ioSocket.getIO();
 
 class Clients {
-
 
   async AddClient(req, res) {
 
@@ -160,8 +165,7 @@ class Clients {
 
   async getClientWithFilter(req, res) {
     try {
-    const { status = "", kyc_verification = "",  search = "", add_by = "", page = 1 } = req.body;
-    const limit = 10;
+    const { status = "", kyc_verification = "",  search = "", add_by = "", page = 1, limit = 10 } = req.body;
     const skip = (parseInt(page) - 1) * limit;
 
     // Base condition
@@ -543,6 +547,318 @@ class Clients {
       });
     }
   }
+
+
+  async processPayoutRequest(req, res) {
+      try {
+        const { payoutRequestId, status, remark } = req.body;
+  
+        // Validate input
+        if (!payoutRequestId || !['1', '2'].includes(status)) {
+          return res.json({ status: false, message: 'Invalid payout request ID or status.' });
+        }
+  
+        // Fetch the payout request record
+        const payoutRequest = await Payout_Modal.findById(payoutRequestId);
+  
+        if (!payoutRequest) {
+          return res.json({ status: false, message: 'Payout request not found.' });
+        }
+  
+        // Fetch the client record
+        const client = await Clients_Modal.findOne({ _id: payoutRequest.clientid, del: 0, ActiveStatus: 1 });
+  
+        if (!client) {
+          return res.json({ status: false, message: 'Client not found or inactive.' });
+        }
+       
+  
+        if (status === '1') {
+          // Approve the payout request
+          payoutRequest.status = '1';
+  
+        } else if (status === '2') {
+          // Logic to reject the payout request
+          payoutRequest.status = '2';
+          payoutRequest.remark = remark;
+          client.wamount += payoutRequest.amount; // Refund amount back to client's wamount
+          await client.save();
+
+  
+        }
+  
+        await payoutRequest.save();
+
+
+
+   const notificationTitle = 'Important Update';
+   let  notificationBody = "";
+    if (status === '1') {
+    notificationBody =`Withdrawal request of ₹${payoutRequest.amount} was Approved`;
+    }
+    else if (status === '2') {
+      notificationBody =`Withdrawal request of ₹${payoutRequest.amount} was rejected`;
+    }
+ const resultn = new Notification_Modal({
+        clientid: client._id,
+        type: 'withdrawal',
+        title: notificationTitle,
+        message: notificationBody
+      });
+
+      await resultn.save();
+   
+           const clientIds = [client._id];
+         
+const socketData = {
+  title: notificationTitle,
+  message: notificationBody,
+  type: 'kyc Upload',
+  from: 'admin',
+  clientIds: clientIds
+};
+
+ io.emit('clientnotification', socketData);  // ✅ Correct
+
+
+
+
+
+
+
+        
+        return res.json({
+          status: true,
+          message: 'Payout request updated successfully.',
+          data: payoutRequest,
+        });
+  
+      } catch (error) {
+        // console.error('Error processing payout request:', error);
+        return res.json({ status: false, message: 'Server error while processing payout request.' });
+      }
+    }
+  
+    async payoutList(req, res) {
+  
+      try {
+        // const { } = req.body; // Not needed unless you plan to use body data
+  
+        const result = await Payout_Modal.aggregate([
+          {
+            $lookup: {
+              from: "clients", // The collection to join
+              let: { clientId: { $toObjectId: "$clientid" } }, // Convert clientid to ObjectId for matching
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$_id", "$$clientId"] }, // Match _id with clientId
+                    ActiveStatus: 1, // Ensure client is active
+                    del: 0 // Ensure client is not deleted
+                  }
+                },
+                {
+                  $project: { FullName: 1, Email: 1, PhoneNo: 1, wamount: 1 } // Get only required fields
+                }
+              ],
+              as: "client_details" // The resulting array of matched documents from clients
+            }
+          },
+          {
+            $unwind: { path: "$client_details", preserveNullAndEmptyArrays: false } // Exclude documents where client_details is empty or null
+          },
+          {
+            $project: {
+              _id: 1,
+              clientid: 1,
+              amount: 1,
+              status: 1,
+              del: 1,
+              created_at: 1,
+              updated_at: 1,
+              client_details: 1 // Include client details
+            }
+          }
+        ]);
+  
+        // Log the result for debugging
+  
+        return res.json({
+          status: true,
+          message: "get",
+          data: result
+        });
+  
+      } catch (error) {
+        return res.json({ status: false, message: "Server error", data: [] });
+      }
+    }
+  
+
+async  listBankDetails(req, res) {
+  try {
+    const { client_id } = req.query;
+
+    let filter = { del: false };
+    if (client_id) filter.client_id = client_id; // Client wise filter
+
+    const banks = await Bank_Modal.find(filter).sort({ created_at: -1 });
+
+    return res.status(200).json({
+      status: true,
+      message: "Bank details fetched successfully",
+      data: banks
+    });
+  } catch (error) {
+    console.error("List Bank Error:", error);
+    return res.status(500).json({ status: false, message: "Server error", error: error.message });
+  }
+}
+
+async kycVerificationUpdate(req, res) {
+  try {
+    const { id, kyc_verification } = req.body;
+
+    // Valid KYC statuses: 0 = pending, 1 = verified, 2 = rejected
+    const validStatuses = [0, 1, 2];
+    if (!validStatuses.includes(Number(kyc_verification))) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid kyc_verification value"
+      });
+    }
+
+    // Find and update the client
+    const result = await Clients_Modal.findByIdAndUpdate(
+      id,
+      { kyc_verification: Number(kyc_verification) },
+      { new: true }
+    );
+
+    if (!result) {
+
+
+
+   const notificationTitle = 'Important Update';
+   const notificationBody ="";
+   if(Number(kyc_verification)===1){
+ notificationBody = `Your KYC has been approved.`;
+   }
+   else if(Number(kyc_verification)===2){
+     notificationBody = `Your KYC has been rejected. Please re-upload documents.`;
+   }
+
+ const resultn = new Notification_Modal({
+        clientid: id,
+        type: 'kyc Upload',
+        title: notificationTitle,
+        message: notificationBody
+      });
+
+      await resultn.save();
+   
+           const clientIds = [id];
+                 
+const socketData = {
+  title: notificationTitle,
+  message: notificationBody,
+  type: 'kyc Upload',
+  from: 'admin',
+  clientIds: clientIds
+};
+
+ io.emit('clientnotification', socketData);  // ✅ Correct
+
+        
+
+
+      return res.status(404).json({
+        status: false,
+        message: "Client not found"
+      });
+    }
+
+    return res.json({
+      status: true,
+      message: "KYC verification status updated successfully",
+      data: result
+    });
+
+  } catch (error) {
+    console.error("KYC Update Error:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      data: []
+    });
+  }
+}
+
+
+async getContestRanking(req, res) {
+  try {
+    const { contest_id, page = 1 } = req.body;
+    const limit = 10;
+
+    if (!contest_id) {
+      return res.status(400).json({
+        status: false,
+        message: "contest_id is required",
+      });
+    }
+
+    // Pagination setup
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    // Contest join data fetch with user details
+    const participants = await Contestjoin_Modal.find({ contest_id })
+      .populate("client_id", "FullName Email PhoneNo") // client details
+      .populate("contest_id", "name") // contest details
+      .sort({ points: -1 }) // Highest points first
+      .skip(skip)
+      .limit(limitNum);
+
+    // Total joined users
+    const total = await Contestjoin_Modal.countDocuments({ contest_id });
+
+    // Ranking assign manually (1st, 2nd, ...)
+    const allParticipants = await Contestjoin_Modal.find({ contest_id })
+      .sort({ points: -1 })
+      .select("client_id points");
+
+    // Map userId => rank
+    const rankMap = {};
+    allParticipants.forEach((p, index) => {
+      rankMap[p.client_id.toString()] = index + 1;
+    });
+
+    // Add rank into response
+    const rankedParticipants = participants.map((p) => {
+      const obj = p.toObject();
+      obj.rank = rankMap[p.client_id._id.toString()];
+      return obj;
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "Contest ranking fetched successfully",
+      contest_id,
+      total_users: total,
+      page: pageNum,
+      limit: limitNum,
+      data: rankedParticipants,
+    });
+  } catch (error) {
+    console.error("Error fetching contest ranking:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
 
 
 

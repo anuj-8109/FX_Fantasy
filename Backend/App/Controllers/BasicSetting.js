@@ -11,7 +11,7 @@ class BasicSetting {
       upload("basicsetting").fields([
         { name: "favicon", maxCount: 1 },
         { name: "logo", maxCount: 1 },
-     
+       { name: "refer_image", maxCount: 1 },
       ])(req, res, async (err) => {
         if (err) {
           return res.status(500).json({
@@ -33,6 +33,18 @@ class BasicSetting {
           smtp_username,
           smtp_password,
           from_name,
+          refer_title,
+          refer_description,
+          sender_earn,
+          receiver_earn,
+          refer_amount_used_percent,
+          digio_client_id,
+          digio_client_secret,
+          digio_template_name,
+          kyc,
+          refer_status,
+          refersendmsg,
+
         
         } = req.body;
         const existingSetting = await BasicSetting_Modal.findOne({});
@@ -52,13 +64,18 @@ class BasicSetting {
           : existingSetting
             ? existingSetting.logo
             : null;
-      
+       const refer_image = req.files["refer_image"]
+          ? req.files["refer_image"][0].filename
+          : existingSetting
+            ? existingSetting.refer_image
+            : null;
 
 
         // Define the update payload
         const update = {
           favicon,
           logo,
+          refer_image,
           website_title: website_title,
           email_address,
           contact_number,
@@ -71,6 +88,17 @@ class BasicSetting {
           smtp_username,
           smtp_password,
           from_name,
+          refer_title,
+          refer_description,
+          sender_earn,
+          receiver_earn,
+          refer_amount_used_percent,
+          digio_client_id,
+          digio_client_secret,
+          digio_template_name,
+          kyc,
+          refer_status,
+          refersendmsg,
          
         };
 

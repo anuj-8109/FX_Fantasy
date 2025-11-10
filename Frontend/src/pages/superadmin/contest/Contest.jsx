@@ -1,158 +1,113 @@
 import React, { useEffect, useState } from "react";
-import Datatable from "../../../extracomponents/Datatable";
-import { FileText, Edit, Eye, Trash2 } from "lucide-react";
+import Datatable from "../../../extracomponents/DatatablePagination";
+import { Edit, Eye, Trash2 } from "lucide-react";
 import {
   GetContestsList,
-  AddContest,
-  UpdateContest,
   DeleteContest,
-  UpdateContestStatus,
   UpdateContestStatusActive,
-  GetContestDetails,
+  UpdateContestStatus,
 } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import Content from "../../../components/superadmin/Content";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { useNavigate } from "react-router-dom";
 
 const Contest = () => {
   const navigate = useNavigate();
   const [contests, setContests] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [selectedContest, setSelectedContest] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [viewOpen, setViewOpen] = useState(false);
-  const [viewContest, setViewContest] = useState(null);
-
-
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [entryFee, setEntryFee] = useState("");
-  const [totalSpots, setTotalSpots] = useState("");
-  const [prizePool, setPrizePool] = useState("");
-  const [status, setStatus] = useState("upcoming");
+  const [totalRows, setTotalRows] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [filterText, setFilterText] = useState("");
 
   const token = localStorage.getItem("token");
-  const add_by = localStorage.getItem("add_by");
 
-
-  const fetchContests = async () => {
+  const fetchContests = async (
+    page = currentPage,
+    limit = rowsPerPage,
+    filter = filterText
+  ) => {
     setLoading(true);
-    const response = await GetContestsList(token);
-    if (response?.status) {
-      setContests(response?.data);
-    } else {
-      toast.error(response?.message || "Failed to load contests");
+    try {
+      const response = await GetContestsList(token, { page, limit, filter });
+      if (response?.status) {
+        setContests(response.data || []);
+        setTotalRows(response.pagination?.total || 0);
+      } else {
+        toast.error(response?.message || "Failed to load contests");
+      }
+    } catch (err) {
+      toast.error("Something went wrong while fetching contests");
     }
     setLoading(false);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    fetchContests(page, rowsPerPage, filterText);
+  };
+
+  const handleRowsPerPageChange = (newPerPage) => {
+    setRowsPerPage(newPerPage);
+    setCurrentPage(1);
+    fetchContests(1, newPerPage, filterText);
+  };
+
+  const handleFilterChange = (text) => {
+    setFilterText(text);
+    setCurrentPage(1);
+    fetchContests(1, rowsPerPage, text);
   };
 
   useEffect(() => {
-    fetchContests();
-  }, []);
+    fetchContests(currentPage, rowsPerPage, filterText);
+  }, [currentPage, rowsPerPage, filterText]);
 
-
-  const handleOpen = (contest = null) => {
-    setSelectedContest(contest);
-    setName(contest?.name || "");
-    setDescription(contest?.description || "");
-    setEntryFee(contest?.entry_fee || "");
-    setTotalSpots(contest?.total_spots || "");
-    setPrizePool(contest?.prize_pool || "");
-    setStatus(contest?.status || "upcoming");
-    setOpen(true);
-  };
-
-  // delete contest
-  const handleDelete = async (contest) => {
-    const confirm = await Swal.fire({
+  const handleCancelContest = async (row) => {
+    const result = await Swal.fire({
       title: "Are you sure?",
-      text: "Do you want to delete this contest?",
+      text: "Do you want to cancel this contest? Refund will be processed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes, Delete",
-      cancelButtonText: "Cancel",
+      confirmButtonText: "Yes, cancel it!",
+      cancelButtonText: "No, keep it",
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+      },
     });
 
-    if (!confirm.isConfirmed) return;
+    if (!result.isConfirmed) return;
 
     setLoading(true);
-    const response = await DeleteContest(token, contest._id);
-    setLoading(false);
 
-    if (response?.status) {
-      toast.success(response?.message || "Contest deleted successfully");
-      fetchContests();
-    } else {
-      toast.error(response?.message || "Failed to delete contest");
-    }
-  };
+    try {
+      const payload = {
+        id: row._id,
+        status: "cancelled",
+      };
 
-  // cancel form
-  const handleCancel = () => {
-    setOpen(false);
-    setSelectedContest(null);
-    setName("");
-    setDescription("");
-    setEntryFee("");
-    setTotalSpots("");
-    setPrizePool("");
-    setStatus("upcoming");
-  };
+      const res = await UpdateContestStatus(token, payload);
 
-  // save contest
-  const handleSave = async (e) => {
-    e.preventDefault();
-
-    const confirm = await Swal.fire({
-      title: selectedContest ? "Update Contest?" : "Add Contest?",
-      text: selectedContest
-        ? "Are you sure you want to update this contest?"
-        : "Are you sure you want to add this contest?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Save",
-      cancelButtonText: "Cancel",
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    const payload = {
-      add_by,
-      name,
-      description,
-      entry_fee: entryFee,
-      total_spots: totalSpots,
-      prize_pool: prizePool,
-      status,
-    };
-
-    if (selectedContest) payload.id = selectedContest._id;
-
-    setLoading(true);
-    let response;
-    if (selectedContest) {
-      response = await UpdateContest(token, payload);
-    } else {
-      response = await AddContest(token, payload);
-    }
-
-    if (response?.status) {
-      toast.success(response?.message || "Saved successfully");
-      fetchContests();
-      handleCancel();
-    } else {
-      toast.error(response?.message || "Failed to save");
+      if (res?.status) {
+        toast.success(res?.message || "Contest cancelled successfully!");
+        fetchContests();
+      } else {
+        toast.error(res?.message || "Failed to cancel contest");
+      }
+    } catch (error) {
+      toast.error("Something went wrong!");
     }
 
     setLoading(false);
   };
 
-  // toggle status
   const handleStatusChange = async (contest) => {
-    const actionText = contest.status === "live" ? "Deactivate" : "Activate";
+    const actionText = contest.activestatus ? "Deactivate" : "Activate";
 
     const confirm = await Swal.fire({
       title: `Are you sure?`,
@@ -161,203 +116,236 @@ const Contest = () => {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+      },
     });
 
     if (!confirm.isConfirmed) return;
 
     const payload = {
       id: contest._id,
-      status: contest.status === "live" ? "false" : "live",
+      status: contest.activestatus ? "false" : "true",
     };
 
-    const res = await UpdateContestStatus(token, payload);
+    const res = await UpdateContestStatusActive(token, payload);
 
     if (res?.status) {
-      toast.success(res?.message || `Contest ${actionText}d`);
+      toast.success(res?.message || `Contest ${actionText}d successfully`);
       fetchContests();
     } else {
       toast.error(res?.message || "Failed to change status");
     }
   };
 
-
   const columns = [
-    { name: "S.No", selector: (row, i) => i + 1, width: "70px" },
-    { name: "Name", selector: (row) => row.name, sortable: true, width: "160px" },
-    { name: "Description", selector: (row) => row.description, grow: 2 },
-    { name: "Type", selector: (row) => row.contest_type },
-    { name: "Entry Fee", selector: (row) => row.entry_fee },
-    { name: "Total Spots", selector: (row) => row.total_spots },
-    { name: "Max/User", selector: (row) => row.max_entry_per_user },
-    { name: "Prize Pool", selector: (row) => row.prize_pool },
-
     {
-      name: "Prize Dist.",
+      name: "Tournament Name",
+      selector: (row) => row.tournament_id?.name || "N/A",
+      exportValue: (row) => row.tournament_id?.name || "N/A",
+      export: true,
+      sortable: true,
+      width: "160px",
+    },
+    {
+      name: "Contest Name",
+      selector: (row) => row.name,
+      exportValue: (row) => row.name || "N/A",
+      export: true,
+      sortable: true,
+      width: "160px",
+    },
+    {
+      name: "Entry Fee",
+      selector: (row) => row.entry_fee,
+      exportValue: (row) => row.entry_fee || "N/A",
+      export: true,
+      width: "90px",
+    },
+    {
+      name: "Total Spots",
+      selector: (row) => `${row.filled_spots || 0}/${row.total_spots || 0}`,
+      exportValue: (row) => `${row.filled_spots || 0}/${row.total_spots || 0}`,
+      export: true,
       cell: (row) => (
-        <div className="text-xs">
-          {row.prize_distribution?.map((p, idx) => (
-            <div key={idx}>
-              #{p.rank}: ₹{p.amount}
-            </div>
-          ))}
-        </div>
+        <span>
+          {row.filled_spots || 0}/{row.total_spots || 0}
+        </span>
       ),
-      width: "150px",
+      width: "110px",
     },
-
     {
-      name: "Stocks",
-      cell: (row) => (
-        <div className="text-xs">
-          {row.stocks?.map((s, idx) => (
-            <div key={idx}>{s.stock_name}</div>
-          ))}
-        </div>
-      ),
-      width: "120px",
+      name: "Prize Pool",
+      selector: (row) => row.prize_pool,
+      exportValue: (row) => row.prize_pool || "N/A",
+      export: true,
+      width: "90px",
     },
-
     {
-      name: "Guaranteed",
-      selector: (row) => (row.is_guaranteed ? " Yes" : " No"),
-      width: "120px",
-    },
-
-    {
-      name: "Private",
-      selector: (row) => (row.is_private ? " Yes" : " No"),
+      name: "Type",
+      selector: (row) => {
+        const types = [];
+        if (row.is_guaranteed) types.push("Guaranteed");
+        if (row.is_private) types.push("Private");
+        return types.length > 0 ? types.join(", ") : "-";
+      },
+      exportValue: (row) => {
+        const types = [];
+        if (row.is_guaranteed) types.push("Guaranteed");
+        if (row.is_private) types.push("Private");
+        return types.length > 0 ? types.join(", ") : "-";
+      },
+      export: true,
       width: "100px",
     },
-
-    { name: "Code", selector: (row) => row.contest_code, width: "120px" },
-
-    {
-      name: "Start Date",
-      selector: (row) =>
-        row.startdate ? new Date(row.startdate).toLocaleString() : "-",
-      width: "180px",
-    },
-    {
-      name: "End Date",
-      selector: (row) =>
-        row.enddate ? new Date(row.enddate).toLocaleString() : "-",
-      width: "180px",
-    },
-
     {
       name: "Status",
-      cell: (row) => (
-        <label className="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            checked={row.status === "live"}
-            onChange={() => handleStatusChange(row)}
-            className="sr-only peer"
-          />
-          <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-colors"></div>
-          <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border bg-white peer-checked:translate-x-full transition-transform"></div>
-        </label>
-      ),
-      width: "120px",
-    },
+      selector: (row) => (row.activestatus === true ? "Active" : "Inactive"),
+      exportValue: (row) => (row.activestatus === true ? "Active" : "Inactive"),
+      cell: (row) => {
+        const now = new Date();
+        const startDate = new Date(row.tournament_id?.startdate);
+        const endDate = new Date(row.tournament_id?.enddate);
+        const isLive = now >= startDate && now <= endDate;
+        const isCompleted = now > endDate;
 
+        return (
+          <label
+            className={`relative inline-flex items-center ${
+              row.filled_spots > 0 || isLive || isCompleted
+                ? "cursor-not-allowed opacity-60"
+                : "cursor-pointer"
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+
+              if (row.filled_spots > 0) {
+                toast.error(
+                  "Cannot change status. Some spots are already filled."
+                );
+                return;
+              }
+              if (isLive || isCompleted) {
+                toast.error(
+                  "Cannot change status for a live or completed tournament's contest."
+                );
+                return;
+              }
+
+              handleStatusChange(row);
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={row?.activestatus === true}
+              readOnly
+              className="sr-only peer"
+            />
+            <div
+              className={`w-11 h-6 rounded-full transition-colors ${
+                row.activestatus ? "bg-green-600" : "bg-gray-300"
+              }`}
+            ></div>
+            <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full border peer-checked:translate-x-full transition-transform"></div>
+          </label>
+        );
+      },
+      width: "70px",
+      export: true,
+    },
     {
       name: "Action",
-      cell: (row) => (
-        <div className="flex gap-3">
-          <Edit
-            className="cursor-pointer text-blue-600"
-            onClick={() => handleOpen(row)}
-          />
-          <Trash2
-            className="cursor-pointer text-red-600"
-            onClick={() => handleDelete(row)}
-          />
-        </div>
-      ),
-      width: "100px",
-    },
+      cell: (row) => {
+        const now = new Date();
+        const startDate = new Date(row.tournament_id?.startdate);
+        const endDate = new Date(row.tournament_id?.enddate);
+        const isLive = now >= startDate && now <= endDate;
+        const isCompleted = now > endDate;
+        const isUpcoming = now < startDate;
 
-    {
-      name: "View",
-      cell: (row) => (
-        <Eye
-          className="cursor-pointer text-green-600"
-          size={20}
-          onClick={() => {
-            setViewContest(row);
-            setViewOpen(true);
-          }}
-        />
-      ),
-      width: "80px",
+        return (
+          <div className="flex gap-3 items-center">
+            {/* View */}
+            <Eye
+              className="text-green-600 cursor-pointer"
+              size={25}
+              onClick={() =>
+                navigate(`/superadmin/viewcontest/${row._id}`, { state: row })
+              }
+            />
+
+            {/* Edit */}
+            <Edit
+              className={`${
+                isLive || isCompleted
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 cursor-pointer"
+              }`}
+              size={25}
+              onClick={() => {
+                if (isLive || isCompleted) return;
+                navigate("/superadmin/add-contest", {
+                  state: { contest: row },
+                });
+              }}
+            />
+
+            {/* Cancel (instead of Delete) */}
+            {/* <button
+              className={`px-3 py-1 rounded text-white text-sm transition ${
+                isUpcoming
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
+              disabled={!isUpcoming}
+              onClick={() => {
+                if (isUpcoming) handleCancelContest(row);
+              }}
+            >
+              Cancel
+            </button> */}
+          </div>
+        );
+      },
+      export: false,
+      width: "180px",
     },
   ];
 
-
   return (
-    <Content Page_title="Contest Management" button_title="back" button_status={true}
-      extra_button="Add Contest" extra_button_action={"/superadmin/add-contest"} route="/superadmin/dashboard"
+    <Content
+      Page_title="Contest Management"
+      button_title="Back"
+      button_status={true}
+      route="/superadmin/dashboard"
+      // extra_button="+ Add Contest"
+      extra_button_action={() => navigate("/superadmin/add-contest")}
     >
-      <div className="p-2 ">
-
+      <div className="p-2">
         <div className="shadow-lg rounded-xl p-4">
-          <Datatable columns={columns} data={contests} title="Contest List" onRefresh={fetchContests} />
+          <Datatable
+            columns={columns}
+            data={contests}
+            totalRows={totalRows}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            filterText={filterText}
+            onFilterChange={handleFilterChange}
+            onRefresh={() =>
+              fetchContests({
+                page: currentPage,
+                limit: rowsPerPage,
+                filter: filterText,
+              })
+            }
+          />
         </div>
-
-
-        {open && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <AddContest
-              token={token}
-              onSuccess={() => {
-                fetchContests();
-                setOpen(false);
-              }}
-              onCancel={() => setOpen(false)}
-            />
-          </div>
-        )}
-
-        {viewOpen && viewContest && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 ">
-            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
-              <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
-                <span>👁️ Contest Details</span>
-                <button
-                  onClick={() => {
-                    setViewOpen(false);
-                    setViewContest(null);
-                  }}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✖
-                </button>
-              </h2>
-
-              <div className="space-y-3">
-                <p><strong>Name:</strong> {viewContest?.name}</p>
-                <p><strong>Description:</strong> {viewContest?.description}</p>
-                <p><strong>Entry Fee:</strong> {viewContest?.entry_fee}</p>
-                <p><strong>Total Spots:</strong> {viewContest?.total_spots}</p>
-                <p><strong>Prize Pool:</strong> {viewContest?.prize_pool}</p>
-                <p><strong>Status:</strong> {viewContest?.status}</p>
-              </div>
-
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={() => {
-                    setViewOpen(false);
-                    setViewContest(null);
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </Content>
   );

@@ -23,12 +23,12 @@ const ActiveUser = () => {
   }, []);
 
   const columns = [
-    {
-      name: "S.No",
-      selector: (row, index) => index + 1,
-      sortable: true,
-      width: "80px",
-    },
+    // {
+    //   name: "S.No",
+    //   selector: (row, index) => index + 1,
+    //   sortable: true,
+    //   width: "80px",
+    // },
     {
       name: "Name",
       selector: (row) => row?.FullName,
@@ -51,7 +51,7 @@ const ActiveUser = () => {
   ];
 
   return (
-    <Content Page_title="Active Users" button_status={true} button_title="back" route="/superadmin/dashboard">
+    <Content Page_title="Active Users" button_status={true} button_title="Back" route="/superadmin/dashboard">
       <div className="p-2  ">
         <div className=" shadow-lg rounded-xl p-4">
           <Datatable columns={columns} data={activeuser} title="Users List"  />

@@ -1,10 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sun, Moon, Bell, Wallet } from "lucide-react";
+import { Sun, Moon, Bell, Wallet, ArrowLeft } from "lucide-react";
+import { GetUserDetails } from "../services/User";
 
 const UserHeader = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [userDetails, setUserDetails] = useState(null);
   const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
+
+
+  useEffect(() => {
+    const refreshWallet = () => {
+      fetchUser(); // refresh the user again
+    };
+    window.addEventListener("refreshWallet", refreshWallet);
+    return () => {
+      window.removeEventListener("refreshWallet", refreshWallet);
+    };
+  }, []);
+
+  useEffect(() => {
+    fetchUser();
+  }, [token, userId]);
+
+  const fetchUser = async () => {
+    try {
+      const res = await GetUserDetails(token, userId);
+      if (res?.status) {
+        const data = res.data;
+        setWalletBalance(data?.wamount || 0);
+        setUserDetails(data);
+        localStorage.setItem("walletBalance", data?.wamount || 0);
+      }
+    } catch (err) {
+      console.error("User fetch error", err);
+    }
+  };
+
+  // listen for global refresh event
+  useEffect(() => {
+    const refreshWallet = () => fetchUser();
+    window.addEventListener("refreshWallet", refreshWallet);
+
+    return () => window.removeEventListener("refreshWallet", refreshWallet);
+  }, []);
+
 
   const toggleTheme = () => {
     setIsDarkMode((prev) => {
@@ -20,41 +64,60 @@ const UserHeader = () => {
   };
 
   return (
-    <header className="bg-orange-500 text-white flex items-center justify-between px-4 py-2 shadow-md">
-      <div className="flex items-center space-x-2">
-        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+    <header className="header text-white flex items-center justify-between px-4 py-3 shadow-lg bg-gradient-to-r from-[#001f3f] to-[#003f5c]">
+      {/* Left Section - Back Button + Avatar + Name */}
+      <div className="flex items-center space-x-3">
+
+
+
+
+        {/* User Avatar */}
+        <div className="w-11 h-11 rounded-full border-2 border-white overflow-hidden transform hover:scale-110 transition duration-300 shadow-md">
           <img
-            src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+            src={
+              userDetails?.image
+                ? userDetails.image
+                : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+            }
             alt="profile"
-            className="w-8 h-8 rounded-full"
+            className="w-11 h-11 object-cover"
           />
         </div>
-        <h1 className="text-lg font-semibold">Dream Trading</h1>
+        <h1 className="text-lg font-semibold drop-shadow-md">
+          {userDetails?.FullName || "User"}
+        </h1>
       </div>
 
+      {/* Right Section - Wallet + Notifications */}
       <div className="flex items-center space-x-3">
-        <button
-          onClick={toggleTheme}
-          className="bg-white p-2 rounded-full text-orange-500 hover:bg-gray-100"
-          title="Toggle Theme"
-        >
-          {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
-
+        {/* Wallet Button */}
         <button
           onClick={() => navigate("/wallet")}
-          className="bg-white px-3 py-2 rounded-full flex items-center text-orange-500 font-medium hover:bg-gray-100"
+          className="bg-black px-2 py-1 rounded-full flex items-center 
+          text-white font-medium shadow-md hover:shadow-lg hover:scale-105 transition"
         >
-          <Wallet size={18} className="mr-1" />
-          ₹20,140
+          <Wallet size={16} className="mr-1" />
+          ₹{walletBalance.toLocaleString("en-IN")}
         </button>
 
-        <button className="bg-white p-2 rounded-full text-orange-500 hover:bg-gray-100 relative">
+        {/* Notifications */}
+        <button onClick={() => {
+          navigate("/alert")
+        }}
+          className="bg-black p-2 rounded-full text-white relative shadow-md hover:scale-110 transition">
           <Bell size={20} />
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1 animate-pulse">
             3
           </span>
+
         </button>
+        {/* <button
+          onClick={() => navigate(-1)}
+          className="bg-orange-600 text-white text-xs rounded-full px-2"
+          title="Go Back"
+        >
+          <i className="fa fa-angle-left text-white text-xl"></i>
+        </button> */}
       </div>
     </header>
   );

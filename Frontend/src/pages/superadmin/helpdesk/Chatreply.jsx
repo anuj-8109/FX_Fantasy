@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { getticketDetailAdmin, TicketReplyadmin, ticketstatus } from "../../../services/SuperAdmin";
+import Swal from "sweetalert2";
 
 function Chatreply() {
   const { ticketId } = useParams();
@@ -31,23 +32,54 @@ function Chatreply() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [ticketDetail]);
 
+
   const handleCloseTicket = async () => {
-    if (!window.confirm("Are you sure you want to close this ticket?")) return;
+    const result = await Swal.fire({
+      title: "Close Ticket?",
+      text: "Are you sure you want to close this ticket?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, close it",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+         customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+        
+      },
+
+    });
+
+    if (!result.isConfirmed) return;
 
     const data = {
       id: ticketId,
-      status: 2
+      status: 2,
     };
 
     const res = await ticketstatus(token, data);
 
     if (res.status) {
-      alert("Ticket closed successfully.");
+      await Swal.fire({
+        title: "Closed!",
+        text: "Ticket closed successfully.",
+        icon: "success",
+        confirmButtonColor: "#2563eb",
+      });
       fetchTicket();
     } else {
-      alert("Failed to close ticket: " + res.message);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to close ticket: " + res.message,
+        icon: "error",
+        confirmButtonColor: "#dc2626",
+      });
     }
   };
+
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
@@ -63,6 +95,7 @@ function Chatreply() {
       message: newMessage,
       adminname: "Admin",
       attachment: null,
+      created_at: new Date().toISOString(),
     };
 
     setTicketDetail((prev) => ({
@@ -98,8 +131,45 @@ function Chatreply() {
     }
   };
 
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const formatDateLabel = (timestamp) => {
+    const msgDate = new Date(timestamp);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    if (
+      msgDate.getFullYear() === today.getFullYear() &&
+      msgDate.getMonth() === today.getMonth() &&
+      msgDate.getDate() === today.getDate()
+    ) {
+      return "Today";
+    } else if (
+      msgDate.getFullYear() === yesterday.getFullYear() &&
+      msgDate.getMonth() === yesterday.getMonth() &&
+      msgDate.getDate() === yesterday.getDate()
+    ) {
+      return "Yesterday";
+    } else {
+      return msgDate.toLocaleDateString();
+    }
+  };
+
+  const groupedMessages = ticketDetail.messages.reduce((groups, msg) => {
+    const dateLabel = formatDateLabel(msg.created_at);
+    if (!groups[dateLabel]) {
+      groups[dateLabel] = [];
+    }
+    groups[dateLabel].push(msg);
+    return groups;
+  }, {});
+
   return (
-    <div className="p-6 flex flex-col h-[80vh]">
+    <div className="p-6 flex flex-col h-[80vh] bg-gray-100">
       <h1 className="text-xl font-bold mb-4">Chat for Ticket #{ticket.ticketnumber}</h1>
 
       <div className="border rounded p-4 mb-4 bg-white shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -129,26 +199,60 @@ function Chatreply() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto mb-4 border rounded p-3 bg-gray-50">
-        {ticketDetail.messages.length === 0 ? (
-          <p className="text-gray-500">No messages found.</p>
-        ) : (
-          ticketDetail.messages.map((msg) => (
-            <div
-              key={msg._id}
-              className={`border p-3 rounded mb-3 ${msg.adminname ? "bg-blue-50 self-start" : "bg-green-50 self-end"}`}
-            >
-              <p>
-                <strong>{msg.adminname || "You"}:</strong> {msg.message}
-              </p>
-              {msg.attachment && (
-                <a href={msg.attachment} target="_blank" className="text-blue-500 hover:underline text-sm" rel="noreferrer">
-                  Attachment
-                </a>
-              )}
-            </div>
-          ))
-        )}
+      <div className="flex-1 overflow-y-auto mb-4 p-3 bg-white rounded shadow-inner flex flex-col space-y-6">
+        {Object.keys(groupedMessages).reverse().map((dateLabel) => (
+          <div key={dateLabel}>
+            <div className="text-center text-gray-500 text-xs mb-3">{dateLabel}</div>
+            {groupedMessages[dateLabel].slice().reverse().map((msg) => {
+              const isAdmin = msg.adminname === "Admin"; // admin का message right में
+              const name = msg.adminname || "You"; // fallback name
+              const initial = name.charAt(0).toUpperCase(); // पहला अक्षर
+
+              return (
+                <div
+                  key={msg._id}
+                  className={`flex ${isAdmin ? "justify-end" : "justify-start"} mb-2`}
+                >
+                  <div className={`flex ${isAdmin ? "flex-row-reverse" : "flex-row"} items-end gap-1`}>
+
+                    {/* Profile Image or Initial */}
+                    {msg.profileImage ? (
+                      <img
+                        src={msg.profileImage}
+                        alt="Profile"
+                        className="w-8 h-8 rounded-full border border-gray-300"
+                      />
+                    ) : (
+                      <div className="w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center border border-gray-300 text-xs font-bold">
+                        {initial}
+                      </div>
+
+                    )}
+                    {/* Message Bubble */}
+                    <div className={`max-w-[55%] px-2 py-1 rounded-xl shadow-sm ${isAdmin ? "bg-blue-100" : "bg-green-100"} break-words`}>
+                      <p className="text-sm">{msg.message}</p>
+
+                      {msg.attachment && (
+                        <a
+                          href={msg.attachment}
+                          target="_blank"
+                          className="text-blue-500 hover:underline text-xs block mt-1"
+                          rel="noreferrer"
+                        >
+                          Attachment
+                        </a>
+                      )}
+
+                      <p className="text-[10px] text-gray-500 text-right mt-1">{formatTime(msg.created_at)}</p>
+                    </div>
+
+                  </div>
+                </div>
+              );
+            })}
+
+          </div>
+        ))}
         <div ref={messagesEndRef} />
       </div>
 

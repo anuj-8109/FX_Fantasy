@@ -58,35 +58,50 @@ const EmailTemplates = () => {
     fetchTemplateDetails(template._id);
   };
 
-  const handleSave = async () => {
-    const confirm = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to save changes to this template?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Save",
-      cancelButtonText: "Cancel",
+ const handleSave = async () => {
+  // Check if any changes were made
+  if (
+    subject === selectedTemplate.mail_subject &&
+    body === selectedTemplate.mail_body
+  ) {
+    Swal.fire({
+      icon: "info",
+      title: "No changes made",
+      text: "You haven’t made any changes to this template.",
+      confirmButtonText: "OK",
     });
+    return;
+  }
 
-    if (!confirm.isConfirmed) return;
+  const confirm = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to save changes to this template?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Save",
+    cancelButtonText: "Cancel",
+  });
 
-    const data = {
-      mail_subject: subject,
-      mail_body: body,
-      id: selectedTemplate._id,
-    };
+  if (!confirm.isConfirmed) return;
 
-    const response = await UpdateMailTemplate(token, data);
-
-    if (response?.status) {
-      toast.success(response?.message || "Template updated successfully");
-      fetchTemplates();
-    } else {
-      toast.error(response?.message || "Failed to update template");
-    }
-
-    setOpen(false);
+  const data = {
+    mail_subject: subject,
+    mail_body: body,
+    id: selectedTemplate._id,
   };
+
+  const response = await UpdateMailTemplate(token, data);
+
+  if (response?.status) {
+    toast.success(response?.message || "Template updated successfully");
+    fetchTemplates();
+  } else {
+    toast.error(response?.message || "Failed to update template");
+  }
+
+  setOpen(false);
+};
+
 
   const handleCancel = () => {
     setOpen(false);
@@ -144,8 +159,8 @@ const EmailTemplates = () => {
         </div>
 
         {open && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
-            <div className="w-full max-w-xl rounded-2xl shadow-2xl p-6 animate-fadeIn bg-white">
+          <div className="fixed mt-5 inset-0 flex items-center justify-center z-50 bg-opacity-40">
+            <div className="w-lg max-h-[80vh] overflow-y-auto Add-client-style shadow-2xl p-6 hide-scrollbar client-style">
               <h2 className="text-2xl font-semibold mb-6 border-b pb-3">
                 ✉️ Edit Email Template
               </h2>

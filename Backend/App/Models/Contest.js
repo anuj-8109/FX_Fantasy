@@ -29,7 +29,6 @@ const ContestSchema = new Schema({
   },
   useamount: {
     type: Number,
-    required: true,
     min: 0
   },
   total_spots: {
@@ -76,6 +75,15 @@ const ContestSchema = new Schema({
   activestatus: {
         type: Boolean,
         default: true // assuming true means active and false means inactive
+    },
+  client_id: {
+        type: Schema.Types.ObjectId,
+        ref: "CLIENTS",
+        default: null
+ },
+  is_private: {
+        type: Boolean,
+        default: false // assuming true means active and false means inactive
     },
   del: {
     type: Boolean,

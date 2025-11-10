@@ -1,9 +1,12 @@
 import React from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import Select from "react-select";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
-const renderField = (field) => {
-  const baseInputClasses = "w-full rounded-lg  placeholder-gray-400 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400";
+const renderField = (field, form, values) => {
+  const baseInputClasses =
+    "w-full rounded-lg placeholder-gray-400 border border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400";
 
   switch (field.type) {
     case "textarea":
@@ -62,7 +65,9 @@ const renderField = (field) => {
               onChange={(selectedOptions) =>
                 form.setFieldValue(
                   field.name,
-                  selectedOptions ? selectedOptions.map((option) => option.value) : []
+                  selectedOptions
+                    ? selectedOptions.map((option) => option.value)
+                    : []
                 )
               }
               onBlur={() => form.setFieldTouched(field.name, true)}
@@ -132,19 +137,55 @@ const renderField = (field) => {
         />
       );
 
-    case "password":
+    case "password": {
+      const [showPassword, setShowPassword] = React.useState(false);
       return (
-        <Field
-          type="password"
-          name={field.name}
-          placeholder={field.placeholder || `Enter ${field.label}`}
-          id={field.name}
-          autoComplete={field.autoComplete || "current-password"}
-          className={baseInputClasses}
-          disabled={field.disabled}
-          {...field.fieldProps}
-        />
+        <div className="relative">
+          <Field
+            type={showPassword ? "text" : "password"}
+            name={field.name}
+            placeholder={field.placeholder || `Enter ${field.label}`}
+            id={field.name}
+            autoComplete={field.autoComplete || "current-password"}
+            className={`${baseInputClasses} pr-10`} // add padding for the icon
+            disabled={field.disabled}
+            {...field.fieldProps}
+          />
+
+          {/* 👁 Eye icon toggle */}
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+          >
+            {showPassword ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 3C5 3 1.73 7.11 1 10c.73 2.89 4 7 9 7s8.27-4.11 9-7c-.73-2.89-4-7-9-7zm0 11a4 4 0 110-8 4 4 0 010 8z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path d="M4.03 3.97a.75.75 0 011.06 0l10.94 10.94a.75.75 0 11-1.06 1.06l-1.53-1.53A8.01 8.01 0 0110 17c-5 0-8.27-4.11-9-7 .44-1.72 1.72-3.92 3.7-5.44L4.03 3.97zM10 5c1.66 0 3.09.7 4.15 1.79l-1.42 1.42A4 4 0 006.8 9.58l-1.45-1.45C6.53 6.5 8.14 5 10 5z" />
+              </svg>
+            )}
+          </button>
+        </div>
       );
+    }
+
 
     case "file":
       return (
@@ -158,7 +199,10 @@ const renderField = (field) => {
               className={`${baseInputClasses} file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100`}
               onChange={(event) => {
                 const files = event.currentTarget.files;
-                form.setFieldValue(field.name, field.multiple ? files : files[0]);
+                form.setFieldValue(
+                  field.name,
+                  field.multiple ? files : files[0]
+                );
                 if (field.onChange) {
                   field.onChange(event, form.setFieldValue);
                 }
@@ -186,6 +230,24 @@ const renderField = (field) => {
         />
       );
 
+    case "ckeditor":
+      return (
+        <Field name={field.name}>
+          {({ field: formikField, form }) => (
+            <CKEditor
+              editor={ClassicEditor}
+              data={formikField.value}
+              onChange={(event, editor) => {
+                const data = editor.getData();
+                form.setFieldValue(field.name, data);
+              }}
+              onBlur={() => form.setFieldTouched(field.name, true)}
+              {...field.fieldProps}
+            />
+          )}
+        </Field>
+      );
+
     case "date":
       return (
         <Field
@@ -197,6 +259,98 @@ const renderField = (field) => {
           disabled={field.disabled}
           {...field.fieldProps}
         />
+      );
+
+    case "prizeDistribution":
+      return (
+        <FieldArray name={field.name}>
+          {({ push, remove }) => (
+            <div className="space-y-3">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="font-medium text-gray-700">🏆 Prize Distribution</h3>
+                <button
+                  type="button"
+                  onClick={() => push({ from: "", to: "", amount: "" })}
+                  className="px-3 py-1 text-sm bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+                >
+                  + Add Row
+                </button>
+              </div>
+
+              {values[field.name]?.map((prize, idx) => (
+                <div key={idx} className="flex gap-2 items-center bg-gray-50 p-2 rounded-md">
+                  <div className="flex-1">
+                    <Field
+                      type="number"
+                      name={`${field.name}.${idx}.from`}
+                      placeholder="From Rank"
+                      min="1"
+                      className="w-full border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <ErrorMessage
+                      name={`${field.name}.${idx}.from`}
+                      component="div"
+                      className="text-xs text-red-500 mt-1"
+                    />
+                  </div>
+
+                  <div className="flex-1">
+                    <Field
+                      type="number"
+                      name={`${field.name}.${idx}.to`}
+                      placeholder="To Rank"
+                      min="1"
+                      className="w-full border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <ErrorMessage
+                      name={`${field.name}.${idx}.to`}
+                      component="div"
+                      className="text-xs text-red-500 mt-1"
+                    />
+                  </div>
+
+                  <div className="flex-1">
+                    <Field
+                      type="number"
+                      name={`${field.name}.${idx}.amount`}
+                      placeholder="Amount"
+                      min="0"
+                      step="0.01"
+                      className="w-full border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <ErrorMessage
+                      name={`${field.name}.${idx}.amount`}
+                      component="div"
+                      className="text-xs text-red-500 mt-1"
+                    />
+                  </div>
+
+                  {values[field.name].length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => remove(idx)}
+                      className="text-red-600 hover:text-red-800 font-bold text-lg px-2"
+                      title="Remove row"
+                    >
+                      ✖
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </FieldArray>
+      );
+
+    case "custom":
+      return (
+        <Field name={field.name}>
+          {({ form, field: formikField }) =>
+            field.render
+              ? field.render(field, form, form.values, form.setFieldValue)
+              : null
+          }
+        </Field>
       );
 
     default:
@@ -232,63 +386,76 @@ const ReusableForm = ({
       onSubmit={onSubmit}
       enableReinitialize={enableReinitialize}
     >
-      {({ handleSubmit, validateForm, setTouched, isSubmitting, errors, touched }) => (
+      {({
+        handleSubmit,
+        validateForm,
+        setTouched,
+        isSubmitting,
+        errors,
+        touched,
+        values,
+      }) => (
         <Form
-          className={`grid grid-cols-1 md:grid-cols-4 gap-4 p-4 Form_style  ${formClassName}`}
+          className={`grid grid-cols-1 md:grid-cols-4 gap-4 p-4 Form_style ${formClassName}`}
           encType="multipart/form-data"
           onSubmit={async (e) => {
             e.preventDefault();
-            const formErrors = await validateForm();
-
+            const formErrors = errors;
             if (Object.keys(formErrors).length > 0) {
-              const touchedFields = {};
-              Object.keys(formErrors).forEach((key) => {
-                touchedFields[key] = true;
-              });
-              setTouched(touchedFields);
-
-              setTimeout(() => {
-                const errorElement = document.querySelector("");
+              const firstErrorKey = Object.keys(formErrors)[0];
+              if (firstErrorKey) {
+                const errorElement = document.querySelector(
+                  `[name="${firstErrorKey}"]`
+                );
                 if (errorElement) {
                   errorElement.scrollIntoView({
                     behavior: "smooth",
                     block: "center",
                   });
+                  errorElement.focus();
                 }
-              }, 100);
-
-              return;
+              }
             }
+
             handleSubmit(e);
           }}
         >
           {fields.map((field) => (
             <div key={field.name} className={field.colClass || "col-span-2"}>
-              <div className="flex flex-col space-y-1 ">
-                {field.type !== "checkbox" && field.type !== "radio" && (
-                  <label
-                    htmlFor={field.name}
-                    className={`text-sm font-medium   ${field.required ? "after:content-['*'] after:text-red-500 after:ml-1" : ""
-                      }`}
-                  >
-                    {field.label}
-                  </label>
-                )}
+              <div className="flex flex-col space-y-1">
+                {field.type !== "checkbox" &&
+                  field.type !== "radio" &&
+                  field.type !== "prizeDistribution" && (
+                    <label
+                      htmlFor={field.name}
+                      className={`text-sm font-medium ${field.required
+                          ? "after:content-['*'] after:text-red-500 after:ml-1"
+                          : ""
+                        }`}
+                    >
+                      {field.label}
+                    </label>
+                  )}
 
-                <div className={`relative    ${errors[field.name] && touched[field.name] ? "border-red-300" : ""}`}>
-                  {renderField(field)}
+                <div
+                  className={`relative ${errors[field.name] && touched[field.name]
+                      ? "border-red-300"
+                      : ""
+                    }`}
+                >
+                  {renderField(field, null, values)}
                 </div>
 
-                <ErrorMessage
-                  name={field.name}
-                  component="div"
-                  className=" text-xs mt-1 font-medium "
-                />
+                {field.type !== "prizeDistribution" && (
+                  <ErrorMessage
+                    name={field.name}
+                    component="div"
+                    className="text-xs mt-1 font-medium text-red-500"
+                  />
+                )}
 
                 {field.helpText && (
-                  <div className=" text-xs mt-1 ">
-                    {field.helpText}
-                  </div>
+                  <div className="text-xs mt-1">{field.helpText}</div>
                 )}
               </div>
             </div>
@@ -298,16 +465,16 @@ const ReusableForm = ({
             <button
               type="submit"
               disabled={loading || isSubmitting || submitButtonProps.disabled}
-              className={`w-full px-4 py-3 mt-4 font-semibold rounded-lg shadow-md  transition disabled:opacity-50 disabled:cursor-not-allowed ${submitButtonProps.className || ""}`}
+              className={`px-4 py-3 mt-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed ${submitButtonProps.className || ""
+                }`}
               {...submitButtonProps}
             >
               {loading || isSubmitting
-                ? (submitButtonProps.loadingText || "Processing...")
-                : (SubmitBtn || submitButtonProps.label || "Submit")}
+                ? submitButtonProps.loadingText || "Processing..."
+                : SubmitBtn || submitButtonProps.label || "Submit"}
             </button>
           </div>
         </Form>
-
       )}
     </Formik>
   );

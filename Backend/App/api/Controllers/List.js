@@ -1,5 +1,6 @@
 const db = require("../../Models");
-
+const axios = require('axios');
+const Papa = require('papaparse');
 const BasicSetting_Modal = db.BasicSetting;
 const Banner_Modal = db.Banner;
 const Blogs_Modal = db.Blogs;
@@ -12,10 +13,15 @@ const Tournament_Model = db.Tournament;
 const Contest_Model = db.Contest;
 const Contestjoin_Modal = db.Contestjoin;
 const Contesttrade_Modal = db.Contesttrade;
+const States = db.States;
+const City = db.City;
+const Notification_Modal = db.Notification;
+const LivePrice_Modal = db.LivePrice;
 
 
-
-mongoose = require('mongoose');
+const mongoose = require('mongoose');
+const ioSocket = require("../../Utils/ioSocketReturn");
+const io = ioSocket.getIO();
 
 class List {
 
@@ -179,11 +185,10 @@ class List {
       const result = await Coupon_Modal.find({
         del: false,
         status: true,
-        showstatus: 1,
+     //   showstatus: 1,
         startdate: { $lte: endOfToday },
         enddate: { $gte: startOfToday }
       });
-
       const protocol = req.protocol; // Will be 'http' or 'https'
       const baseUrl = `https://${req.headers.host}`;
 
@@ -284,45 +289,88 @@ class List {
       return res.status(500).json({ status: false, message: 'Server error', data: [] });
     }
   }
+
 async getUpcomingTournaments(req, res) {
-    try {
-        const { search } = req.query;
+  try {
+    const { search } = req.query;
 
-        const matchConditions = { 
-            del: false,
-            status: "upcoming" 
-        };
+    // 🎯 Base match condition
+    const matchConditions = { del: false };
 
-        if (search && search.trim() !== "") {
-            matchConditions.$or = [
-                { name: { $regex: search, $options: "i" } },
-                { description: { $regex: search, $options: "i" } }
-            ];
-        }
-
-        const tournaments = await Tournament_Model.find(matchConditions)
-            .sort({ created_at: -1 });
-
-        return res.status(200).json({
-            status: true,
-            message: "Upcoming tournaments retrieved successfully",
-            data: tournaments
-        });
-
-    } catch (error) {
-        return res.status(500).json({ 
-            status: false, 
-            message: "Server error", 
-            error: error.message 
-        });
+    if (search && search.trim() !== "") {
+      matchConditions.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
     }
+
+    const tournaments = await Tournament_Model.aggregate([
+      { $match: matchConditions },
+
+      // 🎯 Join contests
+      {
+        $lookup: {
+          from: "contests",
+          localField: "_id",
+          foreignField: "tournament_id",
+          as: "contestDetails",
+        },
+      },
+
+      // 🎯 Filter contests (del:false, activestatus:true)
+      {
+        $addFields: {
+          contestDetails: {
+            $filter: {
+              input: "$contestDetails",
+              as: "contest",
+              cond: {
+                $and: [
+                  { $eq: ["$$contest.del", false] },
+                  { $eq: ["$$contest.activestatus", true] },
+                ],
+              },
+            },
+          },
+        },
+      },
+
+      // 🎯 Calculate totals (count + prize sum)
+      {
+        $addFields: {
+          contestCount: { $size: "$contestDetails" },
+          totalPrizePool: {
+            $sum: "$contestDetails.prize_pool",
+          },
+        },
+      },
+
+      // 🎯 Sort
+      { $sort: { created_at: -1 } },
+    ]);
+
+    return res.status(200).json({
+      status: true,
+      message: "Tournaments with contests retrieved successfully",
+      data: tournaments,
+    });
+  } catch (error) {
+    console.error("Error in getUpcomingTournaments:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
 }
+
 async getContestsByTournamentId(req, res) {
     try {
         const { tournament_id } = req.params;
 
         const contests = await Contest_Model.find({ 
             del: false, 
+            is_private: false,
             tournament_id: tournament_id 
         })
         .populate("tournament_id")  // tournament का पूरा object ले आएगा
@@ -353,7 +401,7 @@ async getContestsByTournamentId(req, res) {
 
 async  joinContest(req, res) {
   try {
-    const { contest_id, client_id, price, discount = 0 } = req.body;
+    const { contest_id, client_id, price, discount = 0,coupon_code="" } = req.body;
 
     // Validate inputs
     if (!contest_id || !client_id) {
@@ -366,11 +414,25 @@ async  joinContest(req, res) {
       return res.status(404).json({ status: false, message: "Contest not found" });
     }
 
+if (contest.total_spots <= contest.filled_spots) {
+      return res.status(400).json({ status: false, message: "Contest is full" });
+    }
+
+
+const tournament = await Tournament_Model.findOne({ _id: contest.tournament_id, del: false });
+if (!tournament) {
+  return res.status(404).json({ status: false, message: "Tournament not found" });
+}
+
+
     // Validate client exists
     const client = await Clients_Modal.findOne({ _id: client_id, del: 0 });
     if (!client) {
       return res.status(404).json({ status: false, message: "Client not found" });
     }
+
+
+    
 
     // Check if already joined
     const existingJoin = await Contestjoin_Modal.findOne({ contest_id, client_id });
@@ -384,6 +446,40 @@ async  joinContest(req, res) {
       return res.status(400).json({ status: false, message: "Invalid discount" });
     }
 
+
+   const result = await BasicSetting_Modal.findOne().exec();
+
+// Take dynamic percent, default 0
+const referPercent = result?.refer_amount_used_percent || 0; // default 0%
+
+let referUsed = 0;
+
+if (client.referwamount && client.referwamount > 0 && referPercent > 0) {
+  // Convert percent to decimal
+  const referPercentDecimal = referPercent / 100;
+
+  // Use referPercent% of total from refer wallet, but not more than available
+  referUsed = Math.min(client.referwamount, total * referPercentDecimal);
+}
+
+     const remaining = total - referUsed;
+
+
+ if (client.wamount < remaining) {
+      return res.status(400).json({
+        status: false,
+        message: "Insufficient wallet balance"
+      });
+    }
+
+    // ✅ Deduct from wallets
+    if (referUsed > 0) client.referwamount -= referUsed;
+    client.wamount -= remaining;
+    await client.save();
+
+
+ contest.filled_spots += 1;
+    await contest.save();
     // Save new join entry
     const joinEntry = new Contestjoin_Modal({
       contest_id,
@@ -391,12 +487,38 @@ async  joinContest(req, res) {
       price,
       discount,
       total,
+      refer_used: referUsed,
+      wallet_used: remaining,
       entry_count: 1,
-      wallet_balance: contest.useamount,
+      wallet_balance: tournament.useamount,
       joined_at: new Date()
     });
 
     await joinEntry.save();
+
+
+ if (coupon_code) {
+        const resultc = await Coupon_Modal.findOne({
+          del: false,
+          status: true,
+          code: coupon_code
+        });
+
+
+        if (resultc) {
+
+          // Check if limitation is greater than 0 before decrementing
+          if (resultc.limitation > 0) {
+            const updatedResult = await Coupon_Modal.findByIdAndUpdate(
+              resultc._id,
+              { $inc: { limitation: -1 } }, // Decrease limitation by 1
+              { new: true } // Return the updated document
+            );
+          }
+
+        }
+      }
+
 
     return res.status(200).json({
       status: true,
@@ -412,7 +534,7 @@ async  joinContest(req, res) {
     });
   }
 }
-
+/*
 async  addTrade(req, res) {
   try {
     const { contest_id, client_id, stock_symbol, trade_type, quantity } = req.body;
@@ -422,13 +544,13 @@ async  addTrade(req, res) {
       return res.status(400).json({ status: false, message: "All fields are required" });
     }
 
-   const joinData = await ContestJoin.findOne({ contest_id, client_id });
+   const joinData = await Contestjoin_Modal.findOne({ contest_id, client_id });
     if (!joinData) {
       return res.status(404).json({ status: false, message: "Client has not joined this contest" });
     }
 
-
-     const price = 100; // live stock price
+     const cPrice = await returnstockcloseprice(stock_symbol);
+     const price = cPrice; // live stock price
    
          const tradeAmount = price * quantity;
 
@@ -441,6 +563,48 @@ async  addTrade(req, res) {
       }
       updatedWalletBalance -= tradeAmount;
     } else if (trade_type.toUpperCase() === "SELL") {
+
+
+  const contestObjId = new mongoose.Types.ObjectId(contest_id);
+  const clientObjId = new mongoose.Types.ObjectId(client_id);
+
+  const totalBuys = await Contesttrade_Modal.aggregate([
+    {
+      $match: {
+        contest_id: contestObjId,
+        client_id: clientObjId,
+        stock_symbol: { $regex: new RegExp(`^${stock_symbol}$`, "i") }, // case-insensitive stock symbol
+        trade_type: { $regex: /^buy$/i }
+      }
+    },
+    { $group: { _id: null, totalQty: { $sum: "$quantity" } } }
+  ]);
+
+  const totalSells = await Contesttrade_Modal.aggregate([
+    {
+      $match: {
+        contest_id: contestObjId,
+        client_id: clientObjId,
+        stock_symbol: { $regex: new RegExp(`^${stock_symbol}$`, "i") },
+        trade_type: { $regex: /^sell$/i }
+      }
+    },
+    { $group: { _id: null, totalQty: { $sum: "$quantity" } } }
+  ]);
+
+
+    const boughtQty = totalBuys[0]?.totalQty || 0;
+    const soldQty = totalSells[0]?.totalQty || 0;
+    const availableQty = boughtQty - soldQty; // Stocks currently held
+
+  if (quantity > availableQty) {
+        return res.status(400).json({
+          status: false,
+          message: `Cannot sell ${quantity} shares. You only hold ${availableQty} shares of ${stock_symbol}.`
+        });
+      }
+
+
       updatedWalletBalance += tradeAmount;
     } else {
       return res.status(400).json({ status: false, message: "Invalid trade type" });
@@ -465,6 +629,242 @@ async  addTrade(req, res) {
     return res.status(500).json({ status: false, message: "Server error", error: error.message });
   }
 }
+*/
+async addTrade(req, res) {
+  try {
+    const { contest_id, client_id, stock_symbol, trade_type, quantity } = req.body;
+
+    // Validate input
+    if (!contest_id || !client_id || !stock_symbol || !trade_type || !quantity) {
+      return res.status(400).json({ status: false, message: "All fields are required" });
+    }
+
+    // Check if user joined contest
+    const joinData = await Contestjoin_Modal.findOne({ contest_id, client_id });
+    if (!joinData) {
+      return res.status(404).json({ status: false, message: "Client has not joined this contest" });
+    }
+
+    let wallet = Number(joinData.wallet_balance || 0);
+    let locked = Number(joinData.locked_balance || 0);
+    const price = await returnstockcloseprice(stock_symbol);
+    const qty = Number(quantity);
+
+    const contestObjId = new mongoose.Types.ObjectId(contest_id);
+    const clientObjId = new mongoose.Types.ObjectId(client_id);
+
+    // Aggregate existing trades for this stock
+    const agg = await Contesttrade_Modal.aggregate([
+      {
+        $match: {
+          contest_id: contestObjId,
+          client_id: clientObjId,
+          stock_symbol: { $regex: new RegExp(`^${stock_symbol}$`, "i") }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          buyQty: { $sum: { $cond: [{ $eq: [{ $toUpper: "$trade_type" }, "BUY"] }, "$quantity", 0] } },
+          buyValue: { $sum: { $cond: [{ $eq: [{ $toUpper: "$trade_type" }, "BUY"] }, { $multiply: ["$quantity", "$price"] }, 0] } },
+          sellQty: { $sum: { $cond: [{ $eq: [{ $toUpper: "$trade_type" }, "SELL"] }, "$quantity", 0] } },
+          sellValue: { $sum: { $cond: [{ $eq: [{ $toUpper: "$trade_type" }, "SELL"] }, { $multiply: ["$quantity", "$price"] }, 0] } }
+        }
+      }
+    ]);
+
+    const stats = agg[0] || { buyQty: 0, buyValue: 0, sellQty: 0, sellValue: 0 };
+    const boughtQty = stats.buyQty || 0;
+    const soldQty = stats.sellQty || 0;
+    const netQty = boughtQty - soldQty; // positive => long, negative => short
+
+    const longAvg = boughtQty > 0 ? stats.buyValue / boughtQty : null;
+    const shortAvg = soldQty > 0 ? stats.sellValue / soldQty : null;
+    let realizedPnL = 0;
+    const tradesToInsert = [];
+
+    // ==========================
+    // BUY Trade Handling
+    // ==========================
+    if (trade_type.toUpperCase() === "BUY") {
+      if (netQty < 0) {
+        // Cover existing short
+        const shortOpenQty = Math.abs(netQty);
+        const closeQty = Math.min(qty, shortOpenQty);
+        const pnlClose = (shortAvg - price) * closeQty;
+        realizedPnL += pnlClose;
+
+        const release = shortAvg * closeQty;
+        locked -= release;
+        wallet += release;
+
+        tradesToInsert.push({
+          contest_id,
+          client_id,
+          stock_symbol,
+          trade_type: "buy",
+          quantity: closeQty,
+          price,
+          position_type: "CLOSE",
+          realizedPnL: pnlClose,
+          wallet_balance_after_trade: wallet,
+          locked_balance_after_trade: locked
+        });
+
+        const remainingQty = qty - closeQty;
+        if (remainingQty > 0) {
+          const amtRem = price * remainingQty;
+          if (wallet < amtRem) {
+            return res.status(400).json({ status: false, message: "Insufficient wallet to open new long after covering short" });
+          }
+          wallet -= amtRem;
+          locked += amtRem;
+
+          tradesToInsert.push({
+            contest_id,
+            client_id,
+            stock_symbol,
+            trade_type: "buy", // ✅ corrected (was SELL before)
+            quantity: remainingQty,
+            price,
+            position_type: "OPEN",
+            realizedPnL: 0,
+            wallet_balance_after_trade: wallet,
+            locked_balance_after_trade: locked
+          });
+        }
+      } else {
+        // Open new long position
+        const tradeAmount = price * qty;
+        if (wallet < tradeAmount) {
+          return res.status(400).json({ status: false, message: "Insufficient wallet balance for BUY" });
+        }
+        wallet -= tradeAmount;
+        locked += tradeAmount;
+
+        tradesToInsert.push({
+          contest_id,
+          client_id,
+          stock_symbol,
+          trade_type: "buy",
+          quantity: qty,
+          price,
+          position_type: "OPEN",
+          realizedPnL: 0,
+          wallet_balance_after_trade: wallet,
+          locked_balance_after_trade: locked
+        });
+      }
+
+    // ==========================
+    // SELL Trade Handling
+    // ==========================
+    } else if (trade_type.toUpperCase() === "SELL") {
+      if (netQty > 0) {
+        // Close existing long
+        const closeQty = Math.min(qty, netQty);
+        const pnlClose = (price - longAvg) * closeQty;
+        realizedPnL += pnlClose;
+
+        const release = longAvg * closeQty;
+        locked -= release;
+        wallet += release;
+
+        tradesToInsert.push({
+          contest_id,
+          client_id,
+          stock_symbol,
+          trade_type: "sell",
+          quantity: closeQty,
+          price,
+          position_type: "CLOSE",
+          realizedPnL: pnlClose,
+          wallet_balance_after_trade: wallet,
+          locked_balance_after_trade: locked
+        });
+
+        const remainingQty = qty - closeQty;
+        if (remainingQty > 0) {
+          const amtRem = price * remainingQty;
+          if (wallet < amtRem) {
+            return res.status(400).json({ status: false, message: "Insufficient wallet to open short after closing long" });
+          }
+          wallet -= amtRem;
+          locked += amtRem;
+
+          tradesToInsert.push({
+            contest_id,
+            client_id,
+            stock_symbol,
+            trade_type: "sell",
+            quantity: remainingQty,
+            price,
+            position_type: "OPEN",
+            realizedPnL: 0,
+            wallet_balance_after_trade: wallet,
+            locked_balance_after_trade: locked
+          });
+        }
+      } else {
+        // Open new short position
+        const tradeAmount = price * qty;
+        if (wallet < tradeAmount) {
+          return res.status(400).json({ status: false, message: "Insufficient wallet balance to open short" });
+        }
+        wallet -= tradeAmount;
+        locked += tradeAmount;
+
+        tradesToInsert.push({
+          contest_id,
+          client_id,
+          stock_symbol,
+          trade_type: "sell",
+          quantity: qty,
+          price,
+          position_type: "OPEN",
+          realizedPnL: 0,
+          wallet_balance_after_trade: wallet,
+          locked_balance_after_trade: locked
+        });
+      }
+
+    } else {
+      return res.status(400).json({ status: false, message: "Invalid trade type" });
+    }
+
+    // Apply realized P&L
+    if (realizedPnL !== 0) wallet += realizedPnL;
+
+    // Save trades
+    await Contesttrade_Modal.insertMany(tradesToInsert);
+
+    // Update balances in joinData
+    joinData.wallet_balance = wallet;
+    joinData.locked_balance = locked;
+    await joinData.save();
+
+    return res.status(200).json({
+      status: true,
+      message: "Trade executed successfully",
+      data: {
+        trades: tradesToInsert,
+        wallet_balance: wallet,
+        locked_balance: locked,
+        realizedPnL
+      }
+    });
+
+  } catch (err) {
+    console.error("Error in addTrade:", err);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: err.message
+    });
+  }
+}
+
+
 
 // 📌 My Contests List API
 async myContests(req, res) {
@@ -511,9 +911,9 @@ async myContests(req, res) {
         },
       })
       .populate("client_id") // client detail
-      .sort({ created_at: -1 })
-      .skip(skip)
-      .limit(limitNum);
+      .sort({ created_at: -1 });
+      // .skip(skip)
+      // .limit(limitNum);
 
     const totalCount = await Contestjoin_Modal.countDocuments({ client_id });
 
@@ -562,7 +962,7 @@ const limit = 10;
     // Fetch trades
     const trades = await Contesttrade_Modal.find(filter)
       .populate("contest_id", "name startdate enddate") // contest detail
-      .populate("client_id", "name email") // client detail
+      .populate("client_id", "FullName Email PhoneNo") // client detail
       .sort({ trade_time: -1 }) // latest first
       .skip(skip)
       .limit(limitNum);
@@ -586,9 +986,432 @@ const limit = 10;
     });
   }
 }
+async getOpenPositions(req, res) {
+  try {
+    const { client_id, contest_id, page = 1 } = req.body;
+    const limit = 10;
+
+    if (!client_id && !contest_id) {
+      return res.status(400).json({
+        status: false,
+        message: "Either client_id or contest_id is required",
+      });
+    }
+
+    // Build filter with ObjectId conversion
+    const filter = {};
+    if (client_id) filter.client_id = new mongoose.Types.ObjectId(client_id);
+    if (contest_id) filter.contest_id =  new mongoose.Types.ObjectId(contest_id);
+
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    // Aggregate net positions
+    const aggPipeline = [
+      { $match: filter },
+      {
+        $group: {
+          _id: { contest_id: "$contest_id", client_id: "$client_id", stock_symbol: "$stock_symbol" },
+          buyQty: {
+            $sum: {
+              $cond: [
+                { $eq: [{ $trim: { input: { $toLower: "$trade_type" } } }, "buy"] },
+                { $toDouble: "$quantity" },
+                0
+              ]
+            }
+          },
+          sellQty: {
+            $sum: {
+              $cond: [
+                { $eq: [{ $trim: { input: { $toLower: "$trade_type" } } }, "sell"] },
+                { $toDouble: "$quantity" },
+                0
+              ]
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          contest_id: "$_id.contest_id",
+          client_id: "$_id.client_id",
+          stock_symbol: "$_id.stock_symbol",
+          netQty: { $subtract: ["$buyQty", "$sellQty"] }
+        }
+      },
+      { $match: { netQty: { $ne: 0 } } }, // Only non-zero positions
+      { $sort: { stock_symbol: 1 } },      // Sort for pagination
+      { $skip: skip },
+      { $limit: limitNum }
+    ];
+
+    const netPositions = await Contesttrade_Modal.aggregate(aggPipeline);
+
+    // Total count for pagination
+    const countPipeline = [
+      { $match: filter },
+      {
+        $group: {
+          _id: { contest_id: "$contest_id", client_id: "$client_id", stock_symbol: "$stock_symbol" },
+          buyQty: {
+            $sum: {
+              $cond: [
+                { $eq: [{ $trim: { input: { $toLower: "$trade_type" } } }, "buy"] },
+                { $toDouble: "$quantity" },
+                0
+              ]
+            }
+          },
+          sellQty: {
+            $sum: {
+              $cond: [
+                { $eq: [{ $trim: { input: { $toLower: "$trade_type" } } }, "sell"] },
+                { $toDouble: "$quantity" },
+                0
+              ]
+            }
+          }
+        }
+      },
+      { $project: { netQty: { $subtract: ["$buyQty", "$sellQty"] } } },
+      { $match: { netQty: { $ne: 0 } } },
+      { $count: "total" }
+    ];
+
+    const totalCountArr = await Contesttrade_Modal.aggregate(countPipeline);
+    const total = totalCountArr.length > 0 ? totalCountArr[0].total : 0;
+
+    return res.status(200).json({
+      status: true,
+      message: "Open positions fetched successfully",
+      page: pageNum,
+      limit: limitNum,
+      total,
+      data: netPositions,
+    });
+
+  } catch (error) {
+    console.error("Error fetching open positions:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
+async getContestRanking(req, res) {
+  try {
+    const { contest_id, page = 1 } = req.body;
+    const limit = 10;
+
+    if (!contest_id) {
+      return res.status(400).json({
+        status: false,
+        message: "contest_id is required",
+      });
+    }
+
+    // Pagination setup
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    // Contest join data fetch with user details
+    const participants = await Contestjoin_Modal.find({ contest_id })
+      .populate("client_id", "FullName Email PhoneNo") // client details
+      .populate("contest_id", "name") // contest details
+      .sort({ points: -1 }) // Highest points first
+      .skip(skip)
+      .limit(limitNum);
+
+    // Total joined users
+    const total = await Contestjoin_Modal.countDocuments({ contest_id });
+
+    // Ranking assign manually (1st, 2nd, ...)
+    const allParticipants = await Contestjoin_Modal.find({ contest_id })
+      .sort({ points: -1 })
+      .select("client_id points");
+
+    // Map userId => rank
+    const rankMap = {};
+    allParticipants.forEach((p, index) => {
+      rankMap[p.client_id.toString()] = index + 1;
+    });
+
+    // Add rank into response
+    const rankedParticipants = participants.map((p) => {
+      const obj = p.toObject();
+      obj.rank = rankMap[p.client_id._id.toString()];
+      return obj;
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "Contest ranking fetched successfully",
+      contest_id,
+      total_users: total,
+      page: pageNum,
+      limit: limitNum,
+      data: rankedParticipants,
+    });
+  } catch (error) {
+    console.error("Error fetching contest ranking:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
+
+  async getAllStates(req, res) {
+    try {
+      const states = await States.find({}).toArray(); // MongoDB native driver ka use ho raha hai
+      res.status(200).json(states);
+    } catch (error) {
+      res.status(500).json({ error: "Something went wrong" });
+    }
+  }
+
+  async getCityByStates(req, res) {
+    try {
+      const stateName = decodeURIComponent(req.params.stateName); // "Madhya Pradesh"
+
+      const cities = await City.find({ state: stateName }).toArray(); // nativ
+      res.status(200).json(cities);
+    } catch (error) {
+      res.status(500).json({ error: "Something went wrong" });
+    }
+  }
+
+
+  async NotificationList(req, res) {
+  try {
+    const { id } = req.params; // clientid (या user id)
+    const { page = 1, limit = 10 } = req.query;
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // अगर id नहीं मिला तो error return करें
+    if (!id) {
+      return res.status(400).json({
+        status: false,
+        message: "Client ID is required"
+      });
+    }
+
+    // Match condition बनाएं
+    const matchCondition = {
+      clientid: id
+    };
+
+    // Notification list fetch करें
+    const notifications = await Notification_Modal.find(matchCondition)
+      .sort({ createdAt: -1 }) // Latest first
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // कुल count भी निकाल लें
+    const total = await Notification_Modal.countDocuments(matchCondition);
+
+    return res.status(200).json({
+      status: true,
+      message: "Notification list fetched successfully",
+      data: notifications,
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+
+  } catch (error) {
+    console.error("Error in notificationList:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+}
 
 
 
+  async applyCoupon(req, res) {
+
+
+    try {
+      const { code, purchaseValue } = req.body;
+      // Find the coupon by code
+      const coupon = await Coupon_Modal.findOne({ code, status: 'true', del: false });
+      if (!coupon) {
+        return res.status(404).json({ message: 'Coupon not found or is inactive' });
+      }
+
+
+
+
+      // Check if the coupon is within the valid date range
+      const currentDate = new Date();
+      const currentDateOnly = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()); // Strip time
+      const startDateOnly = new Date(coupon.startdate.getFullYear(), coupon.startdate.getMonth(), coupon.startdate.getDate());
+      const endDateOnly = new Date(coupon.enddate.getFullYear(), coupon.enddate.getMonth(), coupon.enddate.getDate());
+
+      if (currentDateOnly < startDateOnly || currentDateOnly > endDateOnly) {
+        return res.status(400).json({ status: false, message: 'Coupon is not valid at this time' });
+      }
+
+
+      // Check if the purchase meets the minimum purchase value requirement
+      if (purchaseValue < coupon.minpurchasevalue) {
+        return res.status(400).json({ status: false, message: `Minimum purchase value required is ${coupon.minpurchasevalue}` });
+      }
+      // Calculate the discount based on the coupon type
+      let discount = 0;
+      if (coupon.type === 'fixed') {
+        discount = coupon.value;
+      } else if (coupon.type === 'percentage') {
+        discount = (coupon.value / 100) * purchaseValue;
+      }
+      else if (coupon.type === 'flat') {
+        discount = (coupon.value / 100) * purchaseValue;
+      }
+
+      if (discount > purchaseValue) {
+        return res.status(400).json({ status: false, message: "Discount should be less than the purchase value." });
+      }
+
+
+      if (coupon.limitation <= 0) {
+        return res.status(400).json({ status: false, message: 'Coupon usage limit has been reached' });
+      }
+    
+
+
+      if (coupon.mincouponvalue) {
+        if (discount > coupon.mincouponvalue) {
+          discount = coupon.mincouponvalue;
+        }
+      }
+
+      // Calculate the final price after applying the discount
+      const finalPrice = purchaseValue - discount;
+
+
+      // const settings = await BasicSetting_Modal.findOne();
+      let total = finalPrice; // Use let for reassignable variables
+      // let totalgst = 0;
+
+      // if (settings.gst > 0 && settings.gststatus == 1) {
+      //   totalgst = (finalPrice * settings.gst) / 100; // Use settings.gst instead of gst
+      //   total = finalPrice + totalgst;
+      // }
+
+
+      return res.status(200).json({
+        status: true,
+        message: 'Coupon applied successfully',
+        originalPrice: purchaseValue,
+        discount,
+        finalPrice: total,
+       // totalgst,
+      });
+    } catch (error) {
+      return res.status(500).json({ status: false, message: 'Server error', error: error.message });
+    }
+  }
+
+
+}
+
+/*
+async function returnstockcloseprice(symbol) {
+    try {
+      
+        const csvFilePath = "https://docs.google.com/spreadsheets/d/1wwSMDmZuxrDXJsmxSIELk1O01F0x1-0LEpY03iY1tWU/export?format=csv";
+        const { data } = await axios.get(csvFilePath);
+        
+        // Return a promise that resolves with the CPrice after parsing
+        return new Promise((resolve, reject) => {
+            Papa.parse(data, {
+                header: true,
+                complete: (result) => {
+                    let sheetData = result.data;
+
+                    // Map symbol names as needed
+                    sheetData.forEach(item => {
+                        switch (item.SYMBOL) {
+                            case "NIFTY_BANK":
+                                item.SYMBOL = "BANKNIFTY";
+                                break;
+                            case "NIFTY_50":
+                                item.SYMBOL = "NIFTY";
+                                break;
+                            case "NIFTY_FIN_SERVICE":
+                                item.SYMBOL = "FINNIFTY";
+                                break;
+                        }
+                    });
+
+                    // Find the requested symbol and return its CPrice
+                   // const stockData = sheetData.find(item => item.SYMBOL === symbol);
+
+                      const stockData = sheetData.find(item => 
+                        item.SYMBOL === symbol.trim() || 
+                        item.SYMBOL === `NSE:${symbol.trim()}`
+                    );
+
+                    // console.log("Searching for Symbol:", symbol.trim());
+                    // console.log("Matched Stock Data:", stockData);
+
+                    if (stockData && stockData.CPrice && stockData.CPrice !== "#N/A") {
+                        resolve(stockData.CPrice);
+                    } else {
+                        reject(new Error("CPrice unavailable or symbol not found."));
+                    }
+                },
+                error: (error) => {
+                    reject(error);
+                }
+            });
+        });
+    } catch (error) {
+       
+       return;
+    }
+}
+*/
+
+async function returnstockcloseprice(symbol) {
+  try {
+    if (!symbol || symbol.trim() === "") {
+      throw new Error("Symbol is required");
+    }
+
+    const cleanSymbol = symbol.trim().toUpperCase(); // normalize case
+
+    // Symbol name mapping (same as before)
+    let mappedSymbol = cleanSymbol;
+   
+    // 🎯 Find in MongoDB (case-insensitive)
+    const liveData = await LivePrice_Modal.findOne({
+      ticker: { $regex: `^${mappedSymbol}$`, $options: "i" },
+    });
+
+    if (liveData && liveData.midPrice) {
+      return liveData.midPrice; // ✅ midPrice mil gaya
+    } else {
+      throw new Error(`midPrice not found for symbol: ${symbol}`);
+    }
+  } catch (error) {
+    console.error("❌ Error in returnstockcloseprice:", error.message);
+    return null; // fail-safe return
+  }
 }
 
 

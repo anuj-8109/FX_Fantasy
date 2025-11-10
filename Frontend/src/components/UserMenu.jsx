@@ -1,16 +1,36 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home, Search, Bell, User } from "lucide-react";
+import { Home, Search, Bell, Swords } from "lucide-react";
 import Swal from "sweetalert2";
+import { GetUserDetails } from "../services/User"; // ✅ same API as UserHeader
 
 const UserMenu = () => {
   const navigate = useNavigate();
   const [showProfile, setShowProfile] = useState(false);
+  const [userDetails, setUserDetails] = useState(null);
   const profileRef = useRef();
 
-  const user = JSON.parse(localStorage.getItem("user")); // Get logged-in user
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
 
-  // Close dropdown on outside click
+  // ✅ Fetch user details (same as in UserHeader)
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await GetUserDetails(token, userId);
+        if (res?.status) {
+          const data = res.data;
+          setUserDetails(data);
+        }
+      } catch (err) {
+        console.error("User fetch error", err);
+      }
+    };
+
+    fetchUser();
+  }, [token, userId]);
+
+  // ✅ Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -34,8 +54,10 @@ const UserMenu = () => {
         popup: "custom-swal-popup",
         title: "text-xl font-semibold text-gray-800",
         htmlContainer: "text-gray-600 text-base",
-        confirmButton: "px-5 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
-        cancelButton: "px-5 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+        confirmButton:
+          "px-5 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
+        cancelButton:
+          "px-5 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
       },
     });
 
@@ -53,65 +75,62 @@ const UserMenu = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md Footer_style">
-      <div className="flex justify-around items-center h-16 icon_style">
-
-        <button onClick={() => navigate("/dashboard")} className="flex flex-col items-center  hover:text-white-500">
+    <div className="fixed bottom-0 left-0 right-0 footer shadow-lg bg-white z-50 rounded-t-2xl">
+      <div className="flex justify-around items-center h-16">
+        {/* Home */}
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="flex flex-col items-center hover:scale-110 transition"
+        >
           <Home className="h-6 w-6" />
           <span className="text-xs">Home</span>
         </button>
 
-        <button onClick={() => navigate("/search")} className="flex flex-col items-center  hover:text-white-500">
-          <Search className="h-6 w-6" />
-          <span className="text-xs">Search</span>
+        {/* Search */}
+        <button
+          onClick={() => navigate("/search")}
+          className="flex flex-col items-center hover:scale-110 transition"
+        >
+          <Swords className="h-6 w-6" />
+          <span className="text-xs">My Contests</span>
         </button>
 
-        <button onClick={() => navigate("/alerts")} className="flex flex-col items-center  hover:text-white-500">
+        {/* Alerts */}
+        <button
+          onClick={() => navigate("/alert")}
+          className="flex flex-col items-center hover:scale-110 transition"
+        >
           <Bell className="h-6 w-6" />
           <span className="text-xs">Alerts</span>
         </button>
 
-        {/* Profile Dropdown */}
+        {/* Profile */}
         <div className="relative" ref={profileRef}>
           <button
-            onClick={() => setShowProfile(!showProfile)}
-            className="flex flex-col items-center  hover:text-blue-500"
+            onClick={() => navigate("/profile")}
+            className="flex flex-col items-center hover:scale-110 transition"
           >
-            <div className="h-6 w-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
-              {user?.FullName?.split(" ").map((n) => n[0]).join("")}
+
+            <div className="h-8 w-8 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center shadow-md">
+              {userDetails?.image ? (
+                <img
+                  src={userDetails.image}
+                  alt="User Avatar"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-400 w-full h-full flex items-center justify-center">
+                  {userDetails?.FullName
+                    ? userDetails.FullName.split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                    : "U"}
+                </span>
+              )}
             </div>
             <span className="text-xs">Profile</span>
           </button>
-
-          {showProfile && (
-            <div className="absolute bottom-16 right-0 w-56 shadow-lg rounded-lg border bg-white z-50">
-              <div className="p-3 border-b text-sm">
-                <p className="font-medium">{user?.FullName}</p>
-                <p className="text-xs text-gray-500">{user?.Email}</p>
-              </div>
-
-              <button
-                onClick={() => navigate("/profile")}
-                className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-              >
-                Profile Management
-              </button>
-
-              <button
-                onClick={() => navigate("/helpdesk")}
-                className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-              >
-                Help Desk
-              </button>
-
-              <button
-                onClick={handleLogout}
-                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-              >
-                Log Out
-              </button>
-            </div>
-          )}
         </div>
 
       </div>

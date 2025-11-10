@@ -194,6 +194,21 @@ class Users {
           message: "User ID is required",
         });
       }
+ const existingEmailClient = await Users_Modal.findOne({
+      Email,
+      _id: { $ne: id },
+      del: 0
+    });
+
+    if (existingEmailClient) {
+      return res.status(400).json({
+        status: false,
+        message: "This email is already in use by another account"
+      });
+    }
+
+
+
 
       // Find the User by ID and update their details
       const updatedUser = await Users_Modal.findByIdAndUpdate(
@@ -329,6 +344,7 @@ class Users {
           id: user.id,
           token: token,
           tokenjwt: tokenjwt, // Include the JWT token in the response
+           permissions: user.permissions || [],
         },
       });
     } catch (error) {
@@ -643,6 +659,21 @@ class Users {
           message: "User not found",
         });
       }
+
+// ✅ Check for duplicate email (other clients only)
+    const existingEmailClient = await Users_Modal.findOne({
+      Email,
+      _id: { $ne: id },
+      del: 0
+    });
+
+    if (existingEmailClient) {
+      return res.status(400).json({
+        status: false,
+        message: "This email is already in use by another account"
+      });
+    }
+
 
       // Update the user's profile information
       if (FullName) user.FullName = FullName;

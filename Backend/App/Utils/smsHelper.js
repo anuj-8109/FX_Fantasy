@@ -23,12 +23,10 @@ const encodedMessage = encodeURIComponent(message);
 
 if(name=="bulksmsservice")
 {
- // config = `authkey=${authKey}&sender=${sender}&mobiles=${mobile}&route=${route}&coding=${coding}&Template_ID=${templateId}&message=${encodedMessage}`;
  config = `username=${username}&pass=${password}&senderid=${sender}&dest_mobileno=${mobile}&msgtype=TXT&response=Y&dlttempid=${templateId}&message=${encodedMessage}`;
 }
 else if(name=="pushsms")
 {
- // config = `user=${username}&key=${authKey}&sender=${sender}&mobile=${mobile}&text=${encodedMessage}&entityid=${entity_id}&templateid=${templateId}`;
   config = `UserID=${username}&Password=${authKey}&SenderID=${sender}&Phno=${mobile}&Msg=${encodedMessage}&EntityID=${entity_id}&TemplateID=${templateId}`;
 }
 else if(name=="smartping")

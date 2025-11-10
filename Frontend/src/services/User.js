@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import * as config from "../utils/config";
 import { LucideTicketsPlane, Ticket } from "lucide-react";
@@ -21,7 +20,6 @@ export async function GetTurnament(token) {
   }
 }
 
-
 // Get contest by turnament
 export async function GetContestByTurnament(tournamentId, token) {
   try {
@@ -39,9 +37,16 @@ export async function GetContestByTurnament(tournamentId, token) {
   }
 }
 
-
 // join contest
-export async function JoinContest(contestId, clientId, price, discount, total, token) {
+export async function JoinContest(
+  contestId,
+  clientId,
+  price,
+  discount,
+  total,
+  token,
+   couponCode = ""
+) {
   try {
     const response = await axios.post(
       `${config.base_url}api/list/joincontest`,
@@ -50,7 +55,8 @@ export async function JoinContest(contestId, clientId, price, discount, total, t
         client_id: clientId,
         price,
         discount,
-        total
+        total,
+        coupon_code: couponCode, 
       },
       {
         headers: {
@@ -65,7 +71,7 @@ export async function JoinContest(contestId, clientId, price, discount, total, t
 }
 
 // get my contests
-export async function GetMyContests(token, clientId) {
+export async function GetMyContests(token, clientId, page = 1) {
   if (!token || !clientId) {
     throw new Error("Token and Client ID are required");
   }
@@ -73,7 +79,7 @@ export async function GetMyContests(token, clientId) {
   try {
     const response = await axios.post(
       `${config.base_url}api/list/mycontests`,
-      { client_id: clientId },
+      { client_id: clientId, page },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -88,23 +94,18 @@ export async function GetMyContests(token, clientId) {
 }
 
 // History
-export async function GetContestHistory(token, data) {
+export async function GetContestHistory(token, { client_id, contest_id, page }) {
   try {
-    const url = `${config.base_url}api/list/gettradehistory`;
     const response = await axios.post(
-      url,
-      data,
+      `${config.base_url}api/list/gettradehistory`,
+      { client_id, contest_id, page }, // body
       {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` }, // config
       }
     );
-
     return response?.data;
   } catch (error) {
-    console.error("API error", error?.response || error);
+    console.error("API error", error?.response?.data || error);
     return error?.response?.data || { status: false, message: "Unknown error" };
   }
 }
@@ -121,14 +122,33 @@ export async function GetUserDetails(token, id) {
         },
       }
     );
+
     return response?.data;
+
   } catch (error) {
     console.error("API error", error?.response || error);
-    return error?.response?.data || { status: false, message: "Unknown error" };
+
+    // ✅ 404 ko handle karo
+    if (error?.response?.status === 404) {
+      // console.warn("User not found. Clearing localStorage...");
+
+      // ✅ LocalStorage clear
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.clear(); // optional
+
+      // ✅ Redirect to '/'
+      window.location.href = "/";
+    }
+
+    return (
+      error?.response?.data || { status: false, message: "Unknown error" }
+    );
   }
 }
 
-// for Ticket Status 
+
+// for Ticket Status
 
 // get Ticket
 
@@ -140,7 +160,7 @@ export async function GetTicket(token, clientId) {
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }
     );
@@ -150,20 +170,21 @@ export async function GetTicket(token, clientId) {
   }
 }
 
-
-
-
 // Add Ticket
 
 export async function addTicket(token, data) {
   try {
-    const response = await axios.post(`${config.base_url}api/client/addticket`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    })
-    return response?.data
+    const response = await axios.post(
+      `${config.base_url}api/client/addticket`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
   }
@@ -173,12 +194,15 @@ export async function addTicket(token, data) {
 
 export async function getticketDetail(token, ticketId) {
   try {
-    const response = await axios.get(`${config.base_url}api/client/ticketdetail/${ticketId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await axios.get(
+      `${config.base_url}api/client/ticketdetail/${ticketId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response?.data;
   } catch (error) {
     return error?.response?.data || { status: false, message: "Unknown error" };
@@ -187,7 +211,7 @@ export async function getticketDetail(token, ticketId) {
 
 // TicketReply
 export async function TicketReply(token, data) {
-  console.log("data", data)
+  console.log("data", data);
   try {
     // const response = await axios.post(
     //   `${config.base_url}api/client/ticketreply`,
@@ -199,7 +223,7 @@ export async function TicketReply(token, data) {
     //     },
     //   }
     // );
-   const formData = new FormData();
+    const formData = new FormData();
     formData.append("ticket_id", data.ticket_id);
     formData.append("client_id", data.client_id);
     formData.append("message", data.message);
@@ -207,22 +231,510 @@ export async function TicketReply(token, data) {
     //   formData.append("attachment", data.attachment);
     // }
 
-      const response = await axios.post(
-       `${config.base_url}api/client/ticketreply`,
-        formData,
-        {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+    const response = await axios.post(
+      `${config.base_url}api/client/ticketreply`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
-    console.log("response", response)
+    console.log("response", response);
     return response?.data;
-
   } catch (error) {
     console.log(error.response?.data);
     return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+// AddMoney in walllet
+
+export async function addMoneyInWallet(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/client/addmoneyinwallet`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+// WalletHistory
+
+export async function WalletHistory(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/client/getwallethistory`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+// withdrolmonwy
+
+export async function withdrolmoney(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/client/requestpayout`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+// withdrolmoneyList
+
+export async function withdrolHistory(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/client/payoutlist`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Unknown error" };
+  }
+}
+
+//Get Active Banners
+
+export async function GetBanners(token) {
+  try {
+    const response = await axios.get(`${config.base_url}api/list/banner`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+
+// get Coupons
+export async function GetCoupons(token) {
+
+  try {
+    const response = await axios.get(`${config.base_url}api/list/coupon`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+// get FAQ
+export async function Getfaq(token) {
+  try {
+    const response = await axios.get(`${config.base_url}api/list/faq`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response?.data;
+  } catch (error) {
+    return response?.data;
+  }
+}
+
+//getBlog 
+export async function GetBlog(token) {
+  try {
+    const response = await axios.get(`${config.base_url}api/list/blogspagination`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response?.data;
+  } catch (error) {
+    return response?.data;
+  }
+}
+
+// getContent
+
+
+export async function getContent(token, data) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}api/list/content/${data?.id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    console.error("getContent error:", error);
+    return error?.response?.data;
+  }
+}
+
+
+// BuySell trade
+export async function BuySelltrade(token, payload) {
+  try {
+    const response = await axios.post(`${config.base_url}api/list/buyselltrade`, payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
+
+// UpdateClient profile
+export async function updateclientname(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/client/updateclientname`,
+      data,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { success: false, message: "Network error" };
+  }
+}
+
+//updateclientimage 
+
+// services/User.js
+export async function updateClientImage(token, formData) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/client/updateclientimage`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network Error" };
+  }
+}
+
+
+// KYCVarifiaction
+
+export async function KYCVarifiaction(token, formData) {
+  try {
+    const response = await axios.post(`${config.base_url}api/client/manualkyc`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network Error" }
+  }
+}
+
+//Bank details
+
+export async function addBank(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}api/client/addbankdetail`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" }
+  }
+}
+
+//getBank Account 
+
+export async function getBankdetalis(token, client_id) {
+  try {
+    const response = await axios.get(`${config.base_url}api/client/listbankdetails`, {
+      params: { client_id },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    })
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network Error" }
+  }
+}
+
+
+
+
+//deletebank
+
+export async function deletebank(token, id) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}api/client/deletebank`,
+      {
+        params: { id },
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || {
+      status: false,
+      message: "Network Error",
+    };
+  }
+}
+
+
+// ContestTracking
+
+export async function getContestRanking(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/list/getcontestranking`,
+      data,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
+
+// User update
+// export async function EditUser(token, data) {
+//   try {
+//     const response = await axios.post(`${config.base_url}user/update-profile`, data, {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+//     return response?.data;
+//   } catch (error) {
+//     return error?.response?.data;
+//   }
+// }
+
+// addprivatecontent router.post("/api/client/addcontestprivate", auth, AddContestPrivate);
+
+export async function addprivatecontent(token, formData) {
+  try {
+    const response = await axios.post(`${config.base_url}api/client/addcontestprivate`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
+//get private contests
+export async function ListPrivateContests(token, client_id, tournament_id) {
+  try {
+    const response = await axios.get(`${config.base_url}api/client/listprivatecontests`, {
+      params: { client_id, tournament_id }, // add tournament_id
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network Error" };
+  }
+}
+
+
+// router.post("/api/client/shareprivatecontest", auth, SharePrivateContest);
+export async function SharePrivateContest(token, contest_id, shared_by_client_id, PhoneNo) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/client/shareprivatecontest`,
+      { contest_id, shared_by_client_id, PhoneNo },
+      { 
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        } 
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    console.error("SharePrivateContest API Error:", error);
+    return error?.response?.data || { 
+      status: false, 
+      message: error?.message || "Network error" 
+    };
+  }
+}
+
+
+
+
+
+export async function EditUser(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}api/client/updateclientprofile`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+
+//My contest list 
+
+export async function MyContestsWithoutTournament(token, client_id) {
+  try {
+    const response = await axios.post(`${config.base_url}api/list/mycontestswithouttournament`, { client_id }, {
+      headers: {  Authorization: `Bearer ${token}` }
+    });
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
+
+export async function applyReferral(token, user_id, refer_token) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/client/referearn`,
+      { user_id, refer_token },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
+// Refer & Earn API call
+// export async function getReferEarnData(token, client_id) {
+//   try {
+//     const response = await axios.post(
+//       `${config.base_url}api/client/referearn`, 
+//       { id: client_id },   // backend expect कर रहा है { id }
+//       {
+//         headers: { 
+//           Authorization: `Bearer ${token}`
+//         }
+//       }
+//     );
+
+//     return response?.data;
+//   } catch (error) {
+//     return error?.response?.data || { status: false, message: "Network error" };
+//   }
+// }
+
+export async function getReferEarnData(token, refertoken) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}api/client/refer`,
+      {
+        params: { refertoken }, 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
+// getopentrades with pagination
+export async function getOpenTrades(token, data) {
+  try {
+    const response = await axios.post(`${config.base_url}api/list/getopenpositions`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response?.data;
+  } catch (error) {
+    console.error("Error fetching open trades:", error?.response?.data || error.message);
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
+export async function getNotificationList(token, userId, page = 1, limit = 10) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}api/list/notification/${userId}?page=${page}&limit=${limit}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    console.error("Error fetching notifications:", error?.response?.data || error.message);
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
+
+export async function applyCouponAPI(token, data) {
+  try {
+    const response = await axios.post(
+      `${config.base_url}api/list/applycoupon`, 
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,   // token use ho raha h
+        },
+      }
+    );
+
+    return response?.data;
+  } catch (error) {
+    console.error("Error applying coupon:", error?.response?.data || error.message);
+    return error?.response?.data || { status: false, message: "Network error" };
   }
 }

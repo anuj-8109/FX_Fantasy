@@ -13,6 +13,7 @@ import Swal from "sweetalert2";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import Content from "../../../components/superadmin/Content";
+import { useNavigate } from "react-router-dom";
 
 const Contents = () => {
   const [contents, setContents] = useState([]);
@@ -21,6 +22,7 @@ const Contents = () => {
   const [loading, setLoading] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
   const [viewContent, setViewContent] = useState(null);
+  const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -43,62 +45,6 @@ const Contents = () => {
     fetchContent();
   }, []);
 
-  const handleOpen = (content = null) => {
-    setSelectedContent(content);
-    setTitle(content?.title || "");
-    setDescription(content?.description || "");
-    setOpen(true);
-  };
-
-  const handleCancel = () => {
-    setOpen(false);
-    setSelectedContent(null);
-    setTitle("");
-    setDescription("");
-  };
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-
-    const confirm = await Swal.fire({
-      title: selectedContent ? "Update Content?" : "Add Content?",
-      text: selectedContent
-        ? "Are you sure you want to update this content?"
-        : "Are you sure you want to add this content?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Save",
-      cancelButtonText: "Cancel",
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    const data = {
-      title,
-      description,
-      add_by: add_by,
-    };
-
-    setLoading(true);
-    let response;
-    if (selectedContent) {
-      data.id = selectedContent._id;
-      response = await UpdateContent(token, data);
-    } else {
-      response = await AddContent(token, data);
-    }
-
-    if (response?.status) {
-      toast.success(response?.message || "Saved successfully");
-      fetchContent();
-      handleCancel();
-    } else {
-      toast.error(response?.message || "Failed to save");
-    }
-
-    setLoading(false);
-  };
-
   const handleStatusChange = async (content) => {
     const actionText = content.status ? "Deactivate" : "Activate";
 
@@ -109,6 +55,14 @@ const Contents = () => {
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
+       customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+        
+      },
     });
 
     if (!confirm.isConfirmed) return;
@@ -129,18 +83,23 @@ const Contents = () => {
   };
 
   const columns = [
-    {
-      name: "S.No",
-      selector: (row, index) => index + 1,
-      width: "80px",
-    },
+    // {
+    //   name: "S.No",
+    //   selector: (row, index) => index + 1,
+    //   width: "80px",
+    // },
     {
       name: "Title",
       selector: (row) => row?.title,
+      exportValue: (row) => row?.title || "N/A",
+      export: true,
       sortable: true,
     },
     {
       name: "Description",
+      selector: (row) => row?.description,
+      exportValue: (row) => row.description || "N/A",
+      export: true,
       cell: (row) => (
         <div
           className="line-clamp-2 prose max-w-xs text-sm"
@@ -150,6 +109,9 @@ const Contents = () => {
     },
     {
       name: "Status",
+      selector: (row) => row?.status,
+      exportValue: (row) => (row.status === true ? "Active" : "InActive"),
+      export: true,
       cell: (row) => (
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -164,17 +126,19 @@ const Contents = () => {
       ),
     },
 
-
     {
       name: "Action",
       cell: (row) => (
         <div className="flex gap-3">
           <Edit
             className="cursor-pointer text-blue-600"
-            onClick={() => handleOpen(row)}
+            onClick={() =>
+              navigate("/superadmin/add-content", { state: { content: row } })
+            }
           />
         </div>
       ),
+      export: false,
     },
     {
       name: "View",
@@ -190,16 +154,18 @@ const Contents = () => {
           />
         </div>
       ),
+      export: false,
     },
   ];
 
   return (
     <Content
       Page_title="All Contents"
-      button_title="back"
+      button_title="Back"
       button_status={true}
+      extra_button="+ Add Content"
+      extra_button_action={() => navigate("/superadmin/add-content")}
       route="/superadmin/dashboard"
-      extra_button="+ Add Content" extra_button_action={handleOpen}
     >
       <div className="p-2 ">
         {/* <div className="flex items-center justify-between mb-6">
@@ -216,56 +182,14 @@ const Contents = () => {
           </button>
         </div> */}
         <div className="shadow-lg rounded-xl p-4 bg-#1E293B">
-          <Datatable columns={columns} data={contents} title="Contents List" onRefresh={fetchContent} />
+          <Datatable
+            columns={columns}
+            data={contents}
+            title="Contents List"
+            onRefresh={fetchContent}
+          />
         </div>
 
-        {open && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl p-6 Add-client-style">
-              <h2 className="text-lg font-semibold mb-4 border-b pb-2">
-                {selectedContent ? "✏️ Edit Content" : "➕ Add Content"}
-              </h2>
-              <form onSubmit={handleSave} className="space-y-4">
-                <div>
-                  <label className="text-sm ">Title</label>
-                  <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm ">Description</label>
-                  <CKEditor
-                    editor={ClassicEditor}
-                    data={description}
-                    onChange={(event, editor) => {
-                      const data = editor.getData();
-                      setDescription(data);
-                    }}
-                  />
-                </div>
-                <div className="flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={handleCancel}
-                    className="px-4 py-2 bg-blue-600 rounded-md"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md"
-                  >
-                    {loading ? "Saving..." : "Save"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
         {viewOpen && viewContent && (
           <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
             <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">

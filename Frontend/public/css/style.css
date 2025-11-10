@@ -64,9 +64,9 @@ aside {
     color: #000000 !important;
 }
 
-.theme-trading-light .transition-colors {
+/* .theme-trading-light .transition-colors {
     color: #FFFFFF !important;
-}
+} */
 
 .theme-trading-light .dashBoardSuper {
     background-color: #f1f1f198;
@@ -121,12 +121,21 @@ aside {
     color: #000;
 }
 
-.custom-swal-popup {
+/* .custom-swal-popup {
     width: 300px !important;
     min-height: 180px !important;
     border-radius: 1rem solid gray !important;
     background-color: #111827;
     color: white;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+
+} */
+.custom-swal-popup1 {
+    width: 400px !important;
+    min-height: 180px !important;
+    border-radius: 1rem solid gray !important;
+    /* background-color: #111827; */
+    color: black;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
 
 }
@@ -260,3 +269,129 @@ aside {
 
 }
 
+
+.theme-trading-light .Coupons_style{
+    background-color: white;
+    color: #000;
+}
+.theme-trading-light .client-style{
+    background: white;
+    color: #000;
+}
+
+aside .w-16 .anuj{
+  margin-left: 0 !important;
+}
+
+.theme-trading-pro .sms-style{
+   background-color: #172341;
+        color: #F9FAFB;
+}
+
+
+.client-style{
+    border-radius: 10px;
+}
+
+.theme-trading-light .custom {
+    background-image: linear-gradient(to right, #fef3c7, #fbcfe8, #9333ea);
+    color: #1f2937; /* dark gray text color */
+    font-family: 'Arial', sans-serif; /* font family */
+   
+    font-weight: 200; /* font weight */
+   
+    border-radius: 8px; /* rounded corners */
+}
+.header,footer
+{
+    /* background-image: linear-gradient(to right, #022f40,#08516b, #38aacc) !important; */
+    /* background-color: #f54c01 !important; */
+ background-image: linear-gradient(81deg, #E8411D 0%, #FAAC52 100%) !important;
+}
+
+
+/* .heading_style{
+    background-color: rgb(16 121 159 / 16%);
+} */
+
+/* .button_style{
+     background-color: rgb(6 71 94);
+} */
+
+.ck-powered-by {
+  display: none !important;
+}
+
+/* ===== SweetAlert2 Styles Matching Screenshot ===== */
+
+.custom-swal-popup {
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  /* padding: 28px 25px !important; */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.custom-swal-title {
+  font-size: 30px !important;
+  font-weight: 600 !important;
+  color: #111827 !important; /* neutral dark */
+  margin-bottom: 15px !important;
+  border-bottom: 1px solid #024f7661;
+   order: 1;
+}
+
+.custom-swal-text {
+  font-size: 15px !important;
+  color: #374151 !important; /* gray text */
+  margin-top: 8px !important;
+  border-bottom: 1px solid #014f7780;
+  order: 2;
+}
+
+.custom-swal-confirm {
+  background-color: #2563eb !important; /* blue */
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+  padding: 8px 18px !important;
+  transition: background-color 0.2s ease-in-out;
+  box-shadow: none !important;
+ order: 3;
+}
+
+.custom-swal-confirm:hover {
+  background-color: #1e40af !important;
+}
+
+.custom-swal-cancel {
+  background-color: #6b7280 !important; /* gray */
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+  padding: 8px 18px !important;
+  margin-left: 8px !important;
+  transition: background-color 0.2s ease-in-out;
+order: 3;
+}
+
+.custom-swal-cancel:hover {
+  background-color: #4b5563 !important;
+}
+
+/* Question icon style */
+.swal2-icon {
+  border-color: #93c5fd !important; /* light blue */
+  color: #3b82f6 !important;
+  width: 60px !important;
+  height: 60px !important;
+  margin: 10px auto 15px !important;
+  order: 2;
+}
+
+.swal2-actions {
+  display: flex !important;
+  justify-content: center !important;
+  margin-top: 20px !important;
+  order: 3;
+ 
+}

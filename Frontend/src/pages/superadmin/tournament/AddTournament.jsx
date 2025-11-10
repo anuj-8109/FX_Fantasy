@@ -1,198 +1,348 @@
-import React, { useState } from "react";
-import { addTournament } from "../../../services/SuperAdmin";
-import Content from "../../../components/superadmin/Content";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
+import * as Yup from "yup";
+import Content from "../../../components/superadmin/Content";
+import ReusableForm from "../../../extracomponents/ResuableForm";
+import {
+  addTournament,
+  UpdateTournament,
+  stocklist,
+} from "../../../services/SuperAdmin";
 
-function AddTournament() {
-    const navigate = useNavigate();
+export default function AddEditTournament() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const token = localStorage.getItem("token");
+  const add_by = localStorage.getItem("add_by");
 
-    const token = localStorage.getItem("token");
-    const add_by = localStorage.getItem("add_by");
+  const tournamentData = location.state?.tournament || null;
 
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
-    const [status, setStatus] = useState("upcoming");
-    const [stocks, setStocks] = useState([{ stock_name: "" }]);
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
-    const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [stocksListData, setStocksListData] = useState([]);
 
+  const [initialValues, setInitialValues] = useState({
+    name: "",
+    description: "",
+    stocks: [{ ticker: "" }],
+    useamount: "",
+    startdate: "",
+    enddate: "",
+    status: "upcoming",
+  });
 
-    const addStockRow = () => setStocks([...stocks, { stock_name: "" }]);
+  const [originalData, setOriginalData] = useState(null);
 
-    const removeStockRow = (i) =>
-        setStocks(stocks.filter((_, idx) => idx !== i));
+  const toLocalDateTime = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}T${String(
+      date.getHours()
+    ).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+  };
 
-    const handleStockChange = (i, value) => {
-        const updated = [...stocks];
-        updated[i].stock_name = value;
-        setStocks(updated);
-    };
+  useEffect(() => {
+    fetchStocksList();
 
-    const onCancel = () => {
-        navigate("/superadmin/tournament");
-    };
+    if (tournamentData) {
+      const stocksArr = tournamentData.stocks?.length
+        ? tournamentData.stocks.map((c) => ({
+            ticker: c.stock_name.toUpperCase(),
+          }))
+        : [{ ticker: "" }];
 
+      const formattedData = {
+        name: tournamentData.name || "",
+        description: tournamentData.description || "",
+        stocks: stocksArr,
+        useamount: tournamentData.useamount || "",
+        startdate: toLocalDateTime(tournamentData.startdate),
+        enddate: toLocalDateTime(tournamentData.enddate),
+        status: tournamentData.status || "upcoming",
+      };
 
-    const handleSave = async (e) => {
-        e.preventDefault();
-        setLoading(true);
+      setInitialValues(formattedData);
+      setOriginalData(formattedData);
+    }
+  }, [tournamentData]);
 
-        try {
+  const fetchStocksList = async () => {
+    try {
+      const res = await stocklist(token);
+      if (res?.status) {
+        const formatted = res.data.map((s) => ({
+          ...s,
+          ticker: s.ticker.toUpperCase(),
+        }));
+        setStocksListData(formatted);
+      } else {
+        Swal.fire("Failed to fetch stocks list");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-            const payload = {
-                name,
-                description,
-                startdate: startDate,
-                enddate: endDate,
-                status,
-                stocks,
-                add_by: add_by,
-            };
+  const validationSchema = Yup.object({
+    name: Yup.string().required("Tournament name is required"),
+    description: Yup.string().required("Description is required"),
 
-            const res = await addTournament(payload, token);
+    startdate: Yup.date()
+      .required("Start date is required")
+      .min(new Date(), "Start date cannot be in the past"),
 
-            if (res?.status) {
-               toast.success("Tournament added successfully ");
-                navigate("/superadmin/tournament");
-            } else {
-                Swal.fire("Failed to add tournament ");
-            }
-        } catch (err) {
-            Swal.fire("Something went wrong!");
-        } finally {
-            setLoading(false);
-        }
-    };
+    enddate: Yup.date()
+      .required("End date is required")
+      .min(Yup.ref("startdate"), "End date must be after start date"),
 
+    useamount: Yup.number()
+      .typeError("Virtual amount must be a number")
+      .required("Virtual amount is required")
+      .positive("Virtual amount must be positive"),
+  });
+
+  // ✅ PROPER STOCK + OTHER FIELDS COMPARISON FIX
+  const isFormChanged = (values) => {
+    if (!originalData) return true;
+
+    const { stocks, ...restValues } = values;
+    const { stocks: origStocks, ...restOriginal } = originalData;
+
+    const stocksNow = stocks.map((s) => s.ticker);
+    const stocksOld = origStocks.map((s) => s.ticker);
 
     return (
-        <Content
-            Page_title="Add Tournament"
-            button_title="Back"
-            button_status={true}
-            route="/superadmin/tournament"
-        >
-            <div className="w-full max-w-5xl shadow-xl rounded-xl p-6">
-                <h2 className="text-xl font-semibold mb-4 border-b pb-2">Add Tournament</h2>
-
-                <form onSubmit={handleSave} className="space-y-6">
-
-                    <div>
-                        <label className="text-sm font-medium">Name *</label>
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="w-full border rounded-md px-3 py-2 mt-1"
-                            required
-                        />
-                    </div>
-
-
-                    <div>
-                        <label className="text-sm font-medium">Description</label>
-                        <CKEditor
-                            editor={ClassicEditor}
-                            data={description}
-                            onChange={(event, editor) => setDescription(editor.getData())}
-                        />
-                    </div>
-
-                    <div>
-                        <h3 className="font-medium mb-2"> Stocks *</h3>
-                        {stocks.map((s, idx) => (
-                            <div key={idx} className="flex gap-2 mb-2 items-center">
-                                <input
-                                    type="text"
-                                    placeholder="Stock Name (e.g., TCS, INFY)"
-                                    value={s.stock_name}
-                                    onChange={(e) => handleStockChange(idx, e.target.value)}
-                                    className="w-full border rounded-md px-2 py-1"
-                                />
-                                {stocks.length > 1 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => removeStockRow(idx)}
-                                        className="text-red-600 text-sm px-2"
-                                    >
-                                        X
-                                    </button>
-                                )}
-                            </div>
-                        ))}
-                        <button
-                            type="button"
-                            onClick={addStockRow}
-                            className="text-blue-600 text-sm"
-                        >
-                            + Add Stock
-                        </button>
-                    </div>
-
-                    <div>
-                        <label className="text-sm font-medium">Status</label>
-                        <select
-                            value={status}
-                            onChange={(e) => setStatus(e.target.value)}
-                            className="w-full border rounded-md px-3 py-2 mt-1"
-                        >
-                            <option value="upcoming">Upcoming</option>
-                            <option value="live">Live</option>
-                            <option value="completed">Completed</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <h3 className="font-medium mb-2"> Schedule *</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-sm font-medium">Start Date & Time *</label>
-                                <input
-                                    type="datetime-local"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    className="w-full border rounded-md px-3 py-2 mt-1"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium">End Date & Time *</label>
-                                <input
-                                    type="datetime-local"
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    className="w-full border rounded-md px-3 py-2 mt-1"
-                                    required
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-end gap-3 pt-4 border-t">
-                        <button
-                            type="button"
-                            onClick={onCancel}
-                            className="px-4 py-2 rounded-md border bg-gray-300"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="px-4 py-2 rounded-md bg-blue-600 text-white"
-                        >
-                            {loading ? "Saving..." : "Save Tournament"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </Content>
+      JSON.stringify(restValues) !== JSON.stringify(restOriginal) ||
+      JSON.stringify(stocksNow) !== JSON.stringify(stocksOld)
     );
-}
+  };
 
-export default AddTournament;
+  const handleSubmit = async (values, formikBag) => {
+    try {
+      if (!values.stocks || values.stocks.length === 0) {
+        toast.error("Please add at least one stock");
+        formikBag?.setSubmitting(false);
+        return;
+      }
+
+      const hasEmptyStock = values.stocks.some(
+        (stock) => !stock.ticker || stock.ticker === ""
+      );
+      if (hasEmptyStock) {
+        toast.error("Please select all stocks before saving");
+        formikBag?.setSubmitting(false);
+        return;
+      }
+
+      const tickers = values.stocks.map((s) => s.ticker);
+      const hasDuplicates = tickers.length !== new Set(tickers).size;
+      if (hasDuplicates) {
+        toast.error("Duplicate stocks are not allowed");
+        formikBag?.setSubmitting(false);
+        return;
+      }
+
+      if (tournamentData && !isFormChanged(values)) {
+        toast("No changes made", { icon: "ℹ️" });
+        formikBag?.setSubmitting(false);
+        return;
+      }
+
+      const confirm = await Swal.fire({
+        title: tournamentData ? "Update Tournament?" : "Add Tournament?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        cancelButtonText: "Cancel",
+      });
+
+      if (!confirm.isConfirmed) {
+        formikBag?.setSubmitting(false);
+        return;
+      }
+
+      setLoading(true);
+
+      const payload = {
+        name: values.name,
+        description: values.description,
+        useamount: values.useamount,
+        startdate: values.startdate,
+        enddate: values.enddate,
+        add_by,
+        status: "upcoming",
+        stocks: values.stocks.map((c) => ({
+          stock_name: c.ticker.toUpperCase(),
+        })),
+      };
+
+      if (tournamentData) payload.id = tournamentData._id;
+
+      const res = tournamentData
+        ? await UpdateTournament(payload, token)
+        : await addTournament(payload, token);
+
+      if (res?.status) {
+        toast.success(res?.message || "Tournament saved successfully");
+        navigate("/superadmin/tournament");
+      } else {
+        toast.error(res?.message || "Failed to save tournament");
+      }
+    } catch (err) {
+      toast.error("Something went wrong");
+      console.error("Error:", err);
+    } finally {
+      setLoading(false);
+      formikBag?.setSubmitting(false);
+    }
+  };
+
+  const tournamentFields = [
+    {
+      name: "name",
+      label: "Tournament Name",
+      type: "text",
+      required: true,
+      colClass: "col-span-4",
+    },
+    {
+      name: "description",
+      label: "Description",
+      type: "ckeditor",
+      required: true,
+      colClass: "col-span-4",
+    },
+    {
+      name: "stocks",
+      label: "Stocks",
+      type: "custom",
+      colClass: "col-span-4",
+      render: (field, form, values, setFieldValue) => {
+        const formSubmitted = form.submitCount > 0;
+
+        return (
+          <div>
+            {values.stocks?.map((c, idx) => {
+              const isEmpty = !c.ticker || c.ticker === "";
+              const showError = formSubmitted && isEmpty;
+
+              return (
+                <div key={idx} className="mb-3 p-3 border rounded bg-gray-50">
+                  <label className="text-sm font-medium block mb-1">
+                    Stock {idx + 1}
+                  </label>
+                  <select
+                    value={c.ticker || ""}
+                    onChange={(e) => {
+                      const updated = values.stocks.map((s, i) =>
+                        i === idx
+                          ? { ticker: e.target.value.toUpperCase() }
+                          : { ...s }
+                      );
+                      setFieldValue("stocks", updated);
+                    }}
+                    className={`w-full border px-3 py-2 rounded ${
+                      showError ? "border-red-500 bg-red-50" : "border-gray-300"
+                    }`}
+                  >
+                    <option value="">-- Select Stock --</option>
+                    {stocksListData.map((item) => (
+                      <option key={item._id} value={item.ticker}>
+                        {item.ticker}
+                      </option>
+                    ))}
+                  </select>
+
+                  {showError && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Please select a stock
+                    </p>
+                  )}
+
+                  {values.stocks.length > 1 && (
+                    <button
+                      type="button"
+                      className="text-red-500 mt-2 text-sm hover:underline"
+                      onClick={() => {
+                        const updated = values.stocks.filter(
+                          (_, i) => i !== idx
+                        );
+                        setFieldValue("stocks", updated);
+                      }}
+                    >
+                      ✕ Remove Stock
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+
+            {formSubmitted && values.stocks.length === 0 && (
+              <p className="text-red-500 text-sm mt-1">
+                At least one stock is required
+              </p>
+            )}
+
+            {values.stocks.length < 2 && (
+              <button
+                type="button"
+                onClick={() =>
+                  setFieldValue("stocks", [...values.stocks, { ticker: "" }])
+                }
+                className="text-blue-600 text-sm hover:underline mt-2"
+              >
+                + Add Another Stock
+              </button>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      name: "useamount",
+      label: "Virtual Amount",
+      type: "number",
+      required: true,
+      colClass: "col-span-2",
+    },
+    {
+      name: "startdate",
+      label: "Start Date & Time",
+      type: "datetime-local",
+      required: true,
+      colClass: "col-span-2",
+    },
+    {
+      name: "enddate",
+      label: "End Date & Time",
+      type: "datetime-local",
+      required: true,
+      colClass: "col-span-2",
+    },
+  ];
+
+  return (
+    <Content
+      Page_title={tournamentData ? "Edit Tournament" : "Add Tournament"}
+      button_status={true}
+      button_title="Back"
+      route="/superadmin/tournament"
+    >
+      <div className="bg-white p-6 rounded-xl shadow-md">
+        <ReusableForm
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+          fields={tournamentFields}
+          SubmitBtn={tournamentData ? "Update Tournament" : "Save Tournament"}
+          enableReinitialize={true}
+          loading={loading}
+        />
+      </div>
+    </Content>
+  );
+}

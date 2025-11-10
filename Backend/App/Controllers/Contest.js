@@ -3,6 +3,9 @@
 const db = require("../Models");
 const Contest_Model = db.Contest;
 const Stock_Modal = db.Stock;
+const Contestjoin_Modal = db.Contestjoin;
+const Clients_Modal = db.Clients;
+const LivePrice_Modal = db.LivePrice;
 
 class ContestController {
 
@@ -14,9 +17,7 @@ class ContestController {
                 description,
                 contest_type,
                 entry_fee,
-                useamount,
                 total_spots,
-                max_entry_per_user,
                 prize_pool,
                 prize_distribution,
                 is_guaranteed,
@@ -48,9 +49,7 @@ class ContestController {
                 description,
                 contest_type,
                 entry_fee,
-                useamount,
                 total_spots,
-                max_entry_per_user,
                 prize_pool,
                 prize_distribution: prizeDist,
                 is_guaranteed,
@@ -111,6 +110,10 @@ class ContestController {
         // Fetch data + total count for pagination
         const [contests, totalCount] = await Promise.all([
             Contest_Model.find(matchConditions)
+              .populate({
+            path: "tournament_id",
+            select: "name startdate enddate" // सिर्फ tournament का नाम चाहिए
+        })
                 .sort({ created_at: -1 })
                 .skip(skip)
                 .limit(limitValue),
@@ -171,9 +174,7 @@ class ContestController {
                 description,
                 contest_type,
                 entry_fee,
-                useamount,
                 total_spots,
-                max_entry_per_user,
                 prize_pool,
                 prize_distribution,
                 is_guaranteed,
@@ -199,9 +200,7 @@ class ContestController {
                 description,
                 contest_type,
                 entry_fee,
-                useamount,
                 total_spots,
-                max_entry_per_user,
                 prize_pool,
                 prize_distribution: prizeDist,
                 is_guaranteed,
@@ -231,121 +230,137 @@ class ContestController {
     }
 
     // Delete contest
-    async deleteContest(req, res) {
-        try {
-            const { id } = req.params;
+   async deleteContest(req, res) {
+  try {
+    const { id } = req.params;
 
-            const deletedContest = await Contest_Model.findByIdAndUpdate(
-                id,
-                { del: true },
-                { new: true }
-            );
-
-            if (!deletedContest) {
-                return res.status(404).json({
-                    status: false,
-                    message: "Contest not found"
-                });
-            }
-
-            return res.status(200).json({
-                status: true,
-                message: "Contest deleted successfully"
-            });
-        } catch (error) {
-            return res.status(500).json({ status: false, message: "Server error", error: error.message });
-        }
+    // 🧾 Find contest first
+    const contest = await Contest_Model.findOne({ _id: id, del: false });
+    if (!contest) {
+      return res.status(404).json({
+        status: false,
+        message: "Contest not found",
+      });
     }
 
+    // ⚙️ Refund before deleting
+    const totalRefunded = await processContestRefund(id);
+
+    // 🔥 After refund, mark contest deleted
+    contest.del = true;
+    contest.status = "cancelled";
+    await contest.save();
+
+    return res.status(200).json({
+      status: true,
+      message: `Contest deleted successfully. ${totalRefunded} refunds processed.`,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
     // Change contest status
-    async statusChange(req, res) {
-        try {
-            const { id, status } = req.body;
+   async statusChange(req, res) {
+  try {
+    const { id, status } = req.body;
 
-            const validStatuses = ['upcoming', 'live', 'completed', 'cancelled'];
-            if (!validStatuses.includes(status)) {
-                return res.status(400).json({
-                    status: false,
-                    message: "Invalid status value"
-                });
-            }
-
-            const result = await Contest_Model.findByIdAndUpdate(
-                id,
-                { status: status },
-                { new: true }
-            );
-
-            if (!result) {
-                return res.status(404).json({
-                    status: false,
-                    message: "Contest not found"
-                });
-            }
-
-            return res.json({
-                status: true,
-                message: "Status updated successfully",
-                data: result
-            });
-
-        } catch (error) {
-            return res.status(500).json({
-                status: false,
-                message: "Server error",
-                error: error.message
-            });
-        }
+    const validStatuses = ['upcoming', 'live', 'completed', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        status: false,
+        message: "Invalid status value",
+      });
     }
 
-
-      async statusChangeActive(req, res) {
-        try {
-            const { id, status } = req.body;
-
-            const validStatuses = ['true', 'false'];
-            if (!validStatuses.includes(status)) {
-                return res.status(400).json({
-                    status: false,
-                    message: "Invalid status value"
-                });
-            }
-
-            const result = await Contest_Model.findByIdAndUpdate(
-                id,
-                { activestatus: status },
-                { new: true }
-            );
-
-            if (!result) {
-                return res.status(404).json({
-                    status: false,
-                    message: "Contest not found"
-                });
-            }
-
-            return res.json({
-                status: true,
-                message: "Status updated successfully",
-                data: result
-            });
-
-        } catch (error) {
-            return res.status(500).json({
-                status: false,
-                message: "Server error",
-                error: error.message
-            });
-        }
+    const contest = await Contest_Model.findById(id);
+    if (!contest) {
+      return res.status(404).json({
+        status: false,
+        message: "Contest not found",
+      });
     }
 
+    // 🚫 If contest cancelled → refund users
+    if (status === "cancelled") {
+      const totalRefunded = await processContestRefund(id);
+      return res.status(200).json({
+        status: true,
+        message: `Contest cancelled successfully. ${totalRefunded} refunds processed.`,
+      });
+    }
+
+    // ✅ Normal update
+    const result = await Contest_Model.findByIdAndUpdate(id, { status }, { new: true });
+
+    return res.json({
+      status: true,
+      message: "Status updated successfully",
+      data: result,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
+
+async statusChangeActive(req, res) {
+  try {
+    const { id, status } = req.body;
+
+    // Convert string to boolean if needed
+    const isActive = status === true || status === "true";
+
+    const contest = await Contest_Model.findById(id);
+    if (!contest) {
+      return res.status(404).json({
+        status: false,
+        message: "Contest not found",
+      });
+    }
+
+    let totalRefunded = 0;
+
+    // 🔕 If contest is being deactivated, refund users
+    if (!isActive) {
+   //   totalRefunded = await processContestRefund(id);
+    }
+
+    const result = await Contest_Model.findByIdAndUpdate(
+      id,
+      { activestatus: isActive },
+      { new: true }
+    );
+
+    return res.json({
+      status: true,
+      message: isActive
+        ? "Contest activated successfully"
+        : `Contest deactivated successfully. ${totalRefunded} refunds processed.`,
+      data: result,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
 
     
   async getStock(req, res) {
     try {
 
-      const result = await Stock_Modal.find({ segment: "C" });
-
+      const result = await LivePrice_Modal.find({});
       return res.json({
         status: true,
         message: "get",
@@ -356,7 +371,146 @@ class ContestController {
       return res.json({ status: false, message: "Server error", data: [] });
     }
   }
+  
+async getContestsByTournamentId(req, res) {
+    try {
+        const { tournament_id } = req.params;
+
+        const contests = await Contest_Model.find({ 
+            del: false, 
+            tournament_id: tournament_id 
+        })
+        .populate("tournament_id")  // tournament का पूरा object ले आएगा
+        .sort({ created_at: -1 });
+
+        if (!contests || contests.length === 0) {
+            return res.status(404).json({
+                status: false,
+                message: "No contests found for this tournament"
+            });
+        }
+
+        return res.status(200).json({
+            status: true,
+            message: "Tournament contests retrieved successfully",
+            contests: contests  // हर contest में tournament_id field पूरा object होगा
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            status: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+}
+
+
+
+async getContestRanking(req, res) {
+  try {
+    const { contest_id, page = 1 } = req.body;
+    const limit = 10;
+
+    if (!contest_id) {
+      return res.status(400).json({
+        status: false,
+        message: "contest_id is required",
+      });
+    }
+
+    // Pagination setup
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    // Contest join data fetch with user details
+    const participants = await Contestjoin_Modal.find({ contest_id })
+      .populate("client_id", "FullName Email PhoneNo") // client details
+      .populate("contest_id", "name") // contest details
+      .sort({ points: -1 }) // Highest points first
+      .skip(skip)
+      .limit(limitNum);
+
+    // Total joined users
+    const total = await Contestjoin_Modal.countDocuments({ contest_id });
+
+    // Ranking assign manually (1st, 2nd, ...)
+    const allParticipants = await Contestjoin_Modal.find({ contest_id })
+      .sort({ points: -1 })
+      .select("client_id points");
+
+    // Map userId => rank
+    const rankMap = {};
+    allParticipants.forEach((p, index) => {
+      rankMap[p.client_id.toString()] = index + 1;
+    });
+
+    // Add rank into response
+    const rankedParticipants = participants.map((p) => {
+      const obj = p.toObject();
+      obj.rank = rankMap[p.client_id._id.toString()];
+      return obj;
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "Contest ranking fetched successfully",
+      contest_id,
+      total_users: total,
+      page: pageNum,
+      limit: limitNum,
+      data: rankedParticipants,
+    });
+  } catch (error) {
+    console.error("Error fetching contest ranking:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+}
+
 
 }
+
+// 🧩 Helper for contest refund
+async function processContestRefund(contestId) {
+  const contest = await Contest_Model.findOne({ _id: contestId, del: false });
+  if (!contest) return 0;
+
+  const joinedUsers = await Contestjoin_Modal.find({
+    contest_id: contestId,
+    refunded: { $ne: true }
+  });
+
+  let totalRefunded = 0;
+
+  for (const join of joinedUsers) {
+    const client = await Clients_Modal.findOne({ _id: join.client_id, del: 0 });
+    if (!client) continue;
+
+    // Refund both wallet & refer wallet
+    if (join.wallet_used > 0) client.wamount += join.wallet_used;
+    if (join.refer_used > 0) client.referwamount += join.refer_used;
+    await client.save();
+
+    // Mark join as refunded
+    join.refunded = true;
+    join.refund_date = new Date();
+    await join.save();
+
+    totalRefunded++;
+  }
+
+  // Mark contest as cancelled/deleted
+  //contest.del = true;
+  contest.status = "cancelled";
+  await contest.save();
+
+  return totalRefunded;
+}
+
 
 module.exports = new ContestController();

@@ -1,170 +1,188 @@
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Clock, Trophy, Users, Target, TrendingUp } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Trophy,
+  Users,
+  Target,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { GetTurnament } from "../../services/User";
+import { GetBanners, GetTurnament } from "../../services/User";
 import toast from "react-hot-toast";
 
 const UserDashboard = () => {
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("ongoing");
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [turnament, setTurnament] = useState([]);
+  // console.log("turnament", turnament)
+  const [banners, setBanners] = useState([]);
+  const [now, setNow] = useState(new Date());
 
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
 
-  // Time left calculation (countdown)
-  const getTimeLeft = (endDate) => {
-    const now = new Date();
-    const end = new Date(endDate);
+  const getTimeLeft = (contest) => {
+    const nowTime = new Date();
+    const start = new Date(contest.start);
+    const end = new Date(contest.end);
 
-    const diff = end - now; // milliseconds
-    if (diff <= 0) return "Ended";
+    let diff;
+    if (nowTime < start) {
+      // Upcoming tournament: time left to start
+      diff = start - nowTime;
+    } else if (nowTime >= start && nowTime <= end) {
+      // Ongoing tournament: time left to end
+      diff = end - nowTime;
+    } else {
+      // Ended
+      return "Ended";
+    }
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
     const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
 
-    if (days > 0) return `${days}d ${hours}h left`;
-    if (hours > 0) return `${hours}h ${minutes}m left`;
-    return `${minutes}m left`;
+    if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+    if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+    if (minutes > 0) return `${minutes}m ${seconds}s`;
+    return `${seconds}s`;
   };
 
+  const fetchTournament = async () => {
+    try {
+      const res = await GetTurnament(token);
+      if (res?.status && Array.isArray(res.data)) {
+        const mappedData = res.data
+          .filter((item) => item.activestatus === true) // ✅ only include active tournaments
+          .map((item) => {
+            const start = new Date(item.startdate);
+            const end = new Date(item.enddate);
+            let status;
+            if (now < start) status = "upcoming";
+            else if (now >= start && now <= end) status = "ongoing";
+            else status = "completed";
 
-  const fatchtournament = async () => {
-    const token = localStorage.getItem("token");
-    const res = await GetTurnament(token);
+            return {
+              id: item._id,
+              name: item.name,
+              company: item.stocks?.[0]?.stock_name || "",
+              companyColor: "#2563eb",
+              partner: item.stocks?.[1]?.stock_name || "",
+              partnerColor: "#dc2626",
+              start,
+              end,
+              status,
+              participants: item.participants || 0,
+              prizePool: item.prizePool || "₹0",
+              spots: item.spots || "N/A",
+              activestatus: item.activestatus, // ✅ still store it for reference
+              totalPrizePool: item.totalPrizePool,
+              contestCount: item.contestCount,
+            };
+          });
 
-    if (res?.status) {
-      const now = new Date();
+        setTurnament(mappedData);
+      } else toast.error(res?.message || "Failed to fetch tournaments");
+    } catch {
+      toast.error("Error fetching tournaments");
+    }
+  };
 
-      const mappedData = res.data.map(item => {
-        const start = new Date(item.startdate);
-        const end = new Date(item.enddate);
-
-        let status = "upcoming";
-        if (start > now) {
-          status = "upcoming";
-        } else if (start <= now && end >= now) {
-          status = "ongoing";
-        } else if (end < now) {
-          status = "completed";
-        }
-
-        return {
-          id: item._id,
-          name: item.name,
-          company: item.stocks?.[0]?.stock_name || "N/A",
-          companyColor: "#2563eb",
-          partner: item.stocks?.[1]?.stock_name || "N/A",
-          partnerColor: "#dc2626",
-          start: start,
-          end: end,
-          timeRange: `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`,
-          status,
-          participants: 0,
-          prizePool: "₹0",
-          entryFee: "Free",
-          spots: "N/A",
-        };
-
-      });
-
-      setTurnament(mappedData);
-    } else {
-      toast.error(res?.message || "Failed to fetch tournaments");
+  const fetchBanners = async () => {
+    try {
+      const res = await GetBanners(token);
+      setBanners(res?.data || []);
+    } catch {
+      toast.error("Failed to fetch banners");
     }
   };
 
   useEffect(() => {
-    fatchtournament();
+    fetchTournament();
+    fetchBanners();
   }, []);
+  useEffect(() => {
+    setTurnament((prev) =>
+      prev.map((item) => {
+        const start = new Date(item.start);
+        const end = new Date(item.end);
+        let status;
+        if (now < start) status = "upcoming";
+        else if (now >= start && now <= end) status = "ongoing";
+        else status = "completed";
+        return { ...item, status };
+      })
+    );
+  }, [now]);
 
+  const filteredContests = turnament.filter(
+    (item) => activeTab !== "mycontests" && item.status === activeTab
+  );
 
-  const banners = [
-    {
-      url: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=300&fit=crop",
-      title: "Stock Trading Contest",
-      subtitle: "Win big with smart investments",
-    },
-    {
-      url: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&h=300&fit=crop",
-      title: "Market Analysis Challenge",
-      subtitle: "Test your market skills",
-    },
-    {
-      url: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&h=300&fit=crop",
-      title: "Investment Competition",
-      subtitle: "Compete with top traders",
-    },
-  ];
-
-
-  const filteredContests = turnament.filter((item) => item.status === activeTab);
-
-
-  const nextBanner = () => {
+  const nextBanner = () =>
     setCurrentBannerIndex((prev) => (prev + 1) % banners.length);
-  };
+  const prevBanner = () =>
+    setCurrentBannerIndex(
+      (prev) => (prev - 1 + banners.length) % banners.length
+    );
 
-  const prevBanner = () => {
-    setCurrentBannerIndex((prev) => (prev - 1 + banners.length) % banners.length);
-  };
-
-  const getCompanyIcon = (company, color) => (
+  const getCompanyIcon = (name, color) => (
     <div
-      className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-md"
+      className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-[0.675rem] shadow-md"
       style={{ backgroundColor: color }}
     >
-      {company}
+{name?.charAt(0)?.toUpperCase()}
     </div>
   );
 
+  const capitalize = (str) => (str ? str.toUpperCase() : "");
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 Anuj333 ">
-
-      <div className="relative px-4 pt-4 Anuj333">
-        <div className="relative overflow-hidden rounded-2xl shadow-xl">
-
+    <div className="min-h-screen bg-gray-50 ">
+      <div className="relative w-full p-1 ">
+        <div className="overflow-hidden rounded-2xl shadow-md relative  h-40 sm:h-48">
           <div
-            className="flex transition-transform duration-500 ease-out"
+            className="flex transition-transform duration-500 ease-out h-full"
             style={{ transform: `translateX(-${currentBannerIndex * 100}%)` }}
           >
-            {banners.map((banner, idx) => (
-              <div key={idx} className="w-full flex-shrink-0 relative">
-                <div className="h-48 bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center relative overflow-hidden">
-                  <img
-                    src={banner.url}
-                    alt={banner.title}
-                    className="absolute inset-0 w-full h-full object-cover opacity-30"
-                  />
-                  <div className="relative z-10 text-center text-white px-4">
-                    <h2 className="text-2xl font-bold mb-2">{banner.title}</h2>
-                    <p className="text-lg opacity-90">{banner.subtitle}</p>
-                  </div>
-                </div>
+            {banners.map((b, idx) => (
+              <div key={idx} className="w-full flex-shrink-0 relative h-full">
+                <img
+                  src={b.image}
+                  className="absolute inset-0 w-full h-full object-cover rounded-2xl"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-30 rounded-2xl" />
               </div>
             ))}
           </div>
 
+          {/* Controls */}
           <button
             onClick={prevBanner}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 transition-colors"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-white/30 backdrop-blur-sm rounded-full p-2 hover:bg-white/50 transition"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </button>
-
           <button
             onClick={nextBanner}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 transition-colors"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-white/30 backdrop-blur-sm rounded-full p-2 hover:bg-white/50 transition"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </button>
 
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
-            {banners.map((_, idx) => (
+          {/* Dots */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1 sm:space-x-2">
+            {banners?.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentBannerIndex(idx)}
-                className={`w-2 h-2 rounded-full transition-colors ${currentBannerIndex === idx ? "bg-white" : "bg-white/50"
+                className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-colors ${currentBannerIndex === idx ? "bg-white" : "bg-white/50"
                   }`}
               />
             ))}
@@ -172,110 +190,137 @@ const UserDashboard = () => {
         </div>
       </div>
 
-      <div className="flex justify-around bg-white mt-4 mx-4 rounded-xl shadow-sm overflow-hidden TAb_style">
+      {/* Tabs */}
+      <div className="flex justify-around  mt-2 mx-2 rounded-xl bg-white  overflow-hidden text-[0.75rem] sm:text-sm">
         {[
-          { key: "ongoing", label: "Live Contests", icon: Trophy },
+          { key: "ongoing", label: "Live Tournament", icon: Trophy },
           { key: "upcoming", label: "Upcoming", icon: Clock },
-          { key: "mycontests", label: "My Contests", icon: Target },
         ].map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`flex-1 py-4 px-2 font-medium text-sm transition-all duration-200 ${activeTab === key
-              ? " border-b-2 border-blue-600"
-              : ""
+            className={`flex-1 py-3 sm:py-4 px-2 font-medium transition-all duration-200 ${activeTab === key
+              ? "text-orange-600 border-b-2 border-orange-600"
+              : "text-gray-600"
               }`}
           >
             <div className="flex flex-col items-center space-y-1">
-              <Icon className="w-4 h-4" />
+              <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>{label}</span>
             </div>
           </button>
         ))}
       </div>
 
-      <div className="p-4 space-y-4">
+      {/* Contest Cards */}
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
         {filteredContests.length > 0 ? (
+
           filteredContests.map((contest) => (
             <div
               key={contest.id}
               onClick={() =>
-                navigate("/pricepol", { state: { _id: contest.id || contest._id } })
+                navigate("/pricepol", {
+                  state: { _id: contest.id, stocks: contest.stocks || [] },
+                })
               }
-              className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer card_style"
+              className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-[3px] transition-all duration-200 cursor-pointer overflow-hidden"
             >
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center space-x-3">
-                  {getCompanyIcon(contest.company, contest.companyColor)}
-                  <div>
-                    <p className="font-semibold ">{contest.company}</p>
-                    <p className="text-xs">Primary Stock</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <div className="text-right">
-                    <p className="font-semibold ">{contest.partner}</p>
-                    <p className="text-xs ">Partner</p>
-                  </div>
-                  {getCompanyIcon(contest.partner, contest.partnerColor)}
-                </div>
+              {/* Header */}
+              <div className="px-5 pt-4 pb-3 border-b border-gray-200 bg-gray-50">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-800">
+                  Tournament:{" "}
+                  <span className="font-medium text-gray-600">{contest.name}</span>
+                </h2>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                <div className="text-center p-1 rounded-lg border">
-                  <p className="text-md font-bold">{contest.prizePool}</p>
-                  <p className="text-xs">Prize Pool</p>
+              {/* Company Info */}
+              <div className="px-5 py-3 border-b border-gray-100">
+                <div className="flex justify-between items-center flex-wrap gap-3">
+                  {/* Primary Company */}
+                  <div className="flex items-center gap-2">
+                    {getCompanyIcon(contest.company, contest.companyColor)}
+                    <div>
+                      <p className="font-semibold text-gray-800 text-sm">
+                        {capitalize(contest.company) || "-"}
+                      </p>
+                      <p className="text-xs text-gray-500">Primary Stock</p>
+                    </div>
+                  </div>
+
+                  {/* Partner Company */}
+                  {contest.partner && (
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <p className="font-semibold text-gray-800 text-sm">
+                          {capitalize(contest.partner)}
+                        </p>
+                        <p className="text-xs text-gray-500">Partner</p>
+                      </div>
+                      {getCompanyIcon(contest.partner, contest.partnerColor)}
+                    </div>
+                  )}
                 </div>
 
-                <div className="text-center p-2 rounded-lg border">
-                  <p className="text-md font-bold">{getTimeLeft(contest.end)}</p>
-                  <p className="text-xs">Time Left</p>
-                </div>
+                {/* Partner Company */}
+                {/* {contest.partner && (
+                  <div className="flex items-center gap-2">
+                    <div className="text-right">
+                      <p className="font-semibold text-gray-800 text-sm">
+                        {contest.partner}
+                      </p>
+                      <p className="text-xs text-gray-500">Partner</p>
+                    </div>
+                    {getCompanyIcon(contest.partner, contest.partnerColor)}
+                  </div>
+                )} */}
+              </div>
 
-                <div className="text-center p-2 rounded-lg border">
-                  <p className="text-md font-bold flex items-center justify-center">
-                    <Users className="w-4 h-4 mr-1" />
-                    {contest.participants}
+              {/* Stats */}
+              <div className="px-5 py-4 grid grid-cols-3 gap-3">
+                {/* ✅ Prize Pool with Trophy Icon */}
+                <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
+                  <p className="text-gray-900 font-bold text-sm flex items-center justify-center">
+                    <Trophy className="w-4 h-4 mr-1 text-yellow-600 flex-shrink-0" />
+                    {contest.totalPrizePool}
                   </p>
-                  <p className="text-xs">Participants</p>
+                  <p className="text-gray-500 text-xs font-medium">
+                    Prize Pool
+                  </p>
                 </div>
-              </div>
 
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-2">
-                  <Clock className="w-4 h-4 text-red-500" />
-                  <span className="text-red-600 font-semibold">{contest.timeLeft}</span>
+                {/* ✅ Time Left */}
+                <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
+                  <p className="text-red-600 font-bold text-sm whitespace-nowrap overflow-hidden text-ellipsis">
+                    {getTimeLeft(contest)}
+                  </p>
+                  <p className="text-gray-500 text-xs font-medium">Time Left</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-700">{contest.spots}</p>
+
+                {/* ✅ Total Contests with Better Icon */}
+                <div className="border border-gray-200 rounded-lg p-3 text-center hover:bg-gray-50 transition">
+                  <p className="text-gray-900 font-bold text-sm flex items-center justify-center">
+                    <Target className="w-4 h-4 mr-1 text-indigo-600 flex-shrink-0" />
+                    {contest.contestCount}
+                  </p>
+                  <p className="text-gray-500 text-xs font-medium">
+                    Total Contests
+                  </p>
                 </div>
               </div>
-{/* 
-              <div className="flex justify-center">
-                <button
-                  className="w-[20vw] mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center justify-center space-x-2 pointer-events-none"
-                >
-                  <TrendingUp className="w-4 h-4" />
-                  <span>
-                    {activeTab === "mycontests"
-                      ? "View Contest"
-                      : activeTab === "ongoing"
-                        ? "Join Now"
-                        : "Register"}
-                  </span>
-                </button>
-              </div> */}
             </div>
-
           ))
+
+
         ) : (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Trophy className="w-8 h-8 text-gray-400" />
-            </div>
-            <p className="text-gray-500 text-lg font-medium mb-2">No contests available</p>
-            <p className="text-gray-400 text-sm">Check back soon for new contests!</p>
+          <div className="text-center py-12 col-span-full">
+            <Trophy className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500 text-lg font-medium mb-2">
+              No contests available
+            </p>
+            <p className="text-gray-400 text-sm">
+              Check back soon for new contests!
+            </p>
           </div>
         )}
       </div>

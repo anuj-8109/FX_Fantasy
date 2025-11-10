@@ -15,14 +15,14 @@ const clientsModel = new Schema({
     },
     PhoneNo: {
         type: String,
-        required: true,
+        //required: true,
         trim: true,
-        validate: {
-            validator: function(v) {
-                return /\d{10}/.test(v); // ensures exactly 10 digits
-            },
-            message: props => `${props.value} is not a valid phone number!`
-        },
+        // validate: {
+        //     validator: function(v) {
+        //         return /\d{10}/.test(v); // ensures exactly 10 digits
+        //     },
+        //     message: props => `${props.value} is not a valid phone number!`
+        // },
         default: null
     },
     password: {
@@ -60,6 +60,11 @@ const clientsModel = new Schema({
         default: 0,
         min: 0
     },
+     referwamount: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
     del: {
         type: Number, 
         enum: [1, 0],
@@ -93,8 +98,42 @@ const clientsModel = new Schema({
         type: String,
         trim: true,
         default: null
-    }
-
+    },
+     image: {
+        type: String,
+        trim: true,
+        default: null
+    },
+   kyc_type: {
+        type: Number, // changed to Number
+        enum: [1, 0],
+        default: 0
+    },
+   adhaarphotofront: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    adhaarphotoback: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    pancard: {
+        type: String,
+        trim: true,
+        default: null
+    },
+     token: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    googleId: {
+        type: String,
+        trim: true,
+        default: null
+    },
 
 }, {
     timestamps: true

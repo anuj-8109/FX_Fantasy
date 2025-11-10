@@ -12,6 +12,21 @@ import UserProfile from "../pages/user/profile/UserProfile";
 import HelpDesk from "../pages/user/helpdesk/HelpDesk";
 import Chat from "../pages/user/helpdesk/Chat";
 import WalletPage from "../pages/user/walletPage/WalletPage";
+import Coupons from "../pages/user/coupons/Coupons";
+import FAQ from "../pages/user/faq/FAQ";
+import Blog from "../pages/user/blog/Blog";
+import Content from "../pages/user/content/Content";
+import Tradehistory from "../pages/user/Buysell";
+import BackButton from "../pages/user/Backbutton";
+import Alert from "../pages/user/alert/Alert";
+import Search from "../pages/user/search/Search";
+import ContestTracking from "../pages/user/contestTracking/ContestTracking"
+import Kycdetails from "../pages/user/kyc/Kycdetails";
+import Bankdetail from "../pages/user/bankdetail/Bankdetail";
+import AddprivateContest from "../pages/user/privatecontest/Addprivatecontest";
+import Getprivatecontest from "../pages/user/privatecontest/Getprivatecontest";
+import Refer from "../pages/user/referearn/refer";
+
 
 const UserRoutes = () => {
   return (
@@ -21,11 +36,26 @@ const UserRoutes = () => {
 
         <Route path="dashboard" element={<Userdashboard />} />
         <Route path="pricepol" element={<Pricepol />} />
-        <Route path="history" element={<HistoryPage />} />
+        <Route path="trade" element={<HistoryPage />} />
         <Route path="profile" element={<UserProfile />} />
         <Route path="helpdesk" element={<HelpDesk />} />
-       <Route path="chat/:ticketId" element={<Chat />} />
-       <Route path="wallet" element={<WalletPage />} />
+        <Route path="chat/:ticketId" element={<Chat />} />
+        <Route path="wallet" element={<WalletPage />} />
+        <Route path="coupon" element={<Coupons />} />
+        <Route path="faq" element={<FAQ />} />
+        <Route path="blog" element={<Blog />} />
+        <Route path="content" element={<Content />} />
+        <Route path="tradehistory" element={<Tradehistory/>}/>
+        <Route path="back" element={<BackButton/>}/>
+        <Route path="alert" element={<Alert/>}/>
+        <Route path="search" element={<Search/>}/>
+        <Route path="contesttracking" element={<ContestTracking/>}/>
+        <Route path="kycdetail" element={<Kycdetails/>}/>
+        <Route path="bankdetail" element={<Bankdetail/>}/>
+        <Route path="addprivatecontest" element={<AddprivateContest/>}/>
+        <Route path="listprivatecontest" element={<Getprivatecontest/>}/>
+        <Route path="referral" element={<Refer />} />
+   
 
         {/* <Route path="userheader" element={<SuperAdminHeader />} /> */}
 

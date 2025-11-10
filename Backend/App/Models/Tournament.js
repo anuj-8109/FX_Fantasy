@@ -39,6 +39,15 @@ const TournamentSchema = new Schema({
     type: Boolean,
     default: true // true = active, false = inactive
   },
+    useamount: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  closed_positions: {
+    type: Boolean,
+    default: false // ✅ Tournament end होने पर positions close हुए या नहीं
+  },
   del: {
     type: Boolean,
     default: false
@@ -46,6 +55,11 @@ const TournamentSchema = new Schema({
 }, {
   timestamps: { createdAt: "created_at", updatedAt: "updated_at" }
 });
+
+
+TournamentSchema.index({ startdate: 1 });
+TournamentSchema.index({ enddate: 1 });
+TournamentSchema.index({ activestatus: 1, del: 1 });
 
 const Tournament = model("Tournament", TournamentSchema);
 

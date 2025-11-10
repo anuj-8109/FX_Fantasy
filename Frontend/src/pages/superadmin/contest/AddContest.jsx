@@ -1,494 +1,461 @@
-import React, { useState, useEffect } from "react";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
-import { AddContest } from "../../../services/SuperAdmin";
+import * as Yup from "yup";
 import Content from "../../../components/superadmin/Content";
-import { useLocation } from "react-router-dom";
+import ReusableForm from "../../../extracomponents/ResuableForm";
+import { AddContest, UpdateContest } from "../../../services/SuperAdmin";
 
-export default function AddContest1({ onSuccess, onCancel }) {  
-    const location = useLocation();
-    const tournamentId = location?.state?.tournament_id ;
-    console.log("Received tournamentId:", tournamentId);
-    const [authData, setAuthData] = useState({
-        add_by: null,
-        token: null,
-        isValid: false
+export default function AddEditContest() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const contestData = location.state?.contest || null;
+  const tournamentId =
+    location.state?.tournament_id || contestData?.tournament_id?._id;
+
+  const token = localStorage.getItem("token");
+  const add_by = localStorage.getItem("add_by");
+
+  const [loading, setLoading] = useState(false);
+  const [contestTypeSelection, setContestTypeSelection] = useState("normal");
+  const [initialValues, setInitialValues] = useState({
+    name: "",
+    description: "",
+    entry_fee: "",
+    total_spots: "",
+    prize_pool: "",
+    prize_distribution: [{ from: 1, to: 1, amount: "" }],
+  });
+  const [originalData, setOriginalData] = useState(null);
+
+  // Generate random contest code
+  const generateContestCode = () => {
+    return "CONT" + Math.random().toString(36).substring(2, 10).toUpperCase();
+  };
+
+  // Merge prize distribution from expanded format to range format
+  const mergePrizeDistribution = (prizes = []) => {
+    if (!prizes.length) return [{ from: 1, to: 1, amount: "" }];
+    const sorted = prizes.sort((a, b) => a.rank - b.rank);
+    const merged = [];
+    let start = sorted[0].rank;
+    let end = sorted[0].rank;
+    let amt = sorted[0].amount;
+
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i].amount === amt && sorted[i].rank === end + 1) {
+        end++;
+      } else {
+        merged.push({ from: start, to: end, amount: amt });
+        start = sorted[i].rank;
+        end = sorted[i].rank;
+        amt = sorted[i].amount;
+      }
+    }
+    merged.push({ from: start, to: end, amount: amt });
+    return merged;
+  };
+
+  useEffect(() => {
+    if (contestData) {
+      const mergedPrizes = contestData.prize_distribution?.length
+        ? mergePrizeDistribution(contestData.prize_distribution)
+        : [{ from: 1, to: 1, amount: "" }];
+
+      // Determine contest type selection
+      let typeSelection = "normal";
+      if (contestData.is_guaranteed) typeSelection = "guaranteed";
+      else if (contestData.is_private) typeSelection = "private";
+
+      setContestTypeSelection(typeSelection);
+
+      setInitialValues({
+        name: contestData.name || "",
+        description: contestData.description || "",
+        entry_fee: contestData.entry_fee || "",
+        total_spots: contestData.total_spots || "",
+        prize_pool: contestData.prize_pool || "",
+        prize_distribution: mergedPrizes,
+      });
+
+      setOriginalData({
+        name: contestData.name || "",
+        description: contestData.description || "",
+        entry_fee: contestData.entry_fee || "",
+        total_spots: contestData.total_spots || "",
+        prize_pool: contestData.prize_pool || "",
+        prize_distribution: mergedPrizes,
+        contestType: typeSelection,
+      });
+    }
+  }, [contestData]);
+
+  const validationSchema = Yup.object({
+    name: Yup.string().required("Contest name is required"),
+    description: Yup.string().required("Description is required"),
+    entry_fee: Yup.number()
+      .min(0, "Entry fee must be 0 or greater")
+      .required("Entry fee is required"),
+    total_spots: Yup.number()
+      .min(1, "Total spots must be at least 1")
+      .required("Total spots is required"),
+    prize_pool: Yup.number()
+      .min(0, "Prize pool must be 0 or greater")
+      .required("Prize pool is required"),
+    prize_distribution: Yup.array()
+      .of(
+        Yup.object().shape({
+          from: Yup.number().min(1, "From rank must be at least 1"),
+          to: Yup.number().min(1, "To rank must be at least 1"),
+          amount: Yup.number().min(0, "Amount must be 0 or greater"),
+        })
+      )
+      .min(1, "At least one prize distribution is required"),
+  });
+
+  const isFormChanged = (values) => {
+    if (!originalData) return true;
+    const currentData = {
+      ...values,
+      contestType: contestTypeSelection,
+    };
+    return JSON.stringify(currentData) !== JSON.stringify(originalData);
+  };
+
+  // Expand prize distribution from range to individual ranks
+  // Expand prize distribution from range to individual ranks
+  const expandPrizeDistribution = (prizes) => {
+    let expanded = [];
+    prizes.forEach((p) => {
+      if (p.from && p.amount) {
+        const from = parseInt(p.from, 10);
+        const to = p.to ? parseInt(p.to, 10) : from;
+        for (let r = from; r <= to; r++) {
+          expanded.push({ rank: r, amount: Number(p.amount) });
+        }
+      }
     });
+    return expanded;
+  };
 
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
-    const [contestType, setContestType] = useState("Mega");
-    const [entryFee, setEntryFee] = useState("");
-    const [useAmount, setUseAmount] = useState(""); // Added missing useamount field
-    const [totalSpots, setTotalSpots] = useState("");
-    const [maxEntryPerUser, setMaxEntryPerUser] = useState(1);
-    const [prizePool, setPrizePool] = useState("");
-    const [prizeDistribution, setPrizeDistribution] = useState([{ rank: "", amount: "" }]);
-    const [stocks, setStocks] = useState([{ stock_name: "" }]);
-    const [isGuaranteed, setIsGuaranteed] = useState(false);
-    const [isPrivate, setIsPrivate] = useState(false);
-    const [contestCode, setContestCode] = useState("");
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
-    const [status, setStatus] = useState("upcoming");
-    const [loading, setLoading] = useState(false);
+  // Additional validation for prize distribution
+  const validatePrizeDistribution = (prizes, totalSpots, prizePool) => {
+    // 🟢 Allow empty 'to' fields by filtering only on 'from' and 'amount'
+    const validPrizes = prizes.filter((p) => p.from && p.amount);
 
-    
-    useEffect(() => {
-        const add_by = localStorage.getItem("add_by");
-        const token = localStorage.getItem("token");
-
-        console.log("Auth Check:", { add_by, token }); // Debug log
-
-        if (!add_by) {
-            console.error("add_by not found in localStorage");
-            toast.error("User session not found. Please login again.");
-        }
-
-        if (!token) {
-            console.error("token not found in localStorage");
-            toast.error("Authentication token not found. Please login again.");
-        }
-
-        setAuthData({
-            add_by,
-            token,
-            isValid: !!(add_by && token)
-        });
-    }, []);
-
-    const handlePrizeChange = (idx, field, value) => {
-        const updated = [...prizeDistribution];
-        updated[idx][field] = value;
-        setPrizeDistribution(updated);
-    };
-
-    const addPrizeRow = () => {
-        setPrizeDistribution([...prizeDistribution, { rank: "", amount: "" }]);
-    };
-
-    const removePrizeRow = (idx) => {
-        if (prizeDistribution.length > 1) {
-            const updated = prizeDistribution.filter((_, i) => i !== idx);
-            setPrizeDistribution(updated);
-        }
-    };
-
-    const handleStockChange = (idx, field, value) => {
-        const updated = [...stocks];
-        updated[idx][field] = value;
-        setStocks(updated);
-    };
-
-    const addStockRow = () => {
-        setStocks([...stocks, { stock_name: "" }]);
-    };
-
-    const removeStockRow = (idx) => {
-        if (stocks.length > 1) {
-            const updated = stocks.filter((_, i) => i !== idx);
-            setStocks(updated);
-        }
-    };
-
-    
-    const validateForm = () => {
-        const errors = [];
-
-        if (!name.trim()) errors.push("Name is required");
-        if (!contestType) errors.push("Contest type is required");
-        if (entryFee === "" || entryFee < 0) errors.push("Valid entry fee is required");
-        if (useAmount === "" || useAmount < 0) errors.push("Use amount is required");
-        if (!totalSpots || totalSpots <= 0) errors.push("Total spots must be greater than 0");
-        if (prizePool === "" || prizePool < 0) errors.push("Valid prize pool is required");
-        if (!startDate || !endDate) errors.push("Start and End date are required");
-
-        
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        if (start >= end) errors.push("End date must be after start date");
-
-        const validPrizes = prizeDistribution.filter(p => p.rank && p.amount);
-        if (validPrizes.length === 0) errors.push("At least one valid prize distribution is required");
-
-
-        const validStocks = stocks.filter(s => s.stock_name.trim());
-        if (validStocks.length === 0) errors.push("At least one stock is required");
-
-        
-        if (!authData.isValid) {
-            errors.push("Authentication required. Please login again.");
-        }
-
-        return errors;
-    };
-
-    const handleSave = async (e) => {
-        e.preventDefault();
-
-       
-        const validationErrors = validateForm();
-        if (validationErrors.length > 0) {
-            toast.error(validationErrors[0]); 
-            console.log("Validation errors:", validationErrors);
-            return;
-        }
-
-        const confirm = await Swal.fire({
-            title: "Add Contest?",
-            text: "Are you sure you want to add this contest?",
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonText: "Yes, Add",
-            cancelButtonText: "Cancel",
-        });
-
-        if (!confirm.isConfirmed) return;
-
-        
-        const cleanPrizeDistribution = prizeDistribution.filter(p => p.rank && p.amount);
-        const cleanStocks = stocks.filter(s => s.stock_name.trim());
-
-        const payload = {
-            add_by: authData.add_by,
-            name: name.trim(),
-            description,
-            contest_type: contestType,
-            entry_fee: Number(entryFee),
-            useamount: Number(useAmount), 
-            total_spots: Number(totalSpots),
-            max_entry_per_user: Number(maxEntryPerUser),
-            prize_pool: Number(prizePool),
-            prize_distribution: cleanPrizeDistribution,
-            stocks: cleanStocks,
-            is_guaranteed: isGuaranteed,
-            is_private: isPrivate,
-            contest_code: contestCode.trim(),
-            startdate: startDate,
-            enddate: endDate,
-            status,
-            tournament_id: tournamentId,
-
-        };
-        // console.log("Payload being sent:", payload); 
-
-        setLoading(true);
-        try {
-            const response = await AddContest(authData.token, payload);
-            setLoading(false);
-
-            // console.log("API Response:", response); 
-
-            if (response?.status) {
-                toast.success(response?.message || "Contest added successfully");
-                if (onSuccess) onSuccess();
-            } else {
-
-                const errorMessage = response?.message || "Failed to add contest";
-                toast.error(errorMessage);
-
-
-                if (errorMessage.includes("Invalid token") || errorMessage.includes("token")) {
-                    console.error("Token validation failed. User needs to login again.");
-
-                }
-            }
-        } catch (error) {
-            setLoading(false);
-            console.error("API Error:", error);
-            toast.error("Network error. Please check your connection and try again.");
-        }
-    };
-
-    
-    if (!authData.isValid) {
-        return (
-            <Content Page_title="Add-content" button_title="Back" button_status={true} route="/superadmin/contest">
-                <div className="w-full max-w-6xl bg-white shadow-xl rounded-xl p-6">
-                    <div className="text-center py-8">
-                        <h2 className="text-xl font-semibold mb-4 text-red-600">Authentication Required</h2>
-                        <p className="text-gray-600 mb-4">Please login to access this feature.</p>
-                        <button
-                            onClick={() => window.location.href = '/login'}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                        >
-                            Go to Login
-                        </button>
-                    </div>
-                </div>
-            </Content>
-        );
+    if (validPrizes.length === 0) {
+      return "At least one valid prize distribution is required";
     }
 
-    return (
-        <Content Page_title="Add-content" button_title="Back" button_status={true} route="/superadmin/contest">
-            <div className="w-full max-w-6xl shadow-xl rounded-xl p-6 Add-client-style ">
-                <h2 className="text-xl font-semibold mb-4 border-b pb-2">Add Contest</h2>
+    // Check for overlapping ranges
+    for (let i = 0; i < validPrizes.length; i++) {
+      for (let j = i + 1; j < validPrizes.length; j++) {
+        const iFrom = parseInt(validPrizes[i].from, 10);
+        const iTo = validPrizes[i].to ? parseInt(validPrizes[i].to, 10) : iFrom;
+        const jFrom = parseInt(validPrizes[j].from, 10);
+        const jTo = validPrizes[j].to ? parseInt(validPrizes[j].to, 10) : jFrom;
 
-                <form onSubmit={handleSave} className="space-y-6">
-                   
-                    <div>
-                        <label className="text-sm font-medium">Name *</label>
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
-                            required
-                        />
-                    </div>
+        if (iFrom <= jTo && jFrom <= iTo) {
+          return `Prize rows have overlapping rank ranges`;
+        }
+      }
+    }
 
-                    
-                    <div>
-                        <label className="text-sm font-medium input-Add">Description</label>
-                        <CKEditor
-                            editor={ClassicEditor}
-                            data={description}
-                            dangerouslySetInnerHTML={{ __html: description }}
-                            onChange={(event, editor) => setDescription(editor.getData())}
-                            className="input-Add"
-                        />
-                    </div>
-
-                    
-                    <div>
-                        <label className="text-sm font-medium  input-Add" >Contest Type *</label>
-                        <select
-                            value={contestType}
-                            onChange={(e) => setContestType(e.target.value)}
-                            className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
-                            required
-                        >
-                            <option value="Mega">Mega</option>
-                            <option value="Head-to-Head">Head-to-Head</option>
-                            
-                        </select>
-                    </div>
-
-                  
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="text-sm font-medium">Entry Fee *</label>
-                            <input
-                                type="number"
-                                min="0"
-                                value={entryFee}
-                                onChange={(e) => setEntryFee(e.target.value)}
-                                className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium">Use Amount *</label>
-                            <input
-                                type="number"
-                                min="0"
-                                value={useAmount}
-                                onChange={(e) => setUseAmount(e.target.value)}
-                                className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
-                                placeholder="Amount to be used"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium">Total Spots *</label>
-                            <input
-                                type="number"
-                                min="1"
-                                value={totalSpots}
-                                onChange={(e) => setTotalSpots(e.target.value)}
-                                className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium">Max Entry/User</label>
-                            <input
-                                type="number"
-                                min="1"
-                                value={maxEntryPerUser}
-                                onChange={(e) => setMaxEntryPerUser(e.target.value)}
-                                className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
-                            />
-                        </div>
-                    </div>
-
-                    
-                    <div>
-                        <label className="text-sm font-medium">Prize Pool *</label>
-                        <input
-                            type="number"
-                            min="0"
-                            value={prizePool}
-                            onChange={(e) => setPrizePool(e.target.value)}
-                            className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
-                            required
-                        />
-                    </div>
-
-                   
-                    <div>
-                        <h3 className="font-medium mb-2">🏆 Prize Distribution *</h3>
-                        {prizeDistribution.map((p, idx) => (
-                            <div key={idx} className="flex gap-2 mb-1 items-center">
-                                <input
-                                    type="number"
-                                    placeholder="Rank"
-                                    min="1"
-                                    value={p.rank}
-                                    onChange={(e) => handlePrizeChange(idx, "rank", e.target.value)}
-                                    className="w-1/3 border rounded-md px-2 py-1  input-Add"
-                                />
-                                <input
-                                    type="number"
-                                    placeholder="Amount"
-                                    min="0"
-                                    value={p.amount}
-                                    onChange={(e) => handlePrizeChange(idx, "amount", e.target.value)}
-                                    className="w-2/3 border rounded-md px-2 py-1  input-Add"
-                                />
-                                {prizeDistribution.length > 1 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => removePrizeRow(idx)}
-                                        className="text-red-600 text-sm px-2  input-Add"
-                                    >
-                                        X
-                                    </button>
-                                )}
-                            </div>
-                        ))}
-                        <button type="button" onClick={addPrizeRow} className="text-blue-600 text-sm   input-Add">
-                             Add Prize
-                        </button>
-                    </div>
-
-                   
-                    <div>
-                        <h3 className="font-medium mb-2 input-Add">📈 Stocks *</h3>
-                        {stocks.map((s, idx) => (
-                            <div key={idx} className="flex gap-2 mb-1 items-center ">
-                                <input
-                                    type="text"
-                                    placeholder="Stock Name (e.g., TCS, RELIANCE)"
-                                    value={s.stock_name}
-                                    onChange={(e) => handleStockChange(idx, "stock_name", e.target.value)}
-                                    className="w-full border rounded-md px-2 py-1 input-Add"
-                                />
-                                {stocks.length > 1 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => removeStockRow(idx)}
-                                        className="text-red-600 text-sm px-2"
-                                    >
-                                        X
-                                    </button>
-                                )}
-                            </div>
-                        ))}
-                        <button type="button" onClick={addStockRow} className="text-blue-600 text-sm">
-                             Add Stock
-                        </button>
-                    </div>
-
-                   
-                    <div>
-                        <h3 className="font-medium mb-2"> Settings</h3>
-                        <div className="space-y-2">
-                            <label className="flex items-center gap-2 text-sm  input-Add">
-                                <input
-                                    type="checkbox"
-                                    checked={isGuaranteed}
-                                    onChange={(e) => setIsGuaranteed(e.target.checked)}
-                                    className=" input-Add"
-                                />
-                                Guaranteed Contest
-                            </label>
-                            <label className="flex items-center gap-2 text-sm">
-                                <input
-                                    type="checkbox"
-                                    checked={isPrivate}
-                                    onChange={(e) => setIsPrivate(e.target.checked)}
-                                    className=" input-Add"
-                                />
-                                Private Contest
-                            </label>
-                        </div>
-                        <div className="mt-3">
-                            <label className="text-sm font-medium">Status</label>
-                            <select
-                                value={status}
-                                onChange={(e) => setStatus(e.target.value)}
-                                className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
-                            >
-                                <option value="upcoming">Upcoming</option>
-                                <option value="live">Live</option>
-                                <option value="completed">Completed</option>
-                            </select>
-                        </div>
-                    </div>
-
-          
-                    <div>
-                        <label className="text-sm font-medium ">Contest Code</label>
-                        <input
-                            type="text"
-                            value={contestCode}
-                            onChange={(e) => setContestCode(e.target.value)}
-                            className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
-                            placeholder="Optional unique code for the contest "
-                        />
-                    </div>
-
-                 
-                    <div>
-                        <h3 className="font-medium mb-2">📅 Schedule *</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-sm font-medium">Start Date & Time *</label>
-                                <input
-                                    type="datetime-local"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium">End Date & Time *</label>
-                                <input
-                                    type="datetime-local"
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    className="w-full border rounded-md px-3 py-2 mt-1  input-Add"
-                                    required
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                 
-              
-                    <div className="flex justify-end gap-3 pt-4 border-t">
-                        <button
-                            type="button"
-                            onClick={onCancel}
-                            className="px-4 py-2 rounded-md   border bg-blue-600"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading || !authData.isValid}
-                            className={`px-4 py-2 rounded-md  bg-blue-600  border 1px solid red`}
-                        >
-                            {loading ? "Saving..." : "Save Contest"}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </Content>
+    // Check for continuous ranks
+    const sortedPrizes = [...validPrizes].sort(
+      (a, b) => parseInt(a.from, 10) - parseInt(b.from, 10)
     );
+
+    for (let i = 0; i < sortedPrizes.length - 1; i++) {
+      const currentTo = sortedPrizes[i].to
+        ? parseInt(sortedPrizes[i].to, 10)
+        : parseInt(sortedPrizes[i].from, 10);
+      const nextFrom = parseInt(sortedPrizes[i + 1].from, 10);
+      if (nextFrom !== currentTo + 1) {
+        return `Ranks must be continuous — gap found between rank ${currentTo} and ${nextFrom}`;
+      }
+    }
+
+    // Validate each prize row
+    let totalPrizeAmount = 0;
+    const ranksSet = new Set();
+
+    for (let idx = 0; idx < validPrizes.length; idx++) {
+      const p = validPrizes[idx];
+      const from = parseInt(p.from, 10);
+      const to = p.to ? parseInt(p.to, 10) : parseInt(p.from, 10);
+      const amount = parseFloat(p.amount);
+
+      if (Number.isNaN(from) || Number.isNaN(to) || Number.isNaN(amount)) {
+        return `Row ${idx + 1}: All fields must be valid numbers`;
+      }
+
+      if (from <= 0) return `Row ${idx + 1}: From rank must be greater than 0`;
+      if (to < from) return `Row ${idx + 1}: To rank must be >= From rank`;
+      if (to > totalSpots)
+        return `Row ${idx + 1}: To rank cannot exceed total spots`;
+      if (amount <= 0) return `Row ${idx + 1}: Amount must be greater than 0`;
+
+      // ✅ Multiply by rank count
+      totalPrizeAmount += amount * (to - from + 1);
+
+      for (let rank = from; rank <= to; rank++) {
+        ranksSet.add(rank);
+      }
+    }
+
+    // ✅ Validate total prize vs pool
+    const diff = Math.abs(totalPrizeAmount - Number(prizePool));
+    if (diff > 0.01) {
+      return `Total prize distribution (${totalPrizeAmount.toFixed(
+        2
+      )}) must match prize pool (${prizePool})`;
+    }
+
+    return null;
+  };
+
+  const handleSubmit = async (values) => {
+    if (contestData && !isFormChanged(values)) {
+      toast("No changes made", { icon: "ℹ️" });
+      return;
+    }
+
+    // Additional prize distribution validation
+    const prizeError = validatePrizeDistribution(
+      values.prize_distribution,
+      values.total_spots,
+      values.prize_pool
+    );
+
+    if (prizeError) {
+      toast.error(prizeError);
+      return;
+    }
+
+    const confirm = await Swal.fire({
+      title: contestData ? "Update Contest?" : "Add Contest?",
+      text: "Do you want to save this contest?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Save",
+      cancelButtonText: "Cancel",
+      buttonsStyling: false,
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+      },
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const validPrizes = values.prize_distribution.filter(
+        (p) => p.from && p.amount
+      );
+
+      const cleanPrizeDistribution = expandPrizeDistribution(validPrizes);
+
+      const payload = {
+        add_by,
+        name: values.name.trim(),
+        description: values.description,
+        entry_fee: Number(values.entry_fee),
+        total_spots: Number(values.total_spots),
+        prize_pool: Number(values.prize_pool),
+        contest_type: "Mega", // Static value
+        max_entry_per_user: 1,
+        is_guaranteed: contestTypeSelection === "guaranteed",
+        is_private: contestTypeSelection === "private",
+        contest_code:
+          contestTypeSelection === "private" ? generateContestCode() : "",
+        status: "upcoming",
+        prize_distribution: cleanPrizeDistribution,
+      };
+
+      if (tournamentId) {
+        payload.tournament_id = tournamentId;
+      }
+
+      if (contestData) {
+        payload.id = contestData._id;
+      }
+
+      setLoading(true);
+      const res = contestData
+        ? await UpdateContest(token, payload)
+        : await AddContest(token, payload);
+
+      if (res?.status) {
+        toast.success(res?.message || "Contest saved successfully");
+        navigate("/superadmin/contest");
+      } else {
+        toast.error(res?.message || "Failed to save contest");
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const contestFields = [
+    {
+      name: "name",
+      label: "Contest Name",
+      type: "text",
+      required: true,
+      colClass: "col-span-4",
+    },
+    {
+      name: "description",
+      label: "Description",
+      type: "ckeditor",
+      colClass: "col-span-4",
+      required: true,
+    },
+    {
+      name: "entry_fee",
+      label: "Entry Fee",
+      type: "number",
+      required: true,
+      min: 0,
+      colClass: "col-span-2",
+    },
+    {
+      name: "total_spots",
+      label: "Total Spots",
+      type: "number",
+      required: true,
+      min: 1,
+      colClass: "col-span-2",
+    },
+    {
+      name: "prize_pool",
+      label: "Prize Pool",
+      type: "number",
+      required: true,
+      min: 0,
+      colClass: "col-span-4",
+    },
+    {
+      name: "prize_distribution",
+      label: "Prize Distribution",
+      type: "prizeDistribution",
+      required: true,
+      colClass: "col-span-4",
+    },
+    // {
+    //   name: "contest_type_selector",
+    //   label: "Contest Type",
+    //   type: "custom",
+    //   colClass: "col-span-4",
+    //   required: true,
+    //   render: () => (
+    //     <div className="space-y-2">
+    //       <div className="space-y-2">
+    //         <label className="flex items-center gap-2 text-sm cursor-pointer">
+    //           <input
+    //             type="radio"
+    //             name="contestTypeRadio"
+    //             value="guaranteed"
+    //             checked={contestTypeSelection === "guaranteed"}
+    //             onChange={(e) => setContestTypeSelection(e.target.value)}
+    //             className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+    //           />
+    //           <span>Guaranteed Contest</span>
+    //         </label>
+
+    //         <label className="flex items-center gap-2 text-sm cursor-pointer">
+    //           <input
+    //             type="radio"
+    //             name="contestTypeRadio"
+    //             value="private"
+    //             checked={contestTypeSelection === "private"}
+    //             onChange={(e) => setContestTypeSelection(e.target.value)}
+    //             className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+    //           />
+    //           <span>Flexible  Contest</span>
+    //         </label>
+    //       </div>
+    //       {contestTypeSelection === "private" && (
+    //         <p className="text-xs text-gray-500 mt-2">
+    //           Contest code will be auto-generated for private contests
+    //         </p>
+    //       )}
+    //     </div>
+    //   ),
+    // },
+
+    {
+      name: "contest_type_selector",
+      label: "Contest Type",
+      type: "custom",
+      colClass: "col-span-4",
+      required: true,
+      render: () => (
+        <div className="space-y-2">
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="radio"
+                name="contestTypeRadio"
+                value="guaranteed"
+                checked={contestTypeSelection === "guaranteed"}
+                onChange={(e) => setContestTypeSelection(e.target.value)}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                disabled={!!contestData} // 🟢 Disable in edit mode
+              />
+              <span>Guaranteed Contest</span>
+            </label>
+
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="radio"
+                name="contestTypeRadio"
+                value="private"
+                checked={contestTypeSelection === "private"}
+                onChange={(e) => setContestTypeSelection(e.target.value)}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                disabled={!!contestData} // 🟢 Disable in edit mode
+              />
+              <span>Flexible Contest</span>
+            </label>
+          </div>
+
+          {/* {contestTypeSelection === "private" && (
+            <p className="text-xs text-gray-500 mt-2">
+              Contest code will be auto-generated for private contests
+            </p>
+          )} */}
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <Content
+      Page_title={contestData ? "Edit Contest" : "Add Contest"}
+      button_status={true}
+      button_title="Back"
+      route="/superadmin/contest"
+    >
+      <div className="bg-white p-6 rounded-xl shadow-md">
+        <ReusableForm
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+          fields={contestFields}
+          SubmitBtn={contestData ? "Update Contest" : "Save Contest"}
+          enableReinitialize={true}
+          loading={loading}
+        />
+      </div>
+    </Content>
+  );
 }

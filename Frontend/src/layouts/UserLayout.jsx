@@ -31,8 +31,8 @@ const SuperAdminLayout = () => {
         </header>
 
 
-        <main className="pt-20 pb-16  flex justify-center ">
-          <div className="w-full max-w-5xl px-6  ">
+        <main className="pt-[5rem] pb-16  flex justify-center ">
+          <div className="w-full max-w-5xl   ">
             <Outlet />
           </div>
         </main>

@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from "react";
-import Datatable from "../../../extracomponents/Datatable";
-import { FileText, Edit, Eye, Trash2 } from "lucide-react";
+import Datatable from "../../../extracomponents/DatatablePagination";
+import { Edit, Eye, Trash2 } from "lucide-react";
 import {
   AddClient,
   GetClientsWithFilter,
   DeleteClient,
-  GetClientDetails,
   UpdateClientStatus,
   UpdateClient,
+  getState,
+  getStateByCity,
+  getBankdetails,
+  kyc_verification,
 } from "../../../services/SuperAdmin";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import Content from "../../../components/superadmin/Content";
-
+import { useNavigate } from "react-router-dom";
+import * as config from "../../../utils/config";
 
 const Client = () => {
   const [clients, setClients] = useState([]);
@@ -24,38 +28,299 @@ const Client = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNo, setPhoneNo] = useState("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
   const [dob, setDob] = useState("");
+  const [stateId, setStateId] = useState("");
+  const [cityId, setCityId] = useState("");
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [bankOpen, setBankOpen] = useState(false);
+  const [bankDetails, setBankDetails] = useState([]);
+  const [totalRows, setTotalRows] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [filterText, setFilterText] = useState("");
+  const navigate = useNavigate();
+  const [kycModalOpen, setKycModalOpen] = useState(false);
+  const [selectedKycClient, setSelectedKycClient] = useState(null);
 
   const token = localStorage.getItem("token");
   const add_by = localStorage.getItem("add_by");
 
-  // fetch clients
+  let stateObj = states.find((s) => s._id === stateId);
+  let cityObj = cities.find((c) => c._id === cityId);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    fetchClients({ page, limit: rowsPerPage, filter: filterText });
+  };
+
+  // New function to open KYC modal
+  const handleViewKyc = (client) => {
+    setSelectedKycClient(client);
+    setKycModalOpen(true);
+  };
+
+  const handleRowsPerPageChange = (newPerPage, page) => {
+    setRowsPerPage(newPerPage);
+    setCurrentPage(page);
+    fetchClients({ page, limit: newPerPage, filter: filterText });
+  };
+
+  const handleFilterChange = (text) => {
+    setFilterText(text);
+    fetchClients({ page: 1, limit: rowsPerPage, filter: text }); // reset to page 1
+  };
+
+  function isValidAge(dob, minAge = 18) {
+    const birthDate = new Date(dob);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age >= minAge;
+  }
+
+  // Fetch clients
   const fetchClients = async () => {
     setLoading(true);
-    const response = await GetClientsWithFilter(token, {});
+    const data = {
+      status: "",
+      kyc_verification: "",
+      search: "",
+      add_by: "",
+      page: currentPage,
+      limit: rowsPerPage,
+    };
+    const response = await GetClientsWithFilter(token, data);
     if (response?.status) {
       setClients(response?.data);
-    } else {
-      toast.error(response?.message || "Failed to load clients");
-    }
+      setTotalRows(response?.pagination.totalRecords);
+    } else toast.error(response?.message || "Failed to load clients");
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchClients();
-  }, []);
+  const fetchBankDetails = async (client_id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await getBankdetails(token, client_id);
+      if (res?.status) {
+        setBankDetails(res?.data || []);
+        setBankOpen(true);
+      } else {
+        toast.error(res?.message || "Failed to fetch bank details");
+      }
+    } catch (error) {
+      toast.error("Error fetching bank details");
+    }
+  };
 
-  const handleOpen = (client = null) => {
+  // Fetch states
+  const fetchStates = async () => {
+    try {
+      const res = await getState(token);
+      setStates(res || []);
+    } catch (error) {
+      toast.error("Failed to load states");
+    }
+  };
+
+  const fetchCities = async (stateName) => {
+    try {
+      if (!stateName) return setCities([]);
+      const res = await getStateByCity(stateName, token);
+      console.log("cities response:", res);
+      setCities(res || []);
+    } catch (error) {
+      toast.error("Failed to load cities");
+    }
+  };
+
+  useEffect(() => {
+    fetchClients({ currentPage, rowsPerPage, filterText });
+    fetchStates();
+  }, [currentPage, rowsPerPage, filterText]);
+
+  const handleOpen = async (client = null) => {
     setSelectedClient(client);
     setFullName(client?.FullName || "");
     setEmail(client?.Email || "");
     setPhoneNo(client?.PhoneNo || "");
-    setState(client?.state || "");
-    setCity(client?.city || "");
     setDob(client?.dob || "");
+
+    // Find and set state by name from API response
+    if (client?.state && states.length > 0) {
+      const stateObj = states.find((s) => s.name === client.state);
+      if (stateObj) {
+        setStateId(stateObj._id);
+
+        // Fetch cities and then set city
+        try {
+          const res = await getStateByCity(stateObj.name, token);
+          const fetchedCities = res || [];
+          setCities(fetchedCities);
+
+          // Find and set city by name
+          if (client?.city) {
+            const cityObj = fetchedCities.find((c) => c.city === client.city);
+            if (cityObj) setCityId(cityObj._id);
+          }
+        } catch (error) {
+          console.error("Failed to load cities", error);
+        }
+      }
+    } else {
+      setStateId("");
+      setCityId("");
+      setCities([]);
+    }
+
     setOpen(true);
+  };
+  const handleCancel = () => {
+    setOpen(false);
+    setSelectedClient(null);
+    setFullName("");
+    setEmail("");
+    setPhoneNo("");
+    setStateId("");
+    setCityId("");
+    setDob("");
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+
+    if (!dob) {
+      toast.error("Please enter Date of Birth");
+      return;
+    }
+
+    if (!isValidAge(dob, 18)) {
+      toast.error("Client must be at least 18 years old");
+      return;
+    }
+
+    if (!stateId) {
+      toast.error("Please select state");
+      return;
+    }
+
+    // If editing, check if any changes were made
+    if (selectedClient) {
+      const stateObj = states.find((s) => s._id === stateId);
+      const cityObj = cities.find((c) => c._id === cityId);
+
+      const noChanges =
+        selectedClient.FullName === fullName &&
+        selectedClient.Email === email &&
+        selectedClient.PhoneNo === phoneNo &&
+        selectedClient.dob === dob &&
+        selectedClient.state === (stateObj?.name || "") &&
+        selectedClient.city === (cityObj?.city || "");
+
+      if (noChanges) {
+        Swal.fire({
+          icon: "info",
+          title: "No changes made",
+          text: "You haven't modified any details.",
+          confirmButtonColor: "#3085d6",
+          customClass: {
+            popup: "custom-swal-popup",
+            title: "custom-swal-title",
+            htmlContainer: "custom-swal-text",
+            confirmButton: "custom-swal-confirm",
+            cancelButton: "custom-swal-cancel",
+          },
+        });
+        return; // exit without making API call
+      }
+    }
+
+    const confirm = await Swal.fire({
+      title: selectedClient ? "Update Client?" : "Add Client?",
+      text: selectedClient
+        ? "Are you sure you want to update this client?"
+        : "Are you sure you want to add this client?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Save",
+      cancelButtonText: "Cancel",
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+      },
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    const stateObj = states.find((s) => s._id === stateId);
+    const cityObj = cities.find((c) => c._id === cityId);
+
+    let payload = {
+      add_by,
+      FullName: fullName,
+      Email: email,
+      PhoneNo: phoneNo,
+      state: stateObj?.name || "",
+      city: cityObj?.city || "",
+      dob,
+    };
+    if (selectedClient) payload.id = selectedClient._id;
+
+    setLoading(true);
+    let response;
+    if (selectedClient) response = await UpdateClient(token, payload);
+    else response = await AddClient(token, payload);
+
+    if (response?.status) {
+      toast.success(response?.message || "Saved successfully");
+      fetchClients();
+      handleCancel();
+    } else toast.error(response?.message || "Failed to save");
+
+    setLoading(false);
+  };
+
+  const handleStatusChange = async (client) => {
+    const actionText = client.ActiveStatus === 1 ? "Deactivate" : "Activate";
+    const confirm = await Swal.fire({
+      title: `Are you sure?`,
+      text: `Do you want to ${actionText} this client?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: `Yes, ${actionText}`,
+      cancelButtonText: "Cancel",
+      customClass: {
+        popup: "custom-swal-popup",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
+      },
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    const res = await UpdateClientStatus(token, {
+      id: client._id,
+      status: client.ActiveStatus === 1 ? "0" : "1",
+    });
+
+    if (res?.status) {
+      toast.success(res?.message || `Client ${actionText}d`);
+      fetchClients();
+    } else toast.error(res?.message || "Failed to change status");
   };
 
   const handleDelete = async (client) => {
@@ -68,135 +333,108 @@ const Client = () => {
       cancelButtonText: "Cancel",
       customClass: {
         popup: "custom-swal-popup",
-        title: "text-xl font-semibold text-white-800",
-        confirmButton:
-          "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
-        cancelButton:
-          "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
       },
     });
-
     if (!confirm.isConfirmed) return;
 
-    setLoading(true);
-    const response = await DeleteClient(token, client._id);
-    setLoading(false);
-
-    if (response?.status) {
-      toast.success(response?.message || "Client deleted successfully");
+    const res = await DeleteClient(token, client._id);
+    if (res?.status) {
+      toast.success(res?.message || "Client deleted successfully");
       fetchClients();
-    } else {
-      toast.error(response?.message || "Failed to delete client");
-    }
+    } else toast.error(res?.message || "Failed to delete client");
   };
 
-  const handleCancel = () => {
-    setOpen(false);
-    setSelectedClient(null);
-    setFullName("");
-    setEmail("");
-    setPhoneNo("");
-    setState("");
-    setCity("");
-    setDob("");
-  };
-
-  const handleSave = async (e) => {
-    e.preventDefault();
+  const handleKycVerification = async (clientId, status) => {
+    const actionText = status === 1 ? "Approve" : "Reject";
 
     const confirm = await Swal.fire({
-      title: selectedClient ? "Update Client?" : "Add Client?",
-      text: selectedClient
-        ? "Are you sure you want to update this client?"
-        : "Are you sure you want to add this client?",
+      title: `${actionText} KYC?`,
+      text: `Do you really want to ${actionText.toLowerCase()} this KYC?`,
       icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Save",
-      cancelButtonText: "Cancel",
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    let payload = {
-      add_by,
-      FullName: fullName,
-      Email: email,
-      PhoneNo: phoneNo,
-      state,
-      city,
-      dob,
-    };
-
-    if (selectedClient) payload.id = selectedClient._id;
-
-    setLoading(true);
-    let response;
-    if (selectedClient) {
-      response = await UpdateClient(token, payload);
-    } else {
-      response = await AddClient(token, payload);
-    }
-
-    if (response?.status) {
-      toast.success(response?.message || "Saved successfully");
-      fetchClients();
-      handleCancel();
-    } else {
-      toast.error(response?.message || "Failed to save");
-    }
-
-    setLoading(false);
-  };
-
-  const handleStatusChange = async (client) => {
-    const actionText = client.ActiveStatus === 1 ? "Deactivate" : "Activate";
-
-    const confirm = await Swal.fire({
-      title: `Are you sure?`,
-      text: `Do you want to ${actionText} this client?`,
-      icon: "warning",
       showCancelButton: true,
       confirmButtonText: `Yes, ${actionText}`,
       cancelButtonText: "Cancel",
       customClass: {
         popup: "custom-swal-popup",
-        title: "text-xl font-semibold text-white-800",
-        confirmButton:
-          "px-2 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition",
-        cancelButton:
-          "px-2 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 transition",
+        title: "custom-swal-title",
+        htmlContainer: "custom-swal-text",
+        confirmButton: "custom-swal-confirm",
+        cancelButton: "custom-swal-cancel",
       },
     });
 
     if (!confirm.isConfirmed) return;
 
-    let payload = {
-      id: client._id,
-      status: client.ActiveStatus === 1 ? "0" : "1",
-    };
+    try {
+      const res = await kyc_verification(token, {
+        id: clientId,
+        kyc_verification: status,
+      });
 
-    console.log(payload);
-
-    const res = await UpdateClientStatus(token, payload);
-
-    if (res?.status) {
-      toast.success(res?.message || `Client ${actionText}d`);
-      fetchClients();
-    } else {
-      toast.error(res?.message || "Failed to change status");
+      if (res?.status) {
+        toast.success(res?.message || `KYC ${actionText}d successfully`);
+        fetchClients(); // refresh list
+      } else {
+        toast.error(res?.message || "Failed to update KYC status");
+      }
+    } catch (error) {
+      toast.error("Error updating KYC status");
     }
   };
 
-  // datatable columns
   const columns = [
-    { name: "S.No", selector: (row, i) => i + 1, width: "80px" },
-    { name: "Name", selector: (row) => row.FullName, sortable: true },
-    { name: "Email", selector: (row) => row.Email },
-    { name: "Phone", selector: (row) => row.PhoneNo },
-    { name: "City", selector: (row) => row.city },
-    { name: "State", selector: (row) => row.state },
+    {
+      name: "Name",
+      selector: (row) => row.FullName || "N/A",
+      exportValue: (row) => row.FullName || "N/A",
+      export: true,
+      sortable: true,
+      width: "150px",
+    },
+    {
+      name: "Email",
+      selector: (row) => row.Email || "N/A",
+      exportValue: (row) => row.Email || "N/A",
+      export: true,
+      width: "250px",
+    },
+    {
+      name: "Phone",
+      selector: (row) => row.PhoneNo || "N/A",
+      exportValue: (row) => row.PhoneNo || "N/A",
+      export: true,
+      width: "120px",
+    },
+    {
+      name: "City",
+      selector: (row) => row.city || "N/A",
+      exportValue: (row) => row.city || "N/A",
+      export: true,
+      width: "120px",
+    },
+    {
+      name: "State",
+      selector: (row) => row.state || "N/A",
+      exportValue: (row) => row.state || "N/A",
+      export: true,
+      width: "180px",
+    },
+    {
+      name: "DOB",
+      selector: (row) => row.dob || "N/A",
+      exportValue: (row) => row.dob || "N/A",
+      export: true,
+      width: "100px",
+    },
+
     {
       name: "Status",
+      selector: (row) => (row.ActiveStatus === 1 ? "Active" : "Inactive"),
+      exportValue: (row) => (row.ActiveStatus === 1 ? "Active" : "Inactive"),
       cell: (row) => (
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -209,22 +447,10 @@ const Client = () => {
           <div className="absolute left-0.5 top-0.5 w-5 h-5 rounded-full border peer-checked:translate-x-full transition-transform"></div>
         </label>
       ),
+      width: "100px",
+      export: true,
     },
-    {
-      name: "Action",
-      cell: (row) => (
-        <div className="flex gap-3">
-          <Edit
-            className="cursor-pointer text-blue-600"
-            onClick={() => handleOpen(row)}
-          />
-          <Trash2
-            className="cursor-pointer text-red-600"
-            onClick={() => handleDelete(row)}
-          />
-        </div>
-      ),
-    },
+
     {
       name: "View",
       cell: (row) => (
@@ -237,32 +463,152 @@ const Client = () => {
           }}
         />
       ),
+      width: "60px",
+      export: false,
+    },
+    {
+      name: "Action",
+      cell: (row) => (
+        <div className="flex gap-3">
+          <Edit
+            className="cursor-pointer text-blue-600"
+            onClick={() =>
+              navigate("/superadmin/add-client", { state: { client: row } })
+            }
+          />
+          <Trash2
+            className="cursor-pointer text-red-600"
+            onClick={() => handleDelete(row)}
+          />
+        </div>
+      ),
+      export: false,
+    },
+    {
+      name: "Bank Details",
+      width: "120px",
+      cell: (row) => (
+        <button
+          className="px-2 py-1 bg-purple-600 text-white rounded-md text-sm"
+          onClick={() => fetchBankDetails(row._id)}
+        >
+          View Banks
+        </button>
+      ),
+      export: false,
+    },
+    {
+      name: "KYC Docs",
+      width: "100px",
+      cell: (row) => (
+        <button
+          className="px-2 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700"
+          onClick={() => handleViewKyc(row)}
+          disabled={row.kyc_type !== 1}
+        >
+          View
+        </button>
+      ),
+      export: false,
+    },
+    {
+      name: "KYC",
+      width: "170px",
+      exportValue: (row) => {
+        if (row.kyc_verification === 1) return "Verified";
+        if (row.kyc_verification === 2) return "Rejected";
+        return "Pending";
+      },
+      selector: (row) => {
+        if (row.kyc_verification === 1) return "Verified";
+        if (row.kyc_verification === 2) return "Rejected";
+        return "Pending";
+      },
+      cell: (row) => (
+        <div className="flex gap-2">
+          {row.kyc_type === 1 ? (
+            row.kyc_verification === 1 ? (
+              <span className="text-green-600 font-semibold">Verified ✅</span>
+            ) : row.kyc_verification === 2 ? (
+              <span className="text-red-600 font-semibold">Rejected ❌</span>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  className="px-2 py-1 bg-green-600 text-white rounded-md text-sm"
+                  onClick={() => handleKycVerification(row, 1)}
+                >
+                  Approve
+                </button>
+                <button
+                  className="px-2 py-1 bg-red-600 text-white rounded-md text-sm"
+                  onClick={() => handleKycVerification(row, 2)}
+                >
+                  Reject
+                </button>
+              </div>
+            )
+          ) : row.kyc_verification === 1 ? (
+            <span className="text-green-600 font-semibold">Verified ✅</span>
+          ) : row.kyc_verification === 2 ? (
+            <span className="text-red-600 font-semibold">Rejected ❌</span>
+          ) : (
+            <span className="text-gray-500 font-semibold">Pending ⏳</span>
+          )}
+        </div>
+      ),
+      export: true,
     },
   ];
 
   return (
-    <Content Page_title="Client Management" button_title="back" button_status={true}
-      route={"/superadmin/dashboard"} extra_button="Add Client"
-      extra_button_action={handleOpen} >
-      <div className="p-2 ">
+    <Content
+      Page_title="Client Management"
+      button_title="Back"
+      button_status={true}
+      route={"/superadmin/dashboard"}
+      extra_button="Add client"
+      extra_button_action={() => navigate("/superadmin/add-client")}
+    >
+      <div className="p-2">
         <div className="shadow-lg rounded-xl p-4">
-          <Datatable columns={columns} data={clients} title="Client List" onRefresh={fetchClients} />
+          {/* <Datatable columns={columns}
+           data={clients} 
+           title="Client List"
+            onRefresh={fetchClients} /> */}
+          <Datatable
+            columns={columns}
+            data={clients}
+            totalRows={totalRows}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+            filterText={filterText}
+            onFilterChange={handleFilterChange}
+            onRefresh={fetchClients}
+          />
         </div>
 
+        {/* Add/Edit Client Modal */}
         {open && (
           <div className="fixed mt-5 inset-0 flex items-center justify-center z-50 bg-opacity-40">
-            <div className=" w-lg max-h-[80vh] overflow-y-auto Add-client-style shadow-2xl p-6 hide-scrollbar">
+            <div className="w-lg max-h-[80vh] overflow-y-auto Add-client-style shadow-2xl p-6 hide-scrollbar client-style">
               <h2 className="text-lg font-semibold border-b pb-2">
                 {selectedClient ? "✏️ Edit Client" : "➕ Add Client"}
               </h2>
 
-              <form onSubmit={handleSave} className="grid grid-cols-2 gap-4 mt-4">
-                <div className="">
+              <form
+                onSubmit={handleSave}
+                className="grid grid-cols-2 gap-4 mt-4"
+              >
+                <div>
                   <label className="text-sm">Full Name</label>
                   <input
                     type="text"
                     value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                    onChange={(e) =>
+                      setFullName(e.target.value.replace(/[^a-zA-Z\s]/g, ""))
+                    }
                     className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   />
                 </div>
@@ -282,32 +628,56 @@ const Client = () => {
                   <input
                     type="text"
                     value={phoneNo}
-                    onChange={(e) => setPhoneNo(e.target.value)}
+                    onChange={(e) =>
+                      setPhoneNo(e.target.value.replace(/\D/g, ""))
+                    }
                     className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
                   />
                 </div>
 
                 <div>
                   <label className="text-sm">State</label>
-                  <input
-                    type="text"
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
+                  <select
+                    value={stateId}
+                    onChange={(e) => {
+                      const selectedStateId = e.target.value;
+                      setStateId(selectedStateId);
+                      setCityId("");
+
+                      const stateObj = states.find(
+                        (s) => s._id === selectedStateId
+                      );
+                      if (stateObj) fetchCities(stateObj.name);
+                      else setCities([]);
+                    }}
                     className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
-                  />
+                  >
+                    <option value="">Select State</option>
+                    {states.map((s) => (
+                      <option key={s._id} value={s._id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
                   <label className="text-sm">City</label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
+                  <select
+                    value={cityId}
+                    onChange={(e) => setCityId(e.target.value)}
                     className="w-full border rounded-md px-3 py-2 mt-1 input-Add"
-                  />
+                  >
+                    <option value="">Select City</option>
+                    {cities.map((c) => (
+                      <option key={c._id} value={c._id}>
+                        {c.city}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                <div className="">
+                <div>
                   <label className="text-sm">DOB</label>
                   <input
                     type="date"
@@ -338,42 +708,190 @@ const Client = () => {
           </div>
         )}
 
+      {bankOpen && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 backdrop-blur-sm">
+    {/* Modal Box */}
+    <div className="w-[92%] max-w-3xl rounded-xl bg-white shadow-2xl border border-gray-200 overflow-hidden max-h-[85vh] flex flex-col">
+
+      {/* Header */}
+      <div className="flex justify-between items-center px-6 py-4 bg-gray-50 border-b">
+        <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+          🏦 Bank Details
+        </h2>
+
+        <button
+          onClick={() => {
+            setBankOpen(false)
+            setBankDetails([])
+          }}
+          className="text-gray-500 hover:text-red-600 text-2xl font-bold leading-none transition"
+        >
+          ✖
+        </button>
+      </div>
+
+      {/* Content */}
+  {/* Content */}
+<div className="p-6 overflow-y-auto flex-1 bg-white">
+
+  {bankDetails.length > 0 ? (
+    <Datatable
+      columns={[
+        // { name: "#", selector: (row, index) => index + 1, width: "60px" },
+        { name: "Bank Name", selector: row => row.name, sortable: true },
+        { name: "Branch Name", selector: row => row.branch, sortable: true },
+        { name: "Account Number", selector: row => row.accountno, sortable: true },
+        { name: "IFSC", selector: row => row.ifsc, sortable: true },
+      ]}
+      data={bankDetails}
+      pagination
+      highlightOnHover
+      pointerOnHover
+      dense
+    />
+  ) : (
+    <p className="text-gray-500 text-center py-6">
+      No bank details found.
+    </p>
+  )}
+
+</div>
 
 
-        {/* View Client */}
-        {viewOpen && viewClient && (
-          <div className="fixed inset-0 flex items-center justify-center z-50  bg-opacity-40 ">
-            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
-              <h2 className="text-lg font-semibold mb-4 border-b pb-2 flex justify-between">
-                <span>👁️ Client Details</span>
+      {/* Footer */}
+      <div className="px-6 py-4 bg-gray-50 border-t flex justify-end">
+        <button
+          onClick={() => {
+            setBankOpen(false)
+            setBankDetails([])
+          }}
+          className="px-6 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition font-medium"
+        >
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
+
+        {kycModalOpen && selectedKycClient && (
+          <div className="fixed   inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 backdrop-blur-sm">
+            {/* Modal Container */}
+            <div className="bg-white rounded-xl shadow-2xl  max-w-6xl max-h-[70vh] flex flex-col border border-gray-200">
+
+              {/* Header */}
+              <div className="flex justify-between items-center px-6 py-4 border-b bg-gray-50 rounded-t-xl">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  📄 KYC Documents • {selectedKycClient.FullName}
+                </h2>
                 <button
                   onClick={() => {
-                    setViewOpen(false);
-                    setViewClient(null);
+                    setKycModalOpen(false)
+                    setSelectedKycClient(null)
                   }}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-gray-600 hover:text-red-600 text-2xl font-bold leading-none transition"
                 >
                   ✖
                 </button>
-              </h2>
-
-              <div className="space-y-3">
-                <p><strong>Name:</strong> {viewClient?.FullName}</p>
-                <p><strong>Email:</strong> {viewClient?.Email}</p>
-                <p><strong>Phone:</strong> {viewClient?.PhoneNo}</p>
-                <p><strong>City:</strong> {viewClient?.city}</p>
-                <p><strong>State:</strong> {viewClient?.state}</p>
-                <p><strong>DOB:</strong> {viewClient?.dob}</p>
-                <p><strong>Status:</strong> {viewClient?.status}</p>
               </div>
 
-              <div className="mt-6 flex justify-end">
+              {/* Scrollable Content */}
+              <div className="overflow-y-auto px-6 py-6 flex-1 bg-white">
+                <h3 className="font-semibold text-lg mb-5 text-gray-700">
+                  Uploaded Documents
+                </h3>
+
+                {/* Documents Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                  {/* Aadhaar Front */}
+                  <div className="p-4 bg-gray-50 border rounded-xl shadow-sm hover:shadow-md transition">
+                    <h4 className="font-semibold mb-3 text-blue-700">🪪 Aadhaar Card • Front</h4>
+
+                    {selectedKycClient.adhaarphotofront ? (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden shadow-inner">
+                        <img
+                          src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`}
+                          alt="Aadhaar Front"
+                          className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() =>
+                            window.open(
+                              `${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotofront}`,
+                              "_blank"
+                            )
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center">
+                        <p className="text-gray-400">Not uploaded</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Aadhaar Back */}
+                  <div className="p-4 bg-gray-50 border rounded-xl shadow-sm hover:shadow-md transition">
+                    <h4 className="font-semibold mb-3 text-blue-700">🪪 Aadhaar Card • Back</h4>
+
+                    {selectedKycClient.adhaarphotoback ? (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden shadow-inner">
+                        <img
+                          src={`${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`}
+                          alt="Aadhaar Back"
+                          className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() =>
+                            window.open(
+                              `${config.image_url}uploads/kyc/${selectedKycClient.adhaarphotoback}`,
+                              "_blank"
+                            )
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center">
+                        <p className="text-gray-400">Not uploaded</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* PAN Card */}
+                  <div className="md:col-span-2 p-4 bg-gray-50 border rounded-xl shadow-sm hover:shadow-md transition">
+                    <h4 className="font-semibold mb-3 text-green-700">💳 PAN Card</h4>
+
+                    {selectedKycClient.pancard ? (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center overflow-hidden shadow-inner">
+                        <img
+                          src={`${config.image_url}uploads/kyc/${selectedKycClient.pancard}`}
+                          alt="PAN Card"
+                          className="max-h-full max-w-full object-contain cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() =>
+                            window.open(
+                              `${config.image_url}uploads/kyc/${selectedKycClient.pancard}`,
+                              "_blank"
+                            )
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-60 border rounded-lg bg-white flex items-center justify-center">
+                        <p className="text-gray-400">Not uploaded</p>
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex justify-end px-6 py-4 border-t bg-gray-50 rounded-b-xl">
                 <button
                   onClick={() => {
-                    setViewOpen(false);
-                    setViewClient(null);
+                    setKycModalOpen(false)
+                    setSelectedKycClient(null)
                   }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition font-medium"
                 >
                   Close
                 </button>
@@ -381,6 +899,130 @@ const Client = () => {
             </div>
           </div>
         )}
+
+
+        {/* View Client */}
+        {viewOpen && viewClient && (
+          <div className="fixed mt-5 inset-0 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm z-50">
+            <div className="w-full max-w-lg max-h-[90vh] rounded-2xl bg-white shadow-xl p-0 overflow-hidden animate-scaleIn">
+
+              {/* Header */}
+              <div className="flex justify-between items-center border-b p-4">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <span className="text-blue-600 text-xl">👁️</span> Client Details
+                </h2>
+
+                <button
+                  onClick={() => {
+                    setViewOpen(false);
+                    setViewClient(null);
+                  }}
+                  className="text-gray-500 hover:text-gray-700 transition"
+                >
+                  ✖
+                </button>
+              </div>
+
+              {/* Scrollable Body */}
+              <div className="p-4 overflow-y-auto max-h-[65vh]">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="font-semibold text-gray-700">Name</p>
+                    <p className="text-gray-600">{viewClient?.FullName || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">Email</p>
+                    <p className="text-gray-600">{viewClient?.Email || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">Phone</p>
+                    <p className="text-gray-600">{viewClient?.PhoneNo || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">City</p>
+                    <p className="text-gray-600">{viewClient?.city || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">State</p>
+                    <p className="text-gray-600">{viewClient?.state || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">DOB</p>
+                    <p className="text-gray-600">{viewClient?.dob || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">Wallet Amount</p>
+                    <p className="text-gray-800 font-medium">{viewClient?.wamount || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">Refer Amount</p>
+                    <p className="text-gray-800 font-medium">{viewClient?.referwamount || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">Refer Code</p>
+                    <p className="text-gray-600">{viewClient?.refer_token || "N/A"}</p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">Status</p>
+                    <p
+                      className={
+                        viewClient?.ActiveStatus == 1
+                          ? "text-green-600 font-medium"
+                          : "text-red-600 font-medium"
+                      }
+                    >
+                      {viewClient?.ActiveStatus == 1 ? "Active" : "Inactive"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-gray-700">KYC</p>
+                    <p
+                      className={
+                        viewClient?.kyc_verification === 1
+                          ? "text-green-600 font-medium"
+                          : viewClient?.kyc_verification === 2
+                            ? "text-red-600 font-medium"
+                            : "text-yellow-600 font-medium"
+                      }
+                    >
+                      {viewClient?.kyc_verification === 1
+                        ? "Verified"
+                        : viewClient?.kyc_verification === 2
+                          ? "Rejected"
+                          : "Pending"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex justify-end border-t p-4">
+                <button
+                  onClick={() => {
+                    setViewOpen(false);
+                    setViewClient(null);
+                  }}
+                  className="px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
+                >
+                  Close
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+
       </div>
     </Content>
   );

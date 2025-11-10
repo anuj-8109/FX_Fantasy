@@ -1,208 +1,489 @@
-import React, { useState } from "react";
-import { PlusCircle, ArrowUp, Clock } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Clock, Plus, Minus, TrendingUp, Calendar, Wallet, ChevronDown } from "lucide-react";
 import Swal from "sweetalert2";
+import {
+  addMoneyInWallet,
+  WalletHistory,
+  withdrolmoney,
+  withdrolHistory,
+  GetUserDetails,
+  getBankdetalis,
+} from "../../../services/User";
+import BackButton from "../../../pages/user/Backbutton";
+import { useNavigate } from "react-router-dom";
 
 const WalletPage = () => {
-  const [historyView, setHistoryView] = useState("all"); // all | add | withdraw
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("all");
+  const [addMoneyHistory, setAddMoneyHistory] = useState([]);
+  const [withdrawHistory, setWithdrawHistory] = useState([]);
+  const [buySellHistory, setBuySellHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [userDetails, setUserDetails] = useState(null);
+  const [bankDetails, setBankDetails] = useState([]);
+  const [selectedBank, setSelectedBank] = useState(null);
 
-  const addHistory = [
-    { id: 1, amount: 500, date: "2025-09-10 12:30 PM" },
-    { id: 2, amount: 1000, date: "2025-09-09 03:20 PM" },
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
+  const kycVerified = userDetails?.kyc_verification === 1;
+
+  const tabs = [
+    { key: "all", label: "All Transactions", icon: Wallet },
+    { key: "add", label: "Add Money", icon: Plus },
+    { key: "withdraw", label: "Withdrawals", icon: Minus },
+    { key: "buysell", label: "Buy/Sell", icon: TrendingUp },
   ];
 
-  const withdrawHistory = [
-    { id: 1, amount: 200, date: "2025-09-11 09:10 AM" },
-    { id: 2, amount: 300, date: "2025-09-08 05:45 PM" },
-  ];
-
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
+  /** Razorpay Script */
+  const loadRazorpayScript = () =>
+    new Promise((resolve) => {
       const script = document.createElement("script");
       script.src = "https://checkout.razorpay.com/v1/checkout.js";
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.body.appendChild(script);
     });
-  };
 
-  const handlePayment = async (amount) => {
-    const res = await loadRazorpayScript();
-    if (!res) {
-      Swal.fire("Razorpay SDK failed to load.");
-      return;
-    }
+  /** Add Money */
+  const handleAddMoney = async () => {
+    const { value: amount } = await Swal.fire({
+      title: "Add Money to Wallet",
+      input: "number",
+      inputLabel: "Amount (₹)",
+      inputPlaceholder: "Enter amount",
+      showCancelButton: true,
+      confirmButtonText: "Add Money",
+      cancelButtonText: "Cancel",
+      inputValidator: (value) => {
+        if (!value || value <= 0) return "Enter valid amount!";
+        if (value < 10) return "Minimum amount is ₹10";
+      },
+    });
+
+    if (!amount) return;
+
+    const loaded = await loadRazorpayScript();
+    if (!loaded) return Swal.fire("Error", "Razorpay failed to load", "error");
 
     const options = {
       key: "rzp_test_22mEHcDzJbcUmz",
       amount: amount * 100,
       currency: "INR",
       name: "Dream Trading",
-      description: "Add Money Payment",
-      handler: function (response) {
-        Swal.fire("Payment successful! ID: " + response.razorpay_payment_id);
+      description: "Add Money",
+      handler: async (response) => {
+        try {
+          const result = await addMoneyInWallet(token, {
+            client_id: userId,
+            amount: parseInt(amount),
+            remark: "Add Money via Razorpay",
+            payment_id: response.razorpay_payment_id,
+            type: "add",
+            date: new Date().toISOString(),
+          });
+          if (result.status) {
+            Swal.fire("Success", "Money added!", "success");
+            window.dispatchEvent(new Event("refreshWallet"));
+          } else {
+            return Swal.fire("Error", result.message || "Failed to add money", "error");
+          }
+          fetchAllHistories();
+        } catch {
+          Swal.fire("Error", "Failed to add money", "error");
+        }
       },
-      prefill: {
-        name: "Test User",
-        email: "test@example.com",
-        contact: "",
-      },
-      theme: {
-        color: "#F97316",
-      },
+      prefill: { name: "User", email: "user@example.com", contact: "" },
+      theme: { color: "#F97316" },
     };
 
-    const paymentObject = new window.Razorpay(options);
-    paymentObject.open();
+    new window.Razorpay(options).open();
   };
 
-  const handleAddMoney = async () => {
+  /** Fetch User */
+  const fetchUser = async () => {
+    try {
+      const res = await GetUserDetails(token, userId);
+      if (res?.status) setUserDetails(res.data);
+    } catch (error) {
+      console.error("Failed fetching user", error);
+    }
+  };
+
+  /** Fetch Bank Details */
+  useEffect(() => {
+    const fetchBank = async () => {
+      try {
+        const res = await getBankdetalis(token, userId);
+        if (res?.status && Array.isArray(res.data)) {
+          setBankDetails(res.data);
+          if (res.data.length === 1) setSelectedBank(res.data[0]);
+        } else setBankDetails([]);
+      } catch {
+        setBankDetails([]);
+      }
+    };
+    fetchBank();
+    fetchUser();
+  }, []);
+
+  /** Withdraw */
+  const handleWithdraw = async (bank) => {
     const { value: amount } = await Swal.fire({
-      title: "Enter Amount",
+      title: "Withdraw Money",
       input: "number",
-      inputLabel: "Amount to Add",
-      inputPlaceholder: "Enter amount",
+      inputLabel: "Enter amount to withdraw (₹)",
+      inputPlaceholder: "Minimum ₹500",
       showCancelButton: true,
-      confirmButtonText: "Add Money",
+      confirmButtonText: "Submit",
       cancelButtonText: "Cancel",
       inputValidator: (value) => {
-        if (!value || value <= 0) {
-          return "Please enter a valid amount!";
-        }
+        if (!value || value <= 0) return "Enter valid amount";
+        if (value < 100) return "Minimum ₹100";
       },
     });
 
-    if (amount) {
-      handlePayment(amount);
+    if (!amount || !bank) return;
+
+    try {
+      const result = await withdrolmoney(token, {
+        clientId: userId,
+        amount: parseInt(amount),
+        remark: `Withdraw to ${bank.name} (A/C ${bank.accountno.slice(-4)})`,
+        type: "withdraw",
+        date: new Date().toISOString(),
+      });
+
+      if (result.status) {
+        window.dispatchEvent(new Event("refreshWallet"));
+        Swal.fire("Success", "Withdrawal requested", "success");
+        fetchAllHistories();
+      } else {
+        Swal.fire("Error", result.message || "Withdrawal failed", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Withdrawal failed", "error");
     }
   };
 
-  const handleWithdraw = async () => {
-    const { value: formValues } = await Swal.fire({
-      title: "Enter Withdrawal Details",
-      html:
-        `<input id="swal-account" class="swal2-input" placeholder="Account Number">` +
-        `<input id="swal-ifsc" class="swal2-input" placeholder="IFSC Code">` +
-        `<input id="swal-amount" type="number" class="swal2-input" placeholder="Amount">`,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: "Withdraw",
-      cancelButtonText: "Cancel",
-      preConfirm: () => {
-        const account = document.getElementById("swal-account").value;
-        const ifsc = document.getElementById("swal-ifsc").value;
-        const amount = document.getElementById("swal-amount").value;
-        if (!account || !ifsc || !amount || amount <= 0) {
-          Swal.showValidationMessage("Please fill all fields with valid data");
-          return null;
-        }
-        return { account, ifsc, amount };
-      },
-    });
-
-    if (formValues) {
-      Swal.fire(
-        "Withdraw Requested",
-        `Account: ${formValues.account}<br>IFSC: ${formValues.ifsc}<br>Amount: ₹${formValues.amount}`,
-        "success"
-      );
-    }
+  /** Fetch Histories */
+  const fetchAddMoneyHistory = async () => {
+    try {
+      const res = await WalletHistory(token, { client_id: userId });
+      if (res?.status) setAddMoneyHistory(res.data.filter(i => i.type?.toLowerCase() === "credit"));
+    } catch { setAddMoneyHistory([]); }
   };
 
-  const getDisplayedHistory = () => {
-    if (historyView === "all")
-      return [...addHistory, ...withdrawHistory].sort(
-        (a, b) => new Date(b.date) - new Date(a.date)
-      );
-    if (historyView === "add") return addHistory;
-    if (historyView === "withdraw") return withdrawHistory;
-    return [];
+  const fetchWithdrawHistory = async () => {
+    try {
+      const res = await withdrolHistory(token, { id: userId });
+      if (res?.status) setWithdrawHistory(res.data);
+    } catch { setWithdrawHistory([]); }
+  };
+
+  const fetchBuySellHistory = async () => {
+    try {
+      const res = await WalletHistory(token, { client_id: userId });
+      if (res?.status) {
+        const data = res.data.filter(
+          i => i.type?.toLowerCase() === "debit" &&
+            i.remark &&
+            ["buy", "sell", "trade"].some(w => i.remark.toLowerCase().includes(w))
+        );
+        setBuySellHistory(data);
+      }
+    } catch { setBuySellHistory([]); }
+  };
+
+  const fetchAllHistories = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([fetchAddMoneyHistory(), fetchWithdrawHistory(), fetchBuySellHistory()]);
+    } catch { }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { fetchAllHistories(); }, []);
+
+  const getAllHistory = () => [...addMoneyHistory, ...withdrawHistory, ...buySellHistory]
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const filterByDate = (data) => {
+    let filtered = [...data];
+    if (startDate) filtered = filtered.filter(i => new Date(i.created_at || i.date) >= new Date(startDate));
+    if (endDate) filtered = filtered.filter(i => new Date(i.created_at || i.date) <= new Date(endDate));
+    return filtered.sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date));
+  };
+
+  const getCurrentData = () => {
+    let data = activeTab === "add" ? addMoneyHistory
+      : activeTab === "withdraw" ? withdrawHistory
+        : activeTab === "buysell" ? buySellHistory
+          : getAllHistory();
+    return filterByDate(data);
+  };
+
+  const TransactionItem = ({ item }) => {
+    const isPositive = item.type === "credit" || item.type === "add";
+    const isNegative = item.type === "debit" || item.type === "withdraw";
+    const itemDate = item.created_at || item.date;
+
+    return (
+      <div className="p-4 border border-gray-200 rounded-xl hover:bg-orange-50 transition-colors duration-200 flex justify-between items-center  gap-2">
+        <div className="flex items-center gap-3 flex-1 min-w-[200px]">
+          <div className={`p-2 rounded-full ${isPositive ? "bg-green-100 text-green-600" : isNegative ? "bg-red-100 text-red-600" : "bg-blue-100 text-blue-600"}`}>
+            {isPositive && <Plus size={16} />}
+            {isNegative && <Minus size={16} />}
+            {!isPositive && !isNegative && <TrendingUp size={16} />}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className={`font-semibold ${isPositive ? "text-green-600" : isNegative ? "text-red-600" : "text-gray-700"}`}>
+                {isPositive ? "+" : isNegative ? "-" : ""}₹{Math.abs(item.amount)}
+              </span>
+            </div>
+            <p className="text-sm text-gray-600">{item.remark || "No remark"}</p>
+            {item.payment_id && <p className="text-xs text-gray-500">Payment ID: {item.payment_id}</p>}
+          </div>
+        </div>
+        <div className="text-right min-w-[100px]">
+          <p className="text-sm text-gray-500">{itemDate ? new Date(itemDate).toLocaleDateString("en-IN") : "N/A"}</p>
+          <p className="text-xs text-gray-400">{itemDate ? new Date(itemDate).toLocaleTimeString("en-IN") : "N/A"}</p>
+        </div>
+      </div>
+    );
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto mt-2 bg-white rounded-lg shadow-md space-y-6">
-      <h1 className="text-2xl font-bold text-orange-500">Transaction History</h1>
+    <div className="p-4 max-w-6xl mx-auto bg-white rounded-2xl shadow-xl">
+      <div className="flex items-center gap-3 w-full md:w-auto border p-2 rounded-xl justify-between ">
 
-      {/* Add Money & Withdraw */}
-      <div className="flex flex-wrap gap-4">
-        
-          {/* <div className="flex items-center gap-2 mb-4">
-            <PlusCircle size={24} className="text-orange-600" />
-            <h2 className="text-lg font-semibold text-orange-600">Add Money</h2>
-          </div> */}
-          <button
-            onClick={handleAddMoney}
-            className="px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition"
-          >
-            Add Money
-          </button>
-    
-
-        
-          {/* <div className="flex items-center gap-2 mb-4">
-            <ArrowUp size={24} className="text-orange-600" />
-            <h2 className="text-lg font-semibold text-orange-600">Withdraw</h2>
-          </div> */}
-          <button
-            onClick={handleWithdraw}
-            className="px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition"
-          >
-            Withdraw
-          </button>
-
-
-           <button
-            onClick={handleWithdraw}
-            className="px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition"
-          >
-            Transaction 
-          </button>
-       
+        <h1 className="text-lg sm:text-3xl font-extrabold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent flex items-center gap-2 whitespace-nowrap">
+          <Wallet size={8} />
+          Wallet
+        </h1>
+        <BackButton showText={true} />
       </div>
 
-        
-   
+      <div className="p-3 sm:p-4 mt-4 mb-4 bg-gray-100 rounded-xl shadow-md w-full max-w-6xl mx-auto 
+  flex flex-wrap items-center justify-between gap-2 sm:gap-4">
 
+        {/* Add Money */}
+        <span
+          onClick={handleAddMoney}
+          className="cursor-pointer text-black font-medium text-sm sm:text-base hover:underline whitespace-nowrap"
+        >
+          + Add Money
+        </span>
 
-      {/* Transaction History */}
-      <div className="border p-4 rounded shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <Clock size={24} className="text-orange-600" />
-          <h2 className="text-lg font-semibold text-orange-600">Transaction History</h2>
-        </div>
+        {/* Withdraw */}
+        <span
+          onClick={() => {
+            if (!kycVerified)
+              return Swal.fire("KYC Required", "Please complete your KYC.", "warning").then(() =>
+                navigate("/kycdetail")
+              );
 
-        {/* Dropdown buttons */}
-        <div className="flex gap-2 mb-4 flex-wrap">
-          {["all", "add", "withdraw"].map((type) => (
-            <button
-              key={type}
-              onClick={() => setHistoryView(type)}
-              className={`px-3 py-1 text-sm rounded ${
-                historyView === type
-                  ? "bg-orange-500 text-white"
-                  : "bg-orange-100 text-orange-600 hover:bg-orange-200"
-              }`}
-            >
-              {type === "all" ? "All" : type === "add" ? "Add Money" : "Withdraw"}
-            </button>
-          ))}
-        </div>
+            if (!bankDetails.length)
+              return Swal.fire("Bank Missing", "Please add your bank details.", "warning").then(() =>
+                navigate("/bankdetail")
+              );
 
-        {/* History List */}
-        <div className="max-h-64 overflow-y-auto space-y-2">
-          {getDisplayedHistory().map((item, idx) => (
-            <div
-              key={item.id + idx}
-              className="p-3 border rounded hover:bg-orange-50 transition flex justify-between"
-            >
-              <span>₹{item.amount}</span>
-              <span className="text-sm text-gray-500">{item.date}</span>
+            if (bankDetails.length > 1 && !selectedBank) {
+              Swal.fire({
+                title: "Select Bank",
+                input: "select",
+                inputOptions: bankDetails.reduce((acc, b, i) => {
+                  acc[i] = `${b.name} (${b.accountno.slice(-4)})`;
+                  return acc;
+                }, {}),
+                showCancelButton: true,
+                confirmButtonText: "Select",
+              }).then((res) => res.isConfirmed && handleWithdraw(bankDetails[res.value]));
+              return;
+            }
+
+            handleWithdraw(selectedBank || bankDetails[0]);
+          }}
+          className={`cursor-pointer text-sm sm:text-base font-medium whitespace-nowrap ${kycVerified && bankDetails.length
+            ? "text-black hover:underline transition-all duration-200"
+            : "text-gray-400 cursor-not-allowed"
+            }`}
+        >
+          - Withdraw
+        </span>
+
+        {/* Dropdown */}
+        <div className="relative">
+          <span
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="cursor-pointer text-sm sm:text-base font-medium text-black flex items-center gap-1 hover:underline whitespace-nowrap"
+          >
+            {React.createElement(tabs.find((t) => t.key === activeTab).icon, { size: 16 })}
+            {tabs.find((t) => t.key === activeTab).label}
+            <ChevronDown
+              size={16}
+              className={`transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
+            />
+          </span>
+
+          {/* {dropdownOpen && (
+            <div className="absolute right-0 w-44 mt-2 bg-white border rounded-lg shadow-lg z-10">
+              {tabs.map((t) => (
+                <span
+                  key={t.key}
+                  onClick={() => {
+                    setActiveTab(t.key);
+                    setDropdownOpen(false);
+                  }}
+                  className={`block px-3 py-2 text-sm flex gap-2 items-center cursor-pointer ${activeTab === t.key
+                    ? "bg-orange-100 text-orange-600"
+                    : "text-gray-700 hover:bg-orange-50"
+                    }`}
+                >
+                  {React.createElement(t.icon, { size: 14 })} {t.label}
+                </span>
+              ))}
             </div>
-          ))}
-          {getDisplayedHistory().length === 0 && (
-            <p className="text-gray-500">No transactions found.</p>
+          )} */}
+
+          {dropdownOpen && (
+            <div className="fixed inset-0 z-0" onClick={() => setDropdownOpen(false)} />
           )}
         </div>
       </div>
+
+
+
+
+      <div className="mb-4 p-4 rounded-xl border bg-gradient-to-r from-gray-50 to-gray-100 flex flex-wrap items-center justify-between shadow-sm gap-4">
+        {/* Bank Info */}
+        <div className="flex items-center gap-3 min-w-[180px]">
+          <img src="https://cdn-icons-png.flaticon.com/512/3094/3094830.png" alt="Bank" className="w-8 h-8" />
+          {bankDetails.length ? (
+            <div>
+              <p className="text-sm text-green-600 font-semibold">✅ Bank Verified</p>
+              <p className="text-gray-600 text-sm">{bankDetails[0]?.name} - A/C ending {bankDetails[0]?.accountno.slice(-4)}</p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-sm text-red-500 font-semibold">⚠️ No Bank Added</p>
+              <button
+                onClick={() => navigate("/bankdetail")}
+                className="text-xs text-orange-600 underline hover:text-orange-700 mt-1"
+              >
+                Add Bank
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* KYC Info */}
+        <div className="flex items-center gap-3 min-w-[140px]">
+          <img src="https://cdn-icons-png.flaticon.com/512/2910/2910765.png" alt="KYC" className="w-8 h-8" />
+          {kycVerified ? (
+            <div>
+              <p className="text-sm text-green-600 font-semibold">✅ KYC Verified</p>
+              <p className="text-gray-600 text-sm">You are fully verified</p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-sm text-red-500 font-semibold">⚠️ KYC Pending</p>
+              <button
+                onClick={() => navigate("/kycdetail")}
+                className="text-xs text-orange-600 underline hover:text-orange-700 mt-1"
+              >
+                Complete KYC
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-6 p-3 bg-gray-50 border rounded-xl">
+        {/* Calendar Label */}
+        <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+          <Calendar size={18} className="text-orange-500" />
+          <span className="font-medium text-gray-700">Filter by Date:</span>
+        </div>
+
+        {/* Date Inputs */}
+        <div className="flex flex-row gap-4 w-full">
+          {/* From Date */}
+          <div className="flex flex-col flex-1 min-w-[140px]">
+            <label className="text-gray-600 text-sm font-medium mb-1">From</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="border px-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+
+          {/* To Date */}
+          <div className="flex flex-col flex-1 min-w-[140px]">
+            <label className="text-gray-600 text-sm font-medium mb-1">To</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="border px-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+        </div>
+
+
+
+        {/* Clear Button */}
+        {(startDate || endDate) && (
+          <button
+            onClick={() => { setStartDate(""); setEndDate(""); }}
+            className="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors w-full sm:w-auto flex-shrink-0"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+
+
+      {/* Transaction History */}
+      <div className="bg-white border rounded-2xl  sm:p-4 shadow-sm w-full max-w-full">
+        {/* Loading */}
+        {loading ? (
+          <div className="flex justify-center py-8 sm:py-12">
+            <div className="flex space-x-2">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-orange-500 rounded-full animate-bounce"></div>
+              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-orange-400 rounded-full animate-bounce delay-150"></div>
+              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-orange-300 rounded-full animate-bounce delay-300"></div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3 sm:space-y-4 max-h-[300px] sm:max-h-[500px] overflow-y-auto ">
+            {getCurrentData().map((item, idx) => (
+              <TransactionItem key={item._id || idx} item={item} />
+            ))}
+
+            {getCurrentData().length === 0 && (
+              <div className="text-center py-8 sm:py-12 px-2">
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/4076/4076504.png"
+                  alt="No Data"
+                  className="w-16 sm:w-24 mx-auto opacity-70 mb-3"
+                />
+                <p className="text-gray-500 text-sm sm:text-lg font-medium">
+                  No transactions found
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+
     </div>
   );
 };

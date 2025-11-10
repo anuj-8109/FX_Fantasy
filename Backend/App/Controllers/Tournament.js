@@ -2,6 +2,9 @@
 
 const db = require("../Models");
 const Tournament_Model = db.Tournament;
+const Clients_Modal = db.Clients;
+const Contest_Model = db.Contest;
+const Contestjoin_Modal = db.Contestjoin;
 
 class TournamentController {
 
@@ -13,6 +16,7 @@ class TournamentController {
                 description,
                 startdate,
                 enddate,
+                useamount,
                 stocks,
                 add_by,
                 status
@@ -27,6 +31,7 @@ class TournamentController {
                 description,
                 startdate,
                 enddate,
+                useamount,
                 stocks,
                 add_by,
                 status
@@ -117,7 +122,7 @@ class TournamentController {
     // Update tournament
     async updateTournament(req, res) {
         try {
-            const { id, name, description, startdate, enddate, stocks,status } = req.body;
+            const { id, name, description, startdate, enddate, stocks,useamount,status } = req.body;
 
             if (!id) return res.status(400).json({ status: false, message: "Tournament ID is required" });
 
@@ -127,6 +132,7 @@ class TournamentController {
                 startdate,
                 enddate,
                 stocks,
+                useamount,
                 status
             };
 
@@ -169,6 +175,9 @@ class TournamentController {
                 });
             }
 
+
+                const totalRefunded = await processTournamentRefund(id);
+
             return res.status(200).json({
                 status: true,
                 message: "Tournament deleted successfully"
@@ -191,6 +200,19 @@ class TournamentController {
                 });
             }
 
+
+  const tournament = await Tournament_Model.findById(id);
+    if (!tournament) {
+      return res.status(404).json({ status: false, message: "Tournament not found" });
+    }
+
+    if (status === "cancelled") {
+      const totalRefunded = await processTournamentRefund(id);
+      return res.status(200).json({
+        status: true,
+        message: `Tournament cancelled successfully. ${totalRefunded} refunds processed.`,
+      });
+    }
             const result = await Tournament_Model.findByIdAndUpdate(
                 id,
                 { status: status },
@@ -227,6 +249,18 @@ class TournamentController {
                 });
             }
 
+               const tournament = await Tournament_Model.findById(id);
+    if (!tournament) {
+      return res.status(404).json({ status: false, message: "Tournament not found" });
+    }
+
+    // ❗ If tournament made inactive => refund everyone (before live)
+    let totalRefunded = 0;
+    if (status === false) {
+    //  totalRefunded = await processTournamentRefund(id);
+    }
+
+
             const result = await Tournament_Model.findByIdAndUpdate(
                 id,
                 { activestatus: status },
@@ -252,6 +286,48 @@ class TournamentController {
     }
 
     
+}
+
+
+
+// ✅ Refund Helper Function
+async function processTournamentRefund(tournamentId) {
+  const contests = await Contest_Model.find({ tournament_id: tournamentId, del: false });
+  let totalRefunded = 0;
+
+  for (const contest of contests) {
+    const joinedUsers = await Contestjoin_Modal.find({ contest_id: contest._id, refunded: { $ne: true } });
+
+    for (const join of joinedUsers) {
+      const client = await Clients_Modal.findOne({ _id: join.client_id, del: 0 });
+      if (!client) continue;
+
+      // Refund both wallet and refer wallet
+      if (join.wallet_used > 0) client.wamount += join.wallet_used;
+      if (join.refer_used > 0) client.referwamount += join.refer_used;
+      await client.save();
+
+      // Mark join as refunded
+      join.refunded = true;
+      join.refund_date = new Date();
+      await join.save();
+
+      totalRefunded++;
+    }
+
+    // Mark contest as cancelled/deleted
+   // contest.del = true;
+    contest.status = "cancelled";
+    await contest.save();
+  }
+
+  // Finally, cancel the tournament itself
+  await Tournament_Model.updateOne(
+    { _id: tournamentId },
+    { $set: {  status: "cancelled" } }
+  );
+
+  return totalRefunded;
 }
 
 module.exports = new TournamentController();

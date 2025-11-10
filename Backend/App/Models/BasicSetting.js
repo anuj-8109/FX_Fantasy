@@ -71,8 +71,81 @@ const BasicSettingSchema = new Schema({
         trim: true,
         default: null
     },
-    
-    
+    refer_title: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    refer_description: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    sender_earn: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    receiver_earn: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    refer_amount_used_percent: {
+        type: Number,
+        trim: true,
+        default: 0
+    },
+    refer_image: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    refer_status: {
+        type: Number,
+        trim: true,
+        default: 0
+    },
+    refersendmsg: {
+        type: String,
+        default: null
+    },
+      digio_client_id: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    digio_client_secret: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    digio_template_name: {
+        type: String,
+        trim: true,
+        default: null
+    },
+     kyc: {
+        type: Number,
+        trim: true,
+        default: 1
+    },
+      pdf_template: {
+        type: String,
+        default: null
+    },
+    pdf_header: {
+        type: String,
+        default: null
+    },
+    pdf_footer: {
+        type: String,
+        default: null
+    },
+    noof_pdf_pages: {
+        type: Number,
+        default: 0
+    },
 }, {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 });

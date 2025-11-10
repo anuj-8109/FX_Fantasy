@@ -1,17 +1,52 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+// const { connectDB } = require('./App/connection/db.js');
+// const { connectRedis } = require('./App/connection/redis.js');
+// const routes = require('./App/Routes/index.js');
+// const { errorHandler } = require('./App/Middleware/errorHandler.js');
 const { connectDB } = require('./App/connection/db');
 const { connectRedis } = require('./App/connection/redis');
 const routes = require('./App/Routes');
 const { errorHandler } = require('./App/Middleware/errorHandler');
+const db = require("./App/Models");
+
 const http = require('http');
 const socketio = require('socket.io');
-
+const WebSocket = require('ws');
+const passport = require('./App/Utils/passport');  // Ensure passport is correctly imported
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server, { cors: { origin: '*' } });
+const io = socketio(server, {
+  cors: {
+    origin: "*", // Allow all origins
+    credentials: true
+  }
+});
+
 global.io = io;
+
+
+//////////////////////  google login  ///////////////////
+
+
+/////////////////////// google login //////////////////
+
+
+
+
+io.on("connection", (socket) => {
+
+  socket.on("disconnect", () => {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
+
+});
+
+require("./App/Utils/ioSocketReturn.js")(app, io);
+
+const LivePrice_Modal = db.LivePrice;
+
 
 app.use(cors());
 app.use(express.json());
@@ -29,15 +64,15 @@ require('./App/api/Routes/index')(app)
 
 const mongoose = require("mongoose");
 
-const seedBasicSetting = require('./App/Scripts/seedBasicSetting');
-const seedMailTemplates = require('./App/Scripts/seedMailTemplates');
-const seedRoles = require('./App/Scripts/seedRoles');
-const seedUsers = require('./App/Scripts/seedUsers');
-const seedStates = require('./App/Scripts/seedStates');
-const seedCities = require('./App/Scripts/seedCities');
-const seedContent = require('./App/Scripts/seedContent');
-const seedSmsProviders = require('./App/Scripts/seedSmsProviders');
-const seedSmsTemplates = require('./App/Scripts/seedSmsTemplates');
+const seedBasicSetting = require('./App/Scripts/seedBasicSetting.js');
+const seedMailTemplates = require('./App/Scripts/seedMailTemplates.js');
+const seedRoles = require('./App/Scripts/seedRoles.js');
+const seedUsers = require('./App/Scripts/seedUsers.js');
+const seedStates = require('./App/Scripts/seedStates.js');
+const seedCities = require('./App/Scripts/seedCities.js');
+const seedContent = require('./App/Scripts/seedContent.js');
+const seedSmsProviders = require('./App/Scripts/seedSmsProviders.js');
+const seedSmsTemplates = require('./App/Scripts/seedSmsTemplates.js');
 async function runSeeds() {
   await seedRoles();
   await seedBasicSetting();
@@ -57,7 +92,7 @@ mongoose.connect(process.env.MONGO_URI, {
 })
   .then(() => {
     console.log("✅ MongoDB connected!");
-
+    startFXSocket();
     // ✅ 3️⃣ Ab 5 min ke baad seeds run karo
     setTimeout(runSeeds, 1 * 60 * 1000); // 5 min = 300000 ms
 
@@ -66,6 +101,91 @@ mongoose.connect(process.env.MONGO_URI, {
     console.error("❌ MongoDB connection error:", err);
     process.exit(1);
   });
+
+
+
+// WebSocket Connection to Tiingo FX
+const startFXSocket = () => {
+  const ws = new WebSocket("wss://api.tiingo.com/fx");
+
+  ws.onopen = () => {
+    console.log("🌍 Connected to Tiingo FX WebSocket");
+    ws.send(
+      JSON.stringify({
+        eventName: "subscribe",
+        authorization: "b542cfc8a759a827655f47ebfed8f67b08915035",
+        eventData: {
+          tickers: [
+            "eurusd",
+            "jpyusd",
+            "usdjpy",
+            "gbpusd",
+            "audusd",
+            "usdcad",
+            "usdchf",
+            "nzdusd",
+            "eurjpy",
+            "gbpjpy",
+            "eurgbp",
+            "audjpy",
+            "euraud",
+            "eurchf",
+            "audnzd",
+            "nzdjpy",
+            "gbpaud",
+            "gbpcad",
+            "eurnzd",
+            "audcad",
+            "gbpchf",
+            "xauusd",
+          ],
+          thresholdLevel: 5,
+        },
+      })
+    );
+  };
+
+  ws.onmessage = async (message) => {
+    try {
+      const response = JSON.parse(message.data);
+      
+      if (response.messageType === "A" && response.data?.length > 0) {
+        const data = response.data;
+        const formatted = {
+          ticker: data[1],
+          date: data[2],
+          bidSize: data[3] || 0,
+          bidPrice: data[4] || 0,
+          midPrice: data[5] || 0,
+          askPrice: data[ 7] || 0,
+          askSize: data[6] || 0,
+          createdAt: new Date(),
+        };
+  
+        
+        // Emit to frontend
+        io.emit("forex_data", formatted);
+
+        // Save / update to MongoDB
+        await LivePrice_Modal.updateOne(
+          { ticker: formatted.ticker },
+          { $set: formatted },
+          { upsert: true }
+        );
+      }
+    } catch (err) {
+      console.error("⚠️ FX WebSocket error:", err.message);
+    }
+  };
+
+  ws.onclose = () => {
+    console.log("❌ FX WebSocket disconnected. Reconnecting in 5s...");
+    setTimeout(startFXSocket, 5000);
+  };
+
+  ws.onerror = (err) => console.error("💢 FX WebSocket Error:", err.message);
+};
+
 
 
 
