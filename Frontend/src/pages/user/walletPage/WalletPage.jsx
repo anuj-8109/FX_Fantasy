@@ -84,7 +84,12 @@ const WalletPage = () => {
             type: "add",
             date: new Date().toISOString(),
           });
-          if (result.status) Swal.fire("Success", "Money added!", "success");
+          if (result.status) {
+            Swal.fire("Success", "Money added!", "success");
+            window.dispatchEvent(new Event("refreshWallet"));
+          } else {
+            return Swal.fire("Error", result.message || "Failed to add money", "error");
+          }
           fetchAllHistories();
         } catch {
           Swal.fire("Error", "Failed to add money", "error");
@@ -152,6 +157,7 @@ const WalletPage = () => {
       });
 
       if (result.status) {
+        window.dispatchEvent(new Event("refreshWallet"));
         Swal.fire("Success", "Withdrawal requested", "success");
         fetchAllHistories();
       } else {

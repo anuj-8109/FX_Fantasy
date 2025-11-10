@@ -12,24 +12,43 @@ const UserHeader = () => {
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await GetUserDetails(token, userId);
-        
-        if (res?.status) {
-          const data = res.data;
-          setWalletBalance(data?.wamount || 0);
-          setUserDetails(data);
-          localStorage.setItem("walletBalance", data?.wamount || 0);
-        }
-      } catch (err) {
-        console.error("User fetch error", err);
-      }
-    };
 
+  useEffect(() => {
+    const refreshWallet = () => {
+      fetchUser(); // refresh the user again
+    };
+    window.addEventListener("refreshWallet", refreshWallet);
+    return () => {
+      window.removeEventListener("refreshWallet", refreshWallet);
+    };
+  }, []);
+
+  useEffect(() => {
     fetchUser();
   }, [token, userId]);
+
+  const fetchUser = async () => {
+    try {
+      const res = await GetUserDetails(token, userId);
+      if (res?.status) {
+        const data = res.data;
+        setWalletBalance(data?.wamount || 0);
+        setUserDetails(data);
+        localStorage.setItem("walletBalance", data?.wamount || 0);
+      }
+    } catch (err) {
+      console.error("User fetch error", err);
+    }
+  };
+
+  // listen for global refresh event
+  useEffect(() => {
+    const refreshWallet = () => fetchUser();
+    window.addEventListener("refreshWallet", refreshWallet);
+
+    return () => window.removeEventListener("refreshWallet", refreshWallet);
+  }, []);
+
 
   const toggleTheme = () => {
     setIsDarkMode((prev) => {
@@ -49,7 +68,7 @@ const UserHeader = () => {
       {/* Left Section - Back Button + Avatar + Name */}
       <div className="flex items-center space-x-3">
 
-    
+
 
 
         {/* User Avatar */}
@@ -82,17 +101,17 @@ const UserHeader = () => {
         </button>
 
         {/* Notifications */}
-        <button onClick={()=>{
+        <button onClick={() => {
           navigate("/alert")
         }}
-        className="bg-black p-2 rounded-full text-white relative shadow-md hover:scale-110 transition">
+          className="bg-black p-2 rounded-full text-white relative shadow-md hover:scale-110 transition">
           <Bell size={20} />
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1 animate-pulse">
             3
           </span>
-          
+
         </button>
-            {/* <button
+        {/* <button
           onClick={() => navigate(-1)}
           className="bg-orange-600 text-white text-xs rounded-full px-2"
           title="Go Back"

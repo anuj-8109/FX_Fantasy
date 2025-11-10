@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { GetUserDetails, getReferEarnData } from "../../../services/User";
+import BackButton from "../Backbutton";
+
 
 const ReferForm = () => {
   const [referLink, setReferLink] = useState("");
@@ -12,10 +14,12 @@ const ReferForm = () => {
   const userid = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
 
-  // Fetch user details and generate referral link
   useEffect(() => {
     const fetchUser = async () => {
-      if (!userid || !token) return;
+      if (!userid || !token) {
+        setLoading(false);
+        return;
+      }
       try {
         const res = await GetUserDetails(token, userid);
         if (res.status && res.data?.refer_token) {
@@ -30,7 +34,6 @@ const ReferForm = () => {
     fetchUser();
   }, [userid, token]);
 
-  // Fetch referral data
   useEffect(() => {
     const fetchReferData = async () => {
       if (!token || !userid) return;
@@ -39,8 +42,6 @@ const ReferForm = () => {
         if (res?.status) {
           setReferrals(res.data.referrals || []);
           setTotalEarnings(res.data.totalEarnings || 0);
-        } else {
-          console.error(res.message);
         }
       } catch (error) {
         console.error("Error fetching referral data", error);
@@ -49,113 +50,191 @@ const ReferForm = () => {
     fetchReferData();
   }, [token, userid]);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(referLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(referLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy", err);
+    }
   };
 
   const handleShareWhatsApp = () => {
+    const text = encodeURIComponent(`Join using my referral link: ${referLink}`);
+    window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
+  };
+
+  const handleShareTelegram = () => {
+    const text = encodeURIComponent(`Join using my referral link: ${referLink}`);
     window.open(
-      `https://api.whatsapp.com/send?text=Join using my referral link: ${referLink}`,
+      `https://t.me/share/url?url=${encodeURIComponent(referLink)}&text=${text}`,
       "_blank"
     );
   };
 
-  if (loading) return <div className="text-gray-600 text-center mt-10">Loading...</div>;
+  if (loading)
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center text-gray-600">
+        Loading...
+      </div>
+    );
+
+  const goal = 10;
+  const completedCount = referrals.filter((r) => r.status === "Completed").length;
+  const progressPercent = Math.min(100, Math.round((completedCount / goal) * 100));
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-6xl p-8 text-center relative">
-        {/* Back Arrow */}
-        <div className="absolute left-5 top-5 text-gray-600 text-xl cursor-pointer">←</div>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white  px-4">
+       <div className="bg-white border rounded-2xl shadow-md px-4 py-3 sm:p-4 mb-4 flex items-center justify-between">
+        <h2 className="text-base sm:text-xl font-bold text-gray-800 tracking-wide">
+          Refer & Earn
+        </h2>
+        <BackButton />
+      </div>
+      <div className="mx-auto w-full max-w-6xl">
 
-        {/* Header */}
-        <h2 className="text-gray-800 text-2xl font-semibold mt-4">Invite & Earn</h2>
+        <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
 
-        {/* Gift Image */}
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/869/869636.png"
-          alt="Gift Box"
-          className="mx-auto mt-6 mb-4 w-40 h-40 object-contain "
-        />
+          <div className="p-8 space-y-8">
 
-        {/* Reward Text */}
-        <p className="text-gray-600">Refer 10 friends and earn</p>
-        <h3 className="text-3xl font-bold text-green-600 mb-6">$10</h3>
-
-        {/* Referral Link Box */}
-        <div className="flex items-center bg-gray-100 rounded-full overflow-hidden shadow-inner mb-6">
-          <input
-            type="text"
-            value={referLink}
-            readOnly
-            className="flex-1 px-4 py-2 text-sm bg-transparent outline-none text-gray-700"
-          />
-          <button
-            onClick={handleCopy}
-            className="bg-blue-500 text-white px-4 py-2 font-semibold hover:bg-blue-600 transition-colors"
-          >
-            {copied ? "Copied!" : "Copy"}
-          </button>
-        </div>
-
-        {/* Buttons */}
-        <button
-          onClick={handleShareWhatsApp}
-          className="w-full bg-blue-600 text-white font-semibold py-3 rounded-full hover:bg-blue-700 transition mb-3"
-        >
-          Share & Earn Now
-        </button>
-
-        {/* Earnings Section */}
-        <div className="mt-6 bg-gray-50 rounded-xl p-4 text-left shadow-inner">
-          <p className="text-gray-700 font-medium">Total Earnings</p>
-          <h4 className="text-xl font-bold text-green-600 mt-1">${totalEarnings}</h4>
-
-          {/* Expand/Collapse Referral List */}
-          <button
-            onClick={() => setShowReferrals(!showReferrals)}
-            className="mt-3 w-full flex justify-between items-center text-gray-600 text-sm font-medium"
-          >
-            <span>Referrals</span>
-            <span>{showReferrals ? "▲" : "▼"}</span>
-          </button>
-
-          {showReferrals && (
-            <div className="mt-3">
-              {/* Progress bar */}
-              <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                <div
-                  className="bg-blue-500 h-2 rounded-full"
-                  style={{
-                    width: `${(referrals.filter((r) => r.status === "Completed").length / 10) * 100}%`,
-                  }}
-                ></div>
-              </div>
-              <p className="text-xs text-gray-500 mb-3">
-                {referrals.filter((r) => r.status === "Completed").length} of 10 completed
+            {/* Referral Link */}
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-slate-700">
+                Your referral link
               </p>
 
-              {/* Referral List */}
-              {referrals.map((r, i) => (
-                <div
-                  key={i}
-                  className="flex justify-between items-center py-2 border-b border-gray-200 last:border-none"
-                >
-                  <span className="text-gray-700 text-sm">{r.name}</span>
-                  <span className="text-gray-700 text-sm">{r.amount}</span>
-                  <span
-                    className={`text-xs font-semibold ${
-                      r.status === "Completed" ? "text-green-600" : "text-yellow-500"
+              <div className="flex flex-col md:flex-row gap-3">
+                <input
+                  type="text"
+                  readOnly
+                  value={referLink}
+                  className="flex-1 px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-sm outline-none"
+                />
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleCopy}
+                    className={`px-4 py-2 rounded-xl font-semibold text-sm transition active:scale-95 ${
+                      copied
+                        ? "bg-orange-600 text-white"
+                        : "bg-orange-600 text-white hover:bg-orange-700"
                     }`}
                   >
-                    {r.status}
-                  </span>
+                    {copied ? "Copied!" : "Copy"}
+                  </button>
+
+                  <button
+                    onClick={handleShareWhatsApp}
+                    className="px-4 py-2 rounded-xl bg-orange-500 text-white text-sm font-semibold hover:bg-orange-500"
+                  >
+                    WhatsApp
+                  </button>
+
+                  <button
+                    onClick={handleShareTelegram}
+                    className="px-4 py-2 rounded-xl bg-orange-500 text-white text-sm font-semibold hover:bg-orange-500"
+                  >
+                    Telegram
+                  </button>
                 </div>
-              ))}
+              </div>
+
+              <p className="text-xs text-slate-500">
+                Share your referral link anywhere and earn rewards for each successful signup.
+              </p>
             </div>
-          )}
+
+            {/* Earnings card */}
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-5 rounded-2xl border border-slate-100 shadow-sm">
+              <p className="text-xs text-slate-500">Total Earnings</p>
+              <p className="text-2xl font-bold text-slate-900">${totalEarnings}</p>
+            </div>
+
+            {/* Progress */}
+            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-slate-500">Referral Progress</p>
+                  <p className="text-sm font-semibold text-slate-800">
+                    {completedCount} of {goal} referrals completed
+                  </p>
+                </div>
+                <p className="text-sm font-bold text-indigo-600">{progressPercent}%</p>
+              </div>
+
+              <div className="mt-3 h-2 bg-white border rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{
+                    width: `${progressPercent}%`,
+                    background: "linear-gradient(90deg,#6366f1,#a855f7)"
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Referral List */}
+            <div className="space-y-3">
+              <button
+                onClick={() => setShowReferrals(!showReferrals)}
+                className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition"
+              >
+                {showReferrals ? "Hide referral list" : "Show referral list"}
+              </button>
+
+              {showReferrals && (
+                <div className="space-y-3 animate-fadeIn">
+
+                  {referrals.length === 0 && (
+                    <p className="text-sm text-slate-500">
+                      No referrals yet. Start inviting friends!
+                    </p>
+                  )}
+
+                  {referrals.map((r, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between p-4 bg-white rounded-xl border shadow-sm"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center">
+                          {r.name?.[0]?.toUpperCase() || "U"}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-slate-800">
+                            {r.name || "Unknown"}
+                          </p>
+                          <p className="text-xs text-slate-500">{r.email || "---"}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-5">
+                        <p className="text-sm font-semibold text-slate-800">
+                          ${r.amount || 0}
+                        </p>
+                        <span
+                          className={`px-2 py-1 text-xs font-bold rounded-md ${
+                            r.status === "Completed"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {r.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-6 py-4 bg-slate-50 border-t text-center text-xs text-slate-500">
+            Rewards are credited after verification. By referring, you agree to Terms & Conditions.
+          </div>
+
         </div>
       </div>
     </div>

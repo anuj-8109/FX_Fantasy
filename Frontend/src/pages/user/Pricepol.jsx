@@ -302,6 +302,7 @@ function Pricepol() {
         console.log("JoinContest response:", res);
 
         if (res?.status) {
+          window.dispatchEvent(new Event("refreshWallet"));
           toast.success(`Joined ${contest.name} successfully 🎉`);
           const joinedContest = { ...contest, ...res.data };
           setMyContests((prev) => {

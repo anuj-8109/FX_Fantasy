@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home, Search, Bell } from "lucide-react";
+import { Home, Search, Bell, Swords } from "lucide-react";
 import Swal from "sweetalert2";
 import { GetUserDetails } from "../services/User"; // ✅ same API as UserHeader
 
@@ -91,7 +91,7 @@ const UserMenu = () => {
           onClick={() => navigate("/search")}
           className="flex flex-col items-center hover:scale-110 transition"
         >
-          <Search className="h-6 w-6" />
+          <Swords className="h-6 w-6" />
           <span className="text-xs">My Contests</span>
         </button>
 
@@ -105,33 +105,33 @@ const UserMenu = () => {
         </button>
 
         {/* Profile */}
-       <div className="relative" ref={profileRef}>
-  <button
-    onClick={() => navigate("/profile")} // 👈 Direct navigate
-    className="flex flex-col items-center hover:scale-110 transition"
-  >
-    {/* ✅ User Image or Fallback Initials */}
-    <div className="h-8 w-8 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center shadow-md">
-      {userDetails?.image ? (
-        <img
-          src={userDetails.image}
-          alt="User Avatar"
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <span className="text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-400 w-full h-full flex items-center justify-center">
-          {userDetails?.FullName
-            ? userDetails.FullName.split(" ")
-                .map((n) => n[0])
-                .join("")
-                .toUpperCase()
-            : "U"}
-        </span>
-      )}
-    </div>
-    <span className="text-xs">Profile</span>
-  </button>
-</div>
+        <div className="relative" ref={profileRef}>
+          <button
+            onClick={() => navigate("/profile")}
+            className="flex flex-col items-center hover:scale-110 transition"
+          >
+
+            <div className="h-8 w-8 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center shadow-md">
+              {userDetails?.image ? (
+                <img
+                  src={userDetails.image}
+                  alt="User Avatar"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-400 w-full h-full flex items-center justify-center">
+                  {userDetails?.FullName
+                    ? userDetails.FullName.split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                    : "U"}
+                </span>
+              )}
+            </div>
+            <span className="text-xs">Profile</span>
+          </button>
+        </div>
 
       </div>
     </div>
