@@ -16,7 +16,7 @@ const CouponSchema = new Schema({
     type: {
         type: String,
         required: true,
-        enum: ['percentage', 'fixed'],  // Example types: 'percentage' or 'fixed'
+        enum: ['percentage', 'fixed', 'flat'],  // Example types: 'percentage' or 'fixed'
         trim: true
     },
     value: {

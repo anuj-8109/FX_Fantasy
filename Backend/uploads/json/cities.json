@@ -6220,4 +6220,19 @@
   },
   "city": "Jalpaiguri",
   "state": "West Bengal"
-}]
+},
+{
+  "_id": {
+    "$oid": "6912d52f614ad9459a72664b"
+  },
+  "city": "Dadra and Nagar Haveli",
+  "state": "Dadra and Nagar Haveli"
+},
+{
+  "_id": {
+    "$oid": "6912d55c614ad9459a72664d"
+  },
+  "city": "Daman and Diu",
+  "state": "Daman and Diu"
+}
+]
