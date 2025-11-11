@@ -8,6 +8,7 @@ const Contestjoin_Modal = db.Contestjoin;
 const Contesttrade_Modal = db.Contesttrade;
 const Contest_Model = db.Contest;
 const LivePrice_Modal = db.LivePrice;
+const Clients_Modal = db.Clients;
 
 const Stock_Modal = db.Stock;
 
@@ -760,7 +761,7 @@ async function closeOpenPositionsForEndedTournaments(req, res) {
           const winningAmount = join.winningAmount || 0; // Assuming winningAmount is already calculated in updateContestRanks
 
           // Update the client wallet with the winning amount, only for completed tournaments
-          const client = await Client_Model.findById(join.client_id); // Get client data
+          const client = await Clients_Modal.findById(join.client_id); // Get client data
 
           if (client) {
             // Add the winning amount to the client's wallet balance (wamount)
