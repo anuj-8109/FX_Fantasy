@@ -24,6 +24,7 @@ function Tournament() {
   const [filterText, setFilterText] = useState("");
 
   const token = localStorage.getItem("token");
+  const [debouncedFilterText, setDebouncedFilterText] = useState(filterText);
 
   const openViewModal = (data) => {
     setViewData(data);
@@ -350,11 +351,18 @@ function Tournament() {
   };
 
   const handleFilterChange = (text) => {
-    setFilterText(text);
-    setCurrentPage(1);
-    fetchTournament(1, rowsPerPage, text);
-  };
+  setFilterText(text);
+};
 
+
+  useEffect(() => {
+  const handler = setTimeout(() => {
+    setDebouncedFilterText(filterText);
+    setCurrentPage(1); // reset page after filtering
+  }, 500); // 500ms debounce delay
+
+  return () => clearTimeout(handler);
+}, [filterText]);
   
   const fetchTournament = async () => {
     setLoading(true);
@@ -385,9 +393,9 @@ function Tournament() {
   };
   
 
-  useEffect(() => {
-    fetchTournament();
-  }, [currentPage, rowsPerPage, filterText]);
+useEffect(() => {
+  fetchTournament(currentPage, rowsPerPage, debouncedFilterText);
+}, [currentPage, rowsPerPage, debouncedFilterText]);
   
 
   return (
