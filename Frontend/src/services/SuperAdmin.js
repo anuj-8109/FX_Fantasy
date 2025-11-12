@@ -1655,6 +1655,7 @@ export async function GetDashboardCount(token) {
 // ✅ 1️⃣ Get latest 20 notifications with unread count
 export const getNotification = async () => {
   try {
+   
     const token = localStorage.getItem("token");
     const res = await axios.get(`${config.base_url}dashboard/notification`, {
       headers: { Authorization: `Bearer ${token}` },

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Datatable from "../../../extracomponents/DatatablePagination";
+import Datatable from "../../../extracomponents/DatatablePagination.jsx";
 import {
   GetTournament,
   UpdateTournamentStatusActive,
@@ -340,57 +340,22 @@ function Tournament() {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    fetchTournament(page, rowsPerPage, filterText);
   };
 
   const handleRowsPerPageChange = (newPerPage) => {
     setRowsPerPage(newPerPage);
     setCurrentPage(1);
+    fetchTournament(1, newPerPage, filterText);
   };
 
   const handleFilterChange = (text) => {
     setFilterText(text);
     setCurrentPage(1);
+    fetchTournament(1, rowsPerPage, text);
   };
 
-  // const fetchTournament = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const params = new URLSearchParams({
-  //       page: currentPage,
-  //       limit: rowsPerPage,
-  //     });
-
-  //     if (filterText) {
-  //       params.append("search", filterText);
-  //     }
-
-  //     const res = await GetTournament(token, params.toString());
-
-  //     if (res?.status) {
-  //       const now = new Date();
-  //       const updatedData = res.data.map((t) => {
-  //         const start = new Date(t.startdate);
-  //         const end = new Date(t.enddate);
-
-  //         let newStatus = t.status;
-  //         if (start > now) newStatus = "upcoming";
-  //         else if (start <= now && end >= now) newStatus = "live";
-  //         else if (end < now) newStatus = "completed";
-
-  //         return { ...t, status: newStatus };
-  //       });
-
-  //       setTournament(updatedData);
-  //       setTotalRows(res.pagination?.total || 0);
-  //     } else {
-  //       toast.error(res?.message || "Failed to fetch");
-  //     }
-  //   } catch (error) {
-  //     toast.error("Error fetching tournaments");
-  //   }
-  //   setLoading(false);
-  // };
-
+  
   const fetchTournament = async () => {
     setLoading(true);
     try {
@@ -398,6 +363,7 @@ function Tournament() {
         page: currentPage,
         limit: rowsPerPage,
       });
+      
 
       if (filterText) {
         params.append("search", filterText);
@@ -417,10 +383,12 @@ function Tournament() {
     }
     setLoading(false);
   };
+  
 
   useEffect(() => {
     fetchTournament();
   }, [currentPage, rowsPerPage, filterText]);
+  
 
   return (
     <Content
@@ -443,9 +411,16 @@ function Tournament() {
             rowsPerPage={rowsPerPage}
             onPageChange={handlePageChange}
             onRowsPerPageChange={handleRowsPerPageChange}
-            onRefresh={fetchTournament}
+           
             filterText={filterText}
             onFilterChange={handleFilterChange}
+             onRefresh={() =>
+              fetchTournament({
+                page: currentPage,
+                limit: rowsPerPage,
+                filter: filterText,
+              })
+            }
           />
         )}
       </div>

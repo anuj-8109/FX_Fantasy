@@ -14,7 +14,9 @@ function Notification() {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
+
       const res = await getNotificationList(page);
+     
       if (res?.status) {
         setNotifications(res.data || []);
         setTotalPages(res.totalPages || 1);

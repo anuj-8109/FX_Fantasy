@@ -43,6 +43,7 @@ function HistoryPage() {
   const [totalTradePages, setTotalTradePages] = useState(1);
   const [loadingTrades, setLoadingTrades] = useState(false);
   const [livePrices, setLivePrices] = useState({});
+  
 
   const token = localStorage.getItem("token");
   const clientId = localStorage.getItem("userId") || localStorage.getItem("client_id");
@@ -260,7 +261,7 @@ function HistoryPage() {
                   <span className="text-lg">💰</span>
                 </div>
                 <h2 className="text-2xl font-bold text-slate-900 mt-2">
-                  ₹{Number(walletBalance).toLocaleString()}
+                  {Number(walletBalance).toLocaleString()}
                 </h2>
               </div>
 
@@ -271,7 +272,7 @@ function HistoryPage() {
                   <span className="text-lg">📊</span>
                 </div>
                 <h2 className="text-2xl font-bold text-green-600 mt-2">
-                  ₹{Number(walletBalance - 500).toLocaleString()}
+                  {Number(walletBalance - 500).toLocaleString()}
                 </h2>
               </div>
 
@@ -286,7 +287,7 @@ function HistoryPage() {
                 <h2
                   className={`text-2xl font-bold mt-2 ${pnl >= 0 ? "text-green-600" : "text-red-600"}`}
                 >
-                  {pnl >= 0 ? "+" : "-"}₹{Math.abs(pnl).toLocaleString()}
+                  {pnl >= 0 ? "+" : "-"}{Math.abs(pnl).toLocaleString()}
                 </h2>
               </div>
 
@@ -478,7 +479,7 @@ function HistoryPage() {
                     <div className="border-t pt-2 mt-2 flex justify-between">
                       <span className="font-semibold text-slate-700">Total:</span>
                       <span className="font-bold text-sm text-slate-900">
-                        ₹{(getCurrentPrice(selectedStock.stock_name) * quantity).toFixed(2)}
+                        {(getCurrentPrice(selectedStock.stock_name) * quantity).toFixed(2)}
                       </span>
                     </div>
                   </div>

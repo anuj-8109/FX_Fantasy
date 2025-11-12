@@ -48,7 +48,7 @@ const UserRoutes = () => {
         <Route path="tradehistory" element={<Tradehistory/>}/>
         <Route path="back" element={<BackButton/>}/>
         <Route path="alert" element={<Alert/>}/>
-        <Route path="search" element={<Search/>}/>
+        <Route path="mycontests" element={<Search/>}/>
         <Route path="contesttracking" element={<ContestTracking/>}/>
         <Route path="kycdetail" element={<Kycdetails/>}/>
         <Route path="bankdetail" element={<Bankdetail/>}/>

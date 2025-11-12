@@ -25,6 +25,7 @@ function SuperAdminDashboard() {
   useEffect(() => {
     const fetchDashboardCount = async () => {
       try {
+        
         const response = await GetDashboardCount(token);
         if (response?.status) {
           setDashboardData(response.data);
@@ -41,6 +42,7 @@ function SuperAdminDashboard() {
           "Something went wrong while fetching dashboard data",
           "error"
         );
+        
       } finally {
         setLoading(false);
       }

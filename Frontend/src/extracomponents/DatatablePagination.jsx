@@ -152,7 +152,9 @@ const handleExport = async () => {
       {/* DataTable */}
       <DataTable
         columns={enhancedColumns}
-        data={filteredData}
+        // data={filteredData}
+        data={data}
+
         pagination
         paginationServer
         paginationTotalRows={totalRows}
