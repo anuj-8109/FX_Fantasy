@@ -37,7 +37,42 @@ export async function GetContestByTurnament(tournamentId, token) {
   }
 }
 
+export async function getState(token) {
+  try {
+    const response = await axios.get(
+      `${config.base_url}api/list/getstates`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },      
+      }
+    );
+    return response?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+
+export async function getCityByStates(token,stateName) {
+  try {
+    const res = await axios.get(
+      `${config.base_url}api/list/getcitybystates/${stateName}`,
+      {
+        header:{
+          Authorization: `Bearer ${token}`,
+        }
+      });
+    return res?.data;
+  } catch (error) {
+    return error?.response?.data;
+  }
+}
+
+
 // join contest
+
+
 export async function JoinContest(
   contestId,
   clientId,

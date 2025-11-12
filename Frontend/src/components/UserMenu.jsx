@@ -88,7 +88,7 @@ const UserMenu = () => {
 
         {/* Search */}
         <button
-          onClick={() => navigate("/search")}
+          onClick={() => navigate("/mycontests")}
           className="flex flex-col items-center hover:scale-110 transition"
         >
           <Swords className="h-6 w-6" />

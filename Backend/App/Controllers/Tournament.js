@@ -55,6 +55,9 @@ class TournamentController {
         try {
             const { status, search, page = 1 } = req.query;
 
+      console.log("req.query", req.query);
+
+
             const limit = 10;
             const skip = (parseInt(page) - 1) * parseInt(limit);
 
