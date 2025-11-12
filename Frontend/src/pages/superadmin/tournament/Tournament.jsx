@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Datatable from "../../../extracomponents/DatatablePagination.jsx";
 import {
   GetTournament,
@@ -22,6 +22,10 @@ function Tournament() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterText, setFilterText] = useState("");
+
+  // Ref to prevent initial API call on mount
+  const isInitialMount = useRef(true);
+  const debounceTimer = useRef(null);
 
   const token = localStorage.getItem("token");
 
@@ -253,7 +257,6 @@ function Tournament() {
 
         const disableEdit = isLive || isCompleted || isCancelled;
         const disableCancel = !isUpcoming || isCancelled;
-        const disableAdd = !isUpcoming || isCancelled;
 
         return (
           <div className="flex gap-3 items-center">
@@ -263,7 +266,6 @@ function Tournament() {
               onClick={() => openViewModal(row)}
             />
 
-            {/* EDIT BUTTON */}
             <Edit
               className={`${
                 disableEdit
@@ -280,7 +282,6 @@ function Tournament() {
               }}
             />
 
-            {/* CANCEL BUTTON */}
             <button
               className={`px-3 py-1 rounded text-white text-sm transition ${
                 !disableCancel
@@ -340,30 +341,25 @@ function Tournament() {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    fetchTournament(page, rowsPerPage, filterText);
   };
 
   const handleRowsPerPageChange = (newPerPage) => {
     setRowsPerPage(newPerPage);
     setCurrentPage(1);
-    fetchTournament(1, newPerPage, filterText);
   };
 
-  const handleFilterChange = (text) => {
+  const handleFilterChange = useCallback((text) => {
     setFilterText(text);
     setCurrentPage(1);
-    fetchTournament(1, rowsPerPage, text);
-  };
+  }, []);
 
-  
-  const fetchTournament = async () => {
+  const fetchTournament = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({
         page: currentPage,
         limit: rowsPerPage,
       });
-      
 
       if (filterText) {
         params.append("search", filterText);
@@ -372,7 +368,6 @@ function Tournament() {
       const res = await GetTournament(token, params.toString());
 
       if (res?.status) {
-        // Directly use backend status
         setTournament(res.data);
         setTotalRows(res.pagination?.total || 0);
       } else {
@@ -382,13 +377,41 @@ function Tournament() {
       toast.error("Error fetching tournaments");
     }
     setLoading(false);
-  };
-  
+  }, [currentPage, rowsPerPage, filterText, token]);
 
+  // Debounced effect for filterText only
   useEffect(() => {
-    fetchTournament();
-  }, [currentPage, rowsPerPage, filterText]);
-  
+    // Clear existing timer
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    // Skip initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      fetchTournament(); // Only fetch once on mount
+      return;
+    }
+
+    // Set debounce timer for filter changes
+    debounceTimer.current = setTimeout(() => {
+      fetchTournament();
+    }, 600);
+
+    // Cleanup
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, [filterText]);
+
+  // Separate effect for page and rowsPerPage (no debounce needed)
+  useEffect(() => {
+    if (!isInitialMount.current) {
+      fetchTournament();
+    }
+  }, [currentPage, rowsPerPage]);
 
   return (
     <Content
@@ -400,29 +423,18 @@ function Tournament() {
       extra_button_action="/superadmin/add-tournament"
     >
       <div>
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <Datatable
-            columns={columns}
-            data={tournament}
-            totalRows={totalRows}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handlePageChange}
-            onRowsPerPageChange={handleRowsPerPageChange}
-           
-            filterText={filterText}
-            onFilterChange={handleFilterChange}
-             onRefresh={() =>
-              fetchTournament({
-                page: currentPage,
-                limit: rowsPerPage,
-                filter: filterText,
-              })
-            }
-          />
-        )}
+        <Datatable
+          columns={columns}
+          data={tournament}
+          totalRows={totalRows}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
+          filterText={filterText}
+          onFilterChange={handleFilterChange}
+          onRefresh={fetchTournament}
+        />
       </div>
 
       {/* View Modal */}
