@@ -253,6 +253,9 @@ const WalletPage = () => {
           <p className="text-sm text-gray-500">{itemDate ? new Date(itemDate).toLocaleDateString("en-IN") : "N/A"}</p>
           <p className="text-xs text-gray-400">{itemDate ? new Date(itemDate).toLocaleTimeString("en-IN") : "N/A"}</p>
         </div>
+            
+            
+
       </div>
     );
   };

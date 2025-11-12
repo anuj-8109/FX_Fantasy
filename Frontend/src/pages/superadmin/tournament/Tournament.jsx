@@ -404,6 +404,7 @@ function Tournament() {
       }
 
       const res = await GetTournament(token, params.toString());
+console.log("Fetched:", res.data.length, "Total:", res.pagination?.total, "Page:", currentPage);
 
       if (res?.status) {
         // Directly use backend status

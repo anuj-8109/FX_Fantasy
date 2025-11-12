@@ -6,6 +6,7 @@ import UserRoutes from "./routes/UserRoutes";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "./components/context/ThemeContext.jsx";
 import SocketToast from "./utils/socket.jsx";
+import { toast } from "react-toastify";
 
 // ✅ This wrapper ensures useNavigate works
 const RouteManager = () => {
@@ -27,6 +28,7 @@ const RouteManager = () => {
     const handleStorageChange = () => {
       const token = localStorage.getItem("token");
       if (!token) {
+        toast.info("Session expired. Please log in again.");
         navigate("/superadminlogin", { replace: true });
       }
     };
