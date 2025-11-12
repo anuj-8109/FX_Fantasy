@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
 import { Search, RefreshCw, Download, FileText, X } from "lucide-react";
-
+import { debounce } from "lodash";
+import { useCallback } from "react";
 const Datatable = ({
   columns,
   data = [],
@@ -24,6 +25,15 @@ const Datatable = ({
   useEffect(() => {
     setFilterText(parentFilterText);
   }, [parentFilterText]);
+
+    const debouncedFilter = useCallback(
+    debounce((text) => {
+      if (onFilterChange) onFilterChange(text);
+    }, 500),
+    [onFilterChange]
+  );
+
+  
 
   const handleRefresh = async () => {
     if (onRefresh) {
@@ -106,7 +116,8 @@ const handleExport = async () => {
             value={filterText}
             onChange={(e) => {
               setFilterText(e.target.value);
-              if (onFilterChange) onFilterChange(e.target.value);
+               debouncedFilter(e.target.value); 
+              // if (onFilterChange) onFilterChange(e.target.value);
             }}
           />
           {filterText && (
@@ -162,6 +173,8 @@ const handleExport = async () => {
         paginationRowsPerPageOptions={[2, 5, 10, 15, 20, 25, 50]}
         onChangePage={onPageChange}
         onChangeRowsPerPage={onRowsPerPageChange}
+        paginationDefaultPage={currentPage}
+        
         highlightOnHover
         fixedHeader
         fixedHeaderScrollHeight="1000px"

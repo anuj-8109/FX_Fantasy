@@ -94,7 +94,7 @@ const Client = () => {
     const data = {
       status: "",
       kyc_verification: "",
-      search: "",
+      search: filterText,
       add_by: "",
       page: currentPage,
       limit: rowsPerPage,
@@ -586,7 +586,10 @@ const Client = () => {
             filterText={filterText}
             onFilterChange={handleFilterChange}
             onRefresh={fetchClients}
+            
           />
+         
+
         </div>
 
         {/* Add/Edit Client Modal */}
