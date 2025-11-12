@@ -253,6 +253,9 @@ const WalletPage = () => {
           <p className="text-sm text-gray-500">{itemDate ? new Date(itemDate).toLocaleDateString("en-IN") : "N/A"}</p>
           <p className="text-xs text-gray-400">{itemDate ? new Date(itemDate).toLocaleTimeString("en-IN") : "N/A"}</p>
         </div>
+            
+            
+
       </div>
     );
   };
@@ -330,7 +333,7 @@ const WalletPage = () => {
             />
           </span>
 
-          {dropdownOpen && (
+          {/* {dropdownOpen && (
             <div className="absolute right-0 w-44 mt-2 bg-white border rounded-lg shadow-lg z-10">
               {tabs.map((t) => (
                 <span
@@ -348,7 +351,7 @@ const WalletPage = () => {
                 </span>
               ))}
             </div>
-          )}
+          )} */}
 
           {dropdownOpen && (
             <div className="fixed inset-0 z-0" onClick={() => setDropdownOpen(false)} />

@@ -161,6 +161,8 @@ const Datatable = ({
         paginationRowsPerPageOptions={[2, 5, 10, 15, 20, 25, 50]}
         onChangePage={onPageChange}
         onChangeRowsPerPage={onRowsPerPageChange}
+          paginationDefaultPage={currentPage}    
+  paginationResetDefaultPage={false}
         highlightOnHover
         fixedHeader
         fixedHeaderScrollHeight="1000px"
