@@ -24,7 +24,6 @@ function Tournament() {
   const [filterText, setFilterText] = useState("");
 
   const token = localStorage.getItem("token");
-  const [debouncedFilterText, setDebouncedFilterText] = useState(filterText);
 
   const openViewModal = (data) => {
     setViewData(data);
@@ -351,18 +350,11 @@ function Tournament() {
   };
 
   const handleFilterChange = (text) => {
-  setFilterText(text);
-};
+    setFilterText(text);
+    setCurrentPage(1);
+    fetchTournament(1, rowsPerPage, text);
+  };
 
-
-  useEffect(() => {
-  const handler = setTimeout(() => {
-    setDebouncedFilterText(filterText);
-    setCurrentPage(1); // reset page after filtering
-  }, 500); // 500ms debounce delay
-
-  return () => clearTimeout(handler);
-}, [filterText]);
   
   const fetchTournament = async () => {
     setLoading(true);
@@ -378,7 +370,6 @@ function Tournament() {
       }
 
       const res = await GetTournament(token, params.toString());
-console.log("Fetched:", res.data.length, "Total:", res.pagination?.total, "Page:", currentPage);
 
       if (res?.status) {
         // Directly use backend status
@@ -394,9 +385,9 @@ console.log("Fetched:", res.data.length, "Total:", res.pagination?.total, "Page:
   };
   
 
-useEffect(() => {
-  fetchTournament(currentPage, rowsPerPage, debouncedFilterText);
-}, [currentPage, rowsPerPage, debouncedFilterText]);
+  useEffect(() => {
+    fetchTournament();
+  }, [currentPage, rowsPerPage, filterText]);
   
 
   return (

@@ -20,25 +20,10 @@ const Datatable = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [filterText, setFilterText] = useState(parentFilterText);
-  const [debouncedFilter, setDebouncedFilter] = useState(parentFilterText);
 
-  // Update filterText if parentFilterText changes
   useEffect(() => {
     setFilterText(parentFilterText);
   }, [parentFilterText]);
-
-  // Debounce input changes
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedFilter(filterText);
-    }, 300); // 300ms delay
-    return () => clearTimeout(handler);
-  }, [filterText]);
-
-  // Call parent onFilterChange when debounced value changes
-  useEffect(() => {
-    if (onFilterChange) onFilterChange(debouncedFilter);
-  }, [debouncedFilter, onFilterChange]);
 
   const handleRefresh = async () => {
     if (onRefresh) {
@@ -48,31 +33,37 @@ const Datatable = ({
     }
   };
 
-  const handleExport = async () => {
-    let exportData = data; // current page by default
-    const exportableColumns = columns.filter((col) => col.export !== false);
+const handleExport = async () => {
+  let exportData = data; // current page by default
 
-    const csvContent = [
-      ["S.No", ...exportableColumns.map((col) => col.name)].join(","), // header
-      ...exportData.map((row, index) => {
-        const serialNumber = index + 1;
-        const rowValues = exportableColumns.map((col) => {
-          let value = col.selector ? col.selector(row) : row[col.id] || "";
-          if (col.name.toLowerCase().includes("phone")) value = `\t${String(value)}`;
-          return `"${String(value).replace(/"/g, '""')}"`;
-        });
-        return [serialNumber, ...rowValues].join(",");
-      }),
-    ].join("\n");
+  // Optional: Fetch all data if server-side
+  if (typeof fetchAllData === "function") {
+    exportData = await fetchAllData(filterText); // you can pass the filter if needed
+  }
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${title || "data"}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
+  const exportableColumns = columns.filter((col) => col.export !== false);
+
+  const csvContent = [
+    ["S.No", ...exportableColumns.map((col) => col.name)].join(","), // header
+    ...exportData.map((row, index) => {
+      const serialNumber = index + 1;
+      const rowValues = exportableColumns.map((col) => {
+        let value = col.selector ? col.selector(row) : row[col.id] || "";
+        if (col.name.toLowerCase().includes("phone")) value = `\t${String(value)}`;
+        return `"${String(value).replace(/"/g, '""')}"`;
+      });
+      return [serialNumber, ...rowValues].join(",");
+    }),
+  ].join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${title || "data"}.csv`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+};
 
   const paginationComponentOptions = {
     rowsPerPageText: "Rows per page:",
@@ -89,19 +80,20 @@ const Datatable = ({
     },
     ...columns,
   ];
-
   const filteredData = data.filter((row) =>
     columns.some((col) => {
       const value = col.selector ? col.selector(row) : row[col.id];
       return value
         ?.toString()
         .toLowerCase()
-        .includes(debouncedFilter.toLowerCase());
+        .includes(filterText.toLowerCase());
     })
   );
 
+
   return (
     <div className="w-full space-y-0 custom-datatable Search_btn">
+      {/* Search and action buttons */}
       <div className="relative flex justify-between px-1 py-2 border-b Search_btn">
         <div className="relative max-w-md">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -112,12 +104,18 @@ const Datatable = ({
             placeholder="Search across all columns..."
             className="block w-full pl-10 pr-10 py-2.5 rounded-lg text-sm transition-all duration-200 border focus:outline-none"
             value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
+            onChange={(e) => {
+              setFilterText(e.target.value);
+              if (onFilterChange) onFilterChange(e.target.value);
+            }}
           />
           {filterText && (
             <button
               type="button"
-              onClick={() => setFilterText("")}
+              onClick={() => {
+                setFilterText("");
+                if (onFilterChange) onFilterChange("");
+              }}
               className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center justify-center h-6 w-6 rounded-full border border-gray-400 bg-white hover:bg-gray-200"
             >
               <X className="h-4 w-4" />
@@ -151,9 +149,12 @@ const Datatable = ({
         </div>
       </div>
 
+      {/* DataTable */}
       <DataTable
         columns={enhancedColumns}
-        data={filteredData}
+        // data={filteredData}
+        data={data}
+
         pagination
         paginationServer
         paginationTotalRows={totalRows}
@@ -161,8 +162,6 @@ const Datatable = ({
         paginationRowsPerPageOptions={[2, 5, 10, 15, 20, 25, 50]}
         onChangePage={onPageChange}
         onChangeRowsPerPage={onRowsPerPageChange}
-          paginationDefaultPage={currentPage}    
-  paginationResetDefaultPage={false}
         highlightOnHover
         fixedHeader
         fixedHeaderScrollHeight="1000px"
