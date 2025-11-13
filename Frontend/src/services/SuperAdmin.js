@@ -1428,7 +1428,7 @@ export async function GetTicketsuper(
   try {
     const response = await axios.post(
       `${config.base_url}ticket/listwithfilter`,
-      { clientId, page, limit, filter },
+      { clientId, page, limit,   search: filter },
       {
         headers: {
           Authorization: `Bearer ${token}`,
