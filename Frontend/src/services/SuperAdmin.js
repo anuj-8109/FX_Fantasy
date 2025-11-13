@@ -1733,6 +1733,18 @@ export async function GetContestRankingSuperAmin(token, data) {
   }
 }
 
+
+export async function getAllNotificationList() {
+  try {
+       const res = await axios.get(`${config.base_url}dashboard/allstatuschangenotifiction`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );      
+    return res.data;  
+  } catch (error) {
+    return error?.response?.data || { status: false, message: "Network error" };
+  }
+}
 // Contest API Ends Here
 
 const logout = () => {

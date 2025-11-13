@@ -13,6 +13,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
   const [showProfile, setShowProfile] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,6 +46,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
 
   // ✅ Toggle dropdown
   const handleNotificationToggle = () => {
+    setIsModalOpen(true)
     setShowNotifications((prev) => !prev);
   };
 
@@ -166,7 +168,7 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
               )}
             </button>
 
-            {showNotifications && (
+            {showNotifications && isModalOpen && (
               <div className="absolute right-0 mt-2 w-80 shadow-lg rounded-lg border z-50 bg-white dark:bg-gray-800">
                 <div className="p-3 font-medium text-sm border-b dark:border-gray-700">
                   Notifications ({unreadCount} new)
@@ -199,7 +201,9 @@ const SuperAdminHeader = ({ collapsed, setCollapsed }) => {
                   )}
                 </div>
                 <button
-                  onClick={() => navigate("/superadmin/notifications")}
+                  onClick={() =>{
+                     setIsModalOpen(false);
+                     navigate("/superadmin/notifications")}}
                   className="w-full text-center py-2 text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   View all

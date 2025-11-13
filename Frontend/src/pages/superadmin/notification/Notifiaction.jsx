@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getNotificationList, changeAllNotificationStatus } from "../../../services/SuperAdmin";
+import { getNotificationList,getAllNotificationList, changeAllNotificationStatus } from "../../../services/SuperAdmin";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Swal from "sweetalert2";
 
@@ -53,7 +53,7 @@ function Notification() {
             timer: 1500,
             showConfirmButton: false,
           });
-          fetchNotifications();
+          getAllNotificationList();
         }
       } catch (error) {
         console.error("Error changing all notification statuses:", error);
@@ -73,6 +73,27 @@ function Notification() {
   useEffect(() => {
     fetchNotifications();
   }, [page]);
+
+
+  const fetchAllNotifications = async () => {
+    setLoading(true);
+    try {
+      const res = await getAllNotificationList();
+      if (res?.status) {
+        setNotifications(res.data || []);
+      } else {
+        setNotifications([]);
+      }
+    } catch (error) {
+      console.error("Error fetching notification list:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllNotifications();
+  }, [ ]);
 
   return (
     <div className="p-6">

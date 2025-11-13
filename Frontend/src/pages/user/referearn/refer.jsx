@@ -13,6 +13,17 @@ const ReferForm = () => {
 
   const userid = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
+ 
+let referToken = null;
+const storedUser = localStorage.getItem("user"); // string milta hai
+if (storedUser) {
+  const userData = JSON.parse(storedUser); // string -> object
+referToken = userData.refer_token; // token extract
+  console.log("Refer token from localStorage:", referToken);
+} else {
+  console.log("No user data found in localStorage");
+}
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -38,7 +49,7 @@ const ReferForm = () => {
     const fetchReferData = async () => {
       if (!token || !userid) return;
       try {
-        const res = await getReferEarnData(token, userid);
+        const res = await getReferEarnData(token, referToken);
         if (res?.status) {
           setReferrals(res.data.referrals || []);
           setTotalEarnings(res.data.totalEarnings || 0);
