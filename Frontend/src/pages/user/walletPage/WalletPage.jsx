@@ -270,9 +270,23 @@ const WalletPage = () => {
         </h1>
         <BackButton showText={true} />
       </div>
+            
+      {/* <div className="p-3 sm:p-4 mt-4 mb-4 bg-gray-100 rounded-xl shadow-md w-full max-w-6xl mx-auto 
+  flex flex-wrap items-center justify-between gap-2 sm:gap-4"> */}
+<div
+  className="
+    mt-3 mb-3 
+    bg-gray-100 rounded-lg shadow-md
+    w-full max-w-6xl mx-auto 
+    flex flex-nowrap items-center justify-between
+    gap-[2px] sm:gap-2
+    px-2 py-2 sm:px-4 sm:py-3
+    text-[7px] sm:text-sm
+    whitespace-nowrap
+    -webkit-overflow-scrolling-touch
+  "
+>
 
-      <div className="p-3 sm:p-4 mt-4 mb-4 bg-gray-100 rounded-xl shadow-md w-full max-w-6xl mx-auto 
-  flex flex-wrap items-center justify-between gap-2 sm:gap-4">
 
         {/* Add Money */}
         <span
@@ -333,7 +347,7 @@ const WalletPage = () => {
             />
           </span>
 
-          {/* {dropdownOpen && (
+          {dropdownOpen && (
             <div className="absolute right-0 w-44 mt-2 bg-white border rounded-lg shadow-lg z-10">
               {tabs.map((t) => (
                 <span
@@ -351,7 +365,7 @@ const WalletPage = () => {
                 </span>
               ))}
             </div>
-          )} */}
+          )}
 
           {dropdownOpen && (
             <div className="fixed inset-0 z-0" onClick={() => setDropdownOpen(false)} />
